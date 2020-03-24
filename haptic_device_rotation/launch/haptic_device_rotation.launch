@@ -1,0 +1,43 @@
+ <launch>
+<!--parent frame-->
+<arg name="parent_reference_frame"          default="base_footprint"/>
+<!--This parent will be chosen by the user-->
+<!--This frame can be chosen as any frame of the real robot. -->
+<!--The user will be controlling the omni through this reference_frame-->
+<!--Examples can be the head_camera_frame, end_effector_camera_frame(not ideal since this will rotate/move) -->
+<!--or, the base_frame-->
+<!--<arg name="parent_reference_frame"          default="base_footprint"/>-->
+
+<!--child-->
+<arg name="child_HD_frame_name"          default="omni_rotation"/>
+<!--This name will be added to the tf_tree as a child with a user defined frame name -->
+
+
+<!--Rotation matrix input from reference_frame(Parent) to HD_frame_name(child)-->
+<!--        [11,12,13]                                          -->
+<!-- R ===  |21,22,23|  ====    "11 12 13 21 22 23 31 32 33"    -->
+<!--        [31,32,33]                                          -->
+<arg name="rot_matrix_array" default= "0 -1 0 0 0 1 -1 0 0"/> <!--MUST BE SPACE SEPERATED WITH NO BRACKETS!!-->
+<!--<arg name="rot_matrix_array" default= "0 0 -1 -1 0 0 0 1 0"/>--> <!--test common base_footprint-->
+<!--<arg name="rot_matrix_array" default= "0 -1 0 0 0 1 -1 0 0"/>--> <!--test common wrist_ft_tool_link-->
+
+    <node pkg="haptic_device_rotation" name="haptic_device_rotation" 
+    type="haptic_device_rotation.py" output="screen">
+
+        <param name="reference_frame"     value="$(arg parent_reference_frame)"/>
+        <param name="HD_frame_name"     value="$(arg child_HD_frame_name)"/>
+
+        <param name="rot_matrix_array" value="$(arg rot_matrix_array)"/>
+
+    </node>
+    <!--HOW TO DEFINE/FIND THE rot_matrix_array????-->
+    <!--The mapping of the reference frame to the omni should be user define-->
+    <!--E.g. -->
+    <!--Stylo(right) = omni(+x axis) = robot_base(-y axis):  ==> thus COLUMN vector V_x = [0;-1;0]-->
+    <!--Stylo(up) = omni(+y axis) = robot_base(+z axis): ==> thus COLUMN vector V_y = [0;0;1]-->
+    <!--Stylo(towards) = omni(+z axis) = robot_base(-x axis): ==> thus COLUMN vector V_z = [-1;0;0]-->
+    <!--Therfore, by filling in these columns vectors in the rotation matrix R = [V_x V_y V_z],-->
+    <!--we find a rotation that maps vectors in the omni frame, to vectors in the base frame (V_base = R*V_omni) -->
+    <!--In other words, we find the rotation of the of the omni_frame as seen from the base frame -->
+    <!--Therfore, rot_matrix_array = "0 0 -1 -1 0 0 0 1 0"-->
+ </launch>

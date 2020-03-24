@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="marco_lfd" name="teaching_node" type="teachingNode.py" output="screen">
+    </node>
+</launch>
