@@ -40,6 +40,7 @@ class trajectoryTeaching():
 
 
     def _marker_detection_callback(self, data):
+        print("marker pose = " + str(self.object_marker_pose.position))
         for marker in data.markers:
             if marker.id == 582:
                 self.object_marker_pose = marker.pose.pose
