@@ -137,7 +137,7 @@ class trajectoryTeaching():
 
     def run(self):
         teaching_node.goToInitialPose()
-
+        
         while not rospy.is_shutdown():
 
             if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
