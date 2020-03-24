@@ -5,4 +5,7 @@
 <include file="$(find teleop_control)/launch/teleop_control.launch" >
     <arg name="part_to_publish" value="both" />
 </include>
+
+<include file="$(find aruco_ros)/launch/marker_publisher.launch"/>
+
 </launch>
