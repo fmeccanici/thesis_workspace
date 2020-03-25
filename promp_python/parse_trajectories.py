@@ -66,7 +66,6 @@ def resample_trajectory(traj1, traj2):
     for i,q in enumerate(parser.interpolateQuaternions(qstart, qend, l, False)):
         traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + [q[1], q[2], q[3], q[0]] + object_info + [xvals2[i]])
     
-    print(traj2[0][7:10])
     return traj2
 
 def calculate_distance(x, y, z):
@@ -76,7 +75,12 @@ def get_relevant_data(traj):
 
     traj_new = []
 
-    
+    # T = parser.secsNsecsToFloatSingle(traj[-1])
+    # T = traj[-1][-1]
+    # T doesnt work properly --> chose dt as output
+    dt = traj[-1][-1] - traj[-2][-1]
+    print(dt)
+    # print(len(traj))
     for data in traj:
         
         
@@ -84,12 +88,15 @@ def get_relevant_data(traj):
         x = data[7]
         y = data[8]
         z = data[9]
-        distance = calculate_distance(x, y, z)
+        # distance = calculate_distance(x, y, z)
+        # traj_new.append([T] + data[0:3] + data[7:10])
+        traj_new.append(data[0:3] + [dt] + data[7:10])
+
         # traj_new.append(data[0:3] + [distance])
-        traj_new.append([data[0]] + [distance])
+        # traj_new.append([data[0]] + [distance])
 
-        print(distance)
-
+        # print(distance)
+    # print(traj_new)
     return traj_new
 
 dt = 0.01
@@ -103,7 +110,10 @@ trajectories_lengths = []
 
 for traj in traj_files:
     trajectory = parser.openTrajectoryFile(traj, DIR)
+    trajectory = parser._normalize(trajectory)
     trajectory = parser.downsample(trajectory, dt)
+    # print(len(trajectory))
+
     # print('downsample' + str(len(trajectory)))
     trajectories.append(trajectory)
     trajectories_lengths.append(len(trajectory))

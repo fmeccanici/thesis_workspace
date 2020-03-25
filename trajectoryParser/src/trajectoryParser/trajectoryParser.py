@@ -60,6 +60,9 @@ class trajectoryParser():
     def _secsNsecsToFloat(self, t_secs_nsecs):
         return map(lambda x: float(x[0]) + x[1] / 10.0**9, t_secs_nsecs)
 
+    def secsNsecsToFloatSingle(self, t_secs_nsecs):
+        return float(t_secs_nsecs[0]) + t_secs_nsecs[1] / 10.0**9
+
     def _floatToSecsNsecs(self, t_float):
         t_secs_nsecs = map(lambda x: [rospy.Duration(x).secs, rospy.Duration(x).nsecs], t_float)
         return t_secs_nsecs
