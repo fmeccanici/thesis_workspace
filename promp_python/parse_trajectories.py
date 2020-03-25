@@ -69,6 +69,9 @@ def resample_trajectory(traj1, traj2):
     print(traj2[0][7:10])
     return traj2
 
+def calculate_distance(x, y, z):
+    return np.sqrt(x**2 + y**2 + z**2)
+
 def get_relevant_data(traj):
 
     traj_new = []
@@ -77,17 +80,21 @@ def get_relevant_data(traj):
     for data in traj:
         
         
-        # add only the cartesian path, object location and time
-        # traj_new.append(data[0:3] + data[7:10] + [data[-1]])
-        # traj_new.append([data[0]] + [data[-1]])
-        traj_new.append(data[0:3] + data[7:10])
+        # add only the cartesian path, object location
+        x = data[7]
+        y = data[8]
+        z = data[9]
+        distance = calculate_distance(x, y, z)
+        # traj_new.append(data[0:3] + [distance])
+        traj_new.append([data[0]] + [distance])
 
+        print(distance)
 
     return traj_new
 
-dt = 0.1
+dt = 0.01
 
-DIR = '../trajectory_teaching/data/with_object/'
+DIR = '../trajectory_teaching/data/with_object2/'
 traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
 num_traj = len(traj_files)
 
@@ -109,26 +116,11 @@ trajectories_resampled = []
 for traj in trajectories:
     trajectories_resampled.append(resample_trajectory(traj_min_length, traj))
 
-# joints = ["cartesian_x", "cartesian_y", "cartesian_z", "object_x", "object_y", "object_z", "time"]
-
-# joints = ["cartesian_x", "cartesian_y", "cartesian_z"]
-
-# joints = ["x", "time"]
-
-# promp = ProMPContext(joints, len(traj_min_length))
 path = "./data/"
 
 for i in range(0, len(trajectories_resampled)):
     traj = get_relevant_data(trajectories_resampled[i])
-    # traj = np.array(traj)
-    # print(traj)
-    # print(traj[:, 2])
     traj_file = open(path + "resampled_" + str(i) + ".txt", "w+")
     traj_file.write(str(traj))
     traj_file.close()
 
-    # promp.add_demonstration(traj)
-
-# print(traj)
-# promp.plot_unconditioned_joints()
-# plt.show()

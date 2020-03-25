@@ -20,6 +20,7 @@ for traj in range(0, num_traj):
     sample = np.vstack((sample, np.tile(sigma_noise * np.random.randn() + 0.15, len(x))))
     samples.append(sample)
 
+print(samples)
 samples = np.array(samples)
 num_points=len(x)
 plt.figure(figsize=(6, 4))
@@ -44,23 +45,23 @@ for demo_id in range(0, num_traj):
 # pmp.plot_unconditioned_joints()
 
 # condition on context=0.1
-goal = np.zeros(2)
-goal[1] = 0.1
-pmp.clear_viapoints()
-pmp.set_goal(goal, sigma=1e-6)
-pmp.plot_conditioned_joints()
-plt.show()
-
-# alternatively
 # goal = np.zeros(2)
 # goal[1] = 0.1
 # pmp.clear_viapoints()
 # pmp.set_goal(goal, sigma=1e-6)
-# generated_trajectory = pmp.generate_trajectory(sigma_noise)
-# plt.figure()
-# for joint_id, joint_name in enumerate(joints):
-#     print(joint_id)
-#     plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
-# plt.legend()
-
+# pmp.plot_conditioned_joints()
 # plt.show()
+
+# alternatively
+goal = np.zeros(2)
+goal[1] = 0.1
+pmp.clear_viapoints()
+pmp.set_goal(goal, sigma=1e-6)
+generated_trajectory = pmp.generate_trajectory(sigma_noise)
+plt.figure()
+for joint_id, joint_name in enumerate(joints):
+    print(joint_id)
+    plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+plt.legend()
+# 
+plt.show()
