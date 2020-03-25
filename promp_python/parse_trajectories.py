@@ -61,10 +61,12 @@ def resample_trajectory(traj1, traj2):
 
     traj2 = []
 
+    # print(object_info)
 
     for i,q in enumerate(parser.interpolateQuaternions(qstart, qend, l, False)):
-        traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + object_info + [q[1], q[2], q[3], q[0], xvals2[i]])
+        traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + [q[1], q[2], q[3], q[0]] + object_info + [xvals2[i]])
     
+    print(traj2[0][7:10])
     return traj2
 
 def get_relevant_data(traj):

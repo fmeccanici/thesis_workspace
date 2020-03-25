@@ -113,9 +113,12 @@ class trajectoryTeaching():
             print("Appending trajectory")
             data.slave_pose.header.stamp.secs = data.header.stamp.secs
             data.slave_pose.header.stamp.nsecs = data.header.stamp.nsecs
+
+            # marker x and y seem to be flipped wrt base_footprint
+            # therefore first position.y then position.x for marker_pose
             self.EEtrajectory.append([data.slave_pose.pose.position.x,data.slave_pose.pose.position.y,data.slave_pose.pose.position.z,
              data.slave_pose.pose.orientation.x,data.slave_pose.pose.orientation.y,data.slave_pose.pose.orientation.z,data.slave_pose.pose.orientation.w,
-             self.object_marker_pose.position.x, self.object_marker_pose.position.y, self.object_marker_pose.position.z,
+             self.object_marker_pose.position.y, self.object_marker_pose.position.x, self.object_marker_pose.position.z,
              self.object_marker_pose.orientation.x, self.object_marker_pose.orientation.y, self.object_marker_pose.orientation.z, self.object_marker_pose.orientation.w, 
              data.header.stamp.secs, data.header.stamp.nsecs])
             
@@ -146,7 +149,7 @@ class trajectoryTeaching():
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object2/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)

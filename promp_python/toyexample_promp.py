@@ -1,5 +1,5 @@
 import numpy as np
-from contextual_promp.contextual_promp import *
+from promp_python.promp_python import *
 
 import os, os.path
 
@@ -41,7 +41,7 @@ for demo_id in range(0, num_traj):
     pmp.add_demonstration(samples[demo_id, :, :].T)
 
 # plot mean and standard deviation of demonstrations
-pmp.plot_unconditioned_joints()
+# pmp.plot_unconditioned_joints()
 
 # condition on context=0.1
 goal = np.zeros(2)
@@ -49,7 +49,7 @@ goal[1] = 0.1
 pmp.clear_viapoints()
 pmp.set_goal(goal, sigma=1e-6)
 pmp.plot_conditioned_joints()
-
+plt.show()
 
 # alternatively
 # goal = np.zeros(2)
@@ -63,3 +63,4 @@ pmp.plot_conditioned_joints()
 #     plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
 # plt.legend()
 
+# plt.show()
