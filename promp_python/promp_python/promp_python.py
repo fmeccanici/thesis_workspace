@@ -33,6 +33,9 @@ class ProMPContext(object):
         self.Y = []
         self.sample = []
 
+"""    def welford_update(self, demonstration):
+        meanW_new = self.meanW + """
+
     def add_demonstration(self, demonstration):
         self.nrTraj += 1
         currentY = []
