@@ -74,7 +74,8 @@ class trajectoryRefinement():
         self.initMasterNormalizePose()
         
         self.object_marker_pose = Pose()
-
+        self.gripper_wrt_ee = Pose()
+    
     def _marker_detection_callback(self, data):
         # rospy.loginfo("marker pose = " + str(self.object_marker_pose.position))
         for marker in data.markers:
@@ -127,7 +128,10 @@ class trajectoryRefinement():
         self.firstMasterPose.pose.position.y = -0.00570407599211
 
         # for some reason the minus sign disappeared or ee axis is flipped 180deg
-        self.firstMasterPose.pose.position.z = -0.486718259108
+        # self.firstMasterPose.pose.position.z = -0.486718259108
+        # for some reason this value changed suddenly ?? -> This is why scaling was wrong of refined trajectory
+        self.firstMasterPose.pose.position.z = -0.169880290808
+
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
         self.firstMasterPose.pose.orientation.z = -0.172556127181
@@ -222,8 +226,8 @@ class trajectoryRefinement():
         self.end_effector_goal_pub.publish(pose)
 
 
-    def refineTrajectory(self, traj):
-        dt = self.parser.getTimeInterval(traj)
+    def refineTrajectory(self, traj, dt):
+        # dt = self.parser.getTimeInterval(traj)
         traj_pos = self.parser.getCartesianPositions(traj)
         refined_traj = []
         i = 0
@@ -266,11 +270,16 @@ class trajectoryRefinement():
             else:
                 vnew = qv + traj_pos[-1]
 
+            # t = self.parser._secsNsecsToFloat([rospy.Time.now().secs, rospy.Time.now().nsecs])
+
             # append refined trajectory
             if i <= len(traj_pos)-1:
                 refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
+                # refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], t])
+
             else:
                 refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
+                # refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], t])
             
 
             slave_goal.pose.position.x = refined_traj[i][0]
@@ -296,7 +305,6 @@ class trajectoryRefinement():
 
             self.moveEEto(slave_goal)
 
-
             time.sleep(dt)
             i += 1
         
@@ -306,7 +314,10 @@ class trajectoryRefinement():
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
-        
+        # print(pred_traj)
+        pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
+
+        # print(pred_traj)
         new_trajectory = []
 
         ## resample trajectories such that they can be subtracted
@@ -315,26 +326,34 @@ class trajectoryRefinement():
         lengths = [len(pred_traj), len(refined_traj)]
 
         dt = self.parser.getTimeInterval(pred_traj)
-
+        print('dt ' + str(dt))
         # downsample refined trajectory to match dt
-        refined_traj = self.parser.downsample(refined_traj, dt)
+        # refined_traj = self.parser.downsample(refined_traj, dt)
 
+        
         max_length = max(lengths)
         min_length = min(lengths)
+
         refined_traj_pose = self.parser.getCartesianPositions(refined_traj)
-        refined_traj_time = self.parser._getTimeVector(refined_traj)
+        refined_traj_time = self.parser._getTimeVector(self.parser._normalize(refined_traj))
+        
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser._getTimeVector(pred_traj)
 
         l = max_length
+        # l = min_length
 
         dt_refined = dt * len(refined_traj_time) / lengths[np.argmax(lengths)]
         dt_pred = dt * len(pred_traj_time) / lengths[np.argmax(lengths)]
+
+        # dt_refined = dt * len(refined_traj_time) / lengths[np.argmin(lengths)]
+        # dt_pred = dt * len(pred_traj_time) / lengths[np.argmin(lengths)]
 
         xvals_refined = np.linspace(dt_refined, l*dt_refined, l)
         xvals_pred = np.linspace(dt_pred, l*dt_pred, l)
 
         refined_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(refined_traj_time))))
+
         refined_traj_pos_x = (np.asarray(self.parser.getXpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
         refined_traj_pos_y = (np.asarray(self.parser.getYpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
         refined_traj_pos_z = (np.asarray(self.parser.getZpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
@@ -349,6 +368,7 @@ class trajectoryRefinement():
 
         pred_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(pred_traj_time))))
         pred_traj_pos_x = (np.asarray(self.parser.getXpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
+
         pred_traj_pos_y = (np.asarray(self.parser.getYpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
         pred_traj_pos_z = (np.asarray(self.parser.getZpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
 
@@ -360,6 +380,8 @@ class trajectoryRefinement():
         y_pred_new_y = yinterp_pred_y(xvals_pred)
         y_pred_new_z = yinterp_pred_z(xvals_pred)
 
+        # print(y_pred_new_x - y_refined_new_x)
+        
         # lengths are the same so doesnt matter which length I take
         n = len(xvals_pred)
         qstart = refined_traj[0][3:7]
@@ -377,10 +399,12 @@ class trajectoryRefinement():
             pred_traj = [y_pred_new_x[0][i], y_pred_new_y[0][i], y_pred_new_z[0][i], q[1], q[2], q[3], q[0], xvals_pred[i]]
             
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
+            print((np.subtract(refined_traj[0:3], pred_traj[0:3]) ))
             new_trajectory.append(list(np.add(pred_traj[0:3], alpha * (np.subtract(refined_traj[0:3], pred_traj[0:3]) ))) + refined_traj[3:])
 
+        dt_new = dt_refined
 
-        return new_trajectory
+        return new_trajectory, dt_new
 
     def trajToVisMsg(self, traj, r, g, b):
         
@@ -451,10 +475,46 @@ class trajectoryRefinement():
 
         return qstart, qend
 
+    def generate_trajectory_to_pred_traj(self, generated_trajectory):
+        joint_id = 0
+        pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 1
+        pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 2
+        pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 3
+        pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 4
+        pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 5
+        pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 6
+        pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 7
+        pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        pred_traj = []
+        dt = pred_traj_dt[0]
+
+        t = 0
+
+        for i in range(len(pred_traj_dt)):
+            pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], t])
+            t += dt
+        
+
+        return pred_traj, dt
+
 if __name__ == "__main__":
     refinement_node = trajectoryRefinement()
     
-    dt = 0.1
     DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
     
@@ -473,24 +533,18 @@ if __name__ == "__main__":
     promp = ProMPContext(joints, num_points=num_points)
 
     goal = np.zeros(len(joints))
-    
-    # goal[4:] = refinement_node.getGoalFromMarker()
     goal[8:] = refinement_node.getGoalFromMarker()
 
     refinement_node.goToInitialPose()
 
     while goal[8] == 0.0:        
-        # goal[4:] = refinement_node.getGoalFromMarker()
         goal[8:] = refinement_node.getGoalFromMarker()
 
 
     for traj in trajectories:
+        print(traj)
         promp.add_demonstration(traj)
     
-    qstart, qend = refinement_node.getQuaternionForInterpolation()
-
-    traj_pos = refinement_node.parser.getCartesianPositions(traj)
-
     r = rospy.Rate(30)
 
     time.sleep(1)
@@ -502,78 +556,48 @@ if __name__ == "__main__":
 
     generated_trajectory = promp.generate_trajectory(sigma_noise)
 
-    joint_id = 0
-    pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
 
-    joint_id = 1
-    pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    # print(traj_pred)
 
-    joint_id = 2
-    pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    # refinement_node.executeTrajectory(traj_pred, dt)
 
-    joint_id = 3
-    pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-    joint_id = 4
-    pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-    joint_id = 5
-    pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-    joint_id = 6
-    pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-    joint_id = 7
-    pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-    pred_traj = []
-    dt = pred_traj_dt[0]
-
-    t = 0
+    alpha = 1
 
 
-    for i in range(len(pred_traj_dt)):
-        pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], t])
-        t += dt
-
-    refinement_node.executeTrajectory(pred_traj, dt)
-
-    # alpha = 0.75
-
-
-    # while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
+    while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
         
-    #     # if refinement_node.isCoupled():
-    #     #     refinement_node.grey_button = 0
-
-    #     traj_pred = refinement_node.parser.plan2traj(plan, qstart, qend)
-
-    #     for i in range(10):
-    #         refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
-    #         # refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(traj_pred, r=1, g=0, b=0))
-    #         ## initial trajectory demonstration (tf is correct)
-    #         # refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(traj, r=1, g=0, b=0))
-    #         # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj), r=0, g=0, b=1))
-
-    #     traj_refined = refinement_node.refineTrajectory(traj_pred)
-
+        for i in range(10):
+            # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
+            refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_pred), r=1, g=0, b=0))
         
-    #     traj_new = refinement_node.determineNewTrajectory(traj, traj_refined, alpha)
 
-
-    #     traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
-    #     refinement_node.executeTrajectory(traj_refined_reversed, dt)
-    #     time.sleep(1)
-    #     refinement_node.goToInitialPose()
-
-    #     traj_pos = refinement_node.parser.getCartesianPositions(traj_new)
-
-    #     goal = traj_pos[-1][:]    
-    #     x_0 = traj_pos[0][:]
-
-    #     dmp_variables = dmpVariables(traj_pos, dt, K, D, goal, x_0=[0.403399335619, -0.430007534239, 1.16269467394])
-
-    #     plan = refinement_node.dmp_python.makePlan(dmp_variables)
-
+        traj_refined = refinement_node.refineTrajectory(traj_pred, dt)
         
+        traj_new, dt_new = refinement_node.determineNewTrajectory(traj_pred, traj_refined, alpha)
+
+
+        traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
+        refinement_node.executeTrajectory(traj_refined_reversed, dt_new)
+        time.sleep(1)
+        refinement_node.goToInitialPose()
+
+        for i in range(10):
+            refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_new), r=0, g=1, b=0))
+        time.sleep(10)
+
+        for i in range(len(traj_new)):
+
+            traj_new[i][:] = traj_new[i][:-1] + [dt_new] + list(goal[8:])
+
+
+
+        promp.add_demonstration(np.array(traj_new))
+
+        goal[8:] = refinement_node.getGoalFromMarker()
+        promp.set_goal(goal, sigma=1e-6)
+
+        generated_trajectory = promp.generate_trajectory(sigma_noise)
+
+        traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
 

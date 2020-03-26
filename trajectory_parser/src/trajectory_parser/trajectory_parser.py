@@ -54,6 +54,31 @@ class trajectoryParser():
         elif len(trajectory) == 5:
             return False
 
+    def remove_t_float(self, traj):
+        trajectory_without_t = []
+        for x in traj:
+            trajectory_without_t.append(x[:-1])
+
+        return trajectory_without_t
+    def add_t_secs_nsecs(self, traj, t_secs_nsecs):
+
+        for i in range(len(traj)):
+            traj[i] += t_secs_nsecs[i]
+
+        return traj
+
+    def trajFloatToSecsNsecs(self, trajectory):
+        t_float = self.getTimeVectorFloat(trajectory)
+        t_secs_nsecs = self._floatToSecsNsecs(t_float)
+        
+
+        traj = self.remove_t_float(trajectory)
+
+        return self.add_t_secs_nsecs(traj, t_secs_nsecs)
+
+    def getTimeVectorFloat(self, trajectory):
+        return [  x[-1] for x in trajectory ]
+
     def _getTimeVector(self, trajectory):
         return [ [x[-2], x[-1] ] for x in trajectory ]
 
@@ -66,6 +91,9 @@ class trajectoryParser():
     def _floatToSecsNsecs(self, t_float):
         t_secs_nsecs = map(lambda x: [rospy.Duration(x).secs, rospy.Duration(x).nsecs], t_float)
         return t_secs_nsecs
+    
+    def getTimeIntervalFloat(self, trajectory):
+        return trajectory[1][-1] - trajectory[0][-1]
     
     def getTimeInterval(self, trajectory):
         t = self._secsNsecsToFloat(self._getTimeVector(trajectory))

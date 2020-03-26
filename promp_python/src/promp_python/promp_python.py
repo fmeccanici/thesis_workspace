@@ -42,7 +42,6 @@ class ProMPContext(object):
         currentW = []
 
         for joint in range(0, self.num_joints):
-            print(len(demonstration[:, joint]))
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
             currentY.append(stretched_demo)
@@ -96,8 +95,9 @@ class ProMPContext(object):
         newMu = self.meanW
         newSigma = self.sigmaW
 
-        # print(self.viapoints)
+        # print('via' + str(self.viapoints))
         for viapoint in self.viapoints:
+            # print('check')
             phiT = np.exp(-.5 * (np.array(list(map(lambda x: x - self.centers, np.tile(viapoint['t'], (self.num_basis, 1)).T))).T ** 2
                                  / (self.sigma ** 2)))
             phiT = phiT / sum(phiT)
