@@ -5,7 +5,7 @@ from visualization_msgs.msg import MarkerArray, Marker
 from std_msgs.msg import Header, ColorRGBA
 from geometry_msgs.msg import Point, Pose, Vector3, PoseArray
 
-from trajectoryParser.trajectoryParser import *
+from trajectory_parser.trajectory_parser import *
 
 from lfd_msgs.msg import TrajectoryVisualization
 

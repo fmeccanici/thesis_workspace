@@ -17,6 +17,7 @@ from geomagic_touch_m.msg import GeomagicButtonEvent
 
 from slave_control.msg import ControlState
 from master_control.msg import ControlComm
+from aruco_msgs.msg import MarkerArray
 
 from scipy.interpolate import interp1d
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose
@@ -26,6 +27,8 @@ from lfd_msgs.msg import TrajectoryVisualization
 from pyquaternion import Quaternion 
 from scipy.spatial.transform import Rotation as R
 
+from promp_python.promp_python import *
+from aruco_msgs.msg import MarkerArray
 class trajectoryStorageVariables():
     def __init__(self, open_loop_path, refined_path, resampled_path, raw_path, raw_file, new_path):
         self.open_loop_path = open_loop_path
@@ -57,6 +60,8 @@ class trajectoryRefinement():
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallbackToggle)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
+        self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
+
         self.traj_pred_pub = rospy.Publisher('trajectory_visualizer/trajectory_predicted', TrajectoryVisualization, queue_size=10)
         self.traj_ref_pub = rospy.Publisher('trajectory_visualizer/trajectory_refined', TrajectoryVisualization, queue_size=10)
 
@@ -67,6 +72,24 @@ class trajectoryRefinement():
 
         self.frame_id = '/base_footprint'
         self.initMasterNormalizePose()
+        
+        self.object_marker_pose = Pose()
+
+    def _marker_detection_callback(self, data):
+        # rospy.loginfo("marker pose = " + str(self.object_marker_pose.position))
+        for marker in data.markers:
+            if marker.id == 582:
+                # flip x and y as in training data
+                self.object_marker_pose.position.x = marker.pose.pose.position.y
+                self.object_marker_pose.position.y = marker.pose.pose.position.x
+                self.object_marker_pose.position.z = marker.pose.pose.position.z
+
+                self.object_marker_pose.orientation.x = marker.pose.pose.orientation.x
+                self.object_marker_pose.orientation.y = marker.pose.pose.orientation.y
+                self.object_marker_pose.orientation.z = marker.pose.pose.orientation.z
+                self.object_marker_pose.orientation.w = marker.pose.pose.orientation.w
+
+            else: continue
 
     def _gripper_wrt_ee_callback(self, data):
         self.gripper_wrt_ee = data.pose
@@ -127,6 +150,7 @@ class trajectoryRefinement():
         return traj[::-1]
 
     def executeTrajectory(self, traj, dt):
+        rospy.loginfo("Executing trajectory...")
         slave_goal = PoseStamped()
         for datapoint in traj:
             slave_goal.pose.position.x = datapoint[0]
@@ -410,86 +434,146 @@ class trajectoryRefinement():
 
         return traj_gripper_wrt_base
 
+    def getGoalFromMarker(self):
+        x = self.object_marker_pose.position.x
+        y = self.object_marker_pose.position.y
+        z = self.object_marker_pose.position.z
+
+        return [x,y,z]
+
+    def getQuaternionForInterpolation(self):
+        DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/raw/'
+        traj_file = 'raw_trajectory_1.txt'
+
+        traj = self.parser.openTrajectoryFile(traj_file, DIR)
+        qstart = traj[0][3:7]
+        qend = traj[-1][3:7]
+
+        return qstart, qend
+
 if __name__ == "__main__":
     refinement_node = trajectoryRefinement()
+    
     dt = 0.1
-    DIR = './data/resampled/'
+    DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
     
     trajectories = []
-    joints = ["joint_x", "joint_y", "joint_z", "dt", "object_x", "object_y", "object_z"]
+    # joints = ["joint_x", "joint_y", "joint_z", "dt", "object_x", "object_y", "object_z"]
+    joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw",  "dt", "object_x", "object_y", "object_z"]
     
     for traj in traj_files:
-        trajectory = parser.openTrajectoryFile(traj, DIR)
+        trajectory = refinement_node.parser.openTrajectoryFile(traj, DIR)
         trajectory = np.array(trajectory)
         trajectories.append(trajectory)
 
 
     num_points = len(trajectories[0])
+
     promp = ProMPContext(joints, num_points=num_points)
-    
+
     goal = np.zeros(len(joints))
     
-    goal[4:] = [0.25, 0.75, 0.68]
+    # goal[4:] = refinement_node.getGoalFromMarker()
+    goal[8:] = refinement_node.getGoalFromMarker()
+
+    refinement_node.goToInitialPose()
+
+    while goal[8] == 0.0:        
+        # goal[4:] = refinement_node.getGoalFromMarker()
+        goal[8:] = refinement_node.getGoalFromMarker()
+
 
     for traj in trajectories:
         promp.add_demonstration(traj)
-
-    traj = refinement_node.parser.parse(raw_file, storage_variables.raw_path, dt)
     
-    qstart = traj[0][3:7]
-    qend = traj[-1][3:7]
+    qstart, qend = refinement_node.getQuaternionForInterpolation()
 
     traj_pos = refinement_node.parser.getCartesianPositions(traj)
 
-    goal = traj_pos[-1][:]    
-
     r = rospy.Rate(30)
 
-    refinement_node.goToInitialPose()
     time.sleep(1)
 
+    sigma_noise=0.03
 
-    dmp_variables = dmpVariables(traj_pos, dt, K, D, goal, x_0=[0.403399335619, -0.430007534239, 1.16269467394])
+    promp.clear_viapoints()
+    promp.set_goal(goal, sigma=1e-6)
 
-    plan = refinement_node.dmp_python.makePlan(dmp_variables)
+    generated_trajectory = promp.generate_trajectory(sigma_noise)
 
-    alpha = 0.75
+    joint_id = 0
+    pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 1
+    pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 2
+    pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 3
+    pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 4
+    pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 5
+    pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 6
+    pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    joint_id = 7
+    pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+    pred_traj = []
+    dt = pred_traj_dt[0]
+
+    t = 0
 
 
-    while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
+    for i in range(len(pred_traj_dt)):
+        pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], t])
+        t += dt
+
+    refinement_node.executeTrajectory(pred_traj, dt)
+
+    # alpha = 0.75
+
+
+    # while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
         
-        # if refinement_node.isCoupled():
-        #     refinement_node.grey_button = 0
+    #     # if refinement_node.isCoupled():
+    #     #     refinement_node.grey_button = 0
 
-        traj_pred = refinement_node.parser.plan2traj(plan, qstart, qend)
+    #     traj_pred = refinement_node.parser.plan2traj(plan, qstart, qend)
 
-        for i in range(10):
-            refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
-            # refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(traj_pred, r=1, g=0, b=0))
-            ## initial trajectory demonstration (tf is correct)
-            # refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(traj, r=1, g=0, b=0))
-            # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj), r=0, g=0, b=1))
+    #     for i in range(10):
+    #         refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
+    #         # refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(traj_pred, r=1, g=0, b=0))
+    #         ## initial trajectory demonstration (tf is correct)
+    #         # refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(traj, r=1, g=0, b=0))
+    #         # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj), r=0, g=0, b=1))
 
-        traj_refined = refinement_node.refineTrajectory(traj_pred)
+    #     traj_refined = refinement_node.refineTrajectory(traj_pred)
 
         
-        traj_new = refinement_node.determineNewTrajectory(traj, traj_refined, alpha)
+    #     traj_new = refinement_node.determineNewTrajectory(traj, traj_refined, alpha)
 
 
-        traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
-        refinement_node.executeTrajectory(traj_refined_reversed, dt)
-        time.sleep(1)
-        refinement_node.goToInitialPose()
+    #     traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
+    #     refinement_node.executeTrajectory(traj_refined_reversed, dt)
+    #     time.sleep(1)
+    #     refinement_node.goToInitialPose()
 
-        traj_pos = refinement_node.parser.getCartesianPositions(traj_new)
+    #     traj_pos = refinement_node.parser.getCartesianPositions(traj_new)
 
-        goal = traj_pos[-1][:]    
-        x_0 = traj_pos[0][:]
+    #     goal = traj_pos[-1][:]    
+    #     x_0 = traj_pos[0][:]
 
-        dmp_variables = dmpVariables(traj_pos, dt, K, D, goal, x_0=[0.403399335619, -0.430007534239, 1.16269467394])
+    #     dmp_variables = dmpVariables(traj_pos, dt, K, D, goal, x_0=[0.403399335619, -0.430007534239, 1.16269467394])
 
-        plan = refinement_node.dmp_python.makePlan(dmp_variables)
+    #     plan = refinement_node.dmp_python.makePlan(dmp_variables)
 
         
 

@@ -1,0 +1,14 @@
+<package>
+    <name>promp_python</name>
+    <version>1.0.0</version>
+    <description>
+        Python library for ProMP 
+    </description>
+    <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
+    <author>Floris Meccanici</author>
+    <license>new BSD</license>
+
+<run_depend>rospy</run_depend>
+<buildtool_depend>catkin</buildtool_depend>
+
+</package>

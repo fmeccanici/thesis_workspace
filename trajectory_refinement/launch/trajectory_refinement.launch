@@ -14,12 +14,12 @@
 <include file="$(find trajectory_refinement)/launch/gripper_wrt_ee_publisher.launch"/> 
 <include file="$(find aruco_ros)/launch/marker_publisher.launch"/>
 
-<!-- <include file="$(find teleop_control)/launch/teleop_control.launch" >
+<include file="$(find teleop_control)/launch/teleop_control.launch" >
     <arg name="part_to_publish" value="position" />
-</include> -->
+</include>
 
 <node pkg="trajectory_refinement" name="trajectory_refinement" 
-type="trajectory_refinement.py" output="screen">
+type="trajectory_refinement_promp.py" output="screen">
 </node>
 
 </launch>

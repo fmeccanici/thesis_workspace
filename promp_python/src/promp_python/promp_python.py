@@ -42,6 +42,7 @@ class ProMPContext(object):
         currentW = []
 
         for joint in range(0, self.num_joints):
+            print(len(demonstration[:, joint]))
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
             currentY.append(stretched_demo)

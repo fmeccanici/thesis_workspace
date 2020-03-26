@@ -1,6 +1,6 @@
 
 from promp_python.promp_python import *
-from trajectoryParser.trajectoryParser import *
+from trajectory_parser.trajectory_parser import *
 
 import os, os.path
 import numpy as np
@@ -90,8 +90,9 @@ def get_relevant_data(traj):
         z = data[9]
         # distance = calculate_distance(x, y, z)
         # traj_new.append([T] + data[0:3] + data[7:10])
-        traj_new.append(data[0:3] + [dt] + data[7:10])
+        # traj_new.append(data[0:3] + [dt] + data[7:10])
 
+        traj_new.append(data[0:7] + [dt] + data[7:10])
         # traj_new.append(data[0:3] + [distance])
         # traj_new.append([data[0]] + [distance])
 
@@ -112,7 +113,7 @@ for traj in traj_files:
     trajectory = parser.openTrajectoryFile(traj, DIR)
     trajectory = parser._normalize(trajectory)
     trajectory = parser.downsample(trajectory, dt)
-    # print(len(trajectory))
+    print(len(trajectory))
 
     # print('downsample' + str(len(trajectory)))
     trajectories.append(trajectory)

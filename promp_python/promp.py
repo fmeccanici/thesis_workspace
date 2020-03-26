@@ -15,6 +15,10 @@ trajectories = []
 # joints = ["cartesian_x", "cartesian_y", "cartesian_z"]
 # joints = ["joint_x", "joint_y", "joint_z", "context"]
 joints = ["joint_x", "joint_y", "joint_z", "dt", "object_x", "object_y", "object_z"]
+
+# joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw"  "dt", "object_x", "object_y", "object_z"]
+
+
 # joints = ["joint_x", "context"]
 
 for traj in traj_files:
@@ -57,6 +61,31 @@ promp.clear_viapoints()
 promp.set_goal(goal, sigma=1e-6)
 generated_trajectory = promp.generate_trajectory(sigma_noise)
 
+"""joint_id = 0
+pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 1
+pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 2
+pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 3
+pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 4
+pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 5
+pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 6
+pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+joint_id = 7
+pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+"""
 joint_id = 0
 pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
@@ -69,12 +98,16 @@ pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points,
 joint_id = 3
 pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
+
 pred_traj = []
 dt = pred_traj_dt[0]
 t = 0
 for i in range(len(pred_traj_x)):
     pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], t])
     t += dt
+# for i in range(len(pred_traj_x)):
+#     pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], t])
+#     t += dt
 
 print('pred_traj' + str(pred_traj))
 
