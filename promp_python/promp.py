@@ -38,7 +38,9 @@ promp.plot_unconditioned_joints()
 # plt.show()
 
 goal = np.zeros(len(joints))
-goal[4:] = [0.38, 0.81, 0.68]
+# goal[4:] = [0.38, 0.81, 0.68]
+goal[4:] = [0.25, 0.75, 0.68]
+
 
 # promp.clear_viapoints()
 # promp.set_goal(goal, sigma=1e-6)
