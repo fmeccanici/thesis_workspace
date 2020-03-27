@@ -100,7 +100,7 @@ def get_relevant_data(traj):
     # print(traj_new)
     return traj_new
 
-dt = 0.1
+dt = 0.01
 
 DIR = '../trajectory_teaching/data/with_object2/'
 traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]

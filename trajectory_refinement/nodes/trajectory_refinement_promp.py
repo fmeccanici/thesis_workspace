@@ -324,66 +324,90 @@ class trajectoryRefinement():
         trajectories = [pred_traj, refined_traj]
 
         pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
+        refined_traj = self.parser._normalize(refined_traj)
 
         # print(pred_traj)
         new_trajectory = []
 
         ## resample trajectories such that they can be subtracted
         
-        n_pred = len(pred_traj)
-        n_refined = len(refined_traj)
 
-        # get lengths of both vectors
-        n = [n_pred, n_refined]
-        
-        # dt = self.parser.getTimeInterval(trajectories[np.argmax(n)])
-        dt_pred = self.parser.getTimeInterval(pred_traj)
-        dt_refined = self.parser.getTimeInterval(refined_traj)
-        dt = [dt_pred, dt_refined]
-
-        T_pred = self.parser.secsNsecsToFloatSingle(pred_traj[-1])
-        T_refined = self.parser.secsNsecsToFloatSingle(refined_traj[-1])
-        T = [T_pred, T_refined]
-
+  
         # print('dt ' + str(dt))
         # downsample refined trajectory to match dt
         # refined_traj = self.parser.downsample(refined_traj, dt)
-        refined_traj = self.parser._normalize(refined_traj)
         
         
         # print(refined_traj)
         # print(pred_traj)
 
-        max_length = max(n)
-        min_length = min(n)
+
 
         refined_traj_pose = self.parser.getCartesianPositions(refined_traj)
         refined_traj_time = self.parser._getTimeVector(refined_traj)
         
 
+
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser._getTimeVector(pred_traj)
         
+        n_pred = len(pred_traj)
+        n_refined = len(refined_traj)
+
+        # get lengths of both vectors
+        n = [n_pred, n_refined]
+        max_length = max(n)
+        min_length = min(n)
+
+        # dt = self.parser.getTimeInterval(trajectories[np.argmax(n)])
+        dt_pred = self.parser.getTimeInterval(pred_traj)
+        dt_refined = self.parser.getTimeInterval(refined_traj)
+        dt = [dt_pred, dt_refined]
+
+        T_pred = self.parser.secsNsecsToFloatSingle(pred_traj_time[-1])
+        T_refined = self.parser.secsNsecsToFloatSingle(refined_traj_time[-1])
+        T = [T_pred, T_refined]
+        # print(pred_traj_time)
+        # print(refined_traj_time)
+
+        # plt.plot(refined_traj_pose)
+        # plt.plot(pred_traj_pose)
+        # plt.show()
+
         # print(len(pred_traj_pose))
         # print(len(refined_traj_pose))
 
         l = max_length
         # l = min_length
 
-        if n_pred > n_refined:
-            dt_refined = dt_pred * T_pred / T_refined
-        elif n_pred < n_refined:
-            dt_pred = dt_refined * T_refined / T_pred
-        else: pass
+        # if n_pred > n_refined:
+        #     # dt_refined = dt_pred * T_pred / T_refined
+        #     # dt_refined = n_refined / (n_pred / dt_pred)
+        #     T_refined = T_pred / dt_pred * dt_refined
+        # elif n_pred < n_refined:
+        #     # dt_pred = dt_refined * T_refined / T_pred
+        #     # dt_pred = n_pred / (n_refined / dt_refined)
+        #     T_pred = T_refined / dt_refined * dt_pred
+        # else: pass
 
         # dt_refined = dt * len(refined_traj_time) / n[np.argmax(lengths)]
         # dt_pred = dt * len(pred_traj_time) / n[np.argmax(lengths)]
 
         # dt_refined = dt * len(refined_traj_time) / lengths[np.argmin(lengths)]
         # dt_pred = dt * len(pred_traj_time) / lengths[np.argmin(lengths)]
+        # print(T_refined)
 
-        xvals_refined = np.linspace(dt_refined, l*dt_refined, l)
-        xvals_pred = np.linspace(dt_pred, l*dt_pred, l)
+        xvals_refined = np.linspace(0.0, T_refined, l)
+        xvals_pred = np.linspace(0.0, T_pred, l)
+
+        # print(xvals_refined)
+        # print(xvals_pred)
+        
+        # print(xvals_refined)
+        # print(T_refined)
+        # print(xvals_pred)
+        # print(T_pred)
+
         # print(self.parser._secsNsecsToFloat(refined_traj_time))
 
         refined_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(refined_traj_time))))
@@ -403,9 +427,9 @@ class trajectoryRefinement():
         # print(len(xvals_pred))
         # print(len(y_refined_new_x[0]))
 
-        print('ref' + str(list(y_refined_new_x[0])))
+        # print('ref' + str(list(y_refined_new_x[0])))
         # plt.plot(xvals_refined.reshape(1, len(y_refined_new_x[0])), list(y_refined_new_x[0]))
-        plt.plot(xvals_refined, list(y_refined_new_x[0]))
+        # plt.plot(xvals_refined, list(y_refined_new_x[0]))
 
         # plt.show()
 
@@ -423,7 +447,20 @@ class trajectoryRefinement():
         y_pred_new_y = yinterp_pred_y(xvals_pred)
         y_pred_new_z = yinterp_pred_z(xvals_pred)
 
-        plt.plot(xvals_pred, list(y_pred_new_x[0]))
+        print(y_pred_new_x)
+        print(y_refined_new_x)
+        # plt.plot(pred_traj_time, pred_traj_pos_x)
+        # plt.plot(refined_traj_time, refined_traj_pos_x)
+        # plt.plot(xvals_pred, y_pred_new_x[0])
+        # plt.plot(xvals_refined, y_refined_new_x[0])
+        plt.plot(refined_traj_time, refined_traj_pose)
+        plt.plot(pred_traj_time, pred_traj_pose)
+        
+        # plt.plot(pred_traj_time, pred_traj_pos_x)
+        # plt.plot((refined_traj_time), refined_traj_pos_x)
+
+        # plt.plot(list(y_pred_new_x[0]))
+        # plt.plot(list(y_refined_new_x[0]))
         plt.show()
         # print(y_pred_new_x - y_refined_new_x)
         
@@ -629,7 +666,7 @@ if __name__ == "__main__":
 
         for i in range(10):
             refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_new), r=0, g=1, b=0))
-        time.sleep(10)
+        time.sleep(1)
 
         for i in range(len(traj_new)):
 
