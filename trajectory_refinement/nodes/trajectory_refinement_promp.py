@@ -130,7 +130,9 @@ class trajectoryRefinement():
         # for some reason the minus sign disappeared or ee axis is flipped 180deg
         # self.firstMasterPose.pose.position.z = -0.486718259108
         # for some reason this value changed suddenly ?? -> This is why scaling was wrong of refined trajectory
-        self.firstMasterPose.pose.position.z = -0.169880290808
+        # self.firstMasterPose.pose.position.z = -0.169880290808
+        self.firstMasterPose.pose.position.z = -0.327476944265
+
 
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
@@ -182,6 +184,10 @@ class trajectoryRefinement():
         x = [self.current_slave_pose.position.x, 0.403399335619]
         y = [self.current_slave_pose.position.y, -0.430007534239]
         z = [self.current_slave_pose.position.z, 1.16269467394]
+        
+        # x = [self.current_slave_pose.position.x, 0.353543514402]
+        # y = [self.current_slave_pose.position.y, 0.435045131507]
+        # z = [self.current_slave_pose.position.z, 0.760080619348]
 
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
@@ -314,7 +320,9 @@ class trajectoryRefinement():
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
-        # print(pred_traj)
+        
+        trajectories = [pred_traj, refined_traj]
+
         pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
 
         # print(pred_traj)
@@ -322,38 +330,63 @@ class trajectoryRefinement():
 
         ## resample trajectories such that they can be subtracted
         
-        # get lengths of both vectors
-        lengths = [len(pred_traj), len(refined_traj)]
+        n_pred = len(pred_traj)
+        n_refined = len(refined_traj)
 
-        dt = self.parser.getTimeInterval(pred_traj)
-        print('dt ' + str(dt))
+        # get lengths of both vectors
+        n = [n_pred, n_refined]
+        
+        # dt = self.parser.getTimeInterval(trajectories[np.argmax(n)])
+        dt_pred = self.parser.getTimeInterval(pred_traj)
+        dt_refined = self.parser.getTimeInterval(refined_traj)
+        dt = [dt_pred, dt_refined]
+
+        T_pred = self.parser.secsNsecsToFloatSingle(pred_traj[-1])
+        T_refined = self.parser.secsNsecsToFloatSingle(refined_traj[-1])
+        T = [T_pred, T_refined]
+
+        # print('dt ' + str(dt))
         # downsample refined trajectory to match dt
         # refined_traj = self.parser.downsample(refined_traj, dt)
-
+        refined_traj = self.parser._normalize(refined_traj)
         
-        max_length = max(lengths)
-        min_length = min(lengths)
+        
+        # print(refined_traj)
+        # print(pred_traj)
+
+        max_length = max(n)
+        min_length = min(n)
 
         refined_traj_pose = self.parser.getCartesianPositions(refined_traj)
-        refined_traj_time = self.parser._getTimeVector(self.parser._normalize(refined_traj))
+        refined_traj_time = self.parser._getTimeVector(refined_traj)
         
+
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser._getTimeVector(pred_traj)
+        
+        # print(len(pred_traj_pose))
+        # print(len(refined_traj_pose))
 
         l = max_length
         # l = min_length
 
-        dt_refined = dt * len(refined_traj_time) / lengths[np.argmax(lengths)]
-        dt_pred = dt * len(pred_traj_time) / lengths[np.argmax(lengths)]
+        if n_pred > n_refined:
+            dt_refined = dt_pred * T_pred / T_refined
+        elif n_pred < n_refined:
+            dt_pred = dt_refined * T_refined / T_pred
+        else: pass
+
+        # dt_refined = dt * len(refined_traj_time) / n[np.argmax(lengths)]
+        # dt_pred = dt * len(pred_traj_time) / n[np.argmax(lengths)]
 
         # dt_refined = dt * len(refined_traj_time) / lengths[np.argmin(lengths)]
         # dt_pred = dt * len(pred_traj_time) / lengths[np.argmin(lengths)]
 
         xvals_refined = np.linspace(dt_refined, l*dt_refined, l)
         xvals_pred = np.linspace(dt_pred, l*dt_pred, l)
+        # print(self.parser._secsNsecsToFloat(refined_traj_time))
 
         refined_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(refined_traj_time))))
-
         refined_traj_pos_x = (np.asarray(self.parser.getXpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
         refined_traj_pos_y = (np.asarray(self.parser.getYpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
         refined_traj_pos_z = (np.asarray(self.parser.getZpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
@@ -365,6 +398,16 @@ class trajectoryRefinement():
         y_refined_new_x = yinterp_refined_x(xvals_refined)
         y_refined_new_y = yinterp_refined_y(xvals_refined)
         y_refined_new_z = yinterp_refined_z(xvals_refined)
+
+        # print(len(xvals_refined))
+        # print(len(xvals_pred))
+        # print(len(y_refined_new_x[0]))
+
+        print('ref' + str(list(y_refined_new_x[0])))
+        # plt.plot(xvals_refined.reshape(1, len(y_refined_new_x[0])), list(y_refined_new_x[0]))
+        plt.plot(xvals_refined, list(y_refined_new_x[0]))
+
+        # plt.show()
 
         pred_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(pred_traj_time))))
         pred_traj_pos_x = (np.asarray(self.parser.getXpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
@@ -380,6 +423,8 @@ class trajectoryRefinement():
         y_pred_new_y = yinterp_pred_y(xvals_pred)
         y_pred_new_z = yinterp_pred_z(xvals_pred)
 
+        plt.plot(xvals_pred, list(y_pred_new_x[0]))
+        plt.show()
         # print(y_pred_new_x - y_refined_new_x)
         
         # lengths are the same so doesnt matter which length I take
@@ -399,7 +444,7 @@ class trajectoryRefinement():
             pred_traj = [y_pred_new_x[0][i], y_pred_new_y[0][i], y_pred_new_z[0][i], q[1], q[2], q[3], q[0], xvals_pred[i]]
             
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
-            print((np.subtract(refined_traj[0:3], pred_traj[0:3]) ))
+            # print((np.subtract(refined_traj[0:3], pred_traj[0:3]) ))
             new_trajectory.append(list(np.add(pred_traj[0:3], alpha * (np.subtract(refined_traj[0:3], pred_traj[0:3]) ))) + refined_traj[3:])
 
         dt_new = dt_refined
@@ -542,7 +587,7 @@ if __name__ == "__main__":
 
 
     for traj in trajectories:
-        print(traj)
+        # print(traj)
         promp.add_demonstration(traj)
     
     r = rospy.Rate(30)
