@@ -29,6 +29,10 @@ from scipy.spatial.transform import Rotation as R
 
 from promp_python.promp_python import *
 from aruco_msgs.msg import MarkerArray
+
+from fastdtw import fastdtw
+from scipy.spatial.distance import euclidean
+
 class trajectoryStorageVariables():
     def __init__(self, open_loop_path, refined_path, resampled_path, raw_path, raw_file, new_path):
         self.open_loop_path = open_loop_path
@@ -323,6 +327,36 @@ class trajectoryRefinement():
 
         return refined_traj
 
+    # input structure list in list [[x_1, y_1, z_1]]
+    def apply_dtw(self, x, y):
+        x = np.asarray(x).transpose()
+        y = np.asarray(y).transpose()
+        
+        # print(x)
+        distance, path = fastdtw(x, y)
+
+        x_aligned = []
+        y_aligned = []
+        # print((path))
+        # print(len(x))
+        # print(len(y))
+        for i in range(len(path)):
+            x_aligned.append(x[path[i][0]])
+            y_aligned.append(y[path[i][1]])
+
+        # print(y_aligned)
+
+        # plt.figure(1)
+        # plt.subplot(211)
+        # plt.plot(x)
+        # plt.plot(y)
+        # plt.subplot(212)
+        # plt.plot(x_aligned)
+        # plt.plot(y_aligned)
+
+        # plt.show()
+
+        return x_aligned, y_aligned
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
@@ -458,8 +492,8 @@ class trajectoryRefinement():
         y_pred_new_y = yinterp_pred_y(xvals_pred)
         y_pred_new_z = yinterp_pred_z(xvals_pred)
 
-        print(y_pred_new_x)
-        print(y_refined_new_x)
+        # print(y_pred_new_x)
+        # print(y_refined_new_x)
         # plt.plot(pred_traj_time, pred_traj_pos_x)
         # plt.plot(refined_traj_time, refined_traj_pos_x)
         # plt.plot(xvals_pred, y_pred_new_x[0])
@@ -471,13 +505,15 @@ class trajectoryRefinement():
         # plt.plot(pred_traj_time, pred_traj_pos_x)
         # plt.plot((refined_traj_time), refined_traj_pos_x)
 
-        plt.plot(list(y_pred_new_x[0]))
-        # plt.plot(list(y_refined_new_x[0]))
-        plt.show()
-        # print(y_pred_new_x - y_refined_new_x)
-        
+        # apply DTW
+        y_refined_aligned, y_pred_aligned = self.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
+        # y_refined_aligned_x, y_pred_aligned_x = self.apply_dtw(y_refined_new_x[0], y_pred_new_x[0])
+        # y_refined_aligned_y, y_pred_aligned_y = self.apply_dtw(y_refined_new_y[0], y_pred_new_y[0])
+        # y_refined_aligned_z, y_pred_aligned_z = self.apply_dtw(y_refined_new_z[0], y_pred_new_z[0])
+
+        print(y_refined_aligned)
         # lengths are the same so doesnt matter which length I take
-        n = len(xvals_pred)
+        n = len(y_refined_aligned)
         qstart = refined_traj[0][3:7]
         qend = refined_traj[-1][3:7]
 
@@ -486,17 +522,27 @@ class trajectoryRefinement():
 
         new_trajectory = []
 
+        t_refined = np.linspace(0.0, T_refined, n)
+        t_pred = np.linspace(0.0, T_pred, n)
 
         for i,q in enumerate(trajectoryParser.interpolateQuaternions(qstart, qend, n, False)):
-
-            refined_traj = [y_refined_new_x[0][i], y_refined_new_y[0][i], y_refined_new_z[0][i], q[1], q[2], q[3], q[0], xvals_refined[i]] 
-            pred_traj = [y_pred_new_x[0][i], y_pred_new_y[0][i], y_pred_new_z[0][i], q[1], q[2], q[3], q[0], xvals_pred[i]]
-            
+            refined_traj = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2], q[1], q[2], q[3], q[0], t_refined[i]] 
+            pred_traj = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2], q[1], q[2], q[3], q[0], t_pred[i]]
+            # refined_traj = [y_refined_new_x[0][i], y_refined_new_y[0][i], y_refined_new_z[0][i], q[1], q[2], q[3], q[0], xvals_refined[i]] 
+            # pred_traj = [y_pred_new_x[0][i], y_pred_new_y[0][i], y_pred_new_z[0][i], q[1], q[2], q[3], q[0], xvals_pred[i]]
+            print(refined_traj)
+            print(pred_traj)
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
             # print((np.subtract(refined_traj[0:3], pred_traj[0:3]) ))
-            new_trajectory.append(list(np.add(pred_traj[0:3], alpha * (np.subtract(refined_traj[0:3], pred_traj[0:3]) ))) + refined_traj[3:])
-
-        dt_new = dt_refined
+            new_trajectory.append(list(np.add(np.asarray(pred_traj[0:3]), alpha * (np.subtract(np.asarray(refined_traj[0:3]), np.asarray(pred_traj[0:3])) ))) + refined_traj[3:])
+        # traj_plot = [traj[0:3] for traj in new_trajectory]
+        # print(traj_plot)
+        # plt.plot(traj_plot)
+        # plt.plot(y_refined_aligned)
+        # plt.plot(y_pred_aligned)
+        # plt.show()
+        
+        dt_new = t_refined[1]
 
         return new_trajectory, dt_new
 
