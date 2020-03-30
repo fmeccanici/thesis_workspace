@@ -131,8 +131,8 @@ class trajectoryRefinement():
         # self.firstMasterPose.pose.position.z = -0.486718259108
         # for some reason this value changed suddenly ?? -> This is why scaling was wrong of refined trajectory
         # self.firstMasterPose.pose.position.z = -0.169880290808
-        self.firstMasterPose.pose.position.z = -0.327476944265
-
+        # self.firstMasterPose.pose.position.z = -0.327476944265
+        self.firstMasterPose.pose.position.z = -0.510984332781
 
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
@@ -237,6 +237,7 @@ class trajectoryRefinement():
         traj_pos = self.parser.getCartesianPositions(traj)
         refined_traj = []
         i = 0
+        t = 0
 
         master_pose_scaling = 0.5
 
@@ -280,11 +281,15 @@ class trajectoryRefinement():
 
             # append refined trajectory
             if i <= len(traj_pos)-1:
-                refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
+                # refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
+                refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Duration(t).secs,  rospy.Duration(t).nsecs])
+
                 # refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], t])
 
             else:
-                refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
+                # refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
+                refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], rospy.Duration(t).secs, rospy.Duration(t).nsecs])
+
                 # refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], t])
             
 
@@ -312,6 +317,7 @@ class trajectoryRefinement():
             self.moveEEto(slave_goal)
 
             time.sleep(dt)
+            t += dt
             i += 1
         
 
@@ -351,6 +357,10 @@ class trajectoryRefinement():
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser._getTimeVector(pred_traj)
         
+        # plt.plot(self.parser._secsNsecsToFloat(pred_traj_time), pred_traj_pose)
+        # plt.plot(self.parser._secsNsecsToFloat(refined_traj_time), refined_traj_pose)
+
+
         n_pred = len(pred_traj)
         n_refined = len(refined_traj)
 
@@ -367,6 +377,7 @@ class trajectoryRefinement():
         T_pred = self.parser.secsNsecsToFloatSingle(pred_traj_time[-1])
         T_refined = self.parser.secsNsecsToFloatSingle(refined_traj_time[-1])
         T = [T_pred, T_refined]
+
         # print(pred_traj_time)
         # print(refined_traj_time)
 
@@ -453,13 +464,14 @@ class trajectoryRefinement():
         # plt.plot(refined_traj_time, refined_traj_pos_x)
         # plt.plot(xvals_pred, y_pred_new_x[0])
         # plt.plot(xvals_refined, y_refined_new_x[0])
-        plt.plot(refined_traj_time, refined_traj_pose)
-        plt.plot(pred_traj_time, pred_traj_pose)
+
+        # plt.plot(refined_traj_time, refined_traj_pose)
+        # plt.plot(pred_traj_time, pred_traj_pose)
         
         # plt.plot(pred_traj_time, pred_traj_pos_x)
         # plt.plot((refined_traj_time), refined_traj_pos_x)
 
-        # plt.plot(list(y_pred_new_x[0]))
+        plt.plot(list(y_pred_new_x[0]))
         # plt.plot(list(y_refined_new_x[0]))
         plt.show()
         # print(y_pred_new_x - y_refined_new_x)
@@ -640,7 +652,6 @@ if __name__ == "__main__":
 
     traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
 
-    # print(traj_pred)
 
     # refinement_node.executeTrajectory(traj_pred, dt)
 
@@ -662,7 +673,7 @@ if __name__ == "__main__":
         traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
         refinement_node.executeTrajectory(traj_refined_reversed, dt_new)
         time.sleep(1)
-        refinement_node.goToInitialPose()
+        # refinement_node.goToInitialPose()
 
         for i in range(10):
             refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_new), r=0, g=1, b=0))
