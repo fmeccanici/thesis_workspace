@@ -653,7 +653,6 @@ if __name__ == "__main__":
             refine_counter += 1
         else:
             if input("Use refined or predicted trajectory for refinement? 1/0") == 1:
-                print('check')
                 traj_pred = traj_new
             else: pass
 

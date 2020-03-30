@@ -102,7 +102,7 @@ def get_relevant_data(traj):
 
 dt = 0.01
 
-DIR = '../trajectory_teaching/data/with_object2/'
+DIR = '../trajectory_teaching/data/with_object_wrt_optical/'
 traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
 num_traj = len(traj_files)
 

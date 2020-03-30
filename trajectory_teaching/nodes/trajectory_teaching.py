@@ -10,7 +10,7 @@ from geometry_msgs.msg import PoseStamped, Pose
 import numpy as np
 from scipy.interpolate import interp1d
 
-from trajectoryParser.trajectoryParser import *
+from trajectory_parser.trajectory_parser import *
 from aruco_msgs.msg import MarkerArray
 
 class trajectoryTeaching():
@@ -149,7 +149,7 @@ class trajectoryTeaching():
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object2/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_optical/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)

@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from numpy.linalg import inv
+import padasip as pa
 
 class ProMPContext(object):
     def __init__(self, joints, num_basis=20, sigma=0.1, num_points=1750):
@@ -45,7 +46,12 @@ class ProMPContext(object):
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
             currentY.append(stretched_demo)
+
+            # Psi^T * Psi 
             aux = np.dot(self.phi, self.phi.T)
+
+            # linear least squares  
+            # w = ( Psi^T * Psi )^-1 * Psi^T * tau
             currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
             currentW = np.append(currentW, currentJointW)
 
@@ -95,9 +101,7 @@ class ProMPContext(object):
         newMu = self.meanW
         newSigma = self.sigmaW
 
-        # print('via' + str(self.viapoints))
         for viapoint in self.viapoints:
-            # print('check')
             phiT = np.exp(-.5 * (np.array(list(map(lambda x: x - self.centers, np.tile(viapoint['t'], (self.num_basis, 1)).T))).T ** 2
                                  / (self.sigma ** 2)))
             phiT = phiT / sum(phiT)
