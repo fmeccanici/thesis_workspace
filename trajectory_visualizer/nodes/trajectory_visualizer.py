@@ -31,15 +31,41 @@ class trajectoryVisualizer():
         marker_array = MarkerArray()
 
         traj = self.VisMsgToTraj(data)
-        marker_array = self.trajectory2markerArray(traj, data.r, data.g, data.b)
-
+        if traj[0][0] == 0.0:
+            point = self.positions2pointMessage([0.0, 0.0, 0.0])
+            pose = Pose(position=point)
+            marker = Marker(header=Header(stamp=rospy.Time.now(),
+                                            frame_id=self.frame_id),
+                                            pose=pose,
+                                            type=Marker.SPHERE,
+                                            scale=Vector3(0.02,0.02,0.02),
+                                            id=0,
+                                            color=ColorRGBA(r=0, g=0, b=0, a=0),
+                                            action=Marker.DELETEALL)
+            marker_array = [marker]
+        else:
+            marker_array = self.trajectory2markerArray(traj, data.r, data.g, data.b)
+        
         self.traj_pred_pub.publish(marker_array)
 
     def _traj_ref_callback(self, data):
         marker_array = MarkerArray()
 
         traj = self.VisMsgToTraj(data)
-        marker_array = self.trajectory2markerArray(traj, data.r, data.g, data.b)
+        if traj[0][0] == 0.0:
+            point = self.positions2pointMessage([0.0, 0.0, 0.0])
+            pose = Pose(position=point)
+            marker = Marker(header=Header(stamp=rospy.Time.now(),
+                                            frame_id=self.frame_id),
+                                            pose=pose,
+                                            type=Marker.SPHERE,
+                                            scale=Vector3(0.02,0.02,0.02),
+                                            id=0,
+                                            color=ColorRGBA(r=0, g=0, b=0, a=0),
+                                            action=Marker.DELETEALL)
+            marker_array = [marker]
+        else:
+            marker_array = self.trajectory2markerArray(traj, data.r, data.g, data.b)
 
         self.traj_ref_pub.publish(marker_array)
 
