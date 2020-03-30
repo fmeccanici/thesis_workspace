@@ -34,9 +34,6 @@ class ProMPContext(object):
         self.Y = []
         self.sample = []
 
-    # def welford_update(self, demonstration):
-        # meanW_new = self.meanW + 
-
     def add_demonstration(self, demonstration):
         self.nrTraj += 1
         currentY = []
@@ -55,6 +52,15 @@ class ProMPContext(object):
             currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
             currentW = np.append(currentW, currentJointW)
 
+            ####### recursive least squares
+            n = len(self.joints)
+            
+            # learning rate
+            mu = 0.1
+
+            f = pa.filters.FilterRLS(n=n, mu=mu)
+            y, e, currentJointW = f.run()
+            #######
         if self.no_traj:
             self.Y = np.array(currentY)
             self.W = currentW

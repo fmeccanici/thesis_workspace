@@ -123,9 +123,18 @@ traj_min_length = trajectories[np.argmin(trajectories_lengths)]
 del trajectories[np.argmin(trajectories_lengths)]
 
 trajectories_resampled = []
+"""traj_plot = []
 
 for traj in trajectories:
-    trajectories_resampled.append(resample_trajectory(traj_min_length, traj))
+    traj_res = resample_trajectory(traj_min_length, traj)
+    trajectories_resampled.append(traj_res)
+
+for i in range(len(trajectories_resampled)):
+    for pos in trajectories_resampled[i]:
+        traj_plot
+traj_plot = [ traj[0:3] for traj in trajectories_resampled]
+print(traj_plot)"""
+
 
 path = "./data/"
 
