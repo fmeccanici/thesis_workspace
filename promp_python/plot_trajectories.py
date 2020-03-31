@@ -1,15 +1,11 @@
-
 from promp_python.promp_python import *
 from trajectory_parser.trajectory_parser import *
-from scipy.interpolate import interp1d
 
 import os, os.path
 import numpy as np
 
 parser = trajectoryParser()
 
-# resample trajectory to the one with the smallest lentgh --> downsample the other
-# traj1 is smaller than traj2
 def resample_trajectory(traj1, traj2):
 
     n1 = len(traj1)
@@ -20,20 +16,9 @@ def resample_trajectory(traj1, traj2):
     traj1 = parser._normalize(traj1)
     traj2 = parser._normalize(traj2)
 
-    # traj = [traj1, traj2]
 
-    n = [n1, n2]
-    dt = [dt1, dt2]
-
-    # i_nmin = np.argmin(n)
-    # i_nmax = np.argmax(n)
-
-    # n[i_nmin] / dt[i_nmin] = n[i_nmax] / dt[i_nmax]
 
     dt_new = n2 / (n1 / dt1)
-
-    # traj1_pos = parser.getCartesianPositions(traj1)
-    # traj1_time = parser._getTimeVector(traj1)
 
     traj2_pos = parser.getCartesianPositions(traj2)
     traj2_time = parser._getTimeVector(traj2)
@@ -69,37 +54,6 @@ def resample_trajectory(traj1, traj2):
     
     return traj2
 
-def calculate_distance(x, y, z):
-    return np.sqrt(x**2 + y**2 + z**2)
-
-def get_relevant_data(traj):
-
-    traj_new = []
-
-    # T = parser.secsNsecsToFloatSingle(traj[-1])
-    # T = traj[-1][-1]
-    # T doesnt work properly --> chose dt as output
-    dt = traj[-1][-1] - traj[-2][-1]
-    print(dt)
-    # print(len(traj))
-    for data in traj:
-        
-        
-        # add only the cartesian path, object location
-        x = data[7]
-        y = data[8]
-        z = data[9]
-        # distance = calculate_distance(x, y, z)
-        # traj_new.append([T] + data[0:3] + data[7:10])
-        # traj_new.append(data[0:3] + [dt] + data[7:10])
-
-        traj_new.append(data[0:7] + [dt] + data[7:10])
-        # traj_new.append(data[0:3] + [distance])
-        # traj_new.append([data[0]] + [distance])
-
-        # print(distance)
-    # print(traj_new)
-    return traj_new
 
 dt = 0.01
 
@@ -116,7 +70,8 @@ for traj in traj_files:
     trajectory = parser.downsample(trajectory, dt)
     print(len(trajectory))
 
-    # print('downsample' + str(len(trajectory)))
+    # plt.plot(parser.getCartesianPositions(trajectory))
+
     trajectories.append(trajectory)
     trajectories_lengths.append(len(trajectory))
 
@@ -127,13 +82,14 @@ trajectories_resampled = []
 
 for traj in trajectories:
     traj_res = resample_trajectory(traj_min_length, traj)
+    plt.plot(parser.getCartesianPositions(traj_res))
+    
+    x = np.ones((len(traj_res), 1)) * parser.get_context(traj_res[0])[0]
+    y = np.ones((len(traj_res), 1)) * parser.get_context(traj_res[0])[1]
+    z = np.ones((len(traj_res), 1)) * parser.get_context(traj_res[0])[2]
+    plt.plot(x)
+    plt.plot(y)
+    plt.plot(z)
     trajectories_resampled.append(traj_res)
 
-path = "./data/"
-
-for i in range(0, len(trajectories_resampled)):
-    traj = get_relevant_data(trajectories_resampled[i])
-    traj_file = open(path + "resampled_" + str(i) + ".txt", "w+")
-    traj_file.write(str(traj))
-    traj_file.close()
-
+plt.show()

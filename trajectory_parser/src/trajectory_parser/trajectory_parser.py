@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import ast
+import rospy, ast, os, os.path
 import numpy as np
-import rospy
 from pyquaternion import Quaternion
+from scipy.interpolate import interp1d
 
 class trajectoryParser():
     def __init__(self):
@@ -28,7 +28,6 @@ class trajectoryParser():
         q2 = Quaternion(a=qend[3], b=qend[0], c=qend[1], d=qend[2])
 
         return Quaternion.intermediates(q1, q2, n, include_endpoints=include_endpoints)
-
 
 
     def getCartesianPositions(self, traj):
@@ -211,6 +210,161 @@ class trajectoryParser():
     def parse(self, traj_file, path, dt):
         trajectory = self.openTrajectoryFile(traj_file, path)
         return self.downsample(trajectory, dt)
+
+    def get_context(self, traj):
+        return traj[8:]
+
+    def round_list(self, l):
+        return [ round(x, 2) for x in l]
+
+    def sort_first(self, val):
+        return val[0]
+
+    def get_difference_in_context(self, traj1, traj2):
+        c1 = self.get_context(traj1)
+        c2 = self.get_context(traj2)
+
+        dx = abs(c1[0] - c2[0])
+        dy = abs(c1[1] - c2[1])
+        dz = abs(c1[2] - c2[2])
+
+        return dx, dy, dz
+
+    def get_dcontext_matrices(self, demonstrations):
+        difference_matrix_x = np.zeros((len(demonstrations), len(demonstrations)))
+        difference_matrix_y = np.zeros((len(demonstrations), len(demonstrations)))
+        difference_matrix_z = np.zeros((len(demonstrations), len(demonstrations)))
+
+        difference_matrix_total = np.zeros((len(demonstrations), len(demonstrations)))
+
+        for i in range(len(demonstrations)):
+            for j in range(len(demonstrations)):
+                dx, dy, dz = self.get_difference_in_context(demonstrations[i][0], demonstrations[j][0])
+
+                difference_matrix_x[i,j] = dx
+                difference_matrix_y[i,j] = dy
+                difference_matrix_z[i,j] = dz
+
+                difference_matrix_total[i,j] = dx + dy + dz
+
+        return difference_matrix_x, difference_matrix_y, difference_matrix_z, difference_matrix_total
+
+    def get_trajectories_ix_for_dtw(self, demonstrations):
+        dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
+        traj_to_dtw = []
+        appended_ix = []
+
+        threshold = 0.05
+
+        for i in range(len(np.where(dtotal<threshold)[0])):
+            
+            if np.where(dtotal<threshold)[0][i] != np.where(dtotal<threshold)[1][i] and (np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]) not in appended_ix:
+
+                if (np.where(dtotal<threshold)[1][i], np.where(dtotal<threshold)[0][i]) not in appended_ix:
+                    appended_ix.append((np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]))
+                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[0][i]] )
+                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[1][i]] )
+                else: pass
+
+        return appended_ix
+        
+    def load_trajectories_from_folder_and_downsample(self, input_path, dt):
+        traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
+        
+        trajectories = []
+        trajectories_lengths = []
+
+        for traj in traj_files:
+            trajectory = self.openTrajectoryFile(traj, input_path)
+            trajectory = self._normalize(trajectory)
+            trajectory = self.downsample(trajectory, dt)
+            print(len(trajectory))
+
+            trajectories.append(trajectory)
+            trajectories_lengths.append(len(trajectory))
+
+        return trajectories, trajectories_lengths
+
+    def resample_trajectory(self, traj1, traj2):
+        traj2_pos = self.getCartesianPositions(traj2)
+        traj2_time = self._getTimeVector(traj2)
+        
+        T1 = self.secsNsecsToFloatSingle(traj1[-1])
+        T2 = self.secsNsecsToFloatSingle(traj2[-1])
+
+        n1 = len(traj1)
+        n2 = len(traj2)
+        dt1 = self.getTimeInterval(self._normalize(traj1))
+        dt2 = self.getTimeInterval(self._normalize(traj2))
+
+        traj1 = self._normalize(traj1)
+        traj2 = self._normalize(traj2)
+
+        dt_new = n2 / (n1 / dt1)
+
+        # traj1_pos = parser.getCartesianPositions(traj1)
+        # traj1_time = parser._getTimeVector(traj1)
+
+        traj2_pos = self.getCartesianPositions(traj2)
+        traj2_time = self._getTimeVector(traj2)
+
+        # we want to downsample to the smallest trajectory, which is traj1
+        l = len(traj1)
+        xvals2 = np.linspace(0.0, T2, l)
+
+        traj2_time = np.asarray(self._secsNsecsToFloat(traj2_time))
+        traj2_pos_x = np.asarray(self.getXpositions(traj2_pos)).reshape(len(traj2_pos), 1)
+        traj2_pos_y = np.asarray(self.getYpositions(traj2_pos)).reshape(len(traj2_pos), 1)
+        traj2_pos_z = np.asarray(self.getZpositions(traj2_pos)).reshape(len(traj2_pos), 1)
+
+        yinterp_traj2_x = interp1d((traj2_time), np.transpose(traj2_pos_x), axis=1, fill_value="extrapolate")
+        yinterp_traj2_y = interp1d((traj2_time), np.transpose(traj2_pos_y), axis=1, fill_value="extrapolate")
+        yinterp_traj2_z = interp1d((traj2_time), np.transpose(traj2_pos_z), axis=1, fill_value="extrapolate")
+        
+        y_traj2_new_x = yinterp_traj2_x(xvals2)
+        y_traj2_new_y = yinterp_traj2_y(xvals2)
+        y_traj2_new_z = yinterp_traj2_z(xvals2)
+        
+        qstart = traj2[0][3:7]
+        qend = traj2[-1][3:7]
+        
+        object_info = traj2[0][7:14]
+
+        traj2 = []
+
+
+        for i,q in enumerate(self.interpolateQuaternions(qstart, qend, l, False)):
+            traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + [q[1], q[2], q[3], q[0]] + object_info + [xvals2[i]])
+        
+        return traj2
+
+    def resample_trajectories(self, trajectories, traj_min_length):
+        trajectories_resampled = []
+        for traj in trajectories:
+            traj_res = self.resample_trajectory(traj_min_length, traj)
+            trajectories_resampled.append(traj_res)
+
+        return trajectories_resampled
+
+    def resample_and_store_trajectories(self, trajectories, traj_min_length, output_path):
+
+        trajectories_resampled = self.resample_trajectories(trajectories, traj_min_length)
+
+        for i in range(0, len(trajectories_resampled)):
+            traj = self.get_relevant_learning_data(trajectories_resampled[i])
+            traj_file = open(output_path + "resampled_" + str(i) + ".txt", "w+")
+            traj_file.write(str(traj))
+            traj_file.close()
+
+    def get_relevant_learning_data(self, traj):
+        traj_new = []
+
+        # T doesnt work properly --> chose dt as output
+        dt = traj[-1][-1] - traj[-2][-1]
+        for data in traj:
+            traj_new.append(data[0:7] + [dt] + data[7:10])
+
+        return traj_new
 
 if __name__ == "__main__":
 

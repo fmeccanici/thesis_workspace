@@ -30,8 +30,8 @@ from scipy.spatial.transform import Rotation as R
 from promp_python.promp_python import *
 from aruco_msgs.msg import MarkerArray
 
-from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
+from dynamic_time_warping.dynamic_time_warping import *
 
 class trajectoryStorageVariables():
     def __init__(self, open_loop_path, refined_path, resampled_path, raw_path, raw_file, new_path):
@@ -328,21 +328,6 @@ class trajectoryRefinement():
 
         return refined_traj
 
-    # input structure list in list [[x_1, y_1, z_1]]
-    def apply_dtw(self, x, y):
-        x = np.asarray(x).transpose()
-        y = np.asarray(y).transpose()
-        
-        distance, path = fastdtw(x, y)
-
-        x_aligned = []
-        y_aligned = []
-
-        for i in range(len(path)):
-            x_aligned.append(x[path[i][0]])
-            y_aligned.append(y[path[i][1]])
-
-        return x_aligned, y_aligned
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
@@ -409,7 +394,7 @@ class trajectoryRefinement():
         y_pred_new_z = yinterp_pred_z(xvals_pred)
 
         # apply DTW
-        y_refined_aligned, y_pred_aligned = self.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
+        y_refined_aligned, y_pred_aligned = DTW.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
 
         # lengths are the same so doesnt matter which length I take
         n = len(y_refined_aligned)
