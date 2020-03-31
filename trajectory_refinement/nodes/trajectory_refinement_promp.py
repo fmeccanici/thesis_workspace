@@ -561,11 +561,15 @@ if __name__ == "__main__":
     # while goal[8] == 0.0:        
     #     goal[8:] = refinement_node.getGoalFromMarker()
 
-
+    # for traj in trajectories:
+    #     plt.plot(refinement_node.parser.getCartesianPositions(traj))
+    # plt.show()
+    # print(trajectories[0])
     for traj in trajectories:
-        # print(traj)
-        promp.add_demonstration(traj)
-    
+        traj = [list(pose) for pose in traj]
+        plt.plot(refinement_node.parser.getCartesianPositions(traj))
+        promp.add_demonstration(np.array(traj))
+    plt.show()
     r = rospy.Rate(30)
 
     time.sleep(1)
@@ -590,7 +594,6 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
         
-
         if refine_counter % 2 == 0:
             rospy.loginfo("Determining trajectory...")
             goal[8:] = refinement_node.getGoalFromMarker()

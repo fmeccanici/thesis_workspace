@@ -53,13 +53,14 @@ class ProMPContext(object):
             currentW = np.append(currentW, currentJointW)
 
             ####### recursive least squares
-            n = len(self.joints)
+            # n = len(self.joints)
             
-            # learning rate
-            mu = 0.1
+            # # learning rate
+            # mu = 0.9
 
-            f = pa.filters.FilterRLS(n=n, mu=mu)
-            y, e, currentJointW = f.run()
+            # d = np.dot(self.phi, currentJointW)
+            # f = pa.filters.FilterRLS(n=n, mu=mu)
+            # y, e, currentJointW = f.run()
             #######
         if self.no_traj:
             self.Y = np.array(currentY)

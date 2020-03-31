@@ -122,7 +122,7 @@ class DTW():
     def store_resampled_aligned_trajectories(self, traj, output_path):
         for i in range(len(traj)):
             traj_file = open(output_path + "resampled_" + str(i) + ".txt", "w+")
-            traj_file.write(str(traj))
+            traj_file.write(str(traj[i]))
             traj_file.close()
 
 if __name__ == "__main__":
