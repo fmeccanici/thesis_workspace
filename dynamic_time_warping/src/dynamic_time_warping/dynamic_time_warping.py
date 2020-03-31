@@ -47,7 +47,7 @@ class DTW():
         
         return np.argmin(similarity)
    
-    def align_necessary_trajectories(self, input_path, output_path, dt):
+    def align_necessary_trajectories(self, input_path, dt):
         traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
         num_traj = len(traj_files)
         trajectories, trajectories_lengths = parser.load_trajectories_from_folder_and_downsample(input_path, dt)
@@ -118,15 +118,23 @@ class DTW():
                     traj_for_learning.append(x)
 
         return traj_for_learning
+
+    def store_resampled_aligned_trajectories(self, traj, output_path):
+        for i in range(len(traj)):
+            traj_file = open(output_path + "resampled_" + str(i) + ".txt", "w+")
+            traj_file.write(str(traj))
+            traj_file.close()
+
 if __name__ == "__main__":
     parser = trajectoryParser()
     dtw = DTW()
 
     input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_optical/'
-    output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_parser/data/'
+    output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     dt = 0.01
 
-    traj_aligned_for_learning = dtw.align_necessary_trajectories(input_path, output_path, dt)
+    traj_aligned_for_learning = dtw.align_necessary_trajectories(input_path, dt)
+    dtw.store_resampled_aligned_trajectories(traj_aligned_for_learning, output_path)
 
  
 
