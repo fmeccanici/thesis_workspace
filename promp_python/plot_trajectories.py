@@ -4,6 +4,8 @@ from trajectory_parser.trajectory_parser import *
 import os, os.path
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 parser = trajectoryParser()
 
 def resample_trajectory(traj1, traj2):
@@ -76,6 +78,7 @@ for traj in traj_files:
     trajectories_lengths.append(len(trajectory))
 
 traj_min_length = trajectories[np.argmin(trajectories_lengths)]
+print(traj_min_length)
 del trajectories[np.argmin(trajectories_lengths)]
 
 trajectories_resampled = []
@@ -87,9 +90,9 @@ for traj in trajectories:
     x = np.ones((len(traj_res), 1)) * parser.get_context(traj_res[0])[0]
     y = np.ones((len(traj_res), 1)) * parser.get_context(traj_res[0])[1]
     z = np.ones((len(traj_res), 1)) * parser.get_context(traj_res[0])[2]
-    plt.plot(x)
-    plt.plot(y)
-    plt.plot(z)
+    # plt.plot(x)
+    # plt.plot(y)
+    # plt.plot(z)
     trajectories_resampled.append(traj_res)
 
 plt.show()

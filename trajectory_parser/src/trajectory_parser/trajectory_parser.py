@@ -4,6 +4,7 @@ import rospy, ast, os, os.path
 import numpy as np
 from pyquaternion import Quaternion
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 
 class trajectoryParser():
     def __init__(self):
@@ -249,6 +250,9 @@ class trajectoryParser():
 
         return difference_matrix_x, difference_matrix_y, difference_matrix_z, difference_matrix_total
 
+    def arrays_in_list_to_list_in_list(self, traj):
+        return [list(x) for x in traj]
+
     def get_trajectories_ix_for_dtw(self, demonstrations):
         dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
         traj_to_dtw = []
@@ -285,12 +289,7 @@ class trajectoryParser():
 
         return trajectories, trajectories_lengths
 
-    def resample_trajectory(self, traj1, traj2):
-        traj2_pos = self.getCartesianPositions(traj2)
-        traj2_time = self._getTimeVector(traj2)
-        
-        T1 = self.secsNsecsToFloatSingle(traj1[-1])
-        T2 = self.secsNsecsToFloatSingle(traj2[-1])
+    def resample_trajectory(self,traj1, traj2):
 
         n1 = len(traj1)
         n2 = len(traj2)
@@ -300,17 +299,16 @@ class trajectoryParser():
         traj1 = self._normalize(traj1)
         traj2 = self._normalize(traj2)
 
-        dt_new = n2 / (n1 / dt1)
 
-        # traj1_pos = parser.getCartesianPositions(traj1)
-        # traj1_time = parser._getTimeVector(traj1)
+
+        dt_new = n2 / (n1 / dt1)
 
         traj2_pos = self.getCartesianPositions(traj2)
         traj2_time = self._getTimeVector(traj2)
 
         # we want to downsample to the smallest trajectory, which is traj1
         l = len(traj1)
-        xvals2 = np.linspace(0.0, T2, l)
+        xvals2 = np.linspace(dt_new, l*dt_new, l)
 
         traj2_time = np.asarray(self._secsNsecsToFloat(traj2_time))
         traj2_pos_x = np.asarray(self.getXpositions(traj2_pos)).reshape(len(traj2_pos), 1)
@@ -332,6 +330,7 @@ class trajectoryParser():
 
         traj2 = []
 
+        # print(object_info)
 
         for i,q in enumerate(self.interpolateQuaternions(qstart, qend, l, False)):
             traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + [q[1], q[2], q[3], q[0]] + object_info + [xvals2[i]])
@@ -343,7 +342,8 @@ class trajectoryParser():
         for traj in trajectories:
             traj_res = self.resample_trajectory(traj_min_length, traj)
             trajectories_resampled.append(traj_res)
-
+            # plt.plot(self.getCartesianPositions(traj_res))
+        # plt.show()
         return trajectories_resampled
 
     def resample_and_store_trajectories(self, trajectories, traj_min_length, output_path):
