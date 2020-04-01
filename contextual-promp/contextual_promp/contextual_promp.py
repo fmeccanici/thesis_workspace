@@ -2,7 +2,6 @@ import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from numpy.linalg import inv
-# import padasip as pa
 
 class ProMPContext(object):
     def __init__(self, joints, num_basis=20, sigma=0.1, num_points=1750):
@@ -34,75 +33,21 @@ class ProMPContext(object):
         self.Y = []
         self.sample = []
 
-    # def rls_update(self, demonstration)
-    #     currentY = []
-    #     currentW = []
-    #     for joint in range(0, self.num_joints):
-    #         # interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
-    #         # stretched_demo = interpolate(self.z)
-    #         currentY.append(demonstration)
-            
-    #         rls = pa.filters.FilterRLS(n=self.num_points, mu=0.99, w=self.W)
-
-
-    #         # Psi^T * Psi 
-    #         aux = np.dot(self.phi, self.phi.T)
-
-    #         # linear least squares  
-    #         # w = ( Psi^T * Psi )^-1 * Psi^T * tau
-    #         currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
-    #         currentW = np.append(currentW, currentJointW)
-
-    #         ####### recursive least squares
-    #         # n = len(self.joints)
-            
-    #         # # learning rate
-    #         # mu = 0.9
-
-    #         # d = np.dot(self.phi, currentJointW)
-    #         # f = pa.filters.FilterRLS(n=n, mu=mu)
-    #         # y, e, currentJointW = f.run()
-    #         #######
-    #     if self.no_traj:
-    #         self.Y = np.array(currentY)
-    #         self.W = currentW
-    #         self.no_traj = False
-    #         self.meanW = self.W
-    #     else:
-    #         self.Y = np.vstack((self.Y, np.array(currentY)))
-    #         self.W = np.vstack((self.W, currentW.T))
-    #         self.meanW = np.mean(self.W, 0)
-
-    #     self.sigmaW = np.cov(self.W.T)
-
     def add_demonstration(self, demonstration):
         self.nrTraj += 1
         currentY = []
         currentW = []
 
         for joint in range(0, self.num_joints):
+
+
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
             currentY.append(stretched_demo)
-
-            # Psi^T * Psi 
             aux = np.dot(self.phi, self.phi.T)
-
-            # linear least squares  
-            # w = ( Psi^T * Psi )^-1 * Psi^T * tau
             currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
             currentW = np.append(currentW, currentJointW)
 
-            ####### recursive least squares
-            # n = len(self.joints)
-            
-            # # learning rate
-            # mu = 0.9
-
-            # d = np.dot(self.phi, currentJointW)
-            # f = pa.filters.FilterRLS(n=n, mu=mu)
-            # y, e, currentJointW = f.run()
-            #######
         if self.no_traj:
             self.Y = np.array(currentY)
             self.W = currentW
@@ -144,7 +89,7 @@ class ProMPContext(object):
         plt.xlabel('t [s]')
         plt.ylabel('joint position [rad]')
         plt.legend()
-        
+
     def generate_trajectory(self, sigma=1e-6):
         newMu = self.meanW
         newSigma = self.sigmaW

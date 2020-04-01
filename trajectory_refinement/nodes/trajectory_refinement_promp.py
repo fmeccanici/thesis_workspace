@@ -540,7 +540,6 @@ if __name__ == "__main__":
     traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
     
     trajectories = []
-    # joints = ["joint_x", "joint_y", "joint_z", "dt", "object_x", "object_y", "object_z"]
     joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw",  "dt", "object_x", "object_y", "object_z"]
     
     for traj in traj_files:
@@ -554,37 +553,17 @@ if __name__ == "__main__":
     promp = ProMPContext(joints, num_points=num_points)
 
     goal = np.zeros(len(joints))
-    # goal[8:] = refinement_node.getGoalFromMarker()
 
     refinement_node.goToInitialPose()
 
-    # while goal[8] == 0.0:        
-    #     goal[8:] = refinement_node.getGoalFromMarker()
-
-    # for traj in trajectories:
-    #     plt.plot(refinement_node.parser.getCartesianPositions(traj))
-    # plt.show()
-    # print(trajectories[0])
     for traj in trajectories:
         traj = [list(pose) for pose in traj]
-        plt.plot(refinement_node.parser.getCartesianPositions(traj))
         promp.add_demonstration(np.array(traj))
-    plt.show()
     r = rospy.Rate(30)
 
     time.sleep(1)
 
     sigma_noise=0.03
-
-    # promp.clear_viapoints()
-    # promp.set_goal(goal, sigma=1e-6)
-
-    # generated_trajectory = promp.generate_trajectory(sigma_noise)
-
-    # traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
-
-
-    # refinement_node.executeTrajectory(traj_pred, dt)
 
     alpha = 1
 
@@ -637,7 +616,8 @@ if __name__ == "__main__":
             
 
             promp.add_demonstration(np.array(traj_add))
-
+            promp.plot_conditioned_joints()
+            plt.show()
             refine_counter += 1
         else:
             if input("Use refined or predicted trajectory for refinement? 1/0") == 1:

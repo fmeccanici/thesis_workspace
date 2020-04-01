@@ -1,27 +1,32 @@
 #!/usr/bin/env python3
 from promp_python.promp_python import *
-from trajectoryParser.trajectoryParser import *
+from trajectory_parser.trajectory_parser import *
 import numpy as np
 import os
+import rospy
 
+rospy.init_node('test')
 parser = trajectoryParser()
 
 
-DIR = './data/'
+DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
+# DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/'
 traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
 
 trajectories = []
 
 # joints = ["cartesian_x", "cartesian_y", "cartesian_z"]
 # joints = ["joint_x", "joint_y", "joint_z", "context"]
-joints = ["joint_x", "joint_y", "joint_z", "dt", "object_x", "object_y", "object_z"]
+# joints = ["joint_x", "joint_y", "joint_z", "dt", "object_x", "object_y", "object_z"]
 
-# joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw"  "dt", "object_x", "object_y", "object_z"]
+joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw",  "dt", "object_x", "object_y", "object_z"]
 
 
 # joints = ["joint_x", "context"]
 
 for traj in traj_files:
+    # print([t[8:] for t in traj])
+    plt.plot([t[8:] for t in traj])
     trajectory = parser.openTrajectoryFile(traj, DIR)
     trajectory = np.array(trajectory)
     trajectories.append(trajectory)
@@ -39,7 +44,7 @@ for traj in trajectories:
 
 promp.plot_unconditioned_joints()
 
-# plt.show()
+plt.show()
 
 goal = np.zeros(len(joints))
 # goal[4:] = [0.38, 0.81, 0.68]
