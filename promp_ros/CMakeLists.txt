@@ -27,18 +27,18 @@ find_package(Eigen REQUIRED)
 #   SetActiveDMP.srv
 # )
 
-generate_messages()
+#generate_messages()
 
-catkin_package(
-INCLUDE_DIRS include
-CATKIN_DEPENDS common_msgs image_common message_runtime
-)
+#catkin_package(
+#INCLUDE_DIRS include
+#CATKIN_DEPENDS common_msgs image_common message_runtime
+#)
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
-)
+#include_directories(
+#  include
+#  ${catkin_INCLUDE_DIRS}
+#  ${Eigen_INCLUDE_DIRS}
+#)
 
 #add_library(dmp src/dmp.cpp src/fourier_approx.cpp src/radial_approx.cpp src/linear_approx.cpp)
 #add_executable(dmp_server nodes/dmp_server.cpp)

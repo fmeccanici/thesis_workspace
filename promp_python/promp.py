@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2.7
+
 from promp_python.promp_python import *
 from trajectory_parser.trajectory_parser import *
 import numpy as np
 import os
 import rospy
 
-rospy.init_node('test')
 parser = trajectoryParser()
 
 
@@ -26,7 +26,7 @@ joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw",  "dt", "objec
 
 for traj in traj_files:
     # print([t[8:] for t in traj])
-    plt.plot([t[8:] for t in traj])
+    # plt.plot([t[8:] for t in traj])
     trajectory = parser.openTrajectoryFile(traj, DIR)
     trajectory = np.array(trajectory)
     trajectories.append(trajectory)
@@ -44,12 +44,11 @@ for traj in trajectories:
 
 promp.plot_unconditioned_joints()
 
-plt.show()
+# plt.show()
 
 goal = np.zeros(len(joints))
 # goal[4:] = [0.38, 0.81, 0.68]
-goal[4:] = [0.25, 0.75, 0.68]
-
+goal[8:] = [0.12, 0.0, 0.74]
 
 # promp.clear_viapoints()
 # promp.set_goal(goal, sigma=1e-6)

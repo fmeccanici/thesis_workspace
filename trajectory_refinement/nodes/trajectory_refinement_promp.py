@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 import rospy, time, tf, os
 import thread
@@ -32,6 +32,8 @@ from aruco_msgs.msg import MarkerArray
 
 from scipy.spatial.distance import euclidean
 from dynamic_time_warping.dynamic_time_warping import *
+
+import matplotlib.pyplot as plt
 
 class trajectoryStorageVariables():
     def __init__(self, open_loop_path, refined_path, resampled_path, raw_path, raw_file, new_path):
@@ -552,13 +554,18 @@ if __name__ == "__main__":
 
     promp = ProMPContext(joints, num_points=num_points)
 
-    goal = np.zeros(len(joints))
 
     refinement_node.goToInitialPose()
 
     for traj in trajectories:
-        traj = [list(pose) for pose in traj]
-        promp.add_demonstration(np.array(traj))
+        # traj = [list(pose) for pose in traj]
+        # plt.plot(refinement_node.parser.getCartesianPositions(traj))
+        promp.add_demonstration(traj)
+
+    goal = np.zeros(len(joints))
+
+    # promp.plot_unconditioned_joints()
+    # plt.show()
     r = rospy.Rate(30)
 
     time.sleep(1)
@@ -572,7 +579,9 @@ if __name__ == "__main__":
     refinement_node.clearTrajectoriesRviz()
 
     while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
-        
+
+
+
         if refine_counter % 2 == 0:
             rospy.loginfo("Determining trajectory...")
             goal[8:] = refinement_node.getGoalFromMarker()
@@ -585,7 +594,17 @@ if __name__ == "__main__":
             traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
             
             refine_counter += 1
-        
+
+            promp.plot_unconditioned_joints()
+            ## plot_conditioned_joints doesnt work, use this instead:
+            plt.figure()
+            for joint_id, joint_name in enumerate(joints[0:3]):
+                # print(joint_id)
+                plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+                plt.xlabel("datapoint [-]")
+
+            plt.legend()
+            plt.show()
 
         rospy.loginfo("Executing current predicted trajectory...")
         for i in range(50):
@@ -614,10 +633,21 @@ if __name__ == "__main__":
                 traj_add.append(traj_new[i][:-1] + [dt_new] + list(goal[8:]))
 
             
-
+            plt.plot([t[0:3] for t in traj_add])
             promp.add_demonstration(np.array(traj_add))
-            promp.plot_conditioned_joints()
-            plt.show()
+
+            
+            # promp.plot_unconditioned_joints()
+            # ## plot_conditioned_joints doesnt work, use this instead:
+            # plt.figure()
+            # for joint_id, joint_name in enumerate(joints):
+            #     # print(joint_id)
+            #     plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+            #     plt.xlabel("datapoint [-]")
+
+            # plt.legend()
+            # plt.show()
+
             refine_counter += 1
         else:
             if input("Use refined or predicted trajectory for refinement? 1/0") == 1:

@@ -1,6 +1,5 @@
-#!/usr/bin/env python2.7
-
-from __future__ import division, absolute_import
+#!/usr/bin/env python
+# from __future__ import absolute_import, division
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -87,8 +86,6 @@ class ProMPContext(object):
         for joint in range(0, self.num_joints):
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
-            if self.joints[joint][0] == 'j':
-                plt.plot(stretched_demo)
             currentY.append(stretched_demo)
 
             # Psi^T * Psi 
@@ -134,8 +131,7 @@ class ProMPContext(object):
         std = self.get_std()
 
         plt.figure(figsize=(6, 4))
-        # for joint_id, joint_name in enumerate(self.joints):
-        for joint_id, joint_name in enumerate(self.joints[0:3]):
+        for joint_id, joint_name in enumerate(self.joints):
             if 'joint' in joint_name:
                 plt.plot(np.arange(0, len(sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
                          self.num_points, sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], label=joint_name)
