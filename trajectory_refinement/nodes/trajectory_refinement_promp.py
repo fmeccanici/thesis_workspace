@@ -354,7 +354,7 @@ class trajectoryRefinement():
         plt.title('Predicted and refined trajectory before resampling')
         plt.xlabel('datapoint [-]')
         plt.ylabel('position [m]')
-        plt.show()
+        # plt.show()
 
         n_pred = len(pred_traj)
         n_refined = len(refined_traj)
@@ -410,7 +410,7 @@ class trajectoryRefinement():
         plt.title('Predicted and refined trajectory after resampling')
         plt.xlabel('datapoint [-]')
         plt.ylabel('position [m]')
-        plt.show()
+        # plt.show()
         # apply DTW
         y_refined_aligned, y_pred_aligned = DTW.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
         plt.plot(y_refined_aligned)
@@ -419,7 +419,7 @@ class trajectoryRefinement():
         plt.title('Predicted and refined trajectory after DTW')
         plt.xlabel('datapoint [-]')
         plt.ylabel('position [m]')
-        plt.show()
+        # plt.show()
         # lengths are the same so doesnt matter which length I take
         n = len(y_refined_aligned)
         qstart = refined_traj[0][3:7]
@@ -626,7 +626,7 @@ if __name__ == "__main__":
                 plt.xlabel("datapoint [-]")
 
             plt.legend()
-            plt.show()
+            # plt.show()
 
         rospy.loginfo("Executing current predicted trajectory...")
         for i in range(50):
@@ -659,7 +659,7 @@ if __name__ == "__main__":
             plt.title('New trajectory')
             plt.xlabel("datapoint [-]")
             plt.ylabel("position [m]")
-            plt.show()
+            # plt.show()
             promp.add_demonstration(np.array(traj_add))
 
             
@@ -674,7 +674,7 @@ if __name__ == "__main__":
                 plt.title('Predicted trajectory')
 
             plt.legend()
-            plt.show()
+            # plt.show()
             print('check')
             refine_counter += 1
         else:

@@ -158,7 +158,7 @@ class ProMPContext(object):
             print(len(self.W[1]))
             self.meanW = np.mean(self.W, 0)
 
-        plt.show()
+        # plt.show()
 
         self.sigmaW = np.cov(self.W.T)
         
@@ -196,7 +196,9 @@ class ProMPContext(object):
                                  alpha=0.2)
         plt.xlabel('t [s]')
         plt.ylabel('position [m]')
-        plt.title('Mean and variance')
+        # plt.title('Mean and variance')
+        plt.title('Model Welford')
+
         plt.legend()
         
     def generate_trajectory(self, sigma=1e-6):
