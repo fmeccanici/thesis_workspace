@@ -349,6 +349,13 @@ class trajectoryRefinement():
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser._getTimeVector(pred_traj)
 
+        plt.plot(refined_traj_pose)
+        plt.plot(pred_traj_pose)
+        plt.title('Predicted and refined trajectory before resampling')
+        plt.xlabel('datapoint [-]')
+        plt.ylabel('position [m]')
+        plt.show()
+
         n_pred = len(pred_traj)
         n_refined = len(refined_traj)
 
@@ -391,13 +398,28 @@ class trajectoryRefinement():
         yinterp_pred_y = interp1d((pred_traj_time), np.transpose(pred_traj_pos_y), axis=1, fill_value="extrapolate")
         yinterp_pred_z = interp1d((pred_traj_time), np.transpose(pred_traj_pos_z), axis=1, fill_value="extrapolate")
 
+
+
         y_pred_new_x = yinterp_pred_x(xvals_pred)
         y_pred_new_y = yinterp_pred_y(xvals_pred)
         y_pred_new_z = yinterp_pred_z(xvals_pred)
 
+        plt.plot(np.asarray([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])]).transpose())
+        plt.plot(np.asarray([list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])]).transpose())
+
+        plt.title('Predicted and refined trajectory after resampling')
+        plt.xlabel('datapoint [-]')
+        plt.ylabel('position [m]')
+        plt.show()
         # apply DTW
         y_refined_aligned, y_pred_aligned = DTW.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
+        plt.plot(y_refined_aligned)
+        plt.plot(y_pred_aligned)
 
+        plt.title('Predicted and refined trajectory after DTW')
+        plt.xlabel('datapoint [-]')
+        plt.ylabel('position [m]')
+        plt.show()
         # lengths are the same so doesnt matter which length I take
         n = len(y_refined_aligned)
         qstart = refined_traj[0][3:7]
@@ -634,20 +656,26 @@ if __name__ == "__main__":
 
             
             plt.plot([t[0:3] for t in traj_add])
+            plt.title('New trajectory')
+            plt.xlabel("datapoint [-]")
+            plt.ylabel("position [m]")
+            plt.show()
             promp.add_demonstration(np.array(traj_add))
 
             
             # promp.plot_unconditioned_joints()
-            # ## plot_conditioned_joints doesnt work, use this instead:
-            # plt.figure()
-            # for joint_id, joint_name in enumerate(joints):
-            #     # print(joint_id)
-            #     plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
-            #     plt.xlabel("datapoint [-]")
+            ## plot_conditioned_joints doesnt work, use this instead:
+            plt.figure()
+            for joint_id, joint_name in enumerate(joints[0:3]):
+                # print(joint_id)
+                plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+                plt.xlabel("datapoint [-]")
+                plt.ylabel('position [m]')
+                plt.title('Predicted trajectory')
 
-            # plt.legend()
-            # plt.show()
-
+            plt.legend()
+            plt.show()
+            print('check')
             refine_counter += 1
         else:
             if input("Use refined or predicted trajectory for refinement? 1/0") == 1:

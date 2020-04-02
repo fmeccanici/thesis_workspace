@@ -37,10 +37,16 @@ num_points = len(trajectories[0])
 # first had "num_points" as argument which causes the trajectories to be weird
 
 promp = ProMPContext(joints, num_points=num_points)
+promp.add_demonstration(trajectories[0])
+promp.add_demonstration(trajectories[1])
 
-for traj in trajectories:
+promp.init_welford()
+
+for traj in trajectories[2:]:
     # print(traj[0])
+    # promp.add_demonstration_welford(traj)
     promp.add_demonstration(traj)
+        
 
 promp.plot_unconditioned_joints()
 
@@ -113,7 +119,7 @@ for i in range(len(pred_traj_x)):
 #     pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], t])
 #     t += dt
 
-print('pred_traj' + str(pred_traj))
+# print('pred_traj' + str(pred_traj))
 
 plt.figure()
 for joint_id, joint_name in enumerate(joints):

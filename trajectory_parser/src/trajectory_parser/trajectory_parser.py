@@ -308,7 +308,7 @@ class trajectoryParser():
 
         # we want to downsample to the smallest trajectory, which is traj1
         l = len(traj1)
-        xvals2 = np.linspace(dt_new, l*dt_new, l)
+        xvals2 = np.linspace(0, l*dt_new, l)
 
         traj2_time = np.asarray(self._secsNsecsToFloat(traj2_time))
         traj2_pos_x = np.asarray(self.getXpositions(traj2_pos)).reshape(len(traj2_pos), 1)
@@ -342,8 +342,11 @@ class trajectoryParser():
         for traj in trajectories:
             traj_res = self.resample_trajectory(traj_min_length, traj)
             trajectories_resampled.append(traj_res)
-            # plt.plot(self.getCartesianPositions(traj_res))
-        # plt.show()
+            plt.plot(self.getCartesianPositions(traj))
+            plt.xlabel('datapoint [-]')
+            plt.ylabel('position [m]')
+            plt.title('Cartesian end effector positions before resampling')
+        plt.show()
         return trajectories_resampled
 
     def resample_and_store_trajectories(self, trajectories, traj_min_length, output_path):

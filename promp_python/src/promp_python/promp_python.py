@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from numpy.linalg import inv
 # import padasip as pa
+from welford.welford import *
 
 class ProMPContext(object):
     def __init__(self, joints, num_basis=20, sigma=0.1, num_points=1750):
@@ -38,6 +39,41 @@ class ProMPContext(object):
         self.Y = []
         self.sample = []
 
+    def init_welford(self):
+        self.welford = Welford(self.nrTraj, self.meanW, self.sigmaW)
+
+    def add_demonstration_welford(self, demonstration):
+        self.nrTraj += 1
+        
+
+        currentY = []
+        currentW = []
+
+        for joint in range(0, self.num_joints):
+            interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
+            stretched_demo = interpolate(self.z)
+            if self.joints[joint][0] == 'j':
+                plt.plot(stretched_demo)
+            currentY.append(stretched_demo)
+
+            # Psi^T * Psi 
+            aux = np.dot(self.phi, self.phi.T)
+
+            # linear least squares  
+            # w = ( Psi^T * Psi )^-1 * Psi^T * tau
+            currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
+            currentW = np.append(currentW, currentJointW)
+            
+
+        if self.no_traj:
+            self.Y = np.array(currentY)
+            self.W = currentW
+            self.no_traj = False
+            self.meanW = self.W
+        else:
+            self.W = np.vstack((self.W, currentW.T))
+            self.meanW, self.SigmaW = self.welford.update(currentW.T)
+        
     # def rls_update(self, demonstration)
     #     currentY = []
     #     currentW = []
@@ -89,14 +125,16 @@ class ProMPContext(object):
             stretched_demo = interpolate(self.z)
             if self.joints[joint][0] == 'j':
                 plt.plot(stretched_demo)
+                plt.xlabel('datapoint [-]')
+                plt.ylabel('position [m]')
             currentY.append(stretched_demo)
-
             # Psi^T * Psi 
             aux = np.dot(self.phi, self.phi.T)
 
             # linear least squares  
             # w = ( Psi^T * Psi )^-1 * Psi^T * tau
             currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
+            # print(len(currentW))
             currentW = np.append(currentW, currentJointW)
 
             ####### recursive least squares
@@ -117,9 +155,17 @@ class ProMPContext(object):
         else:
             self.Y = np.vstack((self.Y, np.array(currentY)))
             self.W = np.vstack((self.W, currentW.T))
+            print(len(self.W[1]))
             self.meanW = np.mean(self.W, 0)
 
+        plt.show()
+
         self.sigmaW = np.cov(self.W.T)
+        
+        # try:
+        #     print(str(self.nrTraj) + ' ' + str(len(self.sigmaW[0]) + len(self.sigmaW[1])))
+        # except:
+        #     pass
 
     def get_trajectory_fromweights(self, weights):
         aux = np.dot(self.Phi.T, weights)
@@ -149,7 +195,8 @@ class ProMPContext(object):
                              std[joint_id*self.num_points:(joint_id+1)*self.num_points],
                                  alpha=0.2)
         plt.xlabel('t [s]')
-        plt.ylabel('joint position [rad]')
+        plt.ylabel('position [m]')
+        plt.title('Mean and variance')
         plt.legend()
         
     def generate_trajectory(self, sigma=1e-6):

@@ -63,7 +63,7 @@ class DTW():
         ix_for_dtw = parser.get_trajectories_ix_for_dtw(traj_for_learning)
         ix_for_dtw_copy = ix_for_dtw
 
-        # counter = 1 
+        counter = 1 
         while len(ix_for_dtw_copy) > 0:
 
             to_dtw = []
@@ -104,19 +104,27 @@ class DTW():
                     y = parser.arrays_in_list_to_list_in_list(y)
                     x = parser.arrays_in_list_to_list_in_list(x)
 
-                    # if counter == 1:
-                    #     # plt.plot(parser.getCartesianPositions(traj_for_learning[reference]))
-                    #     # plt.plot(parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
-                    #     plt.plot(parser.getCartesianPositions(x))
-                    #     plt.plot(parser.getCartesianPositions(y))
-                    #     counter += 1
-                    #     print(parser.getCartesianPositions(x)[0])
+                    if counter == 1:
+                        plt.subplot(211)
+                        plt.title('Before DTW')
+                        plt.xlabel('datapoint [-]')
+                        plt.ylabel('position [m]')
+                        plt.plot(parser.getCartesianPositions(traj_for_learning[reference]))
+                        plt.plot(parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
+                        plt.subplot(212)
+                        plt.title('After DTW')
+                        plt.xlabel('datapoint [-]')
+                        plt.ylabel('position [m]')
+                        plt.plot(parser.getCartesianPositions(x))
+                        plt.plot(parser.getCartesianPositions(y))
+                        counter += 1
+                        # print(parser.getCartesianPositions(x)[0])
                     del traj_for_learning[to_dtw[i]]
                     del traj_for_learning[reference]
 
                     traj_for_learning.append(y)
                     traj_for_learning.append(x)
-
+        plt.show()
         return traj_for_learning
 
     def store_resampled_aligned_trajectories(self, traj, output_path):
@@ -134,6 +142,8 @@ if __name__ == "__main__":
     dt = 0.01
 
     traj_aligned_for_learning = dtw.align_necessary_trajectories(input_path, dt)
+    for traj in traj_aligned_for_learning:
+        print(len(traj))
     dtw.store_resampled_aligned_trajectories(traj_aligned_for_learning, output_path)
 
  

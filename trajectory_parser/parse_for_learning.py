@@ -2,6 +2,7 @@
 
 from trajectory_parser.trajectory_parser import *
 import numpy as np
+import matplotlib.pyplot as plt
 
 parser = trajectoryParser()
 
@@ -20,7 +21,11 @@ traj_res = parser.resample_trajectories(trajectories, traj_min_length)
 
 traj_for_learning = []
 for traj in traj_res:
+    plt.plot(parser.getCartesianPositions(traj))
     traj_for_learning.append(parser.get_relevant_learning_data(traj))
-
+    plt.xlabel('datapoint [-]')
+    plt.ylabel('position [m]')
+    plt.title('Cartesian end effector positions after resampling')
+plt.show()
 ix_for_dtw = parser.get_trajectories_ix_for_dtw(traj_for_learning)
-print(ix_for_dtw)
+
