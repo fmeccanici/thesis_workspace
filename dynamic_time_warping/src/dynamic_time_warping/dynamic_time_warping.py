@@ -69,10 +69,15 @@ class DTW():
             to_dtw = []
             to_dtw.append(ix_for_dtw_copy[0][0])
             to_dtw.append(ix_for_dtw_copy[0][1])
+            print(to_dtw)
             del ix_for_dtw_copy[0]
 
             for i in range(len(ix_for_dtw_copy)):
-
+                # if counter == 1:
+                #     print(ix_for_dtw_copy[i][0] in to_dtw)
+                # print(to_dtw)
+                #     print(ix_for_dtw_copy[i] not in to_dtw)
+                #     counter += 1
                 if ix_for_dtw_copy[i][0] in to_dtw and ix_for_dtw_copy[i][1] not in to_dtw:
                     to_dtw.append(traj_for_learning[ix_for_dtw_copy[i][1]])
                     ix_for_dtw_copy = ix_for_dtw
@@ -137,7 +142,7 @@ if __name__ == "__main__":
     parser = trajectoryParser()
     dtw = DTW()
 
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_optical/'
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee2/'
     output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     dt = 0.01
 

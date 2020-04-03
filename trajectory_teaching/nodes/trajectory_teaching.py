@@ -32,81 +32,41 @@ class trajectoryTeaching():
 
         self.EEtrajectory = []
 
+        self.end_effector_pose_wrt_marker_sub = rospy.Subscriber("/end_effector_pose_wrt_marker", PoseStamped, self._end_effector_pose_wrt_marker_callback)
+        # self.slave_control_state_sub = rospy.Subscriber("slave_control_state", ControlState, self._slave_control_state_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
-        self.slave_control_state_sub = rospy.Subscriber("slave_control_state", ControlState, self._slave_control_state_callback)
 
         self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.parser = trajectoryParser()
 
-        self.set_marker_pose_counter = 0
-        self.object_marker_pose_continuous = Pose()
-
-        # master pose that is used for calculations of the robot arm wrt object
-        self.marker_pose_static = Pose()
-    
+        self.marker_pose = Pose()
     def _marker_detection_callback(self, data):
         # print("marker pose = " + str(self.marker_pose_static.position))
         for marker in data.markers:
             if marker.id == 582:
-                self.object_marker_pose_continuous = marker.pose.pose
+                self.marker_pose = marker.pose.pose
             else: continue
-
-    def set_marker_pose(self):
-        self.marker_pose_static = self.object_marker_pose_continuous
-        
-    def _end_effector_pose_callback(self,data):
+    def _end_effector_pose_callback(self, data):
         self.current_slave_pose = data.pose
 
-    # @profile
-    def ee_pose_wrt_object(self, ee_pose):
-        # print(ee_pose)
-        # print(self.object_marker_pose_continuous)
-        ee_pos_wrt_base = ([ee_pose.pose.position.x, ee_pose.pose.position.y, ee_pose.pose.position.z])
-        ee_orient_wrt_base = ([ee_pose.pose.orientation.w, ee_pose.pose.orientation.x, ee_pose.pose.orientation.y, ee_pose.pose.orientation.z])
-        # marker_pos_wrt_base = np.asarray([self.marker_pose_static.position.x, self.marker_pose_static.position.y, self.marker_pose_static.position.z])
-        # marker_orient_wrt_base = np.asarray([self.marker_pose_static.orientation.x, self.marker_pose_static.orientation.y, self.marker_pose_static.orientation.z, self.marker_pose_static.orientation.w])
-        marker_pos_wrt_base = ([self.object_marker_pose_continuous.position.x, self.object_marker_pose_continuous.position.y, self.object_marker_pose_continuous.position.z])
-        marker_orient_wrt_base = ([self.object_marker_pose_continuous.orientation.w, self.object_marker_pose_continuous.orientation.x, self.object_marker_pose_continuous.orientation.y, self.object_marker_pose_continuous.orientation.z])
-
-        print(np.subtract(ee_pos_wrt_base, marker_pos_wrt_base))
-        # print('ee: ' + str(ee_pos_wrt_base) + '\n')
-        # print('marker: ' + str(marker_pos_wrt_base) + '\n')
-
-        # qdelta = qtarget * qcurrent^-1
-        q_marker = Quaternion(marker_orient_wrt_base)
-        q_ee = Quaternion(ee_orient_wrt_base)
-        # marker_orient_wrt_base_inv = [marker_orient_wrt_base[0], marker_orient_wrt_base[1], marker_orient_wrt_base[2], marker_orient_wrt_base[3]]
-        # ee_orient_wrt_base_inv = [ee_orient_wrt_base[0], ee_orient_wrt_base[1], ee_orient_wrt_base[2], -ee_orient_wrt_base[3]]
-        # q_ee_wrt_marker = tf.transformations.quaternion_multiply(marker_orient_wrt_base, ee_orient_wrt_base_inv)
-        q_ee_wrt_marker = q_marker * q_ee.inverse
-
-        # express r_ee in marker frame instead of base_footprint
-        # r_ee_wrt_marker = q_ee_wrt_marker.rotate(np.subtract(ee_pos_wrt_base, marker_pos_wrt_base))
-        p = list(np.subtract(ee_pos_wrt_base, marker_pos_wrt_base))
-        # p.append(0.0)
-        # r_ee_wrt_marker = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q_ee_wrt_marker, p), tf.transformations.quaternion_inverse(q_ee_wrt_marker))
-        r_ee_wrt_marker = q_ee_wrt_marker.rotate(p)
-
-        # print(tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q_ee_wrt_marker, p), tf.transformations.quaternion_conjugate(q_ee_wrt_marker)))
-        # print(r_ee_wrt_marker)
-
-        new_pose = PoseStamped()
-        new_pose.pose.position.x = r_ee_wrt_marker[0] 
-        new_pose.pose.position.y = r_ee_wrt_marker[1] 
-        new_pose.pose.position.z = r_ee_wrt_marker[2] 
-        new_pose.pose.orientation.x = q_ee_wrt_marker[0]
-        new_pose.pose.orientation.y = q_ee_wrt_marker[1]
-        new_pose.pose.orientation.z = q_ee_wrt_marker[2]
-        new_pose.pose.orientation.w = q_ee_wrt_marker[3]
-        new_pose.header.stamp = ee_pose.header.stamp
-        new_pose.header.frame_id = 'marker'
-
-        # print(new_pose)
-
-        return new_pose
+    def _end_effector_pose_wrt_marker_callback(self,data):
         
+        if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
+            print("Appending trajectory")
+            data.header.stamp.secs = data.header.stamp.secs
+            data.header.stamp.nsecs = data.header.stamp.nsecs
+
+
+            # marker x and y seem to be flipped wrt base_footprint
+            # therefore first position.y then position.x for marker_pose
+            self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,
+             data.pose.orientation.x,data.pose.orientation.y,data.pose.orientation.z,data.pose.orientation.w,
+             self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
+             self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
+             data.header.stamp.secs, data.header.stamp.nsecs])
+            
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
@@ -164,34 +124,6 @@ class trajectoryTeaching():
             self.white_button_toggle = not self.white_button_toggle
             self.white_button_toggle_previous = not self.white_button_toggle
 
-
-    def _slave_control_state_callback(self,data):
-        
-        # if self.marker_pose_static.position.x != 0.0:
-        data.slave_pose = self.ee_pose_wrt_object(data.slave_pose)
-        # print(data.slave_pose)
-
-        if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
-            print("Appending trajectory")
-            if self.set_marker_pose_counter % 2 == 0:
-                self.set_marker_pose()
-                self.set_marker_pose_counter += 1
-            
-            if self.marker_pose_static.position.x != 0.0:
-                data.slave_pose = self.ee_pose_wrt_object(data.slave_pose)
-
-            data.slave_pose.header.stamp.secs = data.header.stamp.secs
-            data.slave_pose.header.stamp.nsecs = data.header.stamp.nsecs
-
-
-            # marker x and y seem to be flipped wrt base_footprint
-            # therefore first position.y then position.x for marker_pose
-            self.EEtrajectory.append([data.slave_pose.pose.position.x,data.slave_pose.pose.position.y,data.slave_pose.pose.position.z,
-             data.slave_pose.pose.orientation.x,data.slave_pose.pose.orientation.y,data.slave_pose.pose.orientation.z,data.slave_pose.pose.orientation.w,
-             self.marker_pose_static.position.y, self.marker_pose_static.position.x, self.marker_pose_static.position.z,
-             self.marker_pose_static.orientation.x, self.marker_pose_static.orientation.y, self.marker_pose_static.orientation.z, self.marker_pose_static.orientation.w, 
-             data.header.stamp.secs, data.header.stamp.nsecs])
-            
     def _save_data(self, path, file_name):
         with open(path+file_name, 'w+') as f:
             f.write(str(self.EEtrajectory))
@@ -210,16 +142,15 @@ class trajectoryTeaching():
             return "raw_trajectory_" + str(int(os.path.splitext(files[-1])[0].split('_')[-1]) + 1) + ".txt"
 
     def run(self):
-        # teaching_node.goToInitialPose()
+        teaching_node.goToInitialPose()
         r = rospy.Rate(30)
         while not rospy.is_shutdown():
 
             if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
-                self.set_marker_pose_counter += 1
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee2/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)

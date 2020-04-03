@@ -1,6 +1,8 @@
 <launch>
-    <node pkg="trajectory_teaching" name="trajectory_teaching" type="trajectory_teaching.py" output="screen">
-    </node>
+
+<node pkg="trajectory_teaching" name="ee_wrt_marker_publisher" 
+type="ee_wrt_marker_publisher.py" output="screen"/>
+ 
 
 <include file="$(find teleop_control)/launch/teleop_control.launch" >
     <arg name="part_to_publish" value="both" />
@@ -11,5 +13,9 @@
     <arg name="ref_frame" value="base_footprint"/>
 
 </include>
+
+<node pkg="trajectory_teaching" name="trajectory_teaching" type="trajectory_teaching.py" output="screen">
+</node>
+
 
 </launch>

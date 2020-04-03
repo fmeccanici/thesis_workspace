@@ -8,7 +8,7 @@ import numpy as np
 
 class EEwrtMarkerPublisher():
     def __init__(self):
-        rospy.init_node('ee_publisher')
+        rospy.init_node('ee_wrt_marker_publisher')
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
@@ -43,7 +43,7 @@ class EEwrtMarkerPublisher():
         new_pose.pose.orientation.y = ee_orient_wrt_base[1]
         new_pose.pose.orientation.z = ee_orient_wrt_base[2]
         new_pose.pose.orientation.w = ee_orient_wrt_base[3]
-        new_pose.header.stamp = ee_pose.header.stamp
+        new_pose.header.stamp = rospy.Time.now()
         new_pose.header.frame_id = 'base_footprint'
 
 
