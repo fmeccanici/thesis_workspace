@@ -34,6 +34,7 @@ from scipy.spatial.distance import euclidean
 from dynamic_time_warping.dynamic_time_warping import *
 
 import matplotlib.pyplot as plt
+from pyquaternion import Quaternion
 
 class trajectoryStorageVariables():
     def __init__(self, open_loop_path, refined_path, resampled_path, raw_path, raw_file, new_path):
@@ -260,14 +261,19 @@ class trajectoryRefinement():
             # calculate next pose wrt current pose
             if i <= len(traj_pos)-2:
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[i+1]), np.array(traj_pos[i]))
+                # pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[i]), np.array(traj_pos[i+1]))
+
             else:
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[-1]), np.array(traj_pos[-2]))
+                # pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[-2]), np.array(traj_pos[-1]))
 
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
             pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
 
             ## transform this pose to base_footprint
+            p = list(pos_next_wrt_pos_current)
+
             q2 = list(pos_next_wrt_pos_current)
             q2.append(0.0)
             if i <= len(traj_pos)-1:
@@ -277,12 +283,17 @@ class trajectoryRefinement():
 
             # f(p) = q*p*q^(-1) --> Rotate vector 
             qv = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q2,q1), tf.transformations.quaternion_conjugate(q1))[:3]
+            # q = Quaternion([q1[3], q1[0], q1[1], q1[2]])
+            # p_wrt_base = q.rotate(-1*np.asarray(p))
             
             # add position of traj[i] wrt base
             if i <= len(traj_pos)-1:
                 vnew = qv + traj_pos[i]
+                # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[i]))
+                print(vnew)
             else:
                 vnew = qv + traj_pos[-1]
+                # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[-1]))
 
             # t = self.parser._secsNsecsToFloat([rospy.Time.now().secs, rospy.Time.now().nsecs])
 

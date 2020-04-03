@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy
+import rospy, tf
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from slave_control.msg import ControlState
 from os import listdir
@@ -38,7 +38,6 @@ class trajectoryTeaching():
 
         self.object_marker_pose = Pose()
 
-
     def _marker_detection_callback(self, data):
         print("marker pose = " + str(self.object_marker_pose.position))
         for marker in data.markers:
@@ -48,6 +47,16 @@ class trajectoryTeaching():
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
+
+    def ee_pose_wrt_object(self, ee_pose):
+        ee_pos_wrt_base = np.asarray([ee_pose.position.x, ee_pose.position.y, ee_pose.position.z])
+        ee_orient_wrt_base = np.asarray([ee_pose.orientation.x, ee_pose.orientation.y, ee_pose.orientation.z, ee_pose.orientation.w])
+        marker_pos_wrt_base = np.asarray([self.object_marker_pose.position.x, self.object_marker_pose.position.y, self.object_marker_pose.position.z])
+        marker_orient_wrt_base = np.asarray([self.object_marker_pose.orientation.x, self.object_marker_pose.orientation.y, self.object_marker_pose.orientation.z, self.object_marker_pose.orientation.w])
+
+
+        r_ee_wrt_obj = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(marker_orient_wrt_base, np.subtract(ee_pos_wrt_base, marker_pos_wrt_base)), tf.transformations.quaternion_conjugate(marker_orient_wrt_base))[:3]
+        print(r_ee_wrt_obj)
 
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
@@ -149,7 +158,7 @@ class trajectoryTeaching():
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_optical/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)

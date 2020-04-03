@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-import rospy, sys, cv2
+import rospy, sys, cv2, Tkinter, subprocess
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
@@ -9,8 +9,10 @@ class GUI():
     def __init__(self):
         self.node_name = "gui"
         rospy.init_node(self.node_name)
-
         rospy.on_shutdown(self.cleanup)
+
+        self.top = Tkinter.Tk()
+
         self.cv_window_name = self.node_name
         self.bridge = CvBridge()
 
@@ -56,12 +58,16 @@ class GUI():
         print("Shutting down vision node.")
         cv2.destroyAllWindows()   
     
+    def init_ros():
+        subprocess.call(["rosrun"])
+        
 def main(args):
     try:
         gui = GUI()
         r = rospy.Rate(30)
         while not rospy.is_shutdown(): 
                 gui.concatenate_video()
+                gui.top.mainloop()
                 r.sleep()
     except KeyboardInterrupt:
         print("Shutting down vision node.")
