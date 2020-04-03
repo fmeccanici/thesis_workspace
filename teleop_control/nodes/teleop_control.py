@@ -43,9 +43,12 @@ class teleopControl():
             ee_pose.pose.position.x = data.pose.position.x
             ee_pose.pose.position.y = data.pose.position.y
             ee_pose.pose.position.z = data.pose.position.z
+
             ee_pose.pose.orientation.x = data.pose.orientation.x
             ee_pose.pose.orientation.y = data.pose.orientation.y
             ee_pose.pose.orientation.z = data.pose.orientation.z
+            ee_pose.pose.orientation.w = data.pose.orientation.w
+
             ee_pose.header.stamp = rospy.Time.now()
             self.end_effector_goal_pub.publish(ee_pose)
 

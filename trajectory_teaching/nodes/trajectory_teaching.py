@@ -12,6 +12,7 @@ from scipy.interpolate import interp1d
 
 from trajectory_parser.trajectory_parser import *
 from aruco_msgs.msg import MarkerArray
+from pyquaternion import Quaternion
 
 class trajectoryTeaching():
     def __init__(self):
@@ -49,15 +50,32 @@ class trajectoryTeaching():
         self.current_slave_pose = data.pose
 
     def ee_pose_wrt_object(self, ee_pose):
-        ee_pos_wrt_base = np.asarray([ee_pose.position.x, ee_pose.position.y, ee_pose.position.z])
-        ee_orient_wrt_base = np.asarray([ee_pose.orientation.x, ee_pose.orientation.y, ee_pose.orientation.z, ee_pose.orientation.w])
+        ee_pos_wrt_base = np.asarray([ee_pose.pose.position.x, ee_pose.pose.position.y, ee_pose.pose.position.z])
+        ee_orient_wrt_base = np.asarray([ee_pose.pose.orientation.x, ee_pose.pose.orientation.y, ee_pose.pose.orientation.z, ee_pose.pose.orientation.w])
         marker_pos_wrt_base = np.asarray([self.object_marker_pose.position.x, self.object_marker_pose.position.y, self.object_marker_pose.position.z])
         marker_orient_wrt_base = np.asarray([self.object_marker_pose.orientation.x, self.object_marker_pose.orientation.y, self.object_marker_pose.orientation.z, self.object_marker_pose.orientation.w])
 
+        # qdelta = qtarget * qcurrent^-1
+        q_marker = Quaternion(marker_orient_wrt_base)
+        q_ee = Quaternion(ee_orient_wrt_base)
+        q_ee_wrt_marker = q_ee * q_marker.inverse
 
-        r_ee_wrt_obj = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(marker_orient_wrt_base, np.subtract(ee_pos_wrt_base, marker_pos_wrt_base)), tf.transformations.quaternion_conjugate(marker_orient_wrt_base))[:3]
-        print(r_ee_wrt_obj)
+        # express r_ee in marker frame instead of base_footprint
+        r_ee_wrt_marker = q_ee_wrt_marker.rotate(np.subtract(ee_pos_wrt_base, marker_pos_wrt_base))
+        
+        new_pose = PoseStamped()
+        new_pose.pose.position.x = r_ee_wrt_marker[0] 
+        new_pose.pose.position.y = r_ee_wrt_marker[1] 
+        new_pose.pose.position.z = r_ee_wrt_marker[2] 
+        new_pose.pose.orientation.x = q_ee_wrt_marker[1]
+        new_pose.pose.orientation.y = q_ee_wrt_marker[2]
+        new_pose.pose.orientation.z = q_ee_wrt_marker[3]
+        new_pose.pose.orientation.w = q_ee_wrt_marker[0]
+        new_pose.header = ee_pose.header
 
+        print(new_pose.pose.position.x)
+        return new_pose
+        
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
@@ -118,10 +136,14 @@ class trajectoryTeaching():
 
     def _slave_control_state_callback(self,data):
 
+        data.slave_pose = self.ee_pose_wrt_object(data.slave_pose)
+
+
         if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
             print("Appending trajectory")
             data.slave_pose.header.stamp.secs = data.header.stamp.secs
             data.slave_pose.header.stamp.nsecs = data.header.stamp.nsecs
+            # data.slave_pose = self.ee_pose_wrt_object(data.slave_pose)
 
             # marker x and y seem to be flipped wrt base_footprint
             # therefore first position.y then position.x for marker_pose

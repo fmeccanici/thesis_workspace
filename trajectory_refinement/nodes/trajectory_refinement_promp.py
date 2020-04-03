@@ -290,7 +290,7 @@ class trajectoryRefinement():
             if i <= len(traj_pos)-1:
                 vnew = qv + traj_pos[i]
                 # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[i]))
-                print(vnew)
+                # print(vnew)
             else:
                 vnew = qv + traj_pos[-1]
                 # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[-1]))
