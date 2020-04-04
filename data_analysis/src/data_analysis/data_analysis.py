@@ -23,9 +23,10 @@ class dataAnalysis():
             
 
 if __name__ == "__main__":
-    DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
+    DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee2/'
 
+    col = ["EE_x", "EE_y", "EE_z", "EE_qx", "EE_qy","EE_qz", "EE_qw", "marker_x", "marker_y", "marker_z", "marker_qx", "marker_qy", "marker_qz", "marker_qw", "secs", "nsecs"]
     analys = dataAnalysis(DIR)
-    analys.set_columns()
+    analys.set_columns(col)
     analys.traj_files_to_csv()
 
