@@ -368,17 +368,49 @@ class trajectoryParser():
             traj_new.append(data[0:7] + [dt] + data[7:10])
 
         return traj_new
+    
+    def parse_to_relative_trajectory(self, input_path):
+        traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
+        trajs = []
+        for traj in traj_files:
+            trajs.append(self.openTrajectoryFile(traj, input_path))
 
+        traj_files_parsed = []
+        for traj in trajs:
+            marker_pos = traj[0][7:10]
+            traj_files_parsed.append(self.traj_wrt_base_to_wrt_marker(marker_pos, traj)) 
+
+    def traj_wrt_base_to_wrt_marker(self, marker_pos, traj):
+        marker_wrt_base = np.asarray(marker_pos)
+
+        traj_wrt_ee = []
+        for data in traj:
+            
+            pos = list(np.subtract(data[0:3], marker_wrt_base))
+            ori = list(data[3:7])
+            traj_wrt_ee.append(pos + ori + data[7:])
+        
+        return traj_wrt_ee
+
+    def marker_wrt_base_to_marker_wrt_ee(self, marker_pos, traj):
+        marker_wrt_ee = np.asarray(marker_pos)
+
+        marker_wrt_ee = []
+        for data in traj:
+            pos = list(np.subtract(marker_wrt_ee, data[0:3]))
+            ori = list(data[3:7])
+            marker_wrt_ee.append(pos)
+        
+        return traj_wrt_ee
+
+    def prepare_for_learning(self, input_path, output_path):
+        relative_trajectories = parser.parse_to_relative_trajectory(input_path)
+        for traj in relative_trajectories:
+            context = traj[7:11]
+            
 if __name__ == "__main__":
+    parser = trajectoryParser()
 
-    trajectory_parser = trajectoryParser()
-    traj_file = "EEtrajectory_5.txt"
-    path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/"
-    dt = 0.1
-    resampled_trajectory = (trajectory_parser.parse(traj_file, path, dt))
+    dt = 0.01
 
-    res_traj_file = "EEtrajectory_5_resampled.txt"
-    res_path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/resampled/"
-
-    with open(res_path + res_traj_file, 'w+') as f:
-        f.write(str(resampled_trajectory))
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object2/'

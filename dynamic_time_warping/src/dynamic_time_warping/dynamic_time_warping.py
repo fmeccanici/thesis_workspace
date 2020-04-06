@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 import os, os.path
 
 class DTW():
+    def __init__(self):
+        self.parser = trajectoryParser()
+
+
     def set_trajectories(self, demonstrations):
         self.trajectories = demonstrations
 
@@ -46,21 +50,22 @@ class DTW():
                 similarity[i] += distance
         
         return np.argmin(similarity)
-   
+
+
     def align_necessary_trajectories(self, input_path, dt):
         traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
         num_traj = len(traj_files)
-        trajectories, trajectories_lengths = parser.load_trajectories_from_folder_and_downsample(input_path, dt)
+        trajectories, trajectories_lengths = self.parser.load_trajectories_from_folder_and_downsample(input_path, dt)
         traj_min_length = trajectories[np.argmin(trajectories_lengths)]
         
         del trajectories[np.argmin(trajectories_lengths)]
-        traj_res = parser.resample_trajectories(trajectories, traj_min_length)
+        traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
         traj_for_learning = []
         for traj in traj_res:
-            traj_for_learning.append(parser.get_relevant_learning_data(traj))
+            traj_for_learning.append(self.parser.get_relevant_learning_data(traj))
 
 
-        ix_for_dtw = parser.get_trajectories_ix_for_dtw(traj_for_learning)
+        ix_for_dtw = self.parser.get_trajectories_ix_for_dtw(traj_for_learning)
         print("trajectories with same context: " + str(ix_for_dtw))
         ix_for_dtw_copy = ix_for_dtw
         
@@ -119,24 +124,24 @@ class DTW():
                 if to_dtw[i] != reference:
 
                     x,y = dtw.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
-                    y = parser.arrays_in_list_to_list_in_list(y)
-                    x = parser.arrays_in_list_to_list_in_list(x)
+                    y = self.parser.arrays_in_list_to_list_in_list(y)
+                    x = self.parser.arrays_in_list_to_list_in_list(x)
 
                     if counter == 1:
                         plt.subplot(211)
                         plt.title('Before DTW')
                         plt.xlabel('datapoint [-]')
                         plt.ylabel('position [m]')
-                        plt.plot(parser.getCartesianPositions(traj_for_learning[reference]))
-                        plt.plot(parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
+                        plt.plot(self.parser.getCartesianPositions(traj_for_learning[reference]))
+                        plt.plot(self.parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
                         plt.subplot(212)
                         plt.title('After DTW')
                         plt.xlabel('datapoint [-]')
                         plt.ylabel('position [m]')
-                        plt.plot(parser.getCartesianPositions(x))
-                        plt.plot(parser.getCartesianPositions(y))
+                        plt.plot(self.parser.getCartesianPositions(x))
+                        plt.plot(self.parser.getCartesianPositions(y))
                         counter += 1
-                        # print(parser.getCartesianPositions(x)[0])
+                        # print(self.parser.getCartesianPositions(x)[0])
                     del traj_for_learning[to_dtw[i]]
                     del traj_for_learning[reference]
 
@@ -152,12 +157,13 @@ class DTW():
             traj_file.close()
 
 if __name__ == "__main__":
-    parser = trajectoryParser()
     dtw = DTW()
 
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee3/'
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/marker_wrt_base_ee_wrt_marker/'
     output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     dt = 0.01
+
+    # traj_parsed = dtw.parse_to_relative_trajectory(input_path)
 
     traj_aligned_for_learning = dtw.align_necessary_trajectories(input_path, dt)
     for traj in traj_aligned_for_learning:
