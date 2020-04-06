@@ -63,84 +63,86 @@ class DTW():
         ix_for_dtw = parser.get_trajectories_ix_for_dtw(traj_for_learning)
         print("trajectories with same context: " + str(ix_for_dtw))
         ix_for_dtw_copy = ix_for_dtw
+        
+        # use DTW when needed
+        if len(ix_for_dtw) > 0:
 
+            counter = 1 
 
-        counter = 1 
+            # code to determine which trajectories we need to align
+            # we need to align the trajectories with DTW that have similar context
+            i = 0
+            to_dtw = []
+            to_dtw.append(ix_for_dtw_copy[0][0])
+            to_dtw.append(ix_for_dtw_copy[0][1])
+            del ix_for_dtw_copy[0]
 
-        # code to determine which trajectories we need to align
-        # we need to align the trajectories with DTW that have similar context
-        i = 0
-        to_dtw = []
-        to_dtw.append(ix_for_dtw_copy[0][0])
-        to_dtw.append(ix_for_dtw_copy[0][1])
-        del ix_for_dtw_copy[0]
-
-        # we loop until we have had all possible combinations
-        while len(ix_for_dtw_copy) > 0:
-            
-            # if either one of the trajectories was already covered
-            # we know for sure that we need to add this one too
-            # as both combinations exist
-            if ix_for_dtw_copy[i][0] in to_dtw and ix_for_dtw_copy[i][1] not in to_dtw:
-                to_dtw.append(ix_for_dtw_copy[i][1])
-                ix_for_dtw_copy = ix_for_dtw
-
-                del ix_for_dtw_copy[i]
-            elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] not in to_dtw:
-                to_dtw.append(ix_for_dtw_copy[i][0])
-                ix_for_dtw_copy = ix_for_dtw
-
-                del ix_for_dtw_copy[i]
-
-            # if both are not in the to_dtw vector we need to add both of them
-            elif ix_for_dtw_copy[i][1] not in to_dtw and ix_for_dtw_copy[i][0] not in to_dtw:
-                to_dtw.append(ix_for_dtw_copy[i][0])
-                to_dtw.append(ix_for_dtw_copy[i][1])
-
-                del ix_for_dtw_copy[i]
-
-            # if both are already in the to_dtw we do nothing but delete this tuple
-            elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] in to_dtw:
+            # we loop until we have had all possible combinations
+            while len(ix_for_dtw_copy) > 0:
                 
-                del ix_for_dtw_copy[i]
-        print("trajectories to be aligned: " + str(to_dtw))
-        
-        traj_to_dtw = []
-        for i in range(len(to_dtw)):
-            traj_to_dtw.append(traj_for_learning[to_dtw[i]])
-        
-        reference = dtw.determine_reference(traj_to_dtw)
-        reference = to_dtw[reference]
+                # if either one of the trajectories was already covered
+                # we know for sure that we need to add this one too
+                # as both combinations exist
+                if ix_for_dtw_copy[i][0] in to_dtw and ix_for_dtw_copy[i][1] not in to_dtw:
+                    to_dtw.append(ix_for_dtw_copy[i][1])
+                    ix_for_dtw_copy = ix_for_dtw
 
-        for i in range(len(to_dtw)):
+                    del ix_for_dtw_copy[i]
+                elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] not in to_dtw:
+                    to_dtw.append(ix_for_dtw_copy[i][0])
+                    ix_for_dtw_copy = ix_for_dtw
 
-            if to_dtw[i] != reference:
+                    del ix_for_dtw_copy[i]
 
-                x,y = dtw.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
-                y = parser.arrays_in_list_to_list_in_list(y)
-                x = parser.arrays_in_list_to_list_in_list(x)
+                # if both are not in the to_dtw vector we need to add both of them
+                elif ix_for_dtw_copy[i][1] not in to_dtw and ix_for_dtw_copy[i][0] not in to_dtw:
+                    to_dtw.append(ix_for_dtw_copy[i][0])
+                    to_dtw.append(ix_for_dtw_copy[i][1])
 
-                if counter == 1:
-                    plt.subplot(211)
-                    plt.title('Before DTW')
-                    plt.xlabel('datapoint [-]')
-                    plt.ylabel('position [m]')
-                    plt.plot(parser.getCartesianPositions(traj_for_learning[reference]))
-                    plt.plot(parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
-                    plt.subplot(212)
-                    plt.title('After DTW')
-                    plt.xlabel('datapoint [-]')
-                    plt.ylabel('position [m]')
-                    plt.plot(parser.getCartesianPositions(x))
-                    plt.plot(parser.getCartesianPositions(y))
-                    counter += 1
-                    # print(parser.getCartesianPositions(x)[0])
-                del traj_for_learning[to_dtw[i]]
-                del traj_for_learning[reference]
+                    del ix_for_dtw_copy[i]
 
-                traj_for_learning.append(y)
-                traj_for_learning.append(x)
-        plt.show()
+                # if both are already in the to_dtw we do nothing but delete this tuple
+                elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] in to_dtw:
+                    
+                    del ix_for_dtw_copy[i]
+            print("trajectories to be aligned: " + str(to_dtw))
+            
+            traj_to_dtw = []
+            for i in range(len(to_dtw)):
+                traj_to_dtw.append(traj_for_learning[to_dtw[i]])
+            
+            reference = dtw.determine_reference(traj_to_dtw)
+            reference = to_dtw[reference]
+
+            for i in range(len(to_dtw)):
+
+                if to_dtw[i] != reference:
+
+                    x,y = dtw.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
+                    y = parser.arrays_in_list_to_list_in_list(y)
+                    x = parser.arrays_in_list_to_list_in_list(x)
+
+                    if counter == 1:
+                        plt.subplot(211)
+                        plt.title('Before DTW')
+                        plt.xlabel('datapoint [-]')
+                        plt.ylabel('position [m]')
+                        plt.plot(parser.getCartesianPositions(traj_for_learning[reference]))
+                        plt.plot(parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
+                        plt.subplot(212)
+                        plt.title('After DTW')
+                        plt.xlabel('datapoint [-]')
+                        plt.ylabel('position [m]')
+                        plt.plot(parser.getCartesianPositions(x))
+                        plt.plot(parser.getCartesianPositions(y))
+                        counter += 1
+                        # print(parser.getCartesianPositions(x)[0])
+                    del traj_for_learning[to_dtw[i]]
+                    del traj_for_learning[reference]
+
+                    traj_for_learning.append(y)
+                    traj_for_learning.append(x)
+            plt.show()
         return traj_for_learning
 
     def store_resampled_aligned_trajectories(self, traj, output_path):
@@ -153,7 +155,7 @@ if __name__ == "__main__":
     parser = trajectoryParser()
     dtw = DTW()
 
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee2/'
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee3/'
     output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     dt = 0.01
 

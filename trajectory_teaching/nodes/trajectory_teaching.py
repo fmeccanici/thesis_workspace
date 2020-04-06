@@ -150,7 +150,7 @@ class trajectoryTeaching():
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee2/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee3/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)

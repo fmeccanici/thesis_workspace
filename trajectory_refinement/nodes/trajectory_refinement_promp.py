@@ -630,7 +630,7 @@ if __name__ == "__main__":
     
     refinement_node.clearTrajectoriesRviz()
 
-    traj_test = refinement_node.trajectory_wrt_marker_to_wrt_ee(trajectories[1], refinement_node.getGoalFromMarker())
+    traj_test = refinement_node.trajectory_wrt_marker_to_wrt_ee(trajectories[0], refinement_node.getGoalFromMarker())
     for i in range(50):
         # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
         refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_test), r=1, g=0, b=0))

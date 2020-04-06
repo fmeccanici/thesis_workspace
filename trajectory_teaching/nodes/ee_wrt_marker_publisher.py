@@ -28,7 +28,7 @@ class EEwrtMarkerPublisher():
 
     def ee_pose_wrt_object(self, ee_pose):
         ee_pos_wrt_base = ([ee_pose.pose.position.x, ee_pose.pose.position.y, ee_pose.pose.position.z])
-        ee_orient_wrt_base = ([ee_pose.pose.orientation.w, ee_pose.pose.orientation.x, ee_pose.pose.orientation.y, ee_pose.pose.orientation.z])
+        ee_orient_wrt_base = ([ee_pose.pose.orientation.x, ee_pose.pose.orientation.y, ee_pose.pose.orientation.z, ee_pose.pose.orientation.w])
         marker_pos_wrt_base = ([self.object_marker_pose.position.x, self.object_marker_pose.position.y, self.object_marker_pose.position.z])
 
         # express r_ee in marker frame instead of base_footprint
