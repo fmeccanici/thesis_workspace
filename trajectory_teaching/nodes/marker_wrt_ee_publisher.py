@@ -12,7 +12,7 @@ class EEwrtMarkerPublisher():
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-        self.ee_wrt_marker_pub = rospy.Publisher("/end_effector_pose_wrt_marker", PoseStamped, queue_size=10)
+        self.marker_wrt_ee_pub = rospy.Publisher("/marker_wrt_ee", PoseStamped, queue_size=10)
 
         self.object_marker_pose = Pose()
 
@@ -24,15 +24,15 @@ class EEwrtMarkerPublisher():
             else: continue
 
     def _end_effector_pose_callback(self,data):
-        self.ee_wrt_marker_pub.publish( self.ee_pose_wrt_object(data))
+        self.marker_wrt_ee_pub.publish( self.marker_wrt_ee(data))
 
-    def ee_pose_wrt_object(self, ee_pose):
+    def marker_wrt_ee(self, ee_pose):
         ee_pos_wrt_base = ([ee_pose.pose.position.x, ee_pose.pose.position.y, ee_pose.pose.position.z])
         ee_orient_wrt_base = ([ee_pose.pose.orientation.x, ee_pose.pose.orientation.y, ee_pose.pose.orientation.z, ee_pose.pose.orientation.w])
         marker_pos_wrt_base = ([self.object_marker_pose.position.x, self.object_marker_pose.position.y, self.object_marker_pose.position.z])
 
         # express r_ee in marker frame instead of base_footprint
-        p = list(np.subtract(ee_pos_wrt_base, marker_pos_wrt_base))
+        p = list(np.subtract(marker_pos_wrt_base, ee_pos_wrt_base))
         r_ee_wrt_marker = p
 
         new_pose = PoseStamped()

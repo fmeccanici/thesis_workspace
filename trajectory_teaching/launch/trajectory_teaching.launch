@@ -1,7 +1,7 @@
 <launch>
 
-<node pkg="trajectory_teaching" name="ee_wrt_marker_publisher" 
-type="ee_wrt_marker_publisher.py" output="screen"/>
+<node pkg="trajectory_teaching" name="marker_wrt_ee_publisher" 
+type="marker_wrt_ee_publisher.py" output="screen"/>
  
 
 <include file="$(find teleop_control)/launch/teleop_control.launch" >

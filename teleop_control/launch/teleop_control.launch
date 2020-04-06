@@ -1,5 +1,8 @@
 <launch>
 
+<include file="$(find keyboard_state_publisher)/launch/keyboard.launch" >
+</include>
+
 <arg name="part_to_publish" default="both"/>
 <arg name="gripper_joint_value" default="1.0"/>
 

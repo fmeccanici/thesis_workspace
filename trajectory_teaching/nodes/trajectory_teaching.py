@@ -32,29 +32,36 @@ class trajectoryTeaching():
 
         self.EEtrajectory = []
 
-        self.end_effector_pose_wrt_marker_sub = rospy.Subscriber("/end_effector_pose_wrt_marker", PoseStamped, self._end_effector_pose_wrt_marker_callback)
+        # self.end_effector_pose_wrt_marker_sub = rospy.Subscriber("/end_effector_pose_wrt_marker", PoseStamped, self._end_effector_pose_wrt_marker_callback)
         # self.slave_control_state_sub = rospy.Subscriber("slave_control_state", ControlState, self._slave_control_state_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-        self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-        self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
+        self.marker_sub = rospy.Subscriber("/marker_wrt_ee", PoseStamped, self._marker_detection_callback)
         self.parser = trajectoryParser()
 
-        self.marker_pose = Pose()
+        self.marker_counter = 0
+        self.marker_pose = PoseStamped()
+
     def _marker_detection_callback(self, data):
-        # print("marker pose = " + str(self.marker_pose_static.position))
-        for marker in data.markers:
-            if marker.id == 582:
-                self.marker_pose = marker.pose.pose
-            else: continue
+        
+        # for marker in data.markers:
+        #     if marker.id == 582 and self.marker_counter % 2 == 0:
+        #         self.marker_pose = marker.pose.pose
+        #     else: continue
+        if self.marker_counter % 2 == 0:
+            self.marker_pose = data.pose
+
     def _end_effector_pose_callback(self, data):
         self.current_slave_pose = data.pose
-
-    def _end_effector_pose_wrt_marker_callback(self,data):
         
+        print(self.white_button_toggle_previous)
         if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
             print("Appending trajectory")
+            self.marker_counter += 1
             data.header.stamp.secs = data.header.stamp.secs
             data.header.stamp.nsecs = data.header.stamp.nsecs
 
@@ -66,6 +73,21 @@ class trajectoryTeaching():
              self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
              self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
              data.header.stamp.secs, data.header.stamp.nsecs])
+    # def _end_effector_pose_wrt_marker_callback(self,data):
+        
+    #     if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
+    #         print("Appending trajectory")
+    #         data.header.stamp.secs = data.header.stamp.secs
+    #         data.header.stamp.nsecs = data.header.stamp.nsecs
+
+
+    #         # marker x and y seem to be flipped wrt base_footprint
+    #         # therefore first position.y then position.x for marker_pose
+    #         self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,
+    #          data.pose.orientation.x,data.pose.orientation.y,data.pose.orientation.z,data.pose.orientation.w,
+    #          self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
+    #          self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
+    #          data.header.stamp.secs, data.header.stamp.nsecs])
             
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
@@ -150,7 +172,7 @@ class trajectoryTeaching():
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee3/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object_wrt_ee4/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)
@@ -160,6 +182,10 @@ class trajectoryTeaching():
 
                 # set to 0 to prevent multiple savings
                 self.white_button_toggle_previous = 0
+
+                # be able to detect new marker
+                self.marker_counter += 1
+
             r.sleep()
 
 if __name__ == "__main__":
