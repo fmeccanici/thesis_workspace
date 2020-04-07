@@ -6,6 +6,8 @@ import thread
 import numpy as np
 from python2to3_function_caller.python2to3_function_caller import *
 from trajectory_parser.trajectory_parser import *
+from learned_to_executed_trajectory.learned_to_executed_trajectory import *
+
 from spline_interpolation.spline_interpolation import *
 
 from dmp.srv import *
@@ -629,14 +631,13 @@ class trajectoryRefinement():
 if __name__ == "__main__":
     refinement_node = trajectoryRefinement()
     
-    DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
-    traj_files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]
-    
-    trajectories = []
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
+    traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
+
     joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw",  "dt", "object_x", "object_y", "object_z"]
-    
+    trajectories = []
     for traj in traj_files:
-        trajectory = refinement_node.parser.openTrajectoryFile(traj, DIR)
+        trajectory = refinement_node.parser.openTrajectoryFile(traj, input_path)
         trajectory = np.array(trajectory)
         trajectories.append(trajectory)
 
@@ -674,6 +675,8 @@ if __name__ == "__main__":
     refinement_node.calibrate_master_pose_for_normalization()
 
     marker_wrt_base = refinement_node.getMarkerWRTBase()
+    traj_test = learnedToExecuted(trajectories[0], marker_wrt_base)
+    traj_test = traj_test.pred_traj_to_executed()
 
     # # print(trajectories[1][0:3])
     # print(marker_wrt_base)
@@ -681,100 +684,100 @@ if __name__ == "__main__":
     # traj_test = refinement_node.trajectory_wrt_marker_to_wrt_base(trajectories[0], marker_wrt_base)
     # # traj_test = trajectories[0]
     # print(traj_test[0])
-    # for i in range(50):
-    #     # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
-    #     refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_test), r=1, g=0, b=0))
+    for i in range(50):
+        # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
+        refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_test), r=1, g=0, b=0))
     # time.sleep(5)
 
         
     # refinement_node.executeTrajectory(traj_test, 0.01)
 
-    while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
+    # while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
 
-        if refine_counter % 2 == 0:
-            rospy.loginfo("Determining trajectory...")
-            # goal[8:] = refinement_node.getMarkerWRTee()
-            goal[8:] = refinement_node.getMarkerWRTBase()
+    #     if refine_counter % 2 == 0:
+    #         rospy.loginfo("Determining trajectory...")
+    #         # goal[8:] = refinement_node.getMarkerWRTee()
+    #         goal[8:] = refinement_node.getMarkerWRTBase()
 
-            while goal[8] == 0.0:        
-                # goal[8:] = refinement_node.getMarkerWRTee()
-                goal[8:] = refinement_node.getMarkerWRTBase()
+    #         while goal[8] == 0.0:        
+    #             # goal[8:] = refinement_node.getMarkerWRTee()
+    #             goal[8:] = refinement_node.getMarkerWRTBase()
         
-            promp.clear_viapoints()
-            promp.set_goal(goal, sigma=1e-6)
-            generated_trajectory = promp.generate_trajectory(sigma_noise)
+    #         promp.clear_viapoints()
+    #         promp.set_goal(goal, sigma=1e-6)
+    #         generated_trajectory = promp.generate_trajectory(sigma_noise)
 
-            traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
-            print(refinement_node.getMarkerWRTBase())
-            print(traj_pred[0])
-            # traj_pred = refinement_node.trajectory_wrt_marker_to_wrt_base(traj_pred, refinement_node.getMarkerWRTBase())
-            refine_counter += 1
-            print(traj_pred[0])
-            promp.plot_unconditioned_joints()
-            ## plot_conditioned_joints doesnt work, use this instead:
-            plt.figure()
-            for joint_id, joint_name in enumerate(joints[0:3]):
-                # print(joint_id)
-                plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
-                plt.xlabel("datapoint [-]")
+    #         traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
+    #         print(refinement_node.getMarkerWRTBase())
+    #         print(traj_pred[0])
+    #         # traj_pred = refinement_node.trajectory_wrt_marker_to_wrt_base(traj_pred, refinement_node.getMarkerWRTBase())
+    #         refine_counter += 1
+    #         print(traj_pred[0])
+    #         promp.plot_unconditioned_joints()
+    #         ## plot_conditioned_joints doesnt work, use this instead:
+    #         plt.figure()
+    #         for joint_id, joint_name in enumerate(joints[0:3]):
+    #             # print(joint_id)
+    #             plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+    #             plt.xlabel("datapoint [-]")
 
-            plt.legend()
-            # plt.show()
+    #         plt.legend()
+    #         # plt.show()
 
-        rospy.loginfo("Executing current predicted trajectory...")
-        for i in range(50):
-            # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
-            refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_pred), r=1, g=0, b=0))
-        time.sleep(5)
-        traj_refined = refinement_node.refineTrajectory(traj_pred, dt)
+    #     rospy.loginfo("Executing current predicted trajectory...")
+    #     for i in range(50):
+    #         # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
+    #         refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_pred), r=1, g=0, b=0))
+    #     time.sleep(5)
+    #     traj_refined = refinement_node.refineTrajectory(traj_pred, dt)
         
-        traj_new, dt_new = refinement_node.determineNewTrajectory(traj_pred, traj_refined, alpha)
+    #     traj_new, dt_new = refinement_node.determineNewTrajectory(traj_pred, traj_refined, alpha)
 
 
-        traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
-        refinement_node.executeTrajectory(traj_refined_reversed, dt_new)
-        time.sleep(1)
-        # refinement_node.goToInitialPose()
+    #     traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
+    #     refinement_node.executeTrajectory(traj_refined_reversed, dt_new)
+    #     time.sleep(1)
+    #     # refinement_node.goToInitialPose()
 
-        for i in range(50):
-            refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_new), r=0, g=1, b=0))
-        time.sleep(1)
+    #     for i in range(50):
+    #         refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_new), r=0, g=1, b=0))
+    #     time.sleep(1)
 
-        if input("Satisfied with this trajectory? 1/0") == 1: 
-            rospy.loginfo("Adding trajectory to model...")
-            traj_add = []
-            for i in range(len(traj_new)):
+    #     if input("Satisfied with this trajectory? 1/0") == 1: 
+    #         rospy.loginfo("Adding trajectory to model...")
+    #         traj_add = []
+    #         for i in range(len(traj_new)):
 
-                traj_add.append(traj_new[i][:-1] + [dt_new] + list(goal[8:]))
+    #             traj_add.append(traj_new[i][:-1] + [dt_new] + list(goal[8:]))
 
             
-            plt.plot([t[0:3] for t in traj_add])
-            plt.title('New trajectory')
-            plt.xlabel("datapoint [-]")
-            plt.ylabel("position [m]")
-            # plt.show()
-            promp.add_demonstration(np.array(traj_add))
+    #         plt.plot([t[0:3] for t in traj_add])
+    #         plt.title('New trajectory')
+    #         plt.xlabel("datapoint [-]")
+    #         plt.ylabel("position [m]")
+    #         # plt.show()
+    #         promp.add_demonstration(np.array(traj_add))
 
             
-            # promp.plot_unconditioned_joints()
-            ## plot_conditioned_joints doesnt work, use this instead:
-            plt.figure()
-            for joint_id, joint_name in enumerate(joints[0:3]):
-                # print(joint_id)
-                plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
-                plt.xlabel("datapoint [-]")
-                plt.ylabel('position [m]')
-                plt.title('Predicted trajectory')
+    #         # promp.plot_unconditioned_joints()
+    #         ## plot_conditioned_joints doesnt work, use this instead:
+    #         plt.figure()
+    #         for joint_id, joint_name in enumerate(joints[0:3]):
+    #             # print(joint_id)
+    #             plt.plot(generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+    #             plt.xlabel("datapoint [-]")
+    #             plt.ylabel('position [m]')
+    #             plt.title('Predicted trajectory')
 
-            plt.legend()
-            # plt.show()
-            print('check')
-            refine_counter += 1
-        else:
-            if input("Use refined or predicted trajectory for refinement? 1/0") == 1:
-                traj_pred = traj_new
-            else: pass
+    #         plt.legend()
+    #         # plt.show()
+    #         print('check')
+    #         refine_counter += 1
+    #     else:
+    #         if input("Use refined or predicted trajectory for refinement? 1/0") == 1:
+    #             traj_pred = traj_new
+    #         else: pass
 
-        refinement_node.clearTrajectoriesRviz()
+    #     refinement_node.clearTrajectoriesRviz()
 
           

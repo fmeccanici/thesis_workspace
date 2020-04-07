@@ -51,21 +51,68 @@ class DTW():
         
         return np.argmin(similarity)
 
+    def get_difference_in_context(self, traj1, traj2):
+        c1 = self.parser.get_context(traj1)
+        c2 = self.parser.get_context(traj2)
 
-    def align_necessary_trajectories(self, input_path, dt):
-        traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
-        num_traj = len(traj_files)
-        trajectories, trajectories_lengths = self.parser.load_trajectories_from_folder_and_downsample(input_path, dt)
-        traj_min_length = trajectories[np.argmin(trajectories_lengths)]
+        dx = abs(c1[0] - c2[0])
+        dy = abs(c1[1] - c2[1])
+        dz = abs(c1[2] - c2[2])
+
+        return dx, dy, dz
+
+    def get_dcontext_matrices(self, demonstrations):
+        difference_matrix_x = np.zeros((len(demonstrations), len(demonstrations)))
+        difference_matrix_y = np.zeros((len(demonstrations), len(demonstrations)))
+        difference_matrix_z = np.zeros((len(demonstrations), len(demonstrations)))
+
+        difference_matrix_total = np.zeros((len(demonstrations), len(demonstrations)))
+
+        for i in range(len(demonstrations)):
+            for j in range(len(demonstrations)):
+                dx, dy, dz = self.get_difference_in_context(demonstrations[i][0], demonstrations[j][0])
+
+                difference_matrix_x[i,j] = dx
+                difference_matrix_y[i,j] = dy
+                difference_matrix_z[i,j] = dz
+
+                difference_matrix_total[i,j] = dx + dy + dz
+
+        return difference_matrix_x, difference_matrix_y, difference_matrix_z, difference_matrix_total
+
+    def get_trajectories_ix_for_dtw(self, demonstrations):
+        dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
+        traj_to_dtw = []
+        appended_ix = []
+
+        threshold = 0.05
+
+        for i in range(len(np.where(dtotal<threshold)[0])):
+            
+            if np.where(dtotal<threshold)[0][i] != np.where(dtotal<threshold)[1][i] and (np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]) not in appended_ix:
+
+                if (np.where(dtotal<threshold)[1][i], np.where(dtotal<threshold)[0][i]) not in appended_ix:
+                    appended_ix.append((np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]))
+                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[0][i]] )
+                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[1][i]] )
+                else: pass
+
+        return appended_ix
+
+    def align_necessary_trajectories(self, traj_for_learning):
+        # traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
+        # num_traj = len(traj_files)
+        # trajectories, trajectories_lengths = self.parser.load_trajectories_from_folder_and_downsample(input_path, dt)
+        # traj_min_length = trajectories[np.argmin(trajectories_lengths)]
         
-        del trajectories[np.argmin(trajectories_lengths)]
-        traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
-        traj_for_learning = []
-        for traj in traj_res:
-            traj_for_learning.append(self.parser.get_relevant_learning_data(traj))
+        # del trajectories[np.argmin(trajectories_lengths)]
+        # traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
+        # traj_for_learning = []
+        # for traj in traj_res:
+        #     traj_for_learning.append(self.parser.get_relevant_learning_data(traj))
 
 
-        ix_for_dtw = self.parser.get_trajectories_ix_for_dtw(traj_for_learning)
+        ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)
         print("trajectories with same context: " + str(ix_for_dtw))
         ix_for_dtw_copy = ix_for_dtw
         
@@ -116,14 +163,14 @@ class DTW():
             for i in range(len(to_dtw)):
                 traj_to_dtw.append(traj_for_learning[to_dtw[i]])
             
-            reference = dtw.determine_reference(traj_to_dtw)
+            reference = self.determine_reference(traj_to_dtw)
             reference = to_dtw[reference]
 
-            for i in range(len(to_dtw)):
+            for i in range(len(to_dtw) > 0):
 
                 if to_dtw[i] != reference:
 
-                    x,y = dtw.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
+                    x,y = self.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
                     y = self.parser.arrays_in_list_to_list_in_list(y)
                     x = self.parser.arrays_in_list_to_list_in_list(x)
 
@@ -150,25 +197,21 @@ class DTW():
             plt.show()
         return traj_for_learning
 
-    def store_resampled_aligned_trajectories(self, traj, output_path):
-        for i in range(len(traj)):
-            traj_file = open(output_path + "resampled_" + str(i) + ".txt", "w+")
-            traj_file.write(str(traj[i]))
-            traj_file.close()
+
 
 if __name__ == "__main__":
     dtw = DTW()
 
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object2/'
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/both_wrt_base/'
     output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
-    dt = 0.01
+    dt = 0.1
 
     # traj_parsed = dtw.parse_to_relative_trajectory(input_path)
 
     traj_aligned_for_learning = dtw.align_necessary_trajectories(input_path, dt)
     for traj in traj_aligned_for_learning:
         print(len(traj))
-    dtw.store_resampled_aligned_trajectories(traj_aligned_for_learning, output_path)
+    # dtw.store_trajectories(traj_aligned_for_learning, output_path)
 
  
 

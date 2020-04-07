@@ -1,7 +1,7 @@
 from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 d = generate_distutils_setup(
-    packages=['trajectory_parser'],
+    packages=['learned_to_executed_trajectory'],
     package_dir={'': 'src'}
     )
 setup(**d)

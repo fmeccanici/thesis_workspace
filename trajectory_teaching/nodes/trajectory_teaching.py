@@ -36,15 +36,15 @@ class trajectoryTeaching():
         # self.slave_control_state_sub = rospy.Subscriber("slave_control_state", ControlState, self._slave_control_state_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-        # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
-        self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+        self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        # self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
 
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         # self.marker_sub = rospy.Subscriber("/marker_wrt_ee", PoseStamped, self._marker_detection_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
 
         self.parser = trajectoryParser()
-
+        self.pred_to_exec = learnedToExecuted()
         self.marker_counter = 0
         # self.marker_pose = Pose()
         # self.current_slave_pose = Pose()
@@ -60,7 +60,7 @@ class trajectoryTeaching():
 
     def _end_effector_pose_callback(self, data):
         self.current_slave_pose = data.pose
-        
+
         if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
             print("Appending trajectory")
             # self.marker_counter = 1
