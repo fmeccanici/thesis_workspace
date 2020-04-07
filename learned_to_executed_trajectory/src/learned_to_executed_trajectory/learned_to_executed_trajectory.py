@@ -22,6 +22,6 @@ class learnedToExecuted():
             ori = list(data[3:7])
             dt = [data[7]]
             object_wrt_base = list(self.object_wrt_base)
-            traj_wrt_base.append(ee_wrt_base + ori + dt + object_wrt_base)
+            traj_wrt_base.append(ee_wrt_base + ori + object_wrt_base + dt)
 
         return traj_wrt_base

@@ -366,10 +366,14 @@ class trajectoryRefinement():
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
-        
-        trajectories = [pred_traj, refined_traj]
+        print('check')
+        print(len(pred_traj))
+        print(len(refined_traj))
 
+        trajectories = [pred_traj, refined_traj]
+        print(pred_traj)
         pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
+        
         refined_traj = self.parser._normalize(refined_traj)
 
         new_trajectory = []
@@ -407,6 +411,7 @@ class trajectoryRefinement():
 
         xvals_refined = np.linspace(0.0, T_refined, l)
         xvals_pred = np.linspace(0.0, T_pred, l)
+        print('check2')
 
         refined_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(refined_traj_time))))
         refined_traj_pos_x = (np.asarray(self.parser.getXpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
@@ -420,6 +425,7 @@ class trajectoryRefinement():
         y_refined_new_x = yinterp_refined_x(xvals_refined)
         y_refined_new_y = yinterp_refined_y(xvals_refined)
         y_refined_new_z = yinterp_refined_z(xvals_refined)
+        
 
         pred_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(pred_traj_time))))
         pred_traj_pos_x = (np.asarray(self.parser.getXpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
@@ -427,10 +433,12 @@ class trajectoryRefinement():
         pred_traj_pos_y = (np.asarray(self.parser.getYpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
         pred_traj_pos_z = (np.asarray(self.parser.getZpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
 
+        print(pred_traj_pos_x[0])
         yinterp_pred_x = interp1d((pred_traj_time), np.transpose(pred_traj_pos_x), axis=1, fill_value="extrapolate")
         yinterp_pred_y = interp1d((pred_traj_time), np.transpose(pred_traj_pos_y), axis=1, fill_value="extrapolate")
         yinterp_pred_z = interp1d((pred_traj_time), np.transpose(pred_traj_pos_z), axis=1, fill_value="extrapolate")
 
+        print('check3')
 
 
         y_pred_new_x = yinterp_pred_x(xvals_pred)
@@ -445,7 +453,10 @@ class trajectoryRefinement():
         plt.ylabel('position [m]')
         # plt.show()
         # apply DTW
+        # print(y_pred_new_x[0])
         y_refined_aligned, y_pred_aligned = DTW.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
+        # print(y_pred_aligned[0])
+
         plt.plot(y_refined_aligned)
         plt.plot(y_pred_aligned)
 
@@ -470,6 +481,10 @@ class trajectoryRefinement():
             refined_traj = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2], q[1], q[2], q[3], q[0], t_refined[i]] 
             pred_traj = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2], q[1], q[2], q[3], q[0], t_pred[i]]
 
+            # print(np.asarray(refined_traj[0:3]))
+            # print((pred_traj[0:3])) 
+            # print(alpha * (np.subtract(np.asarray(refined_traj[0:3]), np.asarray(pred_traj[0:3])) ))
+            # print(np.asarray(pred_traj[0:3]))
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
             new_trajectory.append(list(np.add(np.asarray(pred_traj[0:3]), alpha * (np.subtract(np.asarray(refined_traj[0:3]), np.asarray(pred_traj[0:3])) ))) + refined_traj[3:])
         
@@ -708,15 +723,12 @@ if __name__ == "__main__":
             generated_trajectory = promp.generate_trajectory(sigma_noise)
 
             traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
+
+
+            traj_pred = learnedToExecuted(traj_pred, refinement_node.getMarkerWRTBase()).pred_traj_to_executed()
             for data in traj_pred:
                 print(data)
-            # print(refinement_node.getMarkerWRTee())
-            # print(traj_pred[0])
-            # print(dt)
-            # traj_pred = refinement_node.trajectory_wrt_marker_to_wrt_base(traj_pred, refinement_node.getMarkerWRTBase())
-            traj_pred = learnedToExecuted(traj_pred, refinement_node.getMarkerWRTBase()).pred_traj_to_executed()
             refine_counter += 1
-            # print(traj_pred[0])
             promp.plot_unconditioned_joints()
             ## plot_conditioned_joints doesnt work, use this instead:
             plt.figure()
