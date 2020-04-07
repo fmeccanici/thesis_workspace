@@ -44,7 +44,6 @@ class trajectoryTeaching():
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
 
         self.parser = trajectoryParser()
-        self.pred_to_exec = learnedToExecuted()
         self.marker_counter = 0
         # self.marker_pose = Pose()
         # self.current_slave_pose = Pose()
@@ -116,7 +115,11 @@ class trajectoryTeaching():
         x = [self.current_slave_pose.position.x, 0.403399335619]
         y = [self.current_slave_pose.position.y, -0.430007534239]
         z = [self.current_slave_pose.position.z, 1.16269467394]
-
+        
+        # x = [self.current_slave_pose.position.x, 0.353543514402]
+        # y = [self.current_slave_pose.position.y, 0.435045131507]
+        # z = [self.current_slave_pose.position.z, 0.760080619348]
+        
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
         t = list(self.parser._secsNsecsToFloat(self.parser.durationVector2secsNsecsVector(t)))
