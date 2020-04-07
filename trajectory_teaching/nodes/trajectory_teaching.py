@@ -76,6 +76,7 @@ class trajectoryTeaching():
              self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
              data.header.stamp.secs, data.header.stamp.nsecs])
 
+            time.sleep(1)
     # def _end_effector_pose_wrt_marker_callback(self, data):
     #     if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
     #         print("Appending trajectory")

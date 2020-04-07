@@ -695,6 +695,7 @@ if __name__ == "__main__":
         # for data in traj:
         #     data[8:] = list(-1*np.asarray(traj[0][0:3]))
         promp.add_demonstration(traj)
+    promp.init_welford()
 
     goal = np.zeros(len(joints))
 
@@ -790,7 +791,6 @@ if __name__ == "__main__":
             rospy.loginfo("Adding trajectory to model...")
             traj_add = []
             for i in range(len(traj_new)):
-                # SHOULD MAKE ADDED TRAJECTORY RELATIVE TO EE
                 traj_add.append(traj_new[i][:-1] + [dt_new] + list(refinement_node.getMarkerWRTBase()))
 
             traj_add_for_learning = refinement_node.parse_to_relative_traj(traj_add)

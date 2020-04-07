@@ -221,57 +221,44 @@ class trajectoryParser():
     def sort_first(self, val):
         return val[0]
 
-    def get_difference_in_context(self, traj1, traj2):
-        c1 = self.get_context(traj1)
-        c2 = self.get_context(traj2)
-
-        dx = abs(c1[0] - c2[0])
-        dy = abs(c1[1] - c2[1])
-        dz = abs(c1[2] - c2[2])
-
-        return dx, dy, dz
-
-    def get_dcontext_matrices(self, demonstrations):
-        difference_matrix_x = np.zeros((len(demonstrations), len(demonstrations)))
-        difference_matrix_y = np.zeros((len(demonstrations), len(demonstrations)))
-        difference_matrix_z = np.zeros((len(demonstrations), len(demonstrations)))
-
-        difference_matrix_total = np.zeros((len(demonstrations), len(demonstrations)))
-
-        for i in range(len(demonstrations)):
-            for j in range(len(demonstrations)):
-                dx, dy, dz = self.get_difference_in_context(demonstrations[i][0], demonstrations[j][0])
-
-                difference_matrix_x[i,j] = dx
-                difference_matrix_y[i,j] = dy
-                difference_matrix_z[i,j] = dz
-
-                difference_matrix_total[i,j] = dx + dy + dz
-
-        return difference_matrix_x, difference_matrix_y, difference_matrix_z, difference_matrix_total
-
     def arrays_in_list_to_list_in_list(self, traj):
         return [list(x) for x in traj]
 
-    def get_trajectories_ix_for_dtw(self, demonstrations):
-        dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
-        traj_to_dtw = []
-        appended_ix = []
+    def interpolate_raw_trajectory(self, raw_traj, n):
+        traj_pose = self.getCartesianPositions(raw_traj)
+        traj_time = self._getTimeVector(raw_traj)
+        T = self.secsNsecsToFloatSingle(raw_traj[-1])
 
-        threshold = 0.05
+        object_pose = [x[7:15] for x in raw_traj]
 
-        for i in range(len(np.where(dtotal<threshold)[0])):
-            
-            if np.where(dtotal<threshold)[0][i] != np.where(dtotal<threshold)[1][i] and (np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]) not in appended_ix:
+        xvals = np.linspace(0, T, n)
 
-                if (np.where(dtotal<threshold)[1][i], np.where(dtotal<threshold)[0][i]) not in appended_ix:
-                    appended_ix.append((np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]))
-                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[0][i]] )
-                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[1][i]] )
-                else: pass
+        traj_time = ((np.asarray(self._secsNsecsToFloat(traj_time))))
+        traj_pos_x = (np.asarray(self.getXpositions(traj_pose)).reshape(len(traj_time), 1))
+        traj_pos_y = (np.asarray(self.getYpositions(traj_pose)).reshape(len(traj_time), 1))
+        traj_pos_z = (np.asarray(self.getZpositions(traj_pose)).reshape(len(traj_time), 1))
 
-        return appended_ix
-        
+        yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
+        yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
+        yinterp_z = interp1d((traj_time), np.transpose(traj_pos_z), axis=1, fill_value="extrapolate")
+
+        y_new_x = yinterp_x(xvals)
+        y_new_y = yinterp_y(xvals)
+        y_new_z = yinterp_z(xvals)
+
+        qstart = raw_traj[0][3:7]
+        qend = raw_traj[-1][3:7]
+
+        interpol_traj = []
+        t_secs_nsecs = self._floatToSecsNsecs(xvals)
+
+        for i,q in self.interpolateQuaternions(qstart, qend, n, False):
+            ynew = [list(y_new_x[i])[0], list(y_new_y[i][i])[1], list(y_new_z[i][i])[2], q[1], q[2], q[3], q[0], object_pose, t_secs_nsecs[i]] 
+            interpol_traj.append(ynew)
+
+
+        return interpol_traj
+
     def load_trajectories_from_folder_and_downsample(self, input_path, dt):
         traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
         
