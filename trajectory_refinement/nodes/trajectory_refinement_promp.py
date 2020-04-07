@@ -763,7 +763,7 @@ if __name__ == "__main__":
             rospy.loginfo("Adding trajectory to model...")
             traj_add = []
             for i in range(len(traj_new)):
-
+                # SHOULD MAKE ADDED TRAJECTORY RELATIVE TO EE
                 traj_add.append(traj_new[i][:-1] + [dt_new] + list(goal[8:]))
 
             
