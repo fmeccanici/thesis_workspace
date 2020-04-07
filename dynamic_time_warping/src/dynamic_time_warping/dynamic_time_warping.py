@@ -159,7 +159,7 @@ class DTW():
 if __name__ == "__main__":
     dtw = DTW()
 
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/marker_wrt_base_ee_wrt_marker/'
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object2/'
     output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     dt = 0.01
 

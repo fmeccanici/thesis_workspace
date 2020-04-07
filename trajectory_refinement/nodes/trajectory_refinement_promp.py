@@ -209,13 +209,13 @@ class trajectoryRefinement():
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
 
         T = 2
-        # x = [self.current_slave_pose.position.x, 0.403399335619]
-        # y = [self.current_slave_pose.position.y, -0.430007534239]
-        # z = [self.current_slave_pose.position.z, 1.16269467394]
+        x = [self.current_slave_pose.position.x, 0.403399335619]
+        y = [self.current_slave_pose.position.y, -0.430007534239]
+        z = [self.current_slave_pose.position.z, 1.16269467394]
         
-        x = [self.current_slave_pose.position.x, 0.353543514402]
-        y = [self.current_slave_pose.position.y, 0.435045131507]
-        z = [self.current_slave_pose.position.z, 0.760080619348]
+        # x = [self.current_slave_pose.position.x, 0.353543514402]
+        # y = [self.current_slave_pose.position.y, 0.435045131507]
+        # z = [self.current_slave_pose.position.z, 0.760080619348]
 
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
@@ -651,8 +651,8 @@ if __name__ == "__main__":
     for traj in trajectories:
         # traj = [list(pose) for pose in traj]
         # plt.plot(refinement_node.parser.getCartesianPositions(traj))
-        for data in traj:
-            data[8:] = list(-1*np.asarray(traj[0][0:3]))
+        # for data in traj:
+        #     data[8:] = list(-1*np.asarray(traj[0][0:3]))
         promp.add_demonstration(traj)
 
     goal = np.zeros(len(joints))
@@ -693,18 +693,21 @@ if __name__ == "__main__":
 
         if refine_counter % 2 == 0:
             rospy.loginfo("Determining trajectory...")
-            goal[8:] = refinement_node.getMarkerWRTee()
+            # goal[8:] = refinement_node.getMarkerWRTee()
+            goal[8:] = refinement_node.getMarkerWRTBase()
+
             while goal[8] == 0.0:        
-                goal[8:] = refinement_node.getMarkerWRTee()
+                # goal[8:] = refinement_node.getMarkerWRTee()
+                goal[8:] = refinement_node.getMarkerWRTBase()
         
             promp.clear_viapoints()
             promp.set_goal(goal, sigma=1e-6)
             generated_trajectory = promp.generate_trajectory(sigma_noise)
 
             traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
-            print(dt)
+            print(refinement_node.getMarkerWRTBase())
             print(traj_pred[0])
-            traj_pred = refinement_node.trajectory_wrt_marker_to_wrt_base(traj_pred, refinement_node.getMarkerWRTBase())
+            # traj_pred = refinement_node.trajectory_wrt_marker_to_wrt_base(traj_pred, refinement_node.getMarkerWRTBase())
             refine_counter += 1
             print(traj_pred[0])
             promp.plot_unconditioned_joints()
