@@ -7,6 +7,7 @@ import numpy as np
 from python2to3_function_caller.python2to3_function_caller import *
 from trajectory_parser.trajectory_parser import *
 from learned_to_executed_trajectory.learned_to_executed_trajectory import *
+from prepare_for_learning.prepare_for_learning import *
 
 from spline_interpolation.spline_interpolation import *
 
@@ -642,7 +643,31 @@ class trajectoryRefinement():
             refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
         for i in range(10):
             refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
-         
+    
+    def ee_wrt_object(self, ee_wrt_base, object_wrt_base):
+        return np.subtract(ee_wrt_base, object_wrt_base)
+
+    def object_wrt_ee(self, ee_wrt_base, object_wrt_base):
+        return np.subtract(object_wrt_base, ee_wrt_base)
+
+    def parse_to_relative_traj(self, traj):
+
+        # initialize information needed for relative calculations
+        object_wrt_base = traj[0][8:]
+        ee_wrt_base_0 = traj[0][0:3]
+        object_wrt_ee_0 = list(self.object_wrt_ee(ee_wrt_base_0, object_wrt_base))
+
+        parsed_traj = []
+        # calculate relative vectors
+        for data in traj:
+            ee_wrt_base = data[0:3]
+
+            ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))
+            ee_ori =  list(data[3:7])
+            dt = [data[7]]
+            parsed_traj.append(ee_wrt_object + ee_ori + dt + object_wrt_ee_0)
+        return parsed_traj
+
 if __name__ == "__main__":
     refinement_node = trajectoryRefinement()
     
@@ -726,6 +751,7 @@ if __name__ == "__main__":
 
 
             traj_pred = learnedToExecuted(traj_pred, refinement_node.getMarkerWRTBase()).pred_traj_to_executed()
+            
             for data in traj_pred:
                 print(data)
             refine_counter += 1
@@ -749,6 +775,7 @@ if __name__ == "__main__":
         
         traj_new, dt_new = refinement_node.determineNewTrajectory(traj_pred, traj_refined, alpha)
 
+        
 
         traj_refined_reversed = trajectoryRefinement.reverseTrajectory(traj_refined)
         refinement_node.executeTrajectory(traj_refined_reversed, dt_new)
@@ -764,15 +791,16 @@ if __name__ == "__main__":
             traj_add = []
             for i in range(len(traj_new)):
                 # SHOULD MAKE ADDED TRAJECTORY RELATIVE TO EE
-                traj_add.append(traj_new[i][:-1] + [dt_new] + list(goal[8:]))
+                traj_add.append(traj_new[i][:-1] + [dt_new] + list(refinement_node.getMarkerWRTBase()))
 
-            
-            plt.plot([t[0:3] for t in traj_add])
+            traj_add_for_learning = refinement_node.parse_to_relative_traj(traj_add)
+
+            plt.plot([t[0:3] for t in traj_add_for_learning])
             plt.title('New trajectory')
             plt.xlabel("datapoint [-]")
             plt.ylabel("position [m]")
             # plt.show()
-            promp.add_demonstration(np.array(traj_add))
+            promp.add_demonstration(np.array(traj_add_for_learning))
 
             
             # promp.plot_unconditioned_joints()

@@ -19,6 +19,24 @@ class prepareForLearning():
     def object_wrt_ee(self, ee_wrt_base, object_wrt_base):
         return np.subtract(object_wrt_base, ee_wrt_base)
 
+    def parse_to_relative_traj(self, traj):
+
+        # initialize information needed for relative calculations
+        object_wrt_base = traj[0][8:]
+        ee_wrt_base_0 = traj[0][0:3]
+        object_wrt_ee_0 = list(self.object_wrt_ee(ee_wrt_base_0, object_wrt_base))
+
+        parsed_traj = []
+        # calculate relative vectors
+        for data in traj:
+            ee_wrt_base = data[0:3]
+
+            ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))
+            ee_ori =  list(data[3:7])
+            dt = [data[7]]
+            parsed_traj.append(ee_wrt_object + ee_ori + dt + object_wrt_ee_0)
+        return parsed_traj
+
     def prepare_for_learning(self):
         # downsample
         trajectories, trajectories_lengths = self.parser.load_trajectories_from_folder_and_downsample(input_path, self.dt)

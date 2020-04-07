@@ -13,7 +13,12 @@ class learnedToExecuted():
     def ee_wrt_base(self, ee_wrt_object):
         return np.add(ee_wrt_object, self.object_wrt_base)
             
+    def ee_wrt_object(self, ee_wrt_base, object_wrt_base):
+        return np.subtract(ee_wrt_base, object_wrt_base)
 
+    def object_wrt_ee(self, ee_wrt_base, object_wrt_base):
+        return np.subtract(object_wrt_base, ee_wrt_base)
+        
     def pred_traj_to_executed(self):
         traj_wrt_base = []
 
