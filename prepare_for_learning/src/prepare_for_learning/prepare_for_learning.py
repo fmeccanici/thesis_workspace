@@ -43,15 +43,15 @@ class prepareForLearning():
         print(trajectories[-1][0])
 
         ## resample
-        traj_min_length = trajectories[np.argmin(trajectories_lengths)]
+        # traj_min_length = trajectories[np.argmin(trajectories_lengths)]
         
-        del trajectories[np.argmin(trajectories_lengths)]
+        # del trajectories[np.argmin(trajectories_lengths)]
         
         # traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
-        # traj_res = []
-        # for traj in trajectories:
-        #     traj_res.append(self.parser.interpolate_raw_trajectory(traj, 10))
-        traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
+        traj_res = []
+        for traj in trajectories:
+            traj_res.append(self.parser.interpolate_raw_trajectory(traj, 10))
+        # traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
 
         print(traj_res[-1][0])
         traj_for_learning = []
