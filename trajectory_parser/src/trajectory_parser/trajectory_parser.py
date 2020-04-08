@@ -5,6 +5,7 @@ import numpy as np
 from pyquaternion import Quaternion
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+from scipy.interpolate import CubicSpline, InterpolatedUnivariateSpline
 
 class trajectoryParser():
     def __init__(self):
@@ -227,9 +228,9 @@ class trajectoryParser():
     def interpolate_raw_trajectory(self, raw_traj, n):
         traj_pose = self.getCartesianPositions(raw_traj)
         traj_time = self._getTimeVector(raw_traj)
-        T = self.secsNsecsToFloatSingle(raw_traj[-1])
-
-        object_pose = [x[7:15] for x in raw_traj]
+                
+        T = self.secsNsecsToFloatSingle(raw_traj[-1][-2:])
+        object_pose = raw_traj[0][7:14]
 
         xvals = np.linspace(0, T, n)
 
@@ -251,14 +252,64 @@ class trajectoryParser():
 
         interpol_traj = []
         t_secs_nsecs = self._floatToSecsNsecs(xvals)
+        for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n, False)):
+            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
+            ynew = pos + object_pose + [xvals[i]]
 
-        for i,q in self.interpolateQuaternions(qstart, qend, n, False):
-            ynew = [list(y_new_x[i])[0], list(y_new_y[i][i])[1], list(y_new_z[i][i])[2], q[1], q[2], q[3], q[0], object_pose, t_secs_nsecs[i]] 
             interpol_traj.append(ynew)
 
 
         return interpol_traj
+    def interpolate_learned_keypoints(self, traj, n_desired):
+        n = len(traj)
+        T = traj[-1][-1]
+        
+        x = np.linspace(0, T, n)
 
+        object_pose = traj[0][7:10]
+        # cs = CubicSpline(x, traj)
+        cartx = [data[0] for data in traj]
+        carty = [data[1] for data in traj]
+        cartz = [data[2] for data in traj]
+
+        splinex = InterpolatedUnivariateSpline(x, cartx)
+        spliney = InterpolatedUnivariateSpline(x, carty)
+        splinez = InterpolatedUnivariateSpline(x, cartz)
+
+        xdesired = np.linspace(0, T, n_desired)
+        dt_new = T / n_desired
+        print(x[-1])
+        print(xdesired[-1])
+        cartx_new = splinex(xdesired)
+        carty_new = spliney(xdesired)
+        cartz_new = splinez(xdesired)
+
+        qstart = traj[0][3:7]
+        qend = traj[-1][3:7]
+
+        interpol_traj = []
+        for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n_desired, False)):
+            pos = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
+            ynew = pos + object_pose + [xdesired[i]]
+
+            interpol_traj.append(ynew)
+
+        # ynew_list = [list(x) for x in ynew]
+
+        return interpol_traj, dt_new
+
+    def isRaw(self, traj):
+        if len(traj[0]) == 16:
+            return True
+        else:
+            return False
+
+    def tIsFloat(self, traj):
+        if isinstance(traj[0][14], int):
+            return False
+        elif isinstance(traj[0][14], float):
+            return True
+            
     def load_trajectories_from_folder_and_downsample(self, input_path, dt):
         traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
         

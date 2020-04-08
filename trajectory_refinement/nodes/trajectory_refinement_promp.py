@@ -750,11 +750,13 @@ if __name__ == "__main__":
 
             traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
 
-
-            traj_pred = learnedToExecuted(traj_pred, refinement_node.getMarkerWRTBase()).pred_traj_to_executed()
             
-            for data in traj_pred:
-                print(data)
+            traj_pred_keypoints = learnedToExecuted(traj_pred, refinement_node.getMarkerWRTBase()).pred_traj_to_executed()
+            # print(len(traj_pred))
+            traj_pred, dt = refinement_node.parser.interpolate_learned_keypoints(traj_pred_keypoints, 100)
+            
+            # for data in traj_pred:
+            #     print(data)
             refine_counter += 1
             promp.plot_unconditioned_joints()
             ## plot_conditioned_joints doesnt work, use this instead:
@@ -771,6 +773,8 @@ if __name__ == "__main__":
         for i in range(50):
             # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
             refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_pred), r=1, g=0, b=0))
+            refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_pred_keypoints), r=0, g=1, b=0))
+
         time.sleep(5)
         traj_refined = refinement_node.refineTrajectory(traj_pred, dt)
         
