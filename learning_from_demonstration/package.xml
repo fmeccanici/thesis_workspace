@@ -1,8 +1,8 @@
 <package>
-    <name>promp_python</name>
+    <name>learning_from_demonstration</name>
     <version>1.0.0</version>
     <description>
-        Python library for ProMP 
+        ROS package for learning from demonstration applied to Marco. Used for my thesis.
     </description>
     <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
     <author>Floris Meccanici</author>

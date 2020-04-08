@@ -1,4 +1,0 @@
-<launch>
-    <node pkg="marco_lfd" name="parser_node" type="trajectoryParser.py" output="screen">
-    </node>
-</launch>

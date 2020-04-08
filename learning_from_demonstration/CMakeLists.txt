@@ -1,5 +1,5 @@
   cmake_minimum_required(VERSION 2.8.3)
-  project(python2to3_function_caller)
+  project(learning_from_demonstration)
   find_package(catkin REQUIRED COMPONENTS
     rospy
   )

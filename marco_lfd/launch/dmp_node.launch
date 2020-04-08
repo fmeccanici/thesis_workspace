@@ -1,4 +1,0 @@
-<launch>
-    <node pkg="marco_lfd" name="dmp_node" type="dmpNode.py" output="screen">
-    </node>
-</launch>
