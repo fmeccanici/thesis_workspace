@@ -263,7 +263,7 @@ class trajectoryParser():
     def interpolate_learned_keypoints(self, traj, n_desired):
         n = len(traj)
         T = traj[-1][-1]
-        
+        # print(traj[-1])
         x = np.linspace(0, T, n)
 
         object_pose = traj[0][7:10]
@@ -403,7 +403,7 @@ class trajectoryParser():
         # T doesnt work properly --> chose dt as output
         dt = traj[-1][-1] - traj[-2][-1]
         for data in traj:
-            traj_new.append(data[0:7] + [dt] + data[7:10])
+            traj_new.append(data[0:7] + data[7:10] + [dt] )
 
         return traj_new
     

@@ -68,14 +68,15 @@ class trajectoryRefinement():
         self.white_button_toggle = 0
 
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-        self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallbackToggle)
-        # self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallbackToggle)
+        # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallbackToggle)
+        self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallbackToggle)
 
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         # self.marker_sub = rospy.Subscriber("/aruco_", PoseStamped, self._marker_detection_callback)
 
+        self.traj_pub = rospy.Publisher('trajectory_visualizer/trajectory', TrajectoryVisualization, queue_size=10)
         self.traj_pred_pub = rospy.Publisher('trajectory_visualizer/trajectory_predicted', TrajectoryVisualization, queue_size=10)
         self.traj_ref_pub = rospy.Publisher('trajectory_visualizer/trajectory_refined', TrajectoryVisualization, queue_size=10)
 
@@ -623,15 +624,24 @@ class trajectoryRefinement():
         pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
         joint_id = 7
+        pred_traj_objx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 8
+        pred_traj_objy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 9
+        pred_traj_objz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+
+        joint_id = 10
         pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
         pred_traj = []
         dt = pred_traj_dt[0]
-
+        print(dt)
         t = 0
 
         for i in range(len(pred_traj_dt)):
-            pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], t])
+            pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], pred_traj_objx[i], pred_traj_objy[i], pred_traj_objz[i], t])
             t += dt
         
 
@@ -674,7 +684,7 @@ if __name__ == "__main__":
     input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
 
-    joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw",  "dt", "object_x", "object_y", "object_z"]
+    joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw", "object_x", "object_y", "object_z", "dt" ]
     trajectories = []
     for traj in traj_files:
         trajectory = refinement_node.parser.openTrajectoryFile(traj, input_path)
@@ -737,11 +747,11 @@ if __name__ == "__main__":
 
         if refine_counter % 2 == 0:
             rospy.loginfo("Determining trajectory...")
-            goal[8:] = refinement_node.getMarkerWRTee()
+            goal[7:-1] = refinement_node.getMarkerWRTee()
             # goal[8:] = refinement_node.getMarkerWRTBase()
 
             while goal[8] == 0.0:        
-                goal[8:] = refinement_node.getMarkerWRTee()
+                goal[7:-1] = refinement_node.getMarkerWRTee()
                 # goal[8:] = refinement_node.getMarkerWRTBase()
         
             promp.clear_viapoints()
@@ -750,9 +760,10 @@ if __name__ == "__main__":
 
             traj_pred, dt = refinement_node.generate_trajectory_to_pred_traj(generated_trajectory)
 
+            # print(traj_pred[-1])
             
             traj_pred_keypoints = learnedToExecuted(traj_pred, refinement_node.getMarkerWRTBase()).pred_traj_to_executed()
-            # print(len(traj_pred))
+            
             traj_pred, dt = refinement_node.parser.interpolate_learned_keypoints(traj_pred_keypoints, 100)
             
             # for data in traj_pred:
@@ -767,13 +778,13 @@ if __name__ == "__main__":
                 plt.xlabel("datapoint [-]")
 
             plt.legend()
-            # plt.show()
+            plt.show()
 
         rospy.loginfo("Executing current predicted trajectory...")
         for i in range(50):
             # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
-            refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_pred), r=1, g=0, b=0))
-            refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_pred_keypoints), r=0, g=1, b=0))
+            refinement_node.traj_pub.publish(refinement_node.trajToVisMsg((traj_pred), r=1, g=0, b=0))
+            refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg((traj_pred_keypoints), r=0, g=0, b=1))
 
         time.sleep(5)
         traj_refined = refinement_node.refineTrajectory(traj_pred, dt)

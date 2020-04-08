@@ -55,16 +55,6 @@ class prepareForLearning():
 
         traj_for_learning = []
         for traj in traj_res:
-            # print(len(traj))
-            print(traj[0])
-            # check if in right format
-            
-            # if not self.parser.tIsFloat(traj):
-            #     t_secs_nsecs = self.parser._getTimeVector(traj)
-            #     t_float = self.parser._secsNsecsToFloat(t_secs_nsecs)
-            #     traj_wo_t = self.parser._removeTmatrix(traj)
-            #     traj = self.parser._addTmatrix(traj_wo_t, t_float)
-
             traj_for_learning.append(self.parser.get_relevant_learning_data(traj))
         
         # apply dtw
@@ -77,7 +67,7 @@ class prepareForLearning():
         for traj in traj_aligned_for_learning:
             parsed_traj = []
             # initialize information needed for relative calculations
-            object_wrt_base = traj[0][8:]
+            object_wrt_base = traj[0][7:-1]
             ee_wrt_base_0 = traj[0][0:3]
             object_wrt_ee_0 = list(self.object_wrt_ee(ee_wrt_base_0, object_wrt_base))
 
@@ -87,12 +77,13 @@ class prepareForLearning():
 
                 ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))
                 ee_ori =  list(data[3:7])
-                dt = [data[7]]
-                parsed_traj.append(ee_wrt_object + ee_ori + dt + object_wrt_ee_0)
-
+                dt = [data[-1]]
+                parsed_traj.append(ee_wrt_object + ee_ori + object_wrt_ee_0 + dt )
+            plt.plot([x[0:3] for x in parsed_traj])
+            plt.plot([x[7:-1] for x in parsed_traj])
+            print(traj[0])
             parsed_trajs.append(parsed_traj)
-
-        # print(parsed_trajs[-1][0])
+        # plt.show()
         return parsed_trajs
     
     def store_trajectories(self, traj, output_path):
@@ -106,7 +97,7 @@ class prepareForLearning():
         self.store_trajectories(prep_trajs, self.output_path)
 
 if __name__ == "__main__":
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/both_wrt_base/'
+    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/both_wrt_base3/'
     output_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     dt = 0.1
 

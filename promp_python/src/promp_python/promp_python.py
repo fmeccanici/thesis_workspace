@@ -197,7 +197,7 @@ class ProMPContext(object):
         plt.xlabel('t [s]')
         plt.ylabel('position [m]')
         # plt.title('Mean and variance')
-        plt.title('Model Welford')
+        # plt.title('Model Welford')
 
         plt.legend()
         

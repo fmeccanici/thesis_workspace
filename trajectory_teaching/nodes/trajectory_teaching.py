@@ -36,8 +36,8 @@ class trajectoryTeaching():
         # self.slave_control_state_sub = rospy.Subscriber("slave_control_state", ControlState, self._slave_control_state_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-        self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
-        # self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+        # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
 
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         # self.marker_sub = rospy.Subscriber("/marker_wrt_ee", PoseStamped, self._marker_detection_callback)
@@ -112,13 +112,13 @@ class trajectoryTeaching():
         rospy.loginfo("Moving to initial pose")
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
         T = 2
-        x = [self.current_slave_pose.position.x, 0.403399335619]
-        y = [self.current_slave_pose.position.y, -0.430007534239]
-        z = [self.current_slave_pose.position.z, 1.16269467394]
+        # x = [self.current_slave_pose.position.x, 0.403399335619]
+        # y = [self.current_slave_pose.position.y, -0.430007534239]
+        # z = [self.current_slave_pose.position.z, 1.16269467394]
         
-        # x = [self.current_slave_pose.position.x, 0.353543514402]
-        # y = [self.current_slave_pose.position.y, 0.435045131507]
-        # z = [self.current_slave_pose.position.z, 0.760080619348]
+        x = [self.current_slave_pose.position.x, 0.353543514402]
+        y = [self.current_slave_pose.position.y, 0.435045131507]
+        z = [self.current_slave_pose.position.z, 0.760080619348]
         
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
@@ -195,7 +195,7 @@ class trajectoryTeaching():
                 print("Saving trajectory data")
                 
                 # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/both_wrt_base/"
+                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/both_wrt_base4/"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)
