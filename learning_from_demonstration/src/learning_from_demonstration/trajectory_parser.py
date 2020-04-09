@@ -36,6 +36,9 @@ class trajectoryParser():
     def object_wrt_ee(self, ee_wrt_base, object_wrt_base):
         return np.subtract(object_wrt_base, ee_wrt_base)
     
+    def ee_wrt_base(self, ee_wrt_object, object_wrt_base):
+        return np.add(ee_wrt_object, object_wrt_base)
+            
     def get_trajectory_wrt_object(self, traj_wrt_base):
         traj_wrt_object = []
 
@@ -54,7 +57,7 @@ class trajectoryParser():
             traj_wrt_object.append(ee_wrt_object + ee_ori + object_wrt_ee_0 + dt )
 
         return traj_wrt_object
-        
+
     def get_total_time(self, raw_traj):
         return raw_traj[-1][-1]
     

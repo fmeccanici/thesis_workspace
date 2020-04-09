@@ -9,6 +9,8 @@
     <license>new BSD</license>
 
 <run_depend>rospy</run_depend>
+<run_depend>geometry_msgs</run_depend>
+
 <run_depend>message_generation</run_depend>
 
 
