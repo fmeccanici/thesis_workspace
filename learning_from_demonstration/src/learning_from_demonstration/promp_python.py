@@ -121,6 +121,7 @@ class ProMPContext(object):
         currentW = []
 
         for joint in range(0, self.num_joints):
+
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
             if self.joints[joint][0] == 'j':
@@ -155,7 +156,7 @@ class ProMPContext(object):
         else:
             self.Y = np.vstack((self.Y, np.array(currentY)))
             self.W = np.vstack((self.W, currentW.T))
-            print(len(self.W[1]))
+            # print(len(self.W[1]))
             self.meanW = np.mean(self.W, 0)
 
         # plt.show()

@@ -1,9 +1,9 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.5
 
 from fastdtw import fastdtw
 import numpy as np
 
-from trajectory_parser.trajectory_parser import *
+from trajectory_parser import trajectoryParser
 import matplotlib.pyplot as plt
 import os, os.path
 
@@ -113,7 +113,7 @@ class DTW():
 
 
         ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)
-        print("trajectories with same context: " + str(ix_for_dtw))
+        # print("trajectories with same context: " + str(ix_for_dtw))
         ix_for_dtw_copy = ix_for_dtw
         
         # use DTW when needed
@@ -157,7 +157,7 @@ class DTW():
                 elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] in to_dtw:
                     
                     del ix_for_dtw_copy[i]
-            print("trajectories to be aligned: " + str(to_dtw))
+            print("Trajectories to be aligned: " + str(to_dtw))
             
             traj_to_dtw = []
             for i in range(len(to_dtw)):

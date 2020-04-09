@@ -47,12 +47,14 @@ class trajectoryParser():
         # calculate relative vectors
         for data in traj_wrt_base:
             ee_wrt_base = data[0:3]
-
-            ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))
+            ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))            
             ee_ori =  list(data[3:7])
             dt = [data[-1]]
+
             traj_wrt_object.append(ee_wrt_object + ee_ori + object_wrt_ee_0 + dt )
 
+        return traj_wrt_object
+        
     def get_total_time(self, raw_traj):
         return raw_traj[-1][-1]
     
@@ -117,7 +119,7 @@ class trajectoryParser():
         return [ [x[-2], x[-1] ] for x in traj]
 
     def secs_nsecs_to_float_vector(self, t_secs_nsecs):
-        return map(lambda x: float(x[0]) + x[1] / 10.0**9, t_secs_nsecs)
+        return list(map(lambda x: float(x[0]) + x[1] / 10.0**9, t_secs_nsecs))
 
     def secs_nsecs_to_float_single(self, t_secs_nsecs):
         return float(t_secs_nsecs[0]) + t_secs_nsecs[1] / 10.0**9
@@ -164,7 +166,8 @@ class trajectoryParser():
     def add_t_float_vector_to_traj(self, traj, t_float):
         
         for i in range(len(traj)):
-            traj.append(t_float[i])
+            traj[i].append(t_float[i])
+
         return traj
 
     def _numDigits(self, dt):
@@ -172,9 +175,21 @@ class trajectoryParser():
         if not '.' in s:
             return 0
         return len(s) - s.index('.') - 1
+
+    # normalize using float time values
+    def normalize_trajectory_time_float(self, traj):
+        t = self.get_time_vector_float(traj)
+        if t[0] != 0.0:
+            t_0 = t[0]
+            t_normalized = list(map(lambda x: x - t_0, t))
+
+        for i,data in enumerate(traj):
+            data[-1] = t_normalized[i]
+
+        return traj
         
     # parse trajectory txt file
-    def _normalize(self, trajectory):
+    def normalize(self, trajectory):
         t = self.get_time_vector_secs_nsecs(trajectory)
 
         # check if trajectory time does not start with 0 --> normalize them
