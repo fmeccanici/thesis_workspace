@@ -1,7 +1,0 @@
-
-<launch>
-
-    <include file="$(find trajectory_visualizer)/launch/trajectory_visualizer.launch"/> 
-    
-
-</launch>

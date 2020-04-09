@@ -683,8 +683,8 @@ if __name__ == "__main__":
     
     input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
     traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
-
-    joints = ["joint_x", "joint_y", "joint_z", "qx", "qy", "qz", "qw", "object_x", "object_y", "object_z", "dt" ]
+ 
+    joints = ["joint_x", "joint_y","joint_z", "qx", "qy", "qz", "qw", "object_x", "object_y", "object_z", "dt" ]
     trajectories = []
     for traj in traj_files:
         trajectory = refinement_node.parser.openTrajectoryFile(traj, input_path)

@@ -2,18 +2,13 @@
     <name>trajectory_visualizer</name>
     <version>1.0.0</version>
     <description>
-        trajectory visualization
+        ROS package for visualizing trajectories
     </description>
     <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
     <author>Floris Meccanici</author>
     <license>new BSD</license>
 
 <run_depend>rospy</run_depend>
-<run_depend>geometry_msgs</run_depend>
-
-<run_depend>message_generation</run_depend>
-
-
 <buildtool_depend>catkin</buildtool_depend>
 
 </package>

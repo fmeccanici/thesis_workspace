@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 
 import rospy, keyboard, os
 from std_msgs.msg import Bool

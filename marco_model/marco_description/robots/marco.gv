@@ -1,0 +1,152 @@
+digraph G {
+node [shape=box];
+"base_footprint" [label="base_footprint"];
+"base_link" [label="base_link"];
+"base_laser_link" [label="base_laser_link"];
+"caster_back_left_1_link" [label="caster_back_left_1_link"];
+"caster_back_left_2_link" [label="caster_back_left_2_link"];
+"caster_back_right_1_link" [label="caster_back_right_1_link"];
+"caster_back_right_2_link" [label="caster_back_right_2_link"];
+"caster_front_left_1_link" [label="caster_front_left_1_link"];
+"caster_front_left_2_link" [label="caster_front_left_2_link"];
+"caster_front_right_1_link" [label="caster_front_right_1_link"];
+"caster_front_right_2_link" [label="caster_front_right_2_link"];
+"torso_fixed_link" [label="torso_fixed_link"];
+"torso_lift_link" [label="torso_lift_link"];
+"arm_1_link" [label="arm_1_link"];
+"arm_2_link" [label="arm_2_link"];
+"arm_3_link" [label="arm_3_link"];
+"arm_4_link" [label="arm_4_link"];
+"arm_5_link" [label="arm_5_link"];
+"arm_6_link" [label="arm_6_link"];
+"arm_7_link" [label="arm_7_link"];
+"arm_tool_link" [label="arm_tool_link"];
+"wrist_ft_link" [label="wrist_ft_link"];
+"wrist_ft_tool_link" [label="wrist_ft_tool_link"];
+"gripper_wrist_link" [label="gripper_wrist_link"];
+"gripper_body_link" [label="gripper_body_link"];
+"gripper_camera_mount_link" [label="gripper_camera_mount_link"];
+"end_effector_cam_link" [label="end_effector_cam_link"];
+"end_effector_cam_optical_frame" [label="end_effector_cam_optical_frame"];
+"gripper_finger_inner_left_link" [label="gripper_finger_inner_left_link"];
+"gripper_finger_tip_left_link" [label="gripper_finger_tip_left_link"];
+"gripper_finger_inner_right_link" [label="gripper_finger_inner_right_link"];
+"gripper_finger_tip_right_link" [label="gripper_finger_tip_right_link"];
+"gripper_finger_outer_left_link" [label="gripper_finger_outer_left_link"];
+"gripper_finger_outer_right_link" [label="gripper_finger_outer_right_link"];
+"gripper_grasp_link" [label="gripper_grasp_link"];
+"gripper_link" [label="gripper_link"];
+"gripper_motor_link" [label="gripper_motor_link"];
+"head_1_link" [label="head_1_link"];
+"head_2_link" [label="head_2_link"];
+"xtion_link" [label="xtion_link"];
+"xtion_depth_frame" [label="xtion_depth_frame"];
+"xtion_depth_optical_frame" [label="xtion_depth_optical_frame"];
+"xtion_optical_frame" [label="xtion_optical_frame"];
+"xtion_rgb_frame" [label="xtion_rgb_frame"];
+"xtion_rgb_optical_frame" [label="xtion_rgb_optical_frame"];
+"laptop_tray_fixed_link" [label="laptop_tray_fixed_link"];
+"rear_cam_link" [label="rear_cam_link"];
+"rear_cam_optical_frame" [label="rear_cam_optical_frame"];
+"wheel_left_link" [label="wheel_left_link"];
+"wheel_right_link" [label="wheel_right_link"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"base_footprint" -> "base_footprint_joint" [label="xyz: 0 0 0.0985 \nrpy: 0 -0 0"]
+"base_footprint_joint" -> "base_link"
+"base_link" -> "base_laser_joint" [label="xyz: 0.185 0 0.01 \nrpy: 0 -0 0"]
+"base_laser_joint" -> "base_laser_link"
+"base_link" -> "caster_back_left_1_joint" [label="xyz: -0.1715 0.102 -0.04 \nrpy: 0 -0 0"]
+"caster_back_left_1_joint" -> "caster_back_left_1_link"
+"caster_back_left_1_link" -> "caster_back_left_2_joint" [label="xyz: -0.017 0.0003 -0.032 \nrpy: -1.5708 0 0"]
+"caster_back_left_2_joint" -> "caster_back_left_2_link"
+"base_link" -> "caster_back_right_1_joint" [label="xyz: -0.1715 -0.102 -0.04 \nrpy: 0 -0 0"]
+"caster_back_right_1_joint" -> "caster_back_right_1_link"
+"caster_back_right_1_link" -> "caster_back_right_2_joint" [label="xyz: -0.017 0.0003 -0.032 \nrpy: -1.5708 0 0"]
+"caster_back_right_2_joint" -> "caster_back_right_2_link"
+"base_link" -> "caster_front_left_1_joint" [label="xyz: 0.1715 0.102 -0.04 \nrpy: 0 -0 0"]
+"caster_front_left_1_joint" -> "caster_front_left_1_link"
+"caster_front_left_1_link" -> "caster_front_left_2_joint" [label="xyz: -0.017 0.0003 -0.032 \nrpy: -1.5708 0 0"]
+"caster_front_left_2_joint" -> "caster_front_left_2_link"
+"base_link" -> "caster_front_right_1_joint" [label="xyz: 0.1715 -0.102 -0.04 \nrpy: 0 -0 0"]
+"caster_front_right_1_joint" -> "caster_front_right_1_link"
+"caster_front_right_1_link" -> "caster_front_right_2_joint" [label="xyz: -0.017 0.0003 -0.032 \nrpy: -1.5708 0 0"]
+"caster_front_right_2_joint" -> "caster_front_right_2_link"
+"base_link" -> "torso_fixed_joint" [label="xyz: -0.068 0 0.19 \nrpy: 0 -0 0"]
+"torso_fixed_joint" -> "torso_fixed_link"
+"torso_fixed_link" -> "torso_lift_joint" [label="xyz: 0 0 0.4983 \nrpy: 0 -0 0"]
+"torso_lift_joint" -> "torso_lift_link"
+"torso_lift_link" -> "arm_1_joint" [label="xyz: 0.157 0.064625 -0.003 \nrpy: 0 0 -1.5708"]
+"arm_1_joint" -> "arm_1_link"
+"arm_1_link" -> "arm_2_joint" [label="xyz: 0.12 0.006 -0.107 \nrpy: 1.5708 -0 0"]
+"arm_2_joint" -> "arm_2_link"
+"arm_2_link" -> "arm_3_joint" [label="xyz: 0.142 -0.02 0 \nrpy: 0 -1.5708 0"]
+"arm_3_joint" -> "arm_3_link"
+"arm_3_link" -> "arm_4_joint" [label="xyz: 0 -0.02 -0.142 \nrpy: 0 -1.5708 0"]
+"arm_4_joint" -> "arm_4_link"
+"arm_4_link" -> "arm_5_joint" [label="xyz: -0.153 0.02 0 \nrpy: 0 -1.5708 0"]
+"arm_5_joint" -> "arm_5_link"
+"arm_5_link" -> "arm_6_joint" [label="xyz: 0 0 0.15 \nrpy: -1.5708 0 0"]
+"arm_6_joint" -> "arm_6_link"
+"arm_6_link" -> "arm_7_joint" [label="xyz: 0 0 0 \nrpy: 1.5708 -0 0"]
+"arm_7_joint" -> "arm_7_link"
+"arm_7_link" -> "arm_tool_joint" [label="xyz: 0 0 0.046 \nrpy: 0 -1.5708 4.71239"]
+"arm_tool_joint" -> "arm_tool_link"
+"arm_tool_link" -> "wrist_ft_joint" [label="xyz: 0.00785 0 0 \nrpy: 1.5708 -5.55112e-17 1.5708"]
+"wrist_ft_joint" -> "wrist_ft_link"
+"wrist_ft_link" -> "wrist_tool_joint" [label="xyz: 0 0 0.012725 \nrpy: 0 -1.5708 -1.5708"]
+"wrist_tool_joint" -> "wrist_ft_tool_link"
+"wrist_ft_tool_link" -> "gripper_wrist_joint" [label="xyz: 0.029 0 0 \nrpy: -3.14159 -1.26218e-29 -1.5708"]
+"gripper_wrist_joint" -> "gripper_wrist_link"
+"gripper_wrist_link" -> "gripper_body_joint" [label="xyz: 0 0 0 \nrpy: -3.14159 -0 0"]
+"gripper_body_joint" -> "gripper_body_link"
+"gripper_body_link" -> "gripper_camera_mount_joint" [label="xyz: 0.03 0.02 -0.014 \nrpy: -1.5708 -2.77556e-17 0.261799"]
+"gripper_camera_mount_joint" -> "gripper_camera_mount_link"
+"gripper_camera_mount_link" -> "end_effector_cam_joint" [label="xyz: 0 0.021 0 \nrpy: 0 -0 0"]
+"end_effector_cam_joint" -> "end_effector_cam_link"
+"end_effector_cam_link" -> "end_effector_cam_optical_joint" [label="xyz: 0 0 -0.025 \nrpy: 0 1.5708 4.89665e-12"]
+"end_effector_cam_optical_joint" -> "end_effector_cam_optical_frame"
+"gripper_body_link" -> "gripper_finger_inner_left_joint" [label="xyz: 0.019 0.05925 0 \nrpy: -3.14159 -0 0"]
+"gripper_finger_inner_left_joint" -> "gripper_finger_inner_left_link"
+"gripper_finger_inner_left_link" -> "gripper_finger_tip_left_joint" [label="xyz: 0 -0.057 0 \nrpy: -3.14159 -0 0"]
+"gripper_finger_tip_left_joint" -> "gripper_finger_tip_left_link"
+"gripper_body_link" -> "gripper_finger_inner_right_joint" [label="xyz: -0.019 0.05925 0.0001 \nrpy: 3.14159 -2.06823e-13 3.14159"]
+"gripper_finger_inner_right_joint" -> "gripper_finger_inner_right_link"
+"gripper_finger_inner_right_link" -> "gripper_finger_tip_right_joint" [label="xyz: 0 0.057 0 \nrpy: 0 -0 0"]
+"gripper_finger_tip_right_joint" -> "gripper_finger_tip_right_link"
+"gripper_body_link" -> "gripper_finger_outer_left_joint" [label="xyz: 0.033135 0.05175 -0.0001 \nrpy: 3.14159 -2.06823e-13 -3.08574"]
+"gripper_finger_outer_left_joint" -> "gripper_finger_outer_left_link"
+"gripper_body_link" -> "gripper_finger_outer_right_joint" [label="xyz: -0.033135 0.05175 0 \nrpy: 0 0 -0.0558505"]
+"gripper_finger_outer_right_joint" -> "gripper_finger_outer_right_link"
+"gripper_body_link" -> "gripper_grasp_joint" [label="xyz: 0 0.09 0 \nrpy: 0 -0 0"]
+"gripper_grasp_joint" -> "gripper_grasp_link"
+"gripper_body_link" -> "gripper_joint" [label="xyz: -0.0052 0.0352 0 \nrpy: 0 -0 0"]
+"gripper_joint" -> "gripper_link"
+"gripper_body_link" -> "gripper_motor_joint" [label="xyz: -0.00515 0.0353 -0.0315 \nrpy: 0 -0 0"]
+"gripper_motor_joint" -> "gripper_motor_link"
+"torso_lift_link" -> "head_1_joint" [label="xyz: 0.193 0 0.111 \nrpy: 0 -0 0"]
+"head_1_joint" -> "head_1_link"
+"head_1_link" -> "head_2_joint" [label="xyz: 0.0355 0 0.023 \nrpy: 1.5708 -0 0"]
+"head_2_joint" -> "head_2_link"
+"head_2_link" -> "xtion_joint" [label="xyz: 0.064192 0.017614 0 \nrpy: -1.5708 0 0"]
+"xtion_joint" -> "xtion_link"
+"xtion_link" -> "xtion_depth_joint" [label="xyz: 0 0.049 0 \nrpy: 0 -0 0"]
+"xtion_depth_joint" -> "xtion_depth_frame"
+"xtion_depth_frame" -> "xtion_depth_optical_joint" [label="xyz: 0 0 0 \nrpy: -1.5708 -5.55112e-17 -1.5708"]
+"xtion_depth_optical_joint" -> "xtion_depth_optical_frame"
+"xtion_link" -> "xtion_optical_joint" [label="xyz: 0 0 0 \nrpy: -1.5708 -5.55112e-17 -1.5708"]
+"xtion_optical_joint" -> "xtion_optical_frame"
+"xtion_link" -> "xtion_rgb_joint" [label="xyz: 0 0.022 0 \nrpy: 0 -0 0"]
+"xtion_rgb_joint" -> "xtion_rgb_frame"
+"xtion_rgb_frame" -> "xtion_rgb_optical_joint" [label="xyz: 0 0 0 \nrpy: -1.5708 -5.55112e-17 -1.5708"]
+"xtion_rgb_optical_joint" -> "xtion_rgb_optical_frame"
+"torso_lift_link" -> "laptop_tray_fixed_joint" [label="xyz: -0.03 0 0.05 \nrpy: 0 -0 0"]
+"laptop_tray_fixed_joint" -> "laptop_tray_fixed_link"
+"torso_lift_link" -> "rear_cam_joint" [label="xyz: -0.2 0 0 \nrpy: 0 -0 0"]
+"rear_cam_joint" -> "rear_cam_link"
+"rear_cam_link" -> "rear_cam_optical_joint" [label="xyz: 0 0 -0.025 \nrpy: 0 1.5708 4.89665e-12"]
+"rear_cam_optical_joint" -> "rear_cam_optical_frame"
+"base_link" -> "wheel_left_joint" [label="xyz: 0 0.2022 0 \nrpy: -1.5708 0 0"]
+"wheel_left_joint" -> "wheel_left_link"
+"base_link" -> "wheel_right_joint" [label="xyz: 0 -0.2022 0 \nrpy: -1.5708 0 0"]
+"wheel_right_joint" -> "wheel_right_link"
+}

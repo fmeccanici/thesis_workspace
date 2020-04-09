@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<!--
+
+  Copyright (c) 2016, PAL Robotics, S.L.
+  All rights reserved.
+
+  This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/ or send a letter to
+  Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+-->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- VIRTUAL (mimic) JOINTS -->
+  <xacro:macro name="virtual_joints" params="name">
+    <gazebo>
+      <plugin name="mimic_${name}_finger_inner_left_joint" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+        <joint>${name}_joint</joint>
+        <mimicJoint>${name}_finger_inner_left_joint</mimicJoint>
+        <multiplier>1.0</multiplier>
+        <offset>0.0</offset>
+        <!-- <hasPID/> -->
+      </plugin>
+
+      <plugin name="mimic_${name}_finger_inner_right_joint" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+        <joint>${name}_joint</joint>
+        <mimicJoint>${name}_finger_inner_right_joint</mimicJoint>
+        <multiplier>-1.0</multiplier>
+        <offset>0.0</offset>
+        <!-- <hasPID/> -->
+      </plugin>
+
+      <plugin name="mimic_${name}_finger_outer_left_joint" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+        <joint>${name}_joint</joint>
+        <mimicJoint>${name}_finger_outer_left_joint</mimicJoint>
+        <multiplier>1.0</multiplier>
+        <offset>0.0</offset>
+        <!-- <hasPID/> -->
+      </plugin>
+
+      <plugin name="mimic_${name}_finger_outer_right_joint" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+        <joint>${name}_joint</joint>
+        <mimicJoint>${name}_finger_outer_right_joint</mimicJoint>
+        <multiplier>1.0</multiplier>
+        <offset>0.0</offset>
+        <!-- <hasPID/> -->
+      </plugin>
+
+      <plugin name="mimic_${name}_finger_tip_left_joint" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+        <joint>${name}_joint</joint>
+        <mimicJoint>${name}_finger_tip_left_joint</mimicJoint>
+        <multiplier>1.0</multiplier>
+        <offset>0.0</offset>
+        <!-- <hasPID/> -->
+      </plugin>
+
+      <plugin name="mimic_${name}_finger_tip_right_joint" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+        <joint>${name}_joint</joint>
+        <mimicJoint>${name}_finger_tip_right_joint</mimicJoint>
+        <multiplier>1.0</multiplier>
+        <offset>0.0</offset>
+        <!-- <hasPID/> -->
+      </plugin>
+  </gazebo>
+
+<!--     <plugin filename="libgazebo_underactuated_finger.so" name="gazebo_${name}_underactuated">
+      <actuatedJoint>${name}_joint</actuatedJoint>
+      <virtualJoint>
+        <name>${name}_inner_double_joint</name>
+        <scale_factor>1.0</scale_factor>
+      </virtualJoint> -->
+<!--       <virtualJoint>
+        <name>${name}_fingertip_1_joint</name>
+        <scale_factor>-1.0</scale_factor>
+      </virtualJoint>
+      <virtualJoint>
+        <name>${name}_fingertip_2_joint</name>
+        <scale_factor>-1.0</scale_factor>
+      </virtualJoint>
+      <virtualJoint>
+        <name>${name}_motor_single_joint</name>
+        <scale_factor>1.0</scale_factor>
+      </virtualJoint>
+      <virtualJoint>
+        <name>${name}_fingertip_3_joint</name>
+        <scale_factor>-1.0</scale_factor>
+      </virtualJoint> -->
+<!--     </plugin> -->
+
+
+  <gazebo reference="${name}_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_inner_left_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_inner_right_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_outer_left_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_outer_right_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_tip_left_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_tip_right_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+
+  <gazebo reference="${name}_wrist_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_body_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_motor_link">
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="${name}_camera_mount_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_inner_left_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_inner_right_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_outer_left_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_outer_right_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_tip_left_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="${name}_finger_tip_right_link">
+    <material>Gazebo/White</material>
+  </gazebo>  
+
+  </xacro:macro>
+
+</robot>

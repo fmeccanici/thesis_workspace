@@ -1,0 +1,8 @@
+<launch>
+  <!-- <arg name="robot" default="titanium_ft"/> -->
+  <arg name="robot" default="titanium"/>
+
+  <!-- Robot description -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find marco_description)/robots/marco_$(arg robot).urdf.xacro' have_base_rgbd:=false" />
+
+</launch>

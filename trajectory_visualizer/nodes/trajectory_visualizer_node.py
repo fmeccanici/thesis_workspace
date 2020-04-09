@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-from trajectory_visualizer.trajectory_visualizer import trajectoryVisualizer
+from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
+from trajectory_visualizer.msg import TrajectoryVisualization
+
 from geometry_msgs.msg import Point, Pose, Vector3, PoseArray
 from visualization_msgs.msg import MarkerArray, Marker
 from std_msgs.msg import Header, ColorRGBA
@@ -129,5 +131,5 @@ class trajectoryVisualizerNode():
 
 
 if __name__ == "__main__":
-    trajectory_visualizer = trajectoryVisualizer()
+    trajectory_visualizer = trajectoryVisualizerNode()
     trajectory_visualizer.run()

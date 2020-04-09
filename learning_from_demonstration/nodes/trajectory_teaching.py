@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 import rospy, tf
 from geomagic_touch_m.msg import GeomagicButtonEvent
@@ -10,12 +10,11 @@ from geometry_msgs.msg import PoseStamped, Pose
 import numpy as np
 from scipy.interpolate import interp1d
 
-from trajectory_parser.trajectory_parser import *
+from learning_from_demonstration.trajectory_parser import trajectoryParser
 from aruco_msgs.msg import MarkerArray
-from pyquaternion import Quaternion
 
-import cProfile
-from profilehooks import profile
+# import cProfile
+# from profilehooks import profile
 
 class trajectoryTeaching():
     def __init__(self):
@@ -122,11 +121,11 @@ class trajectoryTeaching():
         
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
-        t = list(self.parser._secsNsecsToFloat(self.parser.durationVector2secsNsecsVector(t)))
+        t = list(self.parser.secs_nsecs_to_float_vector(self.parser.durationVector2secsNsecsVector(t)))
         
-        fx = interp1d(t, x, fill_value="extrapolate")
-        fy = interp1d(t, y, fill_value="extrapolate")
-        fz = interp1d(t, z, fill_value="extrapolate")
+        fx = interp1d(t, x)
+        fy = interp1d(t, y)
+        fz = interp1d(t, z)
 
         dt = 0.1
         tnew = np.arange(t[0],t[-1],dt)
@@ -194,8 +193,7 @@ class trajectoryTeaching():
             if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
                 print("Saving trajectory data")
                 
-                # path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/marco_lfd/data/raw/"
-                path = "/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/both_wrt_base4/"
+                path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/both_wrt_base_one_context2"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)
@@ -213,7 +211,7 @@ class trajectoryTeaching():
 
 if __name__ == "__main__":
     teaching_node = trajectoryTeaching()
-    try:
-        teaching_node.run()
-    except Exception as e: 
-        print(e)
+    # try:
+    teaching_node.run()
+    # except Exception as e: 
+    #     print(e)

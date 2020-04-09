@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="robot" default="titanium"/>
+  <arg name="full_sim" default="false"/>
+
+  <!-- Add casters as joint_state_controller extra joints -->
+  <rosparam command="load"
+            ns="joint_state_controller"
+            file="$(find marco_controller_configuration)/config/joint_state_controller_extra_joints.yaml"/>
+
+  <!-- Diff drive controller parameters -->
+  <rosparam command="load" file="$(find marco_controller_configuration)/config/mobile_base_controller.yaml"/>
+
+  <!-- Robot model -->
+  <include file="$(find marco_description)/robots/upload_marco.launch">
+    <arg name="robot" value="$(arg robot)"/>
+  </include>
+
+  <!-- marco_hardware parameters -->
+  <rosparam command="load" file="$(find marco_bringup)/config/marco_hardware.yaml"/>
+
+  <!-- Node that forwards commands and feedback of dynamixel motors -->
+  <include file="$(find marco_bringup)/launch/dynamixel_node.launch"/>
+
+  <!-- Battery reporter from M90 -->
+  <node name="battery_reporter" type="voltage_from_m90.py" pkg="battery_reporter"/>
+
+  <!-- Bring up robot -->
+  <include file="$(find marco_bringup)/launch/marco_bringup.launch">
+    <arg name="robot" value="$(arg robot)"/>
+    <arg name="full_sim" value="$(arg full_sim)"/>
+  </include>
+</launch>

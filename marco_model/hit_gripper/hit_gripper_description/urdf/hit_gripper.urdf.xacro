@@ -1,0 +1,409 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!--File includes-->
+  <xacro:include filename="$(find hit_gripper_description)/urdf/deg_to_rad.urdf.xacro" />
+  <xacro:include filename="$(find hit_gripper_description)/urdf/hit_gripper.transmission.xacro" />
+  <xacro:include filename="$(find hit_gripper_description)/urdf/hit_gripper.gazebo.xacro" />
+  <!-- Generic simulator_gazebo plugins -->
+  <!--<xacro:include filename="$(find hit_gripper_description)/gazebo/gazebo.urdf.xacro" />-->
+
+  <xacro:macro name="hit_gripper" params="name parent">
+
+  <link name="${name}_wrist_link">
+    <inertial>
+      <origin xyz="0 0.011 0" rpy="0 0 0" />
+      <mass value="0.05" />
+      <inertia ixx="0.00000786" ixy="0.00000001" ixz="0.00000003"
+               iyy="0.00001950" iyz="0.00000000"
+               izz="0.00001497" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/wrist_mount.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/wrist_mount.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${name}_wrist_joint" type="fixed">
+    <origin xyz="0.029 0 0" rpy="${180*deg_to_rad} 0 ${-90*deg_to_rad}" />
+    <parent link="${parent}" />
+    <child link="${name}_wrist_link" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+
+  <link name="${name}_body_link">
+    <inertial>
+      <origin xyz="0 0.033 0" rpy="0 0 0" />
+      <mass value="0.118" />
+      <inertia ixx="0.00004579" ixy="-0.00000011" ixz="0.00000033"
+               iyy="0.00004825" iyz="0.00000049"
+               izz="0.00007495" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/body.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/body.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${name}_body_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="${180*deg_to_rad} 0 0" />
+    <parent link="${name}_wrist_link" />
+    <child link="${name}_body_link" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+  <link name="${name}_grasp_link">
+    <inertial>
+      <origin xyz="0 0.033 0" rpy="0 0 0" />
+      <mass value="0.00001" />
+      <inertia ixx="0.00004579" ixy="-0.00000011" ixz="0.00000033"
+               iyy="0.00004825" iyz="0.00000049"
+               izz="0.00007495" />
+    </inertial>
+    <!--<visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/body.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/body.stl"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_grasp_joint" type="fixed">
+    <origin xyz="0 0.09 0" rpy="0 0 0" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_grasp_link" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+
+  <link name="${name}_motor_link">
+    <inertial>
+      <origin xyz="0 -0.012 0" rpy="0 0 0" />
+      <mass value="0.117" />
+      <inertia ixx="0.00001193" ixy="0.00000000" ixz="-0.00000000"
+               iyy="0.00000690" iyz="0.00000010"
+               izz="0.00001053" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/motor.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="Black"/>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0.001 -0.01" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/motor.stl" scale="0.9 0.9 0.9"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_motor_joint" type="fixed">
+    <origin xyz="-0.00515 0.0353 -0.0315" rpy="0 0 0" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_motor_link" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+
+  <link name="${name}_camera_mount_link">
+    <inertial>
+      <origin xyz="0 0.0153 0" rpy="0 0 0" />
+      <mass value="0.008" />
+      <inertia ixx="0.00000100" ixy="0.00000001" ixz="-0.00000000"
+               iyy="0.00000001" iyz="0.00000074"
+               izz="0.00000137" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/camera_mount.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/camera_mount.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${name}_camera_mount_joint" type="fixed">
+    <origin xyz="0.03 0.02 -0.014" rpy="${-90*deg_to_rad} 0 ${15*deg_to_rad}" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_camera_mount_link" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+
+  <link name="${name}_link">
+    <inertial>
+      <origin xyz="0 0 0.008" rpy="0 0 0" />
+      <mass value="0.004" />
+      <inertia ixx="0.00000015" ixy="0.00000000" ixz="-0.00000000"
+               iyy="0.00000015" iyz="0.00000000"
+               izz="0.00000015" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/gear.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/gear.stl"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_joint" type="revolute">
+    <origin xyz="-0.0052 0.0352 0"  rpy="0 0 0" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-13*deg_to_rad}" upper="${60*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+  </joint>
+
+
+  <link name="${name}_finger_inner_left_link">
+    <inertial>
+      <origin xyz="0 -0.0185 0" rpy="0 0 0" />
+      <mass value="0.02" />
+      <inertia ixx="0.00000780" ixy="0.00000057" ixz="-0.00000000"
+               iyy="0.00000101" iyz="-0.00000003"
+               izz="0.00000781" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_inner_left.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_inner_left.stl" scale="0.99 0.99 0.99"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_finger_inner_left_joint" type="revolute">
+    <origin xyz="0.019 0.05925 0"  rpy="${180*deg_to_rad} 0 0" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_finger_inner_left_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-13*deg_to_rad}" upper="${60*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+    <mimic joint="${name}_joint" multiplier="${1.0}" offset="0.0" />
+  </joint>
+
+
+  <link name="${name}_finger_inner_right_link">
+    <inertial>
+      <origin xyz="-0.00157 0.017 0" rpy="0 0 0" />
+      <mass value="0.02" />
+      <inertia ixx="0.00000755" ixy="-0.00000041" ixz="-0.00000000"
+               iyy="0.00000091" iyz="0.00000003"
+               izz="0.00000762" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_inner_right.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_inner_right.stl" scale="0.99 0.99 0.99"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_finger_inner_right_joint" type="revolute">
+    <origin xyz="-0.019 0.05925 0.0001"  rpy="0 ${180*deg_to_rad} 0" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_finger_inner_right_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-60*deg_to_rad}" upper="${13*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+    <mimic joint="${name}_joint" multiplier="${-1.0}" offset="0.0" />
+  </joint>
+
+
+  <link name="${name}_finger_outer_left_link">
+    <inertial>
+      <origin xyz="-0.005 0.031 0" rpy="0 0 0" />
+      <mass value="0.0125" />
+      <inertia ixx="0.00000335" ixy="0.00000007" ixz="-0.00000000"
+               iyy="0.00000049" iyz="0.00000000"
+               izz="0.00000303" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_outer.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_outer.stl" scale="0.99 0.99 0.99"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_finger_outer_left_joint" type="revolute">
+    <origin xyz="0.033135 0.05175 -0.0001"  rpy="0 ${180*deg_to_rad} ${3.2*deg_to_rad}" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_finger_outer_left_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-13*deg_to_rad}" upper="${60*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+    <mimic joint="${name}_joint" multiplier="${1.0}" offset="0.0" />
+  </joint>
+
+
+  <link name="${name}_finger_outer_right_link">
+    <inertial>
+      <origin xyz="-0.005 0.031 0" rpy="0 0 0" />
+      <mass value="0.0125" />
+      <inertia ixx="0.00000335" ixy="0.00000007" ixz="-0.00000000"
+               iyy="0.00000049" iyz="0.00000000"
+               izz="0.00000303" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_outer.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_outer.stl" scale="0.99 0.99 0.99"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="${name}_finger_outer_right_joint" type="revolute">
+    <origin xyz="-0.033135 0.05175 0"  rpy="0 0 ${-3.2*deg_to_rad}" />
+    <parent link="${name}_body_link" />
+    <child link="${name}_finger_outer_right_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-13*deg_to_rad}" upper="${60*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+    <mimic joint="${name}_joint" multiplier="${1.0}" offset="0.0" />
+  </joint>
+
+
+  <link name="${name}_finger_tip_left_link">
+    <inertial>
+      <origin xyz="0.0035 0.01 0" rpy="0 0 0" />
+      <mass value="0.0137" />
+      <inertia ixx="0.00000177" ixy="0.00000044" ixz="-0.00000000"
+               iyy="0.00000062" iyz="0.00000000"
+               izz="0.00000190" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_tip.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_tip.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${name}_finger_tip_left_joint" type="revolute">
+    <origin xyz="0 -0.057 0"  rpy="${180*deg_to_rad} 0 0" />
+    <parent link="${name}_finger_inner_left_link" />
+    <child link="${name}_finger_tip_left_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-13*deg_to_rad}" upper="${60*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+    <mimic joint="${name}_joint" multiplier="${1.0}" offset="0.0" />
+  </joint>
+
+
+  <link name="${name}_finger_tip_right_link">
+    <inertial>
+      <origin xyz="0.0035 0.01 0" rpy="0 0 0" />
+      <mass value="0.0137" />
+      <inertia ixx="0.00000177" ixy="0.00000044" ixz="-0.00000000"
+               iyy="0.00000062" iyz="0.00000000"
+               izz="0.00000190" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_tip.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://hit_gripper_description/meshes/finger_tip.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${name}_finger_tip_right_joint" type="revolute">
+    <origin xyz="0 0.057 0"  rpy="0 0 0" />
+    <parent link="${name}_finger_inner_right_link" />
+    <child link="${name}_finger_tip_right_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-13*deg_to_rad}" upper="${60*deg_to_rad}" effort="1.0" velocity="1.0" />
+    <dynamics friction="1.0" damping="1.0"/>
+    <mimic joint="${name}_joint" multiplier="${1.0}" offset="0.0" />
+  </joint>
+
+  <xacro:virtual_joints name="${name}" />
+  <xacro:gripper_transmission name="${name}" reduction="1.0" />
+
+ </xacro:macro>
+
+</robot>

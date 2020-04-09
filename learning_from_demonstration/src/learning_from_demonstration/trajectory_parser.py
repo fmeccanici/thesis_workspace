@@ -1,28 +1,28 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 
 import rospy, ast, os, os.path
 import numpy as np
-from pyquaternion import Quaternion
-from scipy.interpolate import interp1d
+# from pyquaternion import Quaternion
+# from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
-from scipy.interpolate import CubicSpline, InterpolatedUnivariateSpline
+# from scipy.interpolate import CubicSpline, InterpolatedUnivariateSpline
 
 class trajectoryParser():
     def __init__(self):
         self.raw_trajectory = []
 
-    def plan2traj(self, plan, qstart, qend):
-        traj = []
+    # def plan2traj(self, plan, qstart, qend):
+    #     traj = []
 
-        # set amount of datapoints for linear interpolation of quaternionss
-        n = len(plan.plan.points)-2
+    #     # set amount of datapoints for linear interpolation of quaternionss
+    #     n = len(plan.plan.points)-2
 
-        # linearly interpolate the quaternions
-        quat = trajectoryParser.interpolateQuaternions(qstart, qend, n)
-        for i,q in enumerate(quat):
-            traj.append([plan.plan.points[i].positions[0], plan.plan.points[i].positions[1], plan.plan.points[i].positions[2], q.imaginary[0], q.imaginary[1], q.imaginary[2], q.real, rospy.Duration(plan.plan.times[i]).secs, rospy.Duration(plan.plan.times[i]).nsecs] )
+    #     # linearly interpolate the quaternions
+    #     quat = trajectoryParser.interpolateQuaternions(qstart, qend, n)
+    #     for i,q in enumerate(quat):
+    #         traj.append([plan.plan.points[i].positions[0], plan.plan.points[i].positions[1], plan.plan.points[i].positions[2], q.imaginary[0], q.imaginary[1], q.imaginary[2], q.real, rospy.Duration(plan.plan.times[i]).secs, rospy.Duration(plan.plan.times[i]).nsecs] )
 
-        return traj
+    #     return traj
     
     # @classmethod
     # def interpolateQuaternions(cls, qstart, qend, n, include_endpoints=True):
@@ -182,12 +182,13 @@ class trajectoryParser():
     # normalize using float time values
     def normalize_trajectory_time_float(self, traj):
         t = self.get_time_vector_float(traj)
+        
         if t[0] != 0.0:
             t_0 = t[0]
             t_normalized = list(map(lambda x: x - t_0, t))
-
-        for i,data in enumerate(traj):
-            data[-1] = t_normalized[i]
+            
+            for i,data in enumerate(traj):
+                data[-1] = t_normalized[i]
 
         return traj
         
@@ -279,78 +280,78 @@ class trajectoryParser():
     def arrays_in_list_to_list_in_list(self, traj):
         return [list(x) for x in traj]
 
-    def interpolate_raw_trajectory(self, raw_traj, n):
-        traj_pose = self.getCartesianPositions(raw_traj)
-        traj_time = self.get_time_vector_secs_nsecs(raw_traj)
+    # def interpolate_raw_trajectory(self, raw_traj, n):
+    #     traj_pose = self.getCartesianPositions(raw_traj)
+    #     traj_time = self.get_time_vector_secs_nsecs(raw_traj)
                 
-        T = self.secs_nsecs_to_float_vector(raw_traj[-1][-2:])
-        object_pose = raw_traj[0][7:14]
+    #     T = self.secs_nsecs_to_float_vector(raw_traj[-1][-2:])
+    #     object_pose = raw_traj[0][7:14]
 
-        xvals = np.linspace(0, T, n)
+    #     xvals = np.linspace(0, T, n)
 
-        traj_time = ((np.asarray(self.secs_nsecs_to_float_vector(traj_time))))
-        traj_pos_x = (np.asarray(self.getXpositions(traj_pose)).reshape(len(traj_time), 1))
-        traj_pos_y = (np.asarray(self.getYpositions(traj_pose)).reshape(len(traj_time), 1))
-        traj_pos_z = (np.asarray(self.getZpositions(traj_pose)).reshape(len(traj_time), 1))
+    #     traj_time = ((np.asarray(self.secs_nsecs_to_float_vector(traj_time))))
+    #     traj_pos_x = (np.asarray(self.getXpositions(traj_pose)).reshape(len(traj_time), 1))
+    #     traj_pos_y = (np.asarray(self.getYpositions(traj_pose)).reshape(len(traj_time), 1))
+    #     traj_pos_z = (np.asarray(self.getZpositions(traj_pose)).reshape(len(traj_time), 1))
 
-        yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
-        yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
-        yinterp_z = interp1d((traj_time), np.transpose(traj_pos_z), axis=1, fill_value="extrapolate")
+    #     yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
+    #     yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
+    #     yinterp_z = interp1d((traj_time), np.transpose(traj_pos_z), axis=1, fill_value="extrapolate")
 
-        y_new_x = yinterp_x(xvals)
-        y_new_y = yinterp_y(xvals)
-        y_new_z = yinterp_z(xvals)
+    #     y_new_x = yinterp_x(xvals)
+    #     y_new_y = yinterp_y(xvals)
+    #     y_new_z = yinterp_z(xvals)
 
-        qstart = raw_traj[0][3:7]
-        qend = raw_traj[-1][3:7]
+    #     qstart = raw_traj[0][3:7]
+    #     qend = raw_traj[-1][3:7]
 
-        interpol_traj = []
-        t_secs_nsecs = self._floatToSecsNsecs(xvals)
-        for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n, False)):
-            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-            ynew = pos + object_pose + [xvals[i]]
+    #     interpol_traj = []
+    #     t_secs_nsecs = self._floatToSecsNsecs(xvals)
+    #     for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n, False)):
+    #         pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
+    #         ynew = pos + object_pose + [xvals[i]]
 
-            interpol_traj.append(ynew)
+    #         interpol_traj.append(ynew)
 
 
-        return interpol_traj
-    def interpolate_learned_keypoints(self, traj, n_desired):
-        n = len(traj)
-        T = traj[-1][-1]
-        # print(traj[-1])
-        x = np.linspace(0, T, n)
+    #     return interpol_traj
+    # def interpolate_learned_keypoints(self, traj, n_desired):
+    #     n = len(traj)
+    #     T = traj[-1][-1]
+    #     # print(traj[-1])
+    #     x = np.linspace(0, T, n)
 
-        object_pose = traj[0][7:10]
-        # cs = CubicSpline(x, traj)
-        cartx = [data[0] for data in traj]
-        carty = [data[1] for data in traj]
-        cartz = [data[2] for data in traj]
+    #     object_pose = traj[0][7:10]
+    #     # cs = CubicSpline(x, traj)
+    #     cartx = [data[0] for data in traj]
+    #     carty = [data[1] for data in traj]
+    #     cartz = [data[2] for data in traj]
 
-        splinex = InterpolatedUnivariateSpline(x, cartx)
-        spliney = InterpolatedUnivariateSpline(x, carty)
-        splinez = InterpolatedUnivariateSpline(x, cartz)
+    #     splinex = InterpolatedUnivariateSpline(x, cartx)
+    #     spliney = InterpolatedUnivariateSpline(x, carty)
+    #     splinez = InterpolatedUnivariateSpline(x, cartz)
 
-        xdesired = np.linspace(0, T, n_desired)
-        dt_new = T / n_desired
-        print(x[-1])
-        print(xdesired[-1])
-        cartx_new = splinex(xdesired)
-        carty_new = spliney(xdesired)
-        cartz_new = splinez(xdesired)
+    #     xdesired = np.linspace(0, T, n_desired)
+    #     dt_new = T / n_desired
+    #     print(x[-1])
+    #     print(xdesired[-1])
+    #     cartx_new = splinex(xdesired)
+    #     carty_new = spliney(xdesired)
+    #     cartz_new = splinez(xdesired)
 
-        qstart = traj[0][3:7]
-        qend = traj[-1][3:7]
+    #     qstart = traj[0][3:7]
+    #     qend = traj[-1][3:7]
 
-        interpol_traj = []
-        for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n_desired, False)):
-            pos = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-            ynew = pos + object_pose + [xdesired[i]]
+    #     interpol_traj = []
+    #     for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n_desired, False)):
+    #         pos = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
+    #         ynew = pos + object_pose + [xdesired[i]]
 
-            interpol_traj.append(ynew)
+    #         interpol_traj.append(ynew)
 
-        # ynew_list = [list(x) for x in ynew]
+    #     # ynew_list = [list(x) for x in ynew]
 
-        return interpol_traj, dt_new
+    #     return interpol_traj, dt_new
 
     def isRaw(self, traj):
         if len(traj[0]) == 16:
@@ -381,53 +382,53 @@ class trajectoryParser():
 
         return trajectories, trajectories_lengths
 
-    def resample_trajectory(self,traj1, traj2):
+    # def resample_trajectory(self,traj1, traj2):
 
-        n1 = len(traj1)
-        n2 = len(traj2)
-        dt1 = self.getTimeInterval(self._normalize(traj1))
-        dt2 = self.getTimeInterval(self._normalize(traj2))
+    #     n1 = len(traj1)
+    #     n2 = len(traj2)
+    #     dt1 = self.getTimeInterval(self._normalize(traj1))
+    #     dt2 = self.getTimeInterval(self._normalize(traj2))
 
-        traj1 = self._normalize(traj1)
-        traj2 = self._normalize(traj2)
+    #     traj1 = self._normalize(traj1)
+    #     traj2 = self._normalize(traj2)
 
 
 
-        dt_new = n2 / (n1 / dt1)
+    #     dt_new = n2 / (n1 / dt1)
 
-        traj2_pos = self.getCartesianPositions(traj2)
-        traj2_time = self.get_time_vector_secs_nsecs(traj2)
+    #     traj2_pos = self.getCartesianPositions(traj2)
+    #     traj2_time = self.get_time_vector_secs_nsecs(traj2)
 
-        # we want to downsample to the smallest trajectory, which is traj1
-        l = len(traj1)
-        xvals2 = np.linspace(0, l*dt_new, l)
+    #     # we want to downsample to the smallest trajectory, which is traj1
+    #     l = len(traj1)
+    #     xvals2 = np.linspace(0, l*dt_new, l)
 
-        traj2_time = np.asarray(self.secs_nsecs_to_float_vector(traj2_time))
-        traj2_pos_x = np.asarray(self.getXpositions(traj2_pos)).reshape(len(traj2_pos), 1)
-        traj2_pos_y = np.asarray(self.getYpositions(traj2_pos)).reshape(len(traj2_pos), 1)
-        traj2_pos_z = np.asarray(self.getZpositions(traj2_pos)).reshape(len(traj2_pos), 1)
+    #     traj2_time = np.asarray(self.secs_nsecs_to_float_vector(traj2_time))
+    #     traj2_pos_x = np.asarray(self.getXpositions(traj2_pos)).reshape(len(traj2_pos), 1)
+    #     traj2_pos_y = np.asarray(self.getYpositions(traj2_pos)).reshape(len(traj2_pos), 1)
+    #     traj2_pos_z = np.asarray(self.getZpositions(traj2_pos)).reshape(len(traj2_pos), 1)
 
-        yinterp_traj2_x = interp1d((traj2_time), np.transpose(traj2_pos_x), axis=1, fill_value="extrapolate")
-        yinterp_traj2_y = interp1d((traj2_time), np.transpose(traj2_pos_y), axis=1, fill_value="extrapolate")
-        yinterp_traj2_z = interp1d((traj2_time), np.transpose(traj2_pos_z), axis=1, fill_value="extrapolate")
+    #     yinterp_traj2_x = interp1d((traj2_time), np.transpose(traj2_pos_x), axis=1, fill_value="extrapolate")
+    #     yinterp_traj2_y = interp1d((traj2_time), np.transpose(traj2_pos_y), axis=1, fill_value="extrapolate")
+    #     yinterp_traj2_z = interp1d((traj2_time), np.transpose(traj2_pos_z), axis=1, fill_value="extrapolate")
         
-        y_traj2_new_x = yinterp_traj2_x(xvals2)
-        y_traj2_new_y = yinterp_traj2_y(xvals2)
-        y_traj2_new_z = yinterp_traj2_z(xvals2)
+    #     y_traj2_new_x = yinterp_traj2_x(xvals2)
+    #     y_traj2_new_y = yinterp_traj2_y(xvals2)
+    #     y_traj2_new_z = yinterp_traj2_z(xvals2)
         
-        qstart = traj2[0][3:7]
-        qend = traj2[-1][3:7]
+    #     qstart = traj2[0][3:7]
+    #     qend = traj2[-1][3:7]
         
-        object_info = traj2[0][7:14]
+    #     object_info = traj2[0][7:14]
 
-        traj2 = []
+    #     traj2 = []
 
-        # print(object_info)
+    #     # print(object_info)
 
-        for i,q in enumerate(self.interpolateQuaternions(qstart, qend, l, False)):
-            traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + [q[1], q[2], q[3], q[0]] + object_info + [xvals2[i]])
+    #     for i,q in enumerate(self.interpolateQuaternions(qstart, qend, l, False)):
+    #         traj2.append([y_traj2_new_x[0][i], y_traj2_new_y[0][i], y_traj2_new_z[0][i]] + [q[1], q[2], q[3], q[0]] + object_info + [xvals2[i]])
         
-        return traj2
+    #     return traj2
 
     def resample_trajectories(self, trajectories, traj_min_length):
         trajectories_resampled = []
