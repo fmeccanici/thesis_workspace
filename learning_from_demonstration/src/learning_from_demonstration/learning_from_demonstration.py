@@ -54,13 +54,12 @@ class learningFromDemonstration():
     
     def parse_relevant_learning_data(self, traj):
         traj_relevant_data = []
-        
+        dt = self.parser.get_time_interval_float(traj)
+
         # T doesnt work properly --> chose dt as output
         for data in traj:
-            dt = data[-1]
             ee_pose = data[0:7]
             object_positions = data[7:10]
-
             traj_relevant_data.append(ee_pose + object_positions + [dt] )
 
         return traj_relevant_data

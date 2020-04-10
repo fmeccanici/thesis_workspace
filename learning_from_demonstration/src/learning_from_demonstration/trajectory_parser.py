@@ -131,7 +131,7 @@ class trajectoryParser():
         t_secs_nsecs = map(lambda x: [rospy.Duration(x).secs, rospy.Duration(x).nsecs], t_float)
         return t_secs_nsecs
     
-    def getTimeIntervalFloat(self, trajectory):
+    def get_time_interval_float(self, trajectory):
         return trajectory[1][-1] - trajectory[0][-1]
     
     def getTimeInterval(self, trajectory):
