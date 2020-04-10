@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-import rospy, tf
+import rospy, rospkg, tf
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from slave_control.msg import ControlState
 from os import listdir
@@ -30,22 +30,37 @@ class trajectoryTeaching():
         self.white_button_toggle_previous = 0
 
         self.EEtrajectory = []
+        self.parser = trajectoryParser()
+        
+        ## init ros related classes
+        self.rospack = rospkg.RosPack()
 
-        # self.end_effector_pose_wrt_marker_sub = rospy.Subscriber("/end_effector_pose_wrt_marker", PoseStamped, self._end_effector_pose_wrt_marker_callback)
-        # self.slave_control_state_sub = rospy.Subscriber("slave_control_state", ControlState, self._slave_control_state_callback)
+        # get ros parameters
+        self._get_parameters()
+
+        # set publishers/subscribers
+        self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
+
+        if self.button_source == "omni":
+            self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        elif self.button_source == "keyboard":
+            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+
+        self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-        # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
-        self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
 
-        self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-        # self.marker_sub = rospy.Subscriber("/marker_wrt_ee", PoseStamped, self._marker_detection_callback)
-        self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
 
-        self.parser = trajectoryParser()
-        self.marker_counter = 0
         # self.marker_pose = Pose()
         # self.current_slave_pose = Pose()
+
+    def _get_parameters(self):
+        folder = rospy.get_param('~folder')
+        self.path = self.rospack.get_path('learning_from_demonstration') + "/data/raw/" + str(folder) + "/"
+        print("Storing path set to: " + str(self.path))
+
+        self.button_source = rospy.get_param('~button_source')
+        print("Button source set to: " + str(self.button_source))
 
     def _marker_detection_callback(self, data):
         
@@ -139,16 +154,25 @@ class trajectoryTeaching():
         os.chmod(path+file_name,stat.S_IRWXU)
 
     def _get_trajectory_file_name(self, path):
+        # get existing files from folder
         files = [f for f in listdir(path) if isfile(join(path, f))]
+        
+        # get numbers from these files
         numbers = [int(os.path.splitext(f)[0].split('_')[-1]) for f in files]
+        
+        # sort them in ascending order
         numbers.sort()
+
+        # make list of these files
         files = ["raw_trajectory_" + str(number) + ".txt" for number in numbers]
-
-        if os.stat(path + files[-1]).st_size == 0:
-            return files[-1]
-        else:
+        
+        try:
+            # add 1 to the last trajectory number and create new name
             return "raw_trajectory_" + str(int(os.path.splitext(files[-1])[0].split('_')[-1]) + 1) + ".txt"
-
+        except IndexError:
+            # no files in folder yet --> create first file
+            return "raw_trajectory_1.txt"
+            
     def run(self):
         teaching_node.goToInitialPose()
         r = rospy.Rate(30)
@@ -157,19 +181,18 @@ class trajectoryTeaching():
             if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
                 print("Saving trajectory data")
                 
-                path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/one_plane"
+                
+                # "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/one_plane"
 
-                print("file_name = " + self._get_trajectory_file_name(path))
-                file_name = self._get_trajectory_file_name(path)
-                self._save_data(path, file_name)
+                print("file_name = " + self._get_trajectory_file_name(self.path))
+                file_name = self._get_trajectory_file_name(self.path)
+                self._save_data(self.path, file_name)
                 del self.EEtrajectory[:]
                 teaching_node.goToInitialPose()
 
                 # set to 0 to prevent multiple savings
                 self.white_button_toggle_previous = 0
 
-                # be able to detect new marker
-                # self.marker_counter = 0
 
             r.sleep()
 

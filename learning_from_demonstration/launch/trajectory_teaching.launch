@@ -4,6 +4,11 @@
 type="marker_wrt_ee_publisher.py" output="screen"/>
   -->
 
+<!-- this name is added to $(find learning_from_demonstration)/data/raw/ -->
+<arg name="folder" default="different_contexts"/>
+
+<arg name="button_source" default="omni"/>
+
 <include file="$(find teleop_control)/launch/teleop_control.launch" >
     <arg name="part_to_publish" value="both" />
 </include>
@@ -15,6 +20,8 @@ type="marker_wrt_ee_publisher.py" output="screen"/>
 </include>
 
 <node pkg="learning_from_demonstration" name="trajectory_teaching" type="trajectory_teaching.py" output="screen">
+    <param name="folder" value="$(arg folder)"/>
+    <param name="button_source" value="$(arg button_source)"/>
 </node>
 
 
