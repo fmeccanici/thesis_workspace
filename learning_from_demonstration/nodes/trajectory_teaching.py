@@ -53,71 +53,35 @@ class trajectoryTeaching():
             if marker.id == 582:
                 self.marker_pose = marker.pose.pose
             else: continue
-        # if self.marker_counter == 0:
-        #     self.marker_pose = data.pose
 
     def _end_effector_pose_callback(self, data):
         self.current_slave_pose = data.pose
 
         if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
             print("Appending trajectory")
-            # self.marker_counter = 1
-            # data.header.stamp.secs = data.header.stamp.secs
-            # data.header.stamp.nsecs = data.header.stamp.nsecs
+
             data.header.stamp = rospy.Time.now()
 
 
             # marker x and y seem to be flipped wrt base_footprint
-            # therefore first position.y then position.x for marker_pose
             self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,
              data.pose.orientation.x,data.pose.orientation.y,data.pose.orientation.z,data.pose.orientation.w,
              self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
              self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
              data.header.stamp.secs, data.header.stamp.nsecs])
 
-    # def _end_effector_pose_wrt_marker_callback(self, data):
-    #     if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
-    #         print("Appending trajectory")
-    #         self.marker_counter = 1
-    #         # data.header.stamp.secs = data.header.stamp.secs
-    #         # data.header.stamp.nsecs = data.header.stamp.nsecs
-    #         data.header.stamp = rospy.Time.now()
-
-
-    #         # marker x and y seem to be flipped wrt base_footprint
-    #         # therefore first position.y then position.x for marker_pose
-    #         self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,
-    #          data.pose.orientation.x,data.pose.orientation.y,data.pose.orientation.z,data.pose.orientation.w,
-    #          self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
-    #          self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
-    #          data.header.stamp.secs, data.header.stamp.nsecs])
-    # def _end_effector_pose_wrt_marker_callback(self,data):
-        
-    #     if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
-    #         print("Appending trajectory")
-    #         data.header.stamp.secs = data.header.stamp.secs
-    #         data.header.stamp.nsecs = data.header.stamp.nsecs
-
-
-    #         # marker x and y seem to be flipped wrt base_footprint
-    #         # therefore first position.y then position.x for marker_pose
-    #         self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,
-    #          data.pose.orientation.x,data.pose.orientation.y,data.pose.orientation.z,data.pose.orientation.w,
-    #          self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
-    #          self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
-    #          data.header.stamp.secs, data.header.stamp.nsecs])
             
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
         T = 2
-        # x = [self.current_slave_pose.position.x, 0.403399335619]
-        # y = [self.current_slave_pose.position.y, -0.430007534239]
-        # z = [self.current_slave_pose.position.z, 1.16269467394]
+        x = [self.current_slave_pose.position.x, 0.403399335619]
+        y = [self.current_slave_pose.position.y, -0.430007534239]
+        z = [self.current_slave_pose.position.z, 1.16269467394]
         
-        x = [self.current_slave_pose.position.x, 0.353543514402]
-        y = [self.current_slave_pose.position.y, 0.435045131507]
-        z = [self.current_slave_pose.position.z, 0.760080619348]
+        # x = [self.current_slave_pose.position.x, 0.353543514402]
+        # y = [self.current_slave_pose.position.y, 0.435045131507]
+        # z = [self.current_slave_pose.position.z, 0.760080619348]
         
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
@@ -193,7 +157,7 @@ class trajectoryTeaching():
             if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
                 print("Saving trajectory data")
                 
-                path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/both_wrt_base_one_context2"
+                path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/one_plane"
 
                 print("file_name = " + self._get_trajectory_file_name(path))
                 file_name = self._get_trajectory_file_name(path)

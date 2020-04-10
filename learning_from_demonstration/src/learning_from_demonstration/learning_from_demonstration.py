@@ -234,7 +234,7 @@ class learningFromDemonstration():
 
 if __name__ == "__main__":
     lfd = learningFromDemonstration()
-    raw_path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/both_wrt_base4/"
+    raw_path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/one_plane/"
 
     lfd.load_trajectories_from_folder(raw_path)
 
