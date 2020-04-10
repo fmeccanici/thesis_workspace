@@ -87,7 +87,7 @@ class lfdNode():
             time.sleep(dt)
 
     def get_current_marker_position(self):
-        x = self.marker_pose.position.x 
+        x = self.marker_pose.position.x
         y = self.marker_pose.position.y
         z = self.marker_pose.position.z
 
@@ -220,7 +220,7 @@ class lfdNode():
 
     def run(self):
         self.goToInitialPose()
-        x = 0.7
+        x = 0.8
         y = -0.0231
         self.set_aruco_position(x, y)
 
@@ -236,7 +236,7 @@ class lfdNode():
             self.visualize_trajectory(traj_pred, 1, 0, 0)
             self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
-            dt = 0.1
+            # dt = 0.1
             self.executeTrajectory(traj_pred_resampled, dt)
             time.sleep(5)
         

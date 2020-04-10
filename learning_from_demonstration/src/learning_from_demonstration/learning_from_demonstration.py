@@ -55,11 +55,11 @@ class learningFromDemonstration():
     def parse_relevant_learning_data(self, traj):
         traj_relevant_data = []
         dt = self.parser.get_time_interval_float(traj)
+        object_positions = traj[0][7:10]
 
         # T doesnt work properly --> chose dt as output
         for data in traj:
             ee_pose = data[0:7]
-            object_positions = data[7:10]
             traj_relevant_data.append(ee_pose + object_positions + [dt] )
 
         return traj_relevant_data
@@ -195,7 +195,7 @@ class learningFromDemonstration():
         self.promp_model.clear_viapoints()
 
         # set goal context
-        goal[7:-1] = context
+        goal[7:10] = context
         self.promp_model.set_goal(goal)
 
         # default value

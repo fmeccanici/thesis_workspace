@@ -43,7 +43,7 @@ class trajectoryParser():
         traj_wrt_object = []
 
         # initialize information needed for relative calculations
-        object_wrt_base = traj_wrt_base[0][7:-1]
+        object_wrt_base = traj_wrt_base[0][7:10]
         ee_wrt_base_0 = traj_wrt_base[0][0:3]
         object_wrt_ee_0 = list(self.object_wrt_ee(ee_wrt_base_0, object_wrt_base))
         
@@ -269,7 +269,7 @@ class trajectoryParser():
         return self.downsample(trajectory, dt)
 
     def get_context(self, traj):
-        return traj[8:]
+        return traj[7:10]
 
     def round_list(self, l):
         return [ round(x, 2) for x in l]
