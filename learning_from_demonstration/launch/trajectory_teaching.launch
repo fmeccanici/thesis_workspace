@@ -5,7 +5,7 @@ type="marker_wrt_ee_publisher.py" output="screen"/>
   -->
 
 <!-- this name is added to $(find learning_from_demonstration)/data/raw/ -->
-<arg name="folder" default="different_contexts"/>
+<arg name="folder" default="complete_model"/>
 
 <arg name="button_source" default="omni"/>
 
@@ -18,6 +18,10 @@ type="marker_wrt_ee_publisher.py" output="screen"/>
     <arg name="ref_frame" value="base_footprint"/>
 
 </include>
+
+<!-- launch keyboard state publisher node when necessary-->
+<include file="$(find keyboard_state_publisher)/launch/keyboard_state_publisher.launch"
+  if="$(eval button_source == 'keyboard')"/>
 
 <node pkg="learning_from_demonstration" name="trajectory_teaching" type="trajectory_teaching.py" output="screen">
     <param name="folder" value="$(arg folder)"/>

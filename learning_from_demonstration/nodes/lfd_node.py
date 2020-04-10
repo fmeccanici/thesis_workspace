@@ -1,10 +1,12 @@
 #!/usr/bin/env python3.5
 
 # import ros related packages
-import rospy 
+import rospy, rospkg
 from trajectory_visualizer.msg import TrajectoryVisualization
 from geometry_msgs.msg import PoseStamped, Pose
 from aruco_msgs.msg import MarkerArray
+from gazebo_msgs.msg import ModelState 
+from gazebo_msgs.srv import SetModelState
 
 # import my own classes
 from learning_from_demonstration.learning_from_demonstration import learningFromDemonstration
@@ -16,11 +18,16 @@ from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 from scipy.interpolate import interp1d
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 class lfdNode():
     def __init__(self):
         # initialize ros related
         rospy.init_node('lfd_node')
+        self._rospack = rospkg.RosPack()
+
+        self._get_parameters()
+
         self._traj_vis_pub = rospy.Publisher('trajectory_visualizer/trajectory', TrajectoryVisualization, queue_size=10)
         self._end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
@@ -53,6 +60,10 @@ class lfdNode():
                 self.marker_pose.orientation.w = marker.pose.pose.orientation.w
 
             else: continue
+    def _get_parameters(self):
+        raw_folder = rospy.get_param('~raw_folder')
+        self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/" + str(raw_folder) + "/"
+        print("Set raw trajectory path to " + str(self.raw_path))
 
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")
@@ -94,9 +105,13 @@ class lfdNode():
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
 
         T = 2
-        x = [self.current_slave_pose.position.x, 0.403399335619]
-        y = [self.current_slave_pose.position.y, -0.430007534239]
-        z = [self.current_slave_pose.position.z, 1.16269467394]
+        x = [self.current_slave_pose.position.x, 0.401946359213]
+        y = [self.current_slave_pose.position.y, -0.0230769199229]
+        z = [self.current_slave_pose.position.z, 0.840896642238]
+
+        # x = [self.current_slave_pose.position.x, 0.403399335619]
+        # y = [self.current_slave_pose.position.y, -0.430007534239]
+        # z = [self.current_slave_pose.position.z, 1.16269467394]
         
         # x = [self.current_slave_pose.position.x, 0.353543514402]
         # y = [self.current_slave_pose.position.y, 0.435045131507]
@@ -123,11 +138,10 @@ class lfdNode():
             slave_goal.pose.position.y = ynew[i]
             slave_goal.pose.position.z = znew[i]
 
-
-            slave_goal.pose.orientation.w = 0.00470101575578
-            slave_goal.pose.orientation.x = 0.994781110161
-            slave_goal.pose.orientation.y = 0.100705187531
-            slave_goal.pose.orientation.z = 0.0157133230571
+            slave_goal.pose.orientation.x = 0.980837824843
+            slave_goal.pose.orientation.y = -0.00365989846539
+            slave_goal.pose.orientation.z = -0.194791016723
+            slave_goal.pose.orientation.w = 0.000475714270521
 
             slave_goal.header.seq = 0
             slave_goal.header.frame_id = "/base_footprint"
@@ -138,12 +152,22 @@ class lfdNode():
             time.sleep(dt)
 
     def initialize_lfd_model(self):
-        raw_path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/raw/both_wrt_base_one_context/"
         self.base_frame = 'base_footprint'
-        self.lfd.load_trajectories_from_folder(raw_path)
+        self.lfd.load_trajectories_from_folder(self.raw_path)
+
+
 
         desired_datapoints = 10
         self.lfd.prepare_for_learning(desired_datapoints)
+        
+        plt.figure()
+        for traj in self.lfd.trajectories_for_learning:
+            plt.plot([x[0:3] for x in traj])
+            plt.plot([x[7:10] for x in traj])
+            plt.xlabel("datapoints [-]")
+            plt.ylabel("position [m]")
+            plt.title("Trajectories used as input")
+
         self.lfd.build_initial_promp_model()
 
     def visualize_trajectory(self, traj, r, g, b):
@@ -155,6 +179,25 @@ class lfdNode():
         for i in range(10):
             self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
+    def set_aruco_position(self, x=0.7, y=-0.43, z=1):
+        state_msg = ModelState()
+        state_msg.model_name = 'aruco_cube'
+        state_msg.pose.position.x = x
+        state_msg.pose.position.y = y
+        state_msg.pose.position.z = z
+        state_msg.pose.orientation.x = 0
+        state_msg.pose.orientation.y = 0
+        state_msg.pose.orientation.z = 0
+        state_msg.pose.orientation.w = 1
+
+        rospy.wait_for_service('/gazebo/set_model_state')
+        try:
+            set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+            resp = set_state( state_msg )
+
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
+    
     def predict(self):
         object_wrt_base = self.get_current_marker_position()
         print("goal = " + str(object_wrt_base))
@@ -162,13 +205,24 @@ class lfdNode():
         object_wrt_ee = self.lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
         prediction = self.lfd.generalize(object_wrt_ee)
+        plt.figure()
+        plt.plot([x[0:3] for x in prediction])
+        plt.plot([x[7:10] for x in prediction])
+
+        plt.xlabel("datapoints [-]")
+        plt.ylabel("position [m]")
+        plt.title("Predicted trajectory")
+        plt.show()
+
         trajectory_wrt_base = self.lfd.trajectory_wrt_base(prediction, object_wrt_base)
         
         return trajectory_wrt_base
 
     def run(self):
         self.goToInitialPose()
-        
+        x = 0.7
+        y = -0.0231
+        self.set_aruco_position(x, y)
 
         if input("Is the object placed at the desired location? 1/0"):
             self.clear_trajectories_rviz()
@@ -180,9 +234,11 @@ class lfdNode():
             traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
             
             self.visualize_trajectory(traj_pred, 1, 0, 0)
-            time.sleep(1)
             self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
+            dt = 0.1
+            self.executeTrajectory(traj_pred_resampled, dt)
+            time.sleep(5)
         
 
             

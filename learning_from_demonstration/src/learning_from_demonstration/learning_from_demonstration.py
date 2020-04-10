@@ -208,6 +208,8 @@ class learningFromDemonstration():
         # convert trajectory to correct format
         generated_trajectory_correct_format, dt = self.generated_traj_to_learned_traj_format(generated_trajectory)
 
+        print(generated_trajectory_correct_format[-1])
+        
         return generated_trajectory_correct_format
 
     def trajectory_wrt_base(self, trajectory_wrt_object, object_wrt_base):

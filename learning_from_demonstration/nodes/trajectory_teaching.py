@@ -1,17 +1,23 @@
 #!/usr/bin/env python2.7
 
+# ros related
 import rospy, rospkg, tf
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from slave_control.msg import ControlState
+from aruco_msgs.msg import MarkerArray
+from geometry_msgs.msg import PoseStamped, Pose
+from gazebo_msgs.msg import ModelState 
+from gazebo_msgs.srv import SetModelState
+
+# other classes
 from os import listdir
 from os.path import isfile, join
 import os, stat, time
-from geometry_msgs.msg import PoseStamped, Pose
 import numpy as np
 from scipy.interpolate import interp1d
 
+# my classes
 from learning_from_demonstration.trajectory_parser import trajectoryParser
-from aruco_msgs.msg import MarkerArray
 
 # import cProfile
 # from profilehooks import profile
@@ -85,15 +91,37 @@ class trajectoryTeaching():
              self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
              data.header.stamp.secs, data.header.stamp.nsecs])
 
-            
+    def set_aruco_position(self, x=0.7, y=-0.43, z=1):
+        state_msg = ModelState()
+        state_msg.model_name = 'aruco_cube'
+        state_msg.pose.position.x = x
+        state_msg.pose.position.y = y
+        state_msg.pose.position.z = z
+        state_msg.pose.orientation.x = 0
+        state_msg.pose.orientation.y = 0
+        state_msg.pose.orientation.z = 0
+        state_msg.pose.orientation.w = 1
+
+        rospy.wait_for_service('/gazebo/set_model_state')
+        try:
+            set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+            resp = set_state( state_msg )
+
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" % e
+    
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
         T = 2
-        x = [self.current_slave_pose.position.x, 0.403399335619]
-        y = [self.current_slave_pose.position.y, -0.430007534239]
-        z = [self.current_slave_pose.position.z, 1.16269467394]
-        
+        x = [self.current_slave_pose.position.x, 0.401946359213]
+        y = [self.current_slave_pose.position.y, -0.0230769199229]
+        z = [self.current_slave_pose.position.z, 0.840896642238]
+
+        # x = [self.current_slave_pose.position.x, 0.403399335619]
+        # y = [self.current_slave_pose.position.y, -0.430007534239]
+        # z = [self.current_slave_pose.position.z, 1.16269467394]
+
         # x = [self.current_slave_pose.position.x, 0.353543514402]
         # y = [self.current_slave_pose.position.y, 0.435045131507]
         # z = [self.current_slave_pose.position.z, 0.760080619348]
@@ -119,10 +147,10 @@ class trajectoryTeaching():
             slave_goal.pose.position.y = ynew[i]
             slave_goal.pose.position.z = znew[i]
 
-            slave_goal.pose.orientation.w = 0.00470101575578
-            slave_goal.pose.orientation.x = 0.994781110161
-            slave_goal.pose.orientation.y = 0.100705187531
-            slave_goal.pose.orientation.z = 0.0157133230571
+            slave_goal.pose.orientation.x = 0.980837824843
+            slave_goal.pose.orientation.y = -0.00365989846539
+            slave_goal.pose.orientation.z = -0.194791016723
+            slave_goal.pose.orientation.w = 0.000475714270521
 
             slave_goal.header.seq = 0
             slave_goal.header.frame_id = "/base_footprint"
@@ -174,7 +202,11 @@ class trajectoryTeaching():
             return "raw_trajectory_1.txt"
             
     def run(self):
-        teaching_node.goToInitialPose()
+        self.goToInitialPose()
+        x = 0.7
+        y = -0.0231
+        
+
         r = rospy.Rate(30)
         while not rospy.is_shutdown():
 
@@ -192,7 +224,9 @@ class trajectoryTeaching():
 
                 # set to 0 to prevent multiple savings
                 self.white_button_toggle_previous = 0
-
+                
+                # place aruco box back to init position
+                self.set_aruco_position(x, y)
 
             r.sleep()
 
