@@ -10,6 +10,7 @@ from aruco_msgs.msg import MarkerArray
 from learning_from_demonstration.learning_from_demonstration import learningFromDemonstration
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
 from learning_from_demonstration.trajectory_parser import trajectoryParser
+from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 
 # import other python classes
 from scipy.interpolate import interp1d
@@ -29,6 +30,7 @@ class lfdNode():
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
         self.parser = trajectoryParser()
+        self.resampler = trajectoryResampler()
 
         # initialize class variables
         self.marker_pose = Pose()
@@ -140,7 +142,7 @@ class lfdNode():
         self.base_frame = 'base_footprint'
         self.lfd.load_trajectories_from_folder(raw_path)
 
-        desired_datapoints = 100
+        desired_datapoints = 10
         self.lfd.prepare_for_learning(desired_datapoints)
         self.lfd.build_initial_promp_model()
 
@@ -148,10 +150,14 @@ class lfdNode():
         for i in range(50):
             self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
 
+    def clear_trajectories_rviz(self):
+        empty_traj = np.zeros((1, 7))
+        for i in range(10):
+            self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
     def predict(self):
         object_wrt_base = self.get_current_marker_position()
-        print(object_wrt_base)
+        print("goal = " + str(object_wrt_base))
         ee_wrt_base = self.get_current_slave_position()
         object_wrt_ee = self.lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
@@ -162,10 +168,21 @@ class lfdNode():
 
     def run(self):
         self.goToInitialPose()
+        
+
         if input("Is the object placed at the desired location? 1/0"):
+            self.clear_trajectories_rviz()
+
             print("Making prediction...")
             traj_pred = self.predict()
+
+            n = 100
+            traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
+            
             self.visualize_trajectory(traj_pred, 1, 0, 0)
+            time.sleep(1)
+            self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
+
         
 
             

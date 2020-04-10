@@ -44,7 +44,7 @@ class trajectoryVisualizer():
         
         return traj
 
-    def trajToVisMsg(self, traj, r, g, b, frame_id):
+    def trajToVisMsg(self, traj, r, g, b, frame_id="base_footprint"):
         self.frame_id = frame_id
         pose_array = PoseArray()
         visualization_msg = TrajectoryVisualization()
