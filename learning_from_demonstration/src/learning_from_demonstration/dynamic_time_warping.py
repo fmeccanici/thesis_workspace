@@ -62,6 +62,9 @@ class DTW():
         return dx, dy, dz
 
     def get_dcontext_matrices(self, demonstrations):
+        # function that determines the total difference in context
+        # context matrix is the context wrt other trajectories
+        
         difference_matrix_x = np.zeros((len(demonstrations), len(demonstrations)))
         difference_matrix_y = np.zeros((len(demonstrations), len(demonstrations)))
         difference_matrix_z = np.zeros((len(demonstrations), len(demonstrations)))
@@ -81,120 +84,182 @@ class DTW():
         return difference_matrix_x, difference_matrix_y, difference_matrix_z, difference_matrix_total
 
     def get_trajectories_ix_for_dtw(self, demonstrations):
+        # code to determine which trajectories we need to align
+        # we need to align the trajectories with DTW that have similar context
+
         dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
         traj_to_dtw = []
         appended_ix = []
 
         threshold = 0.05
 
+
         for i in range(len(np.where(dtotal<threshold)[0])):
-            
+            # np.where(dtotal<threshold) contains tuple of arrays that are the indices of the matrix that are lower than the treshold
+            # e.g. ( [0,0,0], [0,1,2] ) which means that (0,1), (0,2) and (0,3) trajectories have the same context
+
+            # if the index is (n,n) we are dealing with the same demonstrations, hence this has obviously the same context --> these are excluded
+            # and if the included tuples are not stored yet we add them
             if np.where(dtotal<threshold)[0][i] != np.where(dtotal<threshold)[1][i] and (np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]) not in appended_ix:
 
-                if (np.where(dtotal<threshold)[1][i], np.where(dtotal<threshold)[0][i]) not in appended_ix:
-                    appended_ix.append((np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]))
-                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[0][i]] )
-                    # traj_to_dtw.append(demonstrations[np.where(dtotal<threshold)[1][i]] )
-                else: pass
+                # append tuple
+                appended_ix.append((np.where(dtotal<threshold)[0][i], np.where(dtotal<threshold)[1][i]))
+
+            else: pass
 
         return appended_ix
 
     def align_necessary_trajectories(self, traj_for_learning):
-        # traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
-        # num_traj = len(traj_files)
-        # trajectories, trajectories_lengths = self.parser.load_trajectories_from_folder_and_downsample(input_path, dt)
-        # traj_min_length = trajectories[np.argmin(trajectories_lengths)]
-        
-        # del trajectories[np.argmin(trajectories_lengths)]
-        # traj_res = self.parser.resample_trajectories(trajectories, traj_min_length)
-        # traj_for_learning = []
-        # for traj in traj_res:
-        #     traj_for_learning.append(self.parser.get_relevant_learning_data(traj))
 
+        # initialize matrix that is filled with aligned trajectories wrt context
+        align_matrix = []
 
+        # get the tuples that have the same context
         ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)
-        # print("trajectories with same context: " + str(ix_for_dtw))
-        ix_for_dtw_copy = ix_for_dtw
+
+        # makea copy of this used for the logic
+        ix_for_dtw_copy = ix_for_dtw[:]
         
-        # use DTW when needed
-        if len(ix_for_dtw) > 0:
+        # # use DTW when needed
+        # if len(ix_for_dtw) > 0:
 
-            counter = 1 
+        counter = 1 
 
-            # code to determine which trajectories we need to align
-            # we need to align the trajectories with DTW that have similar context
-            i = 0
-            to_dtw = []
-            to_dtw.append(ix_for_dtw_copy[0][0])
-            to_dtw.append(ix_for_dtw_copy[0][1])
-            del ix_for_dtw_copy[0]
+        i = 0
+        to_dtw = []
+        
+        # add the first trajectories from the tuple to the vector
+        to_dtw.append(ix_for_dtw_copy[0][0])
+        to_dtw.append(ix_for_dtw_copy[0][1])
 
-            # we loop until we have had all possible combinations
-            while len(ix_for_dtw_copy) > 0:
-                
-                # if either one of the trajectories was already covered
-                # we know for sure that we need to add this one too
-                # as both combinations exist
+        # delete the first tuple
+        del ix_for_dtw_copy[0]
+
+        # variable used to check if we have covered every trajectory of a specific context
+        i_prev = 0
+
+        # we loop until we have had all possible combinations
+        while True:
+            # print(ix_for_dtw_copy)
+            # if we are finished
+            if len(ix_for_dtw_copy) == 0:
+                align_matrix.append(to_dtw)
+                break
+
+            # if either one of the trajectories was already covered
+            # we know for sure that we need to add this one too
+            # as both combinations exist
+            try:
                 if ix_for_dtw_copy[i][0] in to_dtw and ix_for_dtw_copy[i][1] not in to_dtw:
                     to_dtw.append(ix_for_dtw_copy[i][1])
-                    ix_for_dtw_copy = ix_for_dtw
+                    
+                    # print(len(ix_for_dtw))
+                    # print(len(ix_for_dtw_copy[0]))
+                    # ix_for_dtw_copy = ix_for_dtw
 
                     del ix_for_dtw_copy[i]
+
+                    i = 0
+
                 elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] not in to_dtw:
                     to_dtw.append(ix_for_dtw_copy[i][0])
-                    ix_for_dtw_copy = ix_for_dtw
-
+                    # ix_for_dtw_copy = ix_for_dtw
+                    
                     del ix_for_dtw_copy[i]
 
-                # if both are not in the to_dtw vector we need to add both of them
+                    i = 0
+
                 elif ix_for_dtw_copy[i][1] not in to_dtw and ix_for_dtw_copy[i][0] not in to_dtw:
-                    to_dtw.append(ix_for_dtw_copy[i][0])
-                    to_dtw.append(ix_for_dtw_copy[i][1])
+                    # to_dtw.append(ix_for_dtw_copy[i][0])
+                    # to_dtw.append(ix_for_dtw_copy[i][1])
+                    i += 1
 
-                    del ix_for_dtw_copy[i]
+                    # del ix_for_dtw_copy[i]
 
                 # if both are already in the to_dtw we do nothing but delete this tuple
                 elif ix_for_dtw_copy[i][1] in to_dtw and ix_for_dtw_copy[i][0] in to_dtw:
                     
                     del ix_for_dtw_copy[i]
-            print("Trajectories to be aligned: " + str(to_dtw))
+
+                    i = 0
+
+            except IndexError:
+                print('check')
+                # if index error occurs we are sure that we covered the trajctories of a context
+                # add these trajectories to the matrix
+                align_matrix.append(to_dtw)
+
+                # empty the to_dtw vector
+                to_dtw = []
+
+                # add the first trajectories from the tuple to the vector
+                to_dtw.append(ix_for_dtw_copy[0][0])
+                to_dtw.append(ix_for_dtw_copy[0][1])
+
+                # start over again but now create a new context row
+                i = 0
             
+            
+        print("Trajectories to be aligned: " + str(align_matrix))
+        
+        traj_aligned = []
+
+        # loop over the contexts
+        for same_context in align_matrix:
             traj_to_dtw = []
-            for i in range(len(to_dtw)):
-                traj_to_dtw.append(traj_for_learning[to_dtw[i]])
             
-            reference = self.determine_reference(traj_to_dtw)
-            reference = to_dtw[reference]
+            # add trajectories
+            for index in same_context:
+                traj_to_dtw.append(traj_for_learning[index])
 
-            for i in range(len(to_dtw) > 0):
+            # determine reference trajectory
+            reference_index = self.determine_reference(traj_to_dtw)
+            reference = traj_for_learning[same_context[reference_index]]
 
-                if to_dtw[i] != reference:
+            # apply dtw
+            for index in same_context:
+                print(index)
+                if index != reference_index:
+                    x,y = self.apply_dtw(reference, traj_for_learning[index])
+                    
+                    print("reference length = " + str(len(x)))
+                    print("traj length = " + str(len(y)))
 
-                    x,y = self.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
+                    # x is the reference
                     y = self.parser.arrays_in_list_to_list_in_list(y)
                     x = self.parser.arrays_in_list_to_list_in_list(x)
+                    
 
-                    if counter == 1:
-                        plt.subplot(211)
-                        plt.title('Before DTW')
-                        plt.xlabel('datapoint [-]')
-                        plt.ylabel('position [m]')
-                        plt.plot(self.parser.getCartesianPositions(traj_for_learning[reference]))
-                        plt.plot(self.parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
-                        plt.subplot(212)
-                        plt.title('After DTW')
-                        plt.xlabel('datapoint [-]')
-                        plt.ylabel('position [m]')
-                        plt.plot(self.parser.getCartesianPositions(x))
-                        plt.plot(self.parser.getCartesianPositions(y))
-                        counter += 1
-                        # print(self.parser.getCartesianPositions(x)[0])
-                    del traj_for_learning[to_dtw[i]]
-                    del traj_for_learning[reference]
 
-                    traj_for_learning.append(y)
-                    traj_for_learning.append(x)
-            plt.show()
+        # for i in range(len(to_dtw) > 0):
+
+        #     if to_dtw[i] != reference:
+
+        #         x,y = self.apply_dtw(traj_for_learning[reference], traj_for_learning[to_dtw[i]])
+        #         y = self.parser.arrays_in_list_to_list_in_list(y)
+        #         x = self.parser.arrays_in_list_to_list_in_list(x)
+
+        #         if counter == 1:
+        #             plt.subplot(211)
+        #             plt.title('Before DTW')
+        #             plt.xlabel('datapoint [-]')
+        #             plt.ylabel('position [m]')
+        #             plt.plot(self.parser.getCartesianPositions(traj_for_learning[reference]))
+        #             plt.plot(self.parser.getCartesianPositions(traj_for_learning[to_dtw[i]]))
+        #             plt.subplot(212)
+        #             plt.title('After DTW')
+        #             plt.xlabel('datapoint [-]')
+        #             plt.ylabel('position [m]')
+        #             plt.plot(self.parser.getCartesianPositions(x))
+        #             plt.plot(self.parser.getCartesianPositions(y))
+        #             counter += 1
+        #             # print(self.parser.getCartesianPositions(x)[0])
+        #         del traj_for_learning[to_dtw[i]]
+        #         del traj_for_learning[reference]
+
+        #         traj_for_learning.append(y)
+        #         traj_for_learning.append(x)
+        # plt.show()
         return traj_for_learning
 
 

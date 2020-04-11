@@ -220,7 +220,7 @@ class lfdNode():
 
     def run(self):
         self.goToInitialPose()
-        x = 0.8
+        x = 0.7
         y = -0.0231
         self.set_aruco_position(x, y)
 

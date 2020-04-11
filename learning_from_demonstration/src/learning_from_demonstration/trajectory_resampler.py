@@ -18,11 +18,11 @@ class trajectoryResampler():
         n = len(pred_traj)
         T = pred_traj[-1][-1]
         x = np.linspace(0, T, n)
-        print("n = " + str(n))
-        print("x = " + str(x))
-        print("T = " + str(T))
-        print("pred_traj = " + str(pred_traj[-1]))
-        
+        # print("n = " + str(n))
+        # print("x = " + str(x))
+        # print("T = " + str(T))
+        # print("pred_traj = " + str(pred_traj[-1]))
+
         object_pose = pred_traj[0][7:10]
         cartx = [data[0] for data in pred_traj]
         carty = [data[1] for data in pred_traj]

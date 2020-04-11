@@ -5,7 +5,7 @@ type="marker_wrt_ee_publisher.py" output="screen"/>
   -->
 
 <!-- this name is added to $(find learning_from_demonstration)/data/raw/ -->
-<arg name="folder" default="complete_model"/>
+<arg name="raw_folder" default="complete_model"/>
 
 <arg name="button_source" default="omni"/>
 
@@ -24,7 +24,7 @@ type="marker_wrt_ee_publisher.py" output="screen"/>
   if="$(eval button_source == 'keyboard')"/>
 
 <node pkg="learning_from_demonstration" name="trajectory_teaching" type="trajectory_teaching.py" output="screen">
-    <param name="folder" value="$(arg folder)"/>
+    <param name="raw_folder" value="$(arg raw_folder)"/>
     <param name="button_source" value="$(arg button_source)"/>
 </node>
 

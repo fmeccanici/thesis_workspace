@@ -61,8 +61,8 @@ class trajectoryTeaching():
         # self.current_slave_pose = Pose()
 
     def _get_parameters(self):
-        folder = rospy.get_param('~folder')
-        self.path = self.rospack.get_path('learning_from_demonstration') + "/data/raw/" + str(folder) + "/"
+        raw_folder = rospy.get_param('~raw_folder')
+        self.path = self.rospack.get_path('learning_from_demonstration') + "/data/raw/" + str(raw_folder) + "/"
         print("Storing path set to: " + str(self.path))
 
         self.button_source = rospy.get_param('~button_source')

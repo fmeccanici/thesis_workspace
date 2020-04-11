@@ -9,6 +9,7 @@ from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 # import other external classes
 import ast, os
 import numpy as np
+import matplotlib.pyplot as plt
 
 class learningFromDemonstration():
     def __init__(self):
@@ -94,6 +95,14 @@ class learningFromDemonstration():
         for traj in self.raw_trajectories:
             resampled_trajectories.append(self.resampler.interpolate_raw_trajectory(traj, desired_datapoints))
 
+        for traj in resampled_trajectories:
+            plt.plot([x[0:3] for x in traj])
+            # plt.plot([x[7:10] for x in traj])
+            plt.xlabel("datapoints [-]")
+            plt.ylabel("position [m]")
+            plt.title("Resampled trajectories")
+        # plt.show()
+
         # get relevant learning data
         print("Extracting relevant learning data: [ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, obj_x, obj_y, obj_z, dt]...")
         relevant_data_trajectories = []
@@ -104,6 +113,14 @@ class learningFromDemonstration():
         # apply dynamic time warping
         print("Applying DTW...")
         traj_aligned_for_learning = self.dtw.align_necessary_trajectories(relevant_data_trajectories)
+        for traj in traj_aligned_for_learning:
+            plt.plot([x[0:3] for x in traj])
+            # plt.plot([x[7:10] for x in traj])
+            plt.xlabel("datapoints [-]")
+            plt.ylabel("position [m]")
+            plt.title("Aligned trajectories")
+        # plt.show()
+
 
         # convert trajectory to relative trajectory wrt ee
         # and change object pose wrt base to wrt ee
