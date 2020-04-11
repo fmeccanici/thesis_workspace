@@ -49,7 +49,12 @@ class DTW():
                 distance, path = fastdtw(demonstrations[i], demonstrations[j])
                 similarity[i] += distance
         
-        return np.argmin(similarity)
+        similarity = list(similarity)
+        reference = similarity.index(sorted(similarity)[0])
+
+        most_similar_to_reference = similarity.index(sorted(similarity)[1])
+
+        return reference, most_similar_to_reference
 
     def get_difference_in_context(self, traj1, traj2):
         c1 = self.parser.get_context(traj1)
@@ -213,13 +218,16 @@ class DTW():
                 traj_to_dtw.append(traj_for_learning[index])
 
             # determine reference trajectory
-            reference_index = self.determine_reference(traj_to_dtw)
+            reference_index, most_similar_to_reference = self.determine_reference(traj_to_dtw)
             reference = traj_for_learning[same_context[reference_index]]
 
             # apply dtw
             for index in same_context:
                 print(index)
-                if index != reference_index:
+                print("len ref = " + str(len(reference)))
+                print("len traj = " + str(len(traj_for_learning[index])))
+
+                if index != reference_index and index == most_similar_to_reference:
                     x,y = self.apply_dtw(reference, traj_for_learning[index])
                     
                     print("reference length = " + str(len(x)))
