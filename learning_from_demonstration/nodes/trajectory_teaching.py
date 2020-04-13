@@ -203,9 +203,10 @@ class trajectoryTeaching():
             
     def run(self):
         self.goToInitialPose()
-        x = 0.7
+        x = 0.75
         y = -0.0231
         
+        self.set_aruco_position(x, y)
 
         r = rospy.Rate(30)
         while not rospy.is_shutdown():
@@ -227,6 +228,7 @@ class trajectoryTeaching():
                 
                 # place aruco box back to init position
                 self.set_aruco_position(x, y)
+                time.sleep(1)
 
             r.sleep()
 

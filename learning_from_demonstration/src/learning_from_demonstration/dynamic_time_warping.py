@@ -51,7 +51,7 @@ class DTW():
         
         similarity = list(similarity)
 
-        # print("similarity = " + str(similarity))
+        print("similarity = " + str(similarity))
         reference = similarity.index(sorted(similarity)[0])
 
         most_similar_to_reference = similarity.index(sorted(similarity)[1])
@@ -229,8 +229,8 @@ class DTW():
             traj_aligned.append(x)
             traj_aligned.append(y)
 
-            # print("reference = " + str(reference_index))
-            # print("second = " + str(most_similar_to_reference_index))
+            print("reference = " + str(reference_index))
+            print("second = " + str(most_similar_to_reference_index))
 
             # reference = traj_for_learning[same_context[reference_index]]
 

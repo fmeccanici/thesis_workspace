@@ -101,7 +101,7 @@ class learningFromDemonstration():
             plt.xlabel("datapoints [-]")
             plt.ylabel("position [m]")
             plt.title("Resampled trajectories")
-        plt.show()
+        # plt.show()
 
         # get relevant learning data
         print("Extracting relevant learning data: [ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, obj_x, obj_y, obj_z, dt]...")
@@ -109,6 +109,8 @@ class learningFromDemonstration():
         for traj in resampled_trajectories:
             relevant_traj = self.parse_relevant_learning_data(traj)
             relevant_data_trajectories.append(relevant_traj)
+
+        
 
         # apply dynamic time warping
         print("Applying DTW...")
@@ -118,11 +120,16 @@ class learningFromDemonstration():
         plt.figure()
         for traj in traj_aligned_for_learning:
             plt.plot([x[0:3] for x in traj])
+            # plt.plot([x[0] for x in traj], label='x')
+            # plt.plot([x[1] for x in traj], label='y')
+            # plt.plot([x[2] for x in traj], label='z')
+
             # plt.plot([x[7:10] for x in traj])
             plt.xlabel("datapoints [-]")
             plt.ylabel("position [m]")
             plt.title("Aligned trajectories")
-        plt.show()
+            plt.legend()
+        # plt.show()
 
 
         # convert trajectory to relative trajectory wrt ee

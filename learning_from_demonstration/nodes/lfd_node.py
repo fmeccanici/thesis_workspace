@@ -167,7 +167,7 @@ class lfdNode():
             plt.xlabel("datapoints [-]")
             plt.ylabel("position [m]")
             plt.title("Trajectories used as input")
-
+        plt.show()
         self.lfd.build_initial_promp_model()
 
     def visualize_trajectory(self, traj, r, g, b):
@@ -210,22 +210,39 @@ class lfdNode():
 
 
         plt.figure()
-        plt.plot([x[0:3] for x in prediction])
-        plt.plot([x[7:10] for x in prediction])
+        plt.plot([x[0] for x in prediction], label='x')
+        plt.plot([x[1] for x in prediction], label='y')
+        plt.plot([x[2] for x in prediction], label='z')
+        plt.legend()
+        
+
+
+
+        # plt.plot([x[7:10] for x in prediction])
 
         plt.xlabel("datapoints [-]")
         plt.ylabel("position [m]")
-        plt.title("Predicted trajectory")
-        plt.show()
+        plt.title("Predicted relative trajectory")
 
         # trajectory_wrt_base = self.lfd.trajectory_wrt_base(prediction, object_wrt_base)
         trajectory_wrt_base = prediction
+        
+        plt.figure()
+        plt.plot([x[0] for x in trajectory_wrt_base], label='x')
+        plt.plot([x[1] for x in trajectory_wrt_base], label='y')
+        plt.plot([x[2] for x in trajectory_wrt_base], label='z')
 
+        plt.xlabel("datapoints [-]")
+        plt.ylabel("position [m]")
+        plt.title("Final executed predicted trajectory")
+        plt.legend()
+
+        plt.show()
         return trajectory_wrt_base
 
     def run(self):
         self.goToInitialPose()
-        x = 0.65
+        x = 0.8
         y = -0.0231
         self.set_aruco_position(x, y)
 
