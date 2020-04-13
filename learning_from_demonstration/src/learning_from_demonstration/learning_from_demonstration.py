@@ -131,8 +131,8 @@ class learningFromDemonstration():
         for traj in traj_aligned_for_learning:
             traj_wrt_object = self.parser.get_trajectory_wrt_object(traj)
             
-            self.trajectories_for_learning.append(traj_wrt_object)
-            # self.trajectories_for_learning.append(traj)
+            # self.trajectories_for_learning.append(traj_wrt_object)
+            self.trajectories_for_learning.append(traj)
 
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints

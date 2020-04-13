@@ -204,9 +204,9 @@ class lfdNode():
         ee_wrt_base = self.get_current_slave_position()
         object_wrt_ee = self.lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
-        prediction = self.lfd.generalize(object_wrt_ee)
+        # prediction = self.lfd.generalize(object_wrt_ee)
 
-        # prediction = self.lfd.generalize(object_wrt_base)
+        prediction = self.lfd.generalize(object_wrt_base)
 
 
         plt.figure()
@@ -218,13 +218,14 @@ class lfdNode():
         plt.title("Predicted trajectory")
         plt.show()
 
-        trajectory_wrt_base = self.lfd.trajectory_wrt_base(prediction, object_wrt_base)
-        
+        # trajectory_wrt_base = self.lfd.trajectory_wrt_base(prediction, object_wrt_base)
+        trajectory_wrt_base = prediction
+
         return trajectory_wrt_base
 
     def run(self):
         self.goToInitialPose()
-        x = 0.8
+        x = 0.65
         y = -0.0231
         self.set_aruco_position(x, y)
 
