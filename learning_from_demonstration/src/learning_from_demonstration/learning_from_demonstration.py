@@ -94,14 +94,14 @@ class learningFromDemonstration():
         resampled_trajectories = []
         for traj in self.raw_trajectories:
             resampled_trajectories.append(self.resampler.interpolate_raw_trajectory(traj, desired_datapoints))
-
+        plt.figure()
         for traj in resampled_trajectories:
             plt.plot([x[0:3] for x in traj])
             # plt.plot([x[7:10] for x in traj])
             plt.xlabel("datapoints [-]")
             plt.ylabel("position [m]")
             plt.title("Resampled trajectories")
-        # plt.show()
+        plt.show()
 
         # get relevant learning data
         print("Extracting relevant learning data: [ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, obj_x, obj_y, obj_z, dt]...")
@@ -113,13 +113,16 @@ class learningFromDemonstration():
         # apply dynamic time warping
         print("Applying DTW...")
         traj_aligned_for_learning = self.dtw.align_necessary_trajectories(relevant_data_trajectories)
+
+        print(len(traj_aligned_for_learning))
+        plt.figure()
         for traj in traj_aligned_for_learning:
             plt.plot([x[0:3] for x in traj])
             # plt.plot([x[7:10] for x in traj])
             plt.xlabel("datapoints [-]")
             plt.ylabel("position [m]")
             plt.title("Aligned trajectories")
-        # plt.show()
+        plt.show()
 
 
         # convert trajectory to relative trajectory wrt ee
@@ -129,7 +132,8 @@ class learningFromDemonstration():
             traj_wrt_object = self.parser.get_trajectory_wrt_object(traj)
             
             self.trajectories_for_learning.append(traj_wrt_object)
-    
+            # self.trajectories_for_learning.append(traj)
+
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
         # if name is different, then it won't plot them

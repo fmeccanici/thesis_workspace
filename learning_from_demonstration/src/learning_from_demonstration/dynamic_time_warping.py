@@ -50,6 +50,8 @@ class DTW():
                 similarity[i] += distance
         
         similarity = list(similarity)
+
+        # print("similarity = " + str(similarity))
         reference = similarity.index(sorted(similarity)[0])
 
         most_similar_to_reference = similarity.index(sorted(similarity)[1])
@@ -121,15 +123,17 @@ class DTW():
 
         # get the tuples that have the same context
         ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)
-
+        
+        
+        
+        
         # makea copy of this used for the logic
         ix_for_dtw_copy = ix_for_dtw[:]
         
-        # # use DTW when needed
-        # if len(ix_for_dtw) > 0:
+
 
         counter = 1 
-
+        
         i = 0
         to_dtw = []
         
@@ -204,41 +208,54 @@ class DTW():
                 # start over again but now create a new context row
                 i = 0
             
-            
         print("Trajectories to be aligned: " + str(align_matrix))
         
         traj_aligned = []
 
         # loop over the contexts
         for same_context in align_matrix:
+            print(same_context)
             traj_to_dtw = []
-            
             # add trajectories
             for index in same_context:
                 traj_to_dtw.append(traj_for_learning[index])
 
             # determine reference trajectory
-            reference_index, most_similar_to_reference = self.determine_reference(traj_to_dtw)
-            reference = traj_for_learning[same_context[reference_index]]
+            reference_index, most_similar_to_reference_index = self.determine_reference(traj_to_dtw)
 
-            # apply dtw
-            for index in same_context:
-                print(index)
-                print("len ref = " + str(len(reference)))
-                print("len traj = " + str(len(traj_for_learning[index])))
+            x,y = self.apply_dtw(traj_for_learning[reference_index], traj_for_learning[most_similar_to_reference_index])
+            x = self.parser.arrays_in_list_to_list_in_list(x)
+            y = self.parser.arrays_in_list_to_list_in_list(y)
+            traj_aligned.append(x)
+            traj_aligned.append(y)
 
-                if index != reference_index and index == most_similar_to_reference:
-                    x,y = self.apply_dtw(reference, traj_for_learning[index])
+            # print("reference = " + str(reference_index))
+            # print("second = " + str(most_similar_to_reference_index))
+
+            # reference = traj_for_learning[same_context[reference_index]]
+
+            # # apply dtw
+            # for index in same_context:
+            #     print("index = " + str(index))
+            #     print("reference index = " + str(reference_index))
+            #     print("len ref = " + str(len(reference)))
+            #     print("len traj = " + str(len(traj_for_learning[index])))
+
+            #     if index != reference_index and index == most_similar_to_reference_index:
+            #         x,y = self.apply_dtw(reference, traj_for_learning[index])
                     
-                    print("reference length = " + str(len(x)))
-                    print("traj length = " + str(len(y)))
+            #         print("reference length = " + str(len(x)))
+            #         print("traj length = " + str(len(y)))
 
-                    # x is the reference
-                    y = self.parser.arrays_in_list_to_list_in_list(y)
-                    x = self.parser.arrays_in_list_to_list_in_list(x)
-                    
+            #         # x is the reference
+            #         y = self.parser.arrays_in_list_to_list_in_list(y)
+            #         x = self.parser.arrays_in_list_to_list_in_list(x)
 
+            #         traj_aligned.append(x)
+            #         traj_aligned.append(y)
 
+        print("aligned = " + str(len(traj_aligned)))
+       
         # for i in range(len(to_dtw) > 0):
 
         #     if to_dtw[i] != reference:
@@ -268,7 +285,7 @@ class DTW():
         #         traj_for_learning.append(y)
         #         traj_for_learning.append(x)
         # plt.show()
-        return traj_for_learning
+        return traj_aligned
 
 
 

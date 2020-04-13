@@ -205,6 +205,10 @@ class lfdNode():
         object_wrt_ee = self.lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
         prediction = self.lfd.generalize(object_wrt_ee)
+
+        # prediction = self.lfd.generalize(object_wrt_base)
+
+
         plt.figure()
         plt.plot([x[0:3] for x in prediction])
         plt.plot([x[7:10] for x in prediction])
@@ -220,7 +224,7 @@ class lfdNode():
 
     def run(self):
         self.goToInitialPose()
-        x = 0.7
+        x = 0.8
         y = -0.0231
         self.set_aruco_position(x, y)
 
