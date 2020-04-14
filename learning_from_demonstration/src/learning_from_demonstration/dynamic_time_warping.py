@@ -62,6 +62,8 @@ class DTW():
         c1 = self.parser.get_context(traj1)
         c2 = self.parser.get_context(traj2)
 
+        # print("context 1 = " + str(c1))
+        # print("context 2 = " + str(c2))
         dx = abs(c1[0] - c2[0])
         dy = abs(c1[1] - c2[1])
         dz = abs(c1[2] - c2[2])
@@ -95,10 +97,9 @@ class DTW():
         # we need to align the trajectories with DTW that have similar context
 
         dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
-        traj_to_dtw = []
         appended_ix = []
 
-        threshold = 0.05
+        threshold = 0.01
 
 
         for i in range(len(np.where(dtotal<threshold)[0])):
@@ -122,18 +123,11 @@ class DTW():
         align_matrix = []
 
         # get the tuples that have the same context
-        ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)
-        
-        
-        
+        ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)        
         
         # makea copy of this used for the logic
         ix_for_dtw_copy = ix_for_dtw[:]
-        
-
-
-        counter = 1 
-        
+                
         i = 0
         to_dtw = []
         
@@ -144,12 +138,8 @@ class DTW():
         # delete the first tuple
         del ix_for_dtw_copy[0]
 
-        # variable used to check if we have covered every trajectory of a specific context
-        i_prev = 0
-
         # we loop until we have had all possible combinations
         while True:
-            # print(ix_for_dtw_copy)
             # if we are finished
             if len(ix_for_dtw_copy) == 0:
                 align_matrix.append(to_dtw)
@@ -161,10 +151,6 @@ class DTW():
             try:
                 if ix_for_dtw_copy[i][0] in to_dtw and ix_for_dtw_copy[i][1] not in to_dtw:
                     to_dtw.append(ix_for_dtw_copy[i][1])
-                    
-                    # print(len(ix_for_dtw))
-                    # print(len(ix_for_dtw_copy[0]))
-                    # ix_for_dtw_copy = ix_for_dtw
 
                     del ix_for_dtw_copy[i]
 
@@ -193,7 +179,6 @@ class DTW():
                     i = 0
 
             except IndexError:
-                print('check')
                 # if index error occurs we are sure that we covered the trajctories of a context
                 # add these trajectories to the matrix
                 align_matrix.append(to_dtw)
@@ -214,7 +199,6 @@ class DTW():
 
         # loop over the contexts
         for same_context in align_matrix:
-            print(same_context)
             traj_to_dtw = []
             # add trajectories
             for index in same_context:
@@ -222,15 +206,17 @@ class DTW():
 
             # determine reference trajectory
             reference_index, most_similar_to_reference_index = self.determine_reference(traj_to_dtw)
+            print(reference_index)
+            print(most_similar_to_reference_index)
 
-            x,y = self.apply_dtw(traj_for_learning[reference_index], traj_for_learning[most_similar_to_reference_index])
+            x,y = self.apply_dtw(traj_to_dtw[reference_index], traj_to_dtw[most_similar_to_reference_index])
             x = self.parser.arrays_in_list_to_list_in_list(x)
             y = self.parser.arrays_in_list_to_list_in_list(y)
             traj_aligned.append(x)
             traj_aligned.append(y)
 
-            print("reference = " + str(reference_index))
-            print("second = " + str(most_similar_to_reference_index))
+            # print("reference = " + str(reference_index))
+            # print("second = " + str(most_similar_to_reference_index))
 
             # reference = traj_for_learning[same_context[reference_index]]
 

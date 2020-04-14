@@ -7,7 +7,7 @@ from learning_from_demonstration.trajectory_parser import trajectoryParser
 from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 
 # import other external classes
-import ast, os
+import ast, os, time
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -28,6 +28,15 @@ class learningFromDemonstration():
     def load_trajectories_from_folder(self, path):
         traj_files = [name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
         
+        # get numbers from these files
+        numbers = [int(os.path.splitext(f)[0].split('_')[-1]) for f in traj_files]
+        
+        # sort them in ascending order
+        numbers.sort()
+
+        # make list of these files
+        traj_files = ["raw_trajectory_" + str(number) + ".txt" for number in numbers]
+
         for traj_file in traj_files:
             self.load_trajectory_from_folder(path, traj_file)
         
@@ -109,7 +118,7 @@ class learningFromDemonstration():
         for traj in resampled_trajectories:
             relevant_traj = self.parse_relevant_learning_data(traj)
             relevant_data_trajectories.append(relevant_traj)
-
+            print(traj[0][7:10])
         
 
         # apply dynamic time warping
@@ -144,13 +153,13 @@ class learningFromDemonstration():
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
         # if name is different, then it won't plot them
-        variables = ["joint_x", "joint_y","joint_z", "qx", "qy", "qz", "qw", "object_x", "object_y", "object_z", "dt" ]
+        self.variables = ["joint_x", "joint_y","joint_z", "joint_qx", "joint_qy", "joint_qz", "joint_qw", "object_x", "object_y", "object_z", "joint_dt" ]
         
         # how to select the number of points??
         # if other trajectories are added to the model
         # this will probably be wrongly compared to the existing
         # model, since the trajs will be squeezed/stretched
-        num_points = len(self.trajectories_for_learning[0])
+        self.num_points = len(self.trajectories_for_learning[0])
         
         # default value
         num_basis = 20
@@ -158,13 +167,18 @@ class learningFromDemonstration():
         # default value
         sigma = 0.1
 
-        self.promp_model = ProMPContext(variables, num_points=num_points, num_basis=num_basis, sigma=sigma)
+        self.promp_model = ProMPContext(self.variables, num_points=self.num_points, num_basis=num_basis, sigma=sigma)
         print('Adding trajectories to ProMP model...')
 
         for i,traj in enumerate(self.trajectories_for_learning):
+            print("context = " + str(traj[0][7:10]))
             self.add_trajectory_to_promp_model(traj)
             print("Added trajectory " + str(i+1))
+        plt.show()
 
+        self.promp_model.plot_unconditioned_joints()
+
+        plt.show()
     def generated_traj_to_learned_traj_format(self, generated_trajectory):
         num_points = self.promp_model.num_points
 
@@ -226,11 +240,17 @@ class learningFromDemonstration():
         goal[7:10] = context
         self.promp_model.set_goal(goal)
 
+        
         # default value
         sigma_noise = 0.03
         
         # generate trajectory using ProMP package
         generated_trajectory = self.promp_model.generate_trajectory(sigma_noise)
+        plt.figure()
+        # for joint_id, joint_name in enumerate(self.variables):
+        #     print(joint_id)
+        #     plt.plot(generated_trajectory[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], label=joint_name)
+        # plt.legend()
         
         # convert trajectory to correct format
         generated_trajectory_correct_format, dt = self.generated_traj_to_learned_traj_format(generated_trajectory)

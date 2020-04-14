@@ -155,8 +155,9 @@ class lfdNode():
         self.base_frame = 'base_footprint'
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-
-
+        # for traj in self.lfd.raw_trajectories:
+        #     print(traj[0][7:10])
+        # time.sleep(30)
         desired_datapoints = 10
         self.lfd.prepare_for_learning(desired_datapoints)
         

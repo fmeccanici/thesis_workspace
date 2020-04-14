@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.5
 
 from __future__ import division, absolute_import
 
@@ -124,10 +124,13 @@ class ProMPContext(object):
 
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
-            if self.joints[joint][0] == 'j':
+            if self.joints[joint][0] == 'o':
+                print("final context = " + str(stretched_demo[0]))
                 plt.plot(stretched_demo)
                 plt.xlabel('datapoint [-]')
                 plt.ylabel('position [m]')
+                plt.title("Final inputs to model")
+
             currentY.append(stretched_demo)
             # Psi^T * Psi 
             aux = np.dot(self.phi, self.phi.T)
@@ -197,6 +200,7 @@ class ProMPContext(object):
                                  alpha=0.2)
         plt.xlabel('t [s]')
         plt.ylabel('position [m]')
+        plt.title("Unconditioned joints")
         # plt.title('Mean and variance')
         # plt.title('Model Welford')
 
@@ -281,6 +285,7 @@ class ProMPContext(object):
                          self.num_points, generated[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], '-.', label=joint_name)
         plt.xlabel('t [s]')
         plt.ylabel('joint position [rad]')
+        plt.show("Conditioned joints")
         plt.legend()
 
     def get_conditioned_trajectory(self):
