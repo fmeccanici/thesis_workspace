@@ -89,7 +89,7 @@ class learningFromDemonstration():
                     print("No secs/nsecs value detected")
             except IndexError:
                 print("Raw trajectory has incorrect length, check if it contains essential paramaters")
-    
+
     def prepare_for_learning(self, desired_datapoints):
         print("Preparing raw trajectories for learning...")
         
@@ -273,6 +273,7 @@ class learningFromDemonstration():
         return traj_wrt_base
 
     def add_trajectory_to_promp_model(self, traj):
+        print("Adding trajectory to promp model...")
         self.promp_model.add_demonstration(np.asarray(traj))
 
     def get_raw_trajectories(self):

@@ -7,6 +7,9 @@ from geometry_msgs.msg import PoseStamped, Pose
 from aruco_msgs.msg import MarkerArray
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
+from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse
+from learning_from_demonstration.msg import prompTraj
+from std_msgs.msg import Bool
 
 # import my own classes
 from learning_from_demonstration.learning_from_demonstration import learningFromDemonstration
@@ -22,7 +25,7 @@ import matplotlib.pyplot as plt
 
 class lfdNode():
     def __init__(self):
-        # initialize ros related
+        # #initialize ros related
         rospy.init_node('lfd_node')
         self._rospack = rospkg.RosPack()
 
@@ -32,6 +35,12 @@ class lfdNode():
         self._end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self._marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
+        
+        # service for adding trajectories
+        self._add_demo_service = rospy.Service('add_demonstration', AddDemonstration, self._add_demonstration)
+
+        # service for getting a generalization
+        self._predict = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
 
         # initialize other classes
         self.lfd = learningFromDemonstration()
@@ -41,6 +50,7 @@ class lfdNode():
 
         # initialize class variables
         self.marker_pose = Pose()
+        self.add_demo_success = Bool()
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
@@ -155,9 +165,6 @@ class lfdNode():
         self.base_frame = 'base_footprint'
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-        # for traj in self.lfd.raw_trajectories:
-        #     print(traj[0][7:10])
-        # time.sleep(30)
         desired_datapoints = 10
         self.lfd.prepare_for_learning(desired_datapoints)
         
@@ -198,7 +205,94 @@ class lfdNode():
 
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
+
+    def prompTrajMessage_to_correct_format(self, traj_msg):
+        trajectory = []
+        object_position = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
+
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
+
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + object_position + t)
+        
+        return trajectory
     
+    def predicted_trajectory_to_prompTraj_message(self, traj):
+        t_list = []
+        message = prompTraj()
+        
+        for data in traj:
+            # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
+            ee_pose = Pose()
+            ee_pose.position.x = data[0]
+            ee_pose.position.y = data[1]
+            ee_pose.position.z = data[2]
+            ee_pose.orientation.x = data[3]
+            ee_pose.orientation.y = data[4]
+            ee_pose.orientation.z = data[5]
+            ee_pose.orientation.w = data[6]
+
+            message.poses.append(ee_pose)
+            message.object_position.x = traj[0][7]
+            message.object_position.y = traj[0][8]
+            message.object_position.z = traj[0][9]
+            
+            t_float = data[-1]
+            # message.times.append([t_float])
+            t_list += [t_float]
+
+        message.times = t_list
+
+        return message
+
+    def _make_prediction(self, req):
+        print("Making prediction using service...")
+        goal = [req.context.x, req.context.y, req.context.z]
+
+        prediction = self.lfd.generalize(goal)
+
+        # traj_pred = self.prompTrajMessage_to_correct_format(prediction)
+        traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction)
+
+        response = MakePredictionResponse()
+        response.prediction = traj_pred_message
+
+        return response
+
+    def _add_demonstration(self, req):
+        print("Adding demonstration using service...")
+
+        # print(req)
+        trajectory = self.prompTrajMessage_to_correct_format(req.demo)
+
+        self.lfd.add_trajectory_to_promp_model(trajectory)
+
+        response = AddDemonstrationResponse()
+    
+        self.add_demo_success.data = True
+    
+        response.success = self.add_demo_success
+
+        # self.lfd.convert_raw_to_correct_format(req.demo)
+
+        # self.lfd.add_trajectory_to_promp_model(req.demo)
+        return response
+
     def predict(self):
         object_wrt_base = self.get_current_marker_position()
         print("goal = " + str(object_wrt_base))
@@ -242,33 +336,33 @@ class lfdNode():
         return trajectory_wrt_base
 
     def run(self):
-        self.goToInitialPose()
+        # self.goToInitialPose()
         x = 0.8
         y = -0.0231
         self.set_aruco_position(x, y)
 
-        if input("Is the object placed at the desired location? 1/0"):
-            self.clear_trajectories_rviz()
+        # if input("Is the object placed at the desired location? 1/0"):
+        #     self.clear_trajectories_rviz()
 
-            print("Making prediction...")
-            traj_pred = self.predict()
+        #     print("Making prediction...")
+        #     traj_pred = self.predict()
 
-            n = 100
-            traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
+        #     n = 100
+        #     traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
             
-            self.visualize_trajectory(traj_pred, 1, 0, 0)
-            self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
+        #     self.visualize_trajectory(traj_pred, 1, 0, 0)
+        #     self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
-            # dt = 0.1
-            self.executeTrajectory(traj_pred_resampled, dt)
-            time.sleep(5)
+        #     # dt = 0.1
+        #     self.executeTrajectory(traj_pred_resampled, dt)
+        #     time.sleep(5)
         
 
             
 if __name__ == "__main__":
     node = lfdNode()
     node.initialize_lfd_model()
-    
+    node.goToInitialPose()
 
     while not rospy.is_shutdown():
         node.run()

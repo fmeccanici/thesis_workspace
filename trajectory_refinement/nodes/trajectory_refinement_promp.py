@@ -1,26 +1,17 @@
 #!/usr/bin/env python2.7
 
+from learning_from_demonstration.learning_from_demonstration import *
+
+# import ros related
 import rospy, time, tf, os
+
 import thread
 
 import numpy as np
-from python2to3_function_caller.python2to3_function_caller import *
-from trajectory_parser.trajectory_parser import *
-from learned_to_executed_trajectory.learned_to_executed_trajectory import *
-from prepare_for_learning.prepare_for_learning import *
 
 from spline_interpolation.spline_interpolation import *
 
-from dmp.srv import *
-from dmp.msg import *
-from dmp_python.dmp_python import *
-
-from visualization_msgs.msg import MarkerArray
 from geomagic_touch_m.msg import GeomagicButtonEvent
-
-from slave_control.msg import ControlState
-from master_control.msg import ControlComm
-from aruco_msgs.msg import MarkerArray
 
 from scipy.interpolate import interp1d
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose
@@ -51,14 +42,31 @@ class trajectoryStorageVariables():
 class trajectoryRefinement():
     def __init__(self):
         rospy.init_node("refinement_node")
+        self.rospack = rospkg.RosPack()
+
+        # get rosparameters specified in launch
+        self._get_parameters()
+
+        # initialize pub/sub
+        self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
+        self.traj_vis_pub = rospy.Publisher('trajectory_visualizer/trajectory', TrajectoryVisualization, queue_size=10)
+
+        if self.button_source == "omni":
+            self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        elif self.button_source == "keyboard":
+            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallbackToggle)
+
+
+        self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
+        self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
+        self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
+        
+        # initialize other classes
+        # self.visualizer = trajectoryVisualizer()
         self.parser = trajectoryParser()
-        self.spl_interp = splineInterpolation()
+        self.resampler = trajectoryResampler()
 
-        self.dmp_python = dmpPython()
-        self.master_pose = Pose()
-
-        self.refinementFlag = 0
-
+        # initialize button parameters
         self.grey_button = 0
         self.grey_button_prev = 0
         self.grey_button_toggle = 0
@@ -67,33 +75,21 @@ class trajectoryRefinement():
         self.white_button_prev = 0
         self.white_button_toggle = 0
 
-        self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-        # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallbackToggle)
-        self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallbackToggle)
-
-
-        self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
-        self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
-        # self.marker_sub = rospy.Subscriber("/aruco_", PoseStamped, self._marker_detection_callback)
-
-        self.traj_pub = rospy.Publisher('trajectory_visualizer/trajectory', TrajectoryVisualization, queue_size=10)
-        self.traj_pred_pub = rospy.Publisher('trajectory_visualizer/trajectory_predicted', TrajectoryVisualization, queue_size=10)
-        self.traj_ref_pub = rospy.Publisher('trajectory_visualizer/trajectory_refined', TrajectoryVisualization, queue_size=10)
-
-        self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
-        self.force_state_pub = rospy.Publisher('geo_force_state_m', WrenchStamped, queue_size=10)
-        self.effort_pub = rospy.Publisher('refinement_force', WrenchStamped, queue_size=10)
-        self.gripper_wrt_ee_sub = rospy.Subscriber('gripper_wrt_ee', PoseStamped, self._gripper_wrt_ee_callback)
-
+        # initialize other parameters
         self.frame_id = '/base_footprint'
-        self.initMasterNormalizePose()
-        
         self.object_marker_pose = Pose()
         self.gripper_wrt_ee = Pose()
     
+        # calibrate master pose
+        self.initMasterNormalizePose()
+
+
+    def _get_parameters(self):
+        self.button_source = rospy.get_param('~button_source')
+        print("Button source set to: " + str(self.button_source))
+
     def _marker_detection_callback(self, data):
         self.object_marker_pose = data.pose
-
 
     def _marker_detection_callback(self, data):
         # rospy.loginfo("marker pose = " + str(self.object_marker_pose.position))
@@ -111,13 +107,11 @@ class trajectoryRefinement():
 
             else: continue
 
-    def _gripper_wrt_ee_callback(self, data):
-        self.gripper_wrt_ee = data.pose
 
     def _masterPoseCallback(self, data):
         self.master_pose = data.master_pose.pose        
 
-    def _buttonCallbackToggle(self, data):
+    def _buttonCallback(self, data):
         self.grey_button_prev = self.grey_button
         self.grey_button = data.grey_button
         self.white_button_prev = self.white_button
@@ -128,10 +122,6 @@ class trajectoryRefinement():
 
         if (self.white_button != self.white_button_prev) and (self.white_button == 1):
             self.white_button_toggle = not self.white_button_toggle
-
-    def _buttonCallbackNoToggle(self, data):
-        self.grey_button = data.grey_button
-        self.white_button = data.white_button
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
@@ -213,9 +203,13 @@ class trajectoryRefinement():
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
 
         T = 2
-        x = [self.current_slave_pose.position.x, 0.403399335619]
-        y = [self.current_slave_pose.position.y, -0.430007534239]
-        z = [self.current_slave_pose.position.z, 1.16269467394]
+        x = [self.current_slave_pose.position.x, 0.401946359213]
+        y = [self.current_slave_pose.position.y, -0.0230769199229]
+        z = [self.current_slave_pose.position.z, 0.840896642238]
+
+        # x = [self.current_slave_pose.position.x, 0.403399335619]
+        # y = [self.current_slave_pose.position.y, -0.430007534239]
+        # z = [self.current_slave_pose.position.z, 1.16269467394]
         
         # x = [self.current_slave_pose.position.x, 0.353543514402]
         # y = [self.current_slave_pose.position.y, 0.435045131507]
@@ -223,7 +217,7 @@ class trajectoryRefinement():
 
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
-        t = list(self.parser._secsNsecsToFloat(self.parser.durationVector2secsNsecsVector(t)))
+        t = list(self.parser.get_time_vector_secs_nsecs(self.parser.durationVector2secsNsecsVector(t)))
         
         fx = interp1d(t, x, fill_value="extrapolate")
         fy = interp1d(t, y, fill_value="extrapolate")
@@ -259,10 +253,8 @@ class trajectoryRefinement():
     def PoseStampedToCartesianPositionList(self, pose):
         return [pose.pose.position.x, pose.pose.position.y, pose.pose.position.z]  
 
-
     def moveEEto(self, pose):
         self.end_effector_goal_pub.publish(pose)
-
 
     def refineTrajectory(self, traj, dt):
 
@@ -319,8 +311,6 @@ class trajectoryRefinement():
                 vnew = qv + traj_pos[-1]
                 # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[-1]))
 
-            # t = self.parser._secsNsecsToFloat([rospy.Time.now().secs, rospy.Time.now().nsecs])
-
             # append refined trajectory
             if i <= len(traj_pos)-1:
                 # refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
@@ -368,12 +358,10 @@ class trajectoryRefinement():
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
-        print('check')
-        print(len(pred_traj))
-        print(len(refined_traj))
+
 
         trajectories = [pred_traj, refined_traj]
-        print(pred_traj)
+
         pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
         
         refined_traj = self.parser._normalize(refined_traj)
@@ -494,255 +482,17 @@ class trajectoryRefinement():
 
         return new_trajectory, dt_new
 
-    def trajToVisMsg(self, traj, r, g, b):
-        
-        pose_array = PoseArray()
-        visualization_msg = TrajectoryVisualization()
 
-        for pose in traj:
-            pose_ = Pose()
+    def run(self):
+        self.goToInitialPose()
+        self.calibrate_master_pose_for_normalization()
 
-            pose_.position.x = pose[0]
-            pose_.position.y = pose[1]
-            pose_.position.z = pose[2]
-
-            pose_.orientation.x = pose[3]
-            pose_.orientation.y = pose[4]
-            pose_.orientation.z = pose[5]
-            pose_.orientation.w = pose[6]
-
-            pose_array.poses.append(pose_)
-
-            pose_array.header.stamp = rospy.Time.now()
-            pose_array.header.frame_id = self.frame_id
-
-        visualization_msg.pose_array = pose_array
-        visualization_msg.r = r
-        visualization_msg.g = g
-        visualization_msg.b = b
-
-        return visualization_msg
-    
-    # doesnt work yet
-    def ee_to_gripper_pose(self, traj):
-        traj_gripper_wrt_base = []
-
-        for ee_pose in traj:
+        while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
             
-            # q = Quaternion(ee_pose[3:7])
-            r = R.from_quat(ee_pose[3:7])
-            v = [self.gripper_wrt_ee.position.x, self.gripper_wrt_ee.position.y, self.gripper_wrt_ee.position.z]
-            
-            
-            # gripper_wrt_base = q.rotate([self.gripper_wrt_ee.position.x, self.gripper_wrt_ee.position.y, self.gripper_wrt_ee.position.z])
-            gripper_wrt_base = r.apply(v)
-
-            gripper_wrt_base_x = gripper_wrt_base[0] + ee_pose[0]
-            gripper_wrt_base_y = gripper_wrt_base[1] + ee_pose[1]
-            gripper_wrt_base_z = gripper_wrt_base[2] + ee_pose[2]
-
-            # doesnt matter for pose array which orientation I use, they should be wrt base frame and are now wrt ee frame 
-            traj_gripper_wrt_base.append([gripper_wrt_base_x, gripper_wrt_base_y, gripper_wrt_base_z, self.gripper_wrt_ee.orientation.x, self.gripper_wrt_ee.orientation.y, self.gripper_wrt_ee.orientation.z, self.gripper_wrt_ee.orientation.w])
-
-        return traj_gripper_wrt_base
-
-    def traj_wrt_base(self, traj_wrt_marker, marker_wrt_base):
-        traj_wrt_base = []
-        for data in traj_wrt_marker:
-            pos = list(np.add(data[0:3], marker_wrt_base))
-            traj_wrt_base.append(list(pos) + list(data[3:]))
-
-        return traj_wrt_base
-
-    def getMarkerWRTBase(self):
-        x = self.object_marker_pose.position.x
-        y = self.object_marker_pose.position.y
-        z = self.object_marker_pose.position.z
-
-        return [x,y,z]
-
-    def getMarkerWRTee(self):
-        # x = self.object_marker_pose.position.x
-        # y = self.object_marker_pose.position.y
-        # z = self.object_marker_pose.position.z
-
-        x = self.object_marker_pose.position.x - self.current_slave_pose.position.x  
-        y = self.object_marker_pose.position.y - self.current_slave_pose.position.y 
-        z = self.object_marker_pose.position.z - self.current_slave_pose.position.z 
-
-
-        return [x,y,z]
-
-    def getQuaternionForInterpolation(self):
-        DIR = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/raw/'
-        traj_file = 'raw_trajectory_1.txt'
-
-        traj = self.parser.openTrajectoryFile(traj_file, DIR)
-        qstart = traj[0][3:7]
-        qend = traj[-1][3:7]
-
-        return qstart, qend
-
-    
-
-    def trajectory_wrt_marker_to_wrt_base(self, pred_traj, goal):
-        # need to swap positions, since in publisher I forgot to swap x and y positions
-        # need to swap this in the publsiher, but didnt have the time to demosntrate new trajectories
-        
-        # goal = [ goal[1], goal[0], goal[2] ]
-        marker_wrt_base = np.asarray(list(goal))
-
-        traj_wrt_base = []
-        for data in pred_traj:
-            pos = list(np.add(data[0:3], marker_wrt_base))
-            ori = list(data[3:7])
-            traj_wrt_base.append(pos + ori + [data[-1]])
-
-        return traj_wrt_base
-
-
-    def generate_trajectory_to_pred_traj(self, generated_trajectory):
-        joint_id = 0
-        pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 1
-        pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 2
-        pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 3
-        pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 4
-        pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 5
-        pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 6
-        pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 7
-        pred_traj_objx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 8
-        pred_traj_objy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 9
-        pred_traj_objz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        joint_id = 10
-        pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
-
-        pred_traj = []
-        dt = pred_traj_dt[0]
-        print(dt)
-        t = 0
-
-        for i in range(len(pred_traj_dt)):
-            pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], pred_traj_objx[i], pred_traj_objy[i], pred_traj_objz[i], t])
-            t += dt
-        
-
-        return pred_traj, dt
-
-    def clearTrajectoriesRviz(self):
-        empty_traj = np.zeros((1, 7))
-        for i in range(10):
-            refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
-        for i in range(10):
-            refinement_node.traj_ref_pub.publish(refinement_node.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
-    
-    def ee_wrt_object(self, ee_wrt_base, object_wrt_base):
-        return np.subtract(ee_wrt_base, object_wrt_base)
-
-    def object_wrt_ee(self, ee_wrt_base, object_wrt_base):
-        return np.subtract(object_wrt_base, ee_wrt_base)
-
-    def parse_to_relative_traj(self, traj):
-
-        # initialize information needed for relative calculations
-        object_wrt_base = traj[0][8:]
-        ee_wrt_base_0 = traj[0][0:3]
-        object_wrt_ee_0 = list(self.object_wrt_ee(ee_wrt_base_0, object_wrt_base))
-
-        parsed_traj = []
-        # calculate relative vectors
-        for data in traj:
-            ee_wrt_base = data[0:3]
-
-            ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))
-            ee_ori =  list(data[3:7])
-            dt = [data[7]]
-            parsed_traj.append(ee_wrt_object + ee_ori + dt + object_wrt_ee_0)
-        return parsed_traj
-
 if __name__ == "__main__":
-    refinement_node = trajectoryRefinement()
-    
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_refinement/data/resampled/'
-    traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
- 
-    joints = ["joint_x", "joint_y","joint_z", "qx", "qy", "qz", "qw", "object_x", "object_y", "object_z", "dt" ]
-    trajectories = []
-    for traj in traj_files:
-        trajectory = refinement_node.parser.openTrajectoryFile(traj, input_path)
-        trajectory = np.array(trajectory)
-        trajectories.append(trajectory)
-
-
-    num_points = len(trajectories[0])
-
-    promp = ProMPContext(joints, num_points=num_points)
-
-
-    refinement_node.goToInitialPose()
-
-    for traj in trajectories:
-        # traj = [list(pose) for pose in traj]
-        # plt.plot(refinement_node.parser.getCartesianPositions(traj))
-        # for data in traj:
-        #     data[8:] = list(-1*np.asarray(traj[0][0:3]))
-        promp.add_demonstration(traj)
-    promp.init_welford()
-
-    goal = np.zeros(len(joints))
-
-    # promp.plot_unconditioned_joints()
-    # plt.show()
-    r = rospy.Rate(30)
-
-    time.sleep(1)
-
-    sigma_noise=0.03
-
-    alpha = 1
-
-    refine_counter = 0
-    
-    refinement_node.clearTrajectoriesRviz()
-
-    refinement_node.calibrate_master_pose_for_normalization()
-
-    # marker_wrt_base = refinement_node.getMarkerWRTBase()
-    # traj_test = learnedToExecuted(trajectories[0], marker_wrt_base)
-    # traj_test = traj_test.pred_traj_to_executed()
-
-    # # print(trajectories[1][0:3])
-    # print(marker_wrt_base)
-    # print(trajectories[0][0])
-    # traj_test = refinement_node.trajectory_wrt_marker_to_wrt_base(trajectories[0], marker_wrt_base)
-    # # traj_test = trajectories[0]
-    # print(traj_test[0])
-    # for i in range(50):
-    #     # refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg(refinement_node.ee_to_gripper_pose(traj_pred), r=1, g=0, b=0))
-    #     refinement_node.traj_pred_pub.publish(refinement_node.trajToVisMsg((traj_test), r=1, g=0, b=0))
-    # time.sleep(5)
+    node = trajectoryRefinement()
 
         
-    # refinement_node.executeTrajectory(traj_test, 0.01)
-
     while not rospy.is_shutdown() and refinement_node.grey_button_toggle == 0:
 
         if refine_counter % 2 == 0:
