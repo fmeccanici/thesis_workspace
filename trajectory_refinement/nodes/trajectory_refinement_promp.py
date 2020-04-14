@@ -1,29 +1,27 @@
 #!/usr/bin/env python2.7
 
-# import ros related
-from learning_from_demonstration.learning_from_demonstration import *
+# import external python packages
+import rospy, time, tf, os, thread, rospkg
+import numpy as np
+
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
+
+# import ros messages
 from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse
 from learning_from_demonstration.msg import prompTraj
 from geomagic_touch_m.msg import GeomagicButtonEvent
+from master_control.msg import ControlComm
 from lfd_msgs.msg import TrajectoryVisualization
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from aruco_msgs.msg import MarkerArray
+
+
+# import own python packages
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
 from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 from learning_from_demonstration.dynamic_time_warping import DTW
 
-import rospy, time, tf, os, thread
-import numpy as np
-
-from spline_interpolation.spline_interpolation import *
-from scipy.interpolate import interp1d
-
-from pyquaternion import Quaternion 
-from scipy.spatial.transform import Rotation as R
-from scipy.spatial.distance import euclidean
-
-import matplotlib.pyplot as plt
-from pyquaternion import Quaternion
 
 class trajectoryStorageVariables():
     def __init__(self, open_loop_path, refined_path, resampled_path, raw_path, raw_file, new_path):
@@ -49,7 +47,7 @@ class trajectoryRefinement():
         if self.button_source == "omni":
             self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
         elif self.button_source == "keyboard":
-            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallbackToggle)
+            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
 
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
@@ -374,10 +372,14 @@ class trajectoryRefinement():
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
         qstart = refined_traj[0][3:7]
         qend = refined_traj[-1][3:7]  
-        ypred, yref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
+        T_refined = self.parser.get_total_time(refined_traj)
+        T_pred = self.parser.get_total_time(pred_traj)
+
+        y_pred, y_ref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
         
-        y_refined_aligned, y_pred_aligned = self.dtw.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
-        # print(y_pred_aligned[0])
+        y_refined_aligned, y_pred_aligned = self.dtw.apply_dtw(y_ref, y_pred)
+
+
 
         plt.plot(y_refined_aligned)
         plt.plot(y_pred_aligned)
@@ -386,6 +388,7 @@ class trajectoryRefinement():
         plt.xlabel('datapoint [-]')
         plt.ylabel('position [m]')
         # plt.show()
+
         # lengths are the same so doesnt matter which length I take
         n = len(y_refined_aligned)
 
@@ -457,7 +460,11 @@ class trajectoryRefinement():
     def visualize_trajectory(self, traj, r, g, b):
         for i in range(50):
             self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
-
+    def clear_trajectories_rviz(self):
+        empty_traj = np.zeros((1, 7))
+        for i in range(10):
+            self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
+    
     def run(self):
         self.goToInitialPose()
         self.calibrate_master_pose_for_normalization()
@@ -468,6 +475,7 @@ class trajectoryRefinement():
         alpha = 1
         refine_counter = 0
 
+        # refinement loop
         while not rospy.is_shutdown() and self.grey_button_toggle == 0:
             
             # if this is the first time we are running the loop, make prediction
@@ -509,7 +517,6 @@ class trajectoryRefinement():
             traj_refined_reversed = self.reverseTrajectory(traj_refined)
             self.executeTrajectory(traj_refined_reversed, dt_new)
 
-
             if input("Satisfied with this trajectory? 1/0") == 1: 
                 rospy.loginfo("Adding trajectory to model...")
                 traj_add = self.resampler.interpolate_predicted_trajectory(traj_new, n_pred)
@@ -523,7 +530,7 @@ class trajectoryRefinement():
                     prediction_resampled = traj_new
                 else: pass
             
-        self.clearTrajectoriesRviz()
+            self.clearTrajectoriesRviz()
 
 if __name__ == "__main__":
     node = trajectoryRefinement()

@@ -281,16 +281,14 @@ class lfdNode():
         trajectory = self.prompTrajMessage_to_correct_format(req.demo)
 
         self.lfd.add_trajectory_to_promp_model(trajectory)
+        self.add_demo_success.data = True
 
         response = AddDemonstrationResponse()
-    
-        self.add_demo_success.data = True
+
     
         response.success = self.add_demo_success
 
-        # self.lfd.convert_raw_to_correct_format(req.demo)
 
-        # self.lfd.add_trajectory_to_promp_model(req.demo)
         return response
 
     def predict(self):

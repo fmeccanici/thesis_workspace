@@ -2,34 +2,12 @@
 
 import rospy, ast, os, os.path
 import numpy as np
-# from pyquaternion import Quaternion
-# from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
-# from scipy.interpolate import CubicSpline, InterpolatedUnivariateSpline
 
 class trajectoryParser():
     def __init__(self):
         self.raw_trajectory = []
 
-    # def plan2traj(self, plan, qstart, qend):
-    #     traj = []
-
-    #     # set amount of datapoints for linear interpolation of quaternionss
-    #     n = len(plan.plan.points)-2
-
-    #     # linearly interpolate the quaternions
-    #     quat = trajectoryParser.interpolateQuaternions(qstart, qend, n)
-    #     for i,q in enumerate(quat):
-    #         traj.append([plan.plan.points[i].positions[0], plan.plan.points[i].positions[1], plan.plan.points[i].positions[2], q.imaginary[0], q.imaginary[1], q.imaginary[2], q.real, rospy.Duration(plan.plan.times[i]).secs, rospy.Duration(plan.plan.times[i]).nsecs] )
-
-    #     return traj
-    
-    # @classmethod
-    # def interpolateQuaternions(cls, qstart, qend, n, include_endpoints=True):
-    #     q1 = Quaternion(a=qstart[3], b=qstart[0], c=qstart[1], d=qstart[2])
-    #     q2 = Quaternion(a=qend[3], b=qend[0], c=qend[1], d=qend[2])
-
-    #     return Quaternion.intermediates(q1, q2, n, include_endpoints=include_endpoints)
     def ee_wrt_object(self, ee_wrt_base, object_wrt_base):
         return np.subtract(ee_wrt_base, object_wrt_base)
 
@@ -214,7 +192,7 @@ class trajectoryParser():
         return trajectory
 
     def downsample(self, trajectory, dt):
-        normalized_trajectory = self._normalize(trajectory)
+        normalized_trajectory = self.normalize(trajectory)
 
 
         n = self._dt2n(dt)
@@ -280,79 +258,6 @@ class trajectoryParser():
     def arrays_in_list_to_list_in_list(self, traj):
         return [list(x) for x in traj]
 
-    # def interpolate_raw_trajectory(self, raw_traj, n):
-    #     traj_pose = self.getCartesianPositions(raw_traj)
-    #     traj_time = self.get_time_vector_secs_nsecs(raw_traj)
-                
-    #     T = self.secs_nsecs_to_float_vector(raw_traj[-1][-2:])
-    #     object_pose = raw_traj[0][7:14]
-
-    #     xvals = np.linspace(0, T, n)
-
-    #     traj_time = ((np.asarray(self.secs_nsecs_to_float_vector(traj_time))))
-    #     traj_pos_x = (np.asarray(self.getXpositions(traj_pose)).reshape(len(traj_time), 1))
-    #     traj_pos_y = (np.asarray(self.getYpositions(traj_pose)).reshape(len(traj_time), 1))
-    #     traj_pos_z = (np.asarray(self.getZpositions(traj_pose)).reshape(len(traj_time), 1))
-
-    #     yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
-    #     yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
-    #     yinterp_z = interp1d((traj_time), np.transpose(traj_pos_z), axis=1, fill_value="extrapolate")
-
-    #     y_new_x = yinterp_x(xvals)
-    #     y_new_y = yinterp_y(xvals)
-    #     y_new_z = yinterp_z(xvals)
-
-    #     qstart = raw_traj[0][3:7]
-    #     qend = raw_traj[-1][3:7]
-
-    #     interpol_traj = []
-    #     t_secs_nsecs = self._floatToSecsNsecs(xvals)
-    #     for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n, False)):
-    #         pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-    #         ynew = pos + object_pose + [xvals[i]]
-
-    #         interpol_traj.append(ynew)
-
-
-    #     return interpol_traj
-    # def interpolate_learned_keypoints(self, traj, n_desired):
-    #     n = len(traj)
-    #     T = traj[-1][-1]
-    #     # print(traj[-1])
-    #     x = np.linspace(0, T, n)
-
-    #     object_pose = traj[0][7:10]
-    #     # cs = CubicSpline(x, traj)
-    #     cartx = [data[0] for data in traj]
-    #     carty = [data[1] for data in traj]
-    #     cartz = [data[2] for data in traj]
-
-    #     splinex = InterpolatedUnivariateSpline(x, cartx)
-    #     spliney = InterpolatedUnivariateSpline(x, carty)
-    #     splinez = InterpolatedUnivariateSpline(x, cartz)
-
-    #     xdesired = np.linspace(0, T, n_desired)
-    #     dt_new = T / n_desired
-    #     print(x[-1])
-    #     print(xdesired[-1])
-    #     cartx_new = splinex(xdesired)
-    #     carty_new = spliney(xdesired)
-    #     cartz_new = splinez(xdesired)
-
-    #     qstart = traj[0][3:7]
-    #     qend = traj[-1][3:7]
-
-    #     interpol_traj = []
-    #     for i,q in enumerate(self.interpolateQuaternions(qstart, qend, n_desired, False)):
-    #         pos = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-    #         ynew = pos + object_pose + [xdesired[i]]
-
-    #         interpol_traj.append(ynew)
-
-    #     # ynew_list = [list(x) for x in ynew]
-
-    #     return interpol_traj, dt_new
-
     def isRaw(self, traj):
         if len(traj[0]) == 16:
             return True
@@ -373,7 +278,7 @@ class trajectoryParser():
 
         for traj in traj_files:
             trajectory = self.openTrajectoryFile(traj, input_path)
-            trajectory = self._normalize(trajectory)
+            trajectory = self.normalize(trajectory)
             trajectory = self.downsample(trajectory, dt)
             print(len(trajectory))
 
@@ -430,80 +335,74 @@ class trajectoryParser():
         
     #     return traj2
 
-    def resample_trajectories(self, trajectories, traj_min_length):
-        trajectories_resampled = []
-        for traj in trajectories:
-            traj_res = self.resample_trajectory(traj_min_length, traj)
-            trajectories_resampled.append(traj_res)
-            plt.plot(self.getCartesianPositions(traj))
-            plt.xlabel('datapoint [-]')
-            plt.ylabel('position [m]')
-            plt.title('Cartesian end effector positions before resampling')
-        plt.show()
-        return trajectories_resampled
+    # def resample_trajectories(self, trajectories, traj_min_length):
+    #     trajectories_resampled = []
+    #     for traj in trajectories:
+    #         traj_res = self.resample_trajectory(traj_min_length, traj)
+    #         trajectories_resampled.append(traj_res)
+    #         plt.plot(self.getCartesianPositions(traj))
+    #         plt.xlabel('datapoint [-]')
+    #         plt.ylabel('position [m]')
+    #         plt.title('Cartesian end effector positions before resampling')
+    #     plt.show()
+    #     return trajectories_resampled
 
-    def resample_and_store_trajectories(self, trajectories, traj_min_length, output_path):
+    # def resample_and_store_trajectories(self, trajectories, traj_min_length, output_path):
 
-        trajectories_resampled = self.resample_trajectories(trajectories, traj_min_length)
+    #     trajectories_resampled = self.resample_trajectories(trajectories, traj_min_length)
 
-        for i in range(0, len(trajectories_resampled)):
-            traj = self.get_relevant_learning_data(trajectories_resampled[i])
-            traj_file = open(output_path + "resampled_" + str(i) + ".txt", "w+")
-            traj_file.write(str(traj))
-            traj_file.close()
+    #     for i in range(0, len(trajectories_resampled)):
+    #         traj = self.get_relevant_learning_data(trajectories_resampled[i])
+    #         traj_file = open(output_path + "resampled_" + str(i) + ".txt", "w+")
+    #         traj_file.write(str(traj))
+    #         traj_file.close()
 
-    def get_relevant_learning_data(self, traj):
-        traj_new = []
+    # def get_relevant_learning_data(self, traj):
+    #     traj_new = []
 
-        # T doesnt work properly --> chose dt as output
-        dt = traj[-1][-1] - traj[-2][-1]
-        for data in traj:
-            traj_new.append(data[0:7] + data[7:10] + [dt] )
+    #     # T doesnt work properly --> chose dt as output
+    #     dt = traj[-1][-1] - traj[-2][-1]
+    #     for data in traj:
+    #         traj_new.append(data[0:7] + data[7:10] + [dt] )
 
-        return traj_new
+    #     return traj_new
     
-    def parse_to_relative_trajectory(self, input_path):
-        traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
-        trajs = []
-        for traj in traj_files:
-            trajs.append(self.openTrajectoryFile(traj, input_path))
+    # def parse_to_relative_trajectory(self, input_path):
+    #     traj_files = [name for name in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, name))]
+    #     trajs = []
+    #     for traj in traj_files:
+    #         trajs.append(self.openTrajectoryFile(traj, input_path))
 
-        traj_files_parsed = []
-        for traj in trajs:
-            marker_pos = traj[0][7:10]
-            traj_files_parsed.append(self.traj_wrt_base_to_wrt_marker(marker_pos, traj)) 
+    #     traj_files_parsed = []
+    #     for traj in trajs:
+    #         marker_pos = traj[0][7:10]
+    #         traj_files_parsed.append(self.traj_wrt_base_to_wrt_marker(marker_pos, traj)) 
 
-    def traj_wrt_base_to_wrt_marker(self, marker_pos, traj):
-        marker_wrt_base = np.asarray(marker_pos)
+    # def traj_wrt_base_to_wrt_marker(self, marker_pos, traj):
+    #     marker_wrt_base = np.asarray(marker_pos)
 
-        traj_wrt_ee = []
-        for data in traj:
+    #     traj_wrt_ee = []
+    #     for data in traj:
             
-            pos = list(np.subtract(data[0:3], marker_wrt_base))
-            ori = list(data[3:7])
-            traj_wrt_ee.append(pos + ori + data[7:])
+    #         pos = list(np.subtract(data[0:3], marker_wrt_base))
+    #         ori = list(data[3:7])
+    #         traj_wrt_ee.append(pos + ori + data[7:])
         
-        return traj_wrt_ee
+    #     return traj_wrt_ee
 
-    def marker_wrt_base_to_marker_wrt_ee(self, marker_pos, traj):
-        marker_wrt_ee = np.asarray(marker_pos)
+    # def marker_wrt_base_to_marker_wrt_ee(self, marker_pos, traj):
+    #     marker_wrt_ee = np.asarray(marker_pos)
 
-        marker_wrt_ee = []
-        for data in traj:
-            pos = list(np.subtract(marker_wrt_ee, data[0:3]))
-            ori = list(data[3:7])
-            marker_wrt_ee.append(pos)
+    #     marker_wrt_ee = []
+    #     for data in traj:
+    #         pos = list(np.subtract(marker_wrt_ee, data[0:3]))
+    #         ori = list(data[3:7])
+    #         marker_wrt_ee.append(pos)
         
-        return traj_wrt_ee
+    #     return traj_wrt_ee
 
-    def prepare_for_learning(self, input_path, output_path):
-        relative_trajectories = parser.parse_to_relative_trajectory(input_path)
-        for traj in relative_trajectories:
-            context = traj[7:11]
+    # def prepare_for_learning(self, input_path, output_path):
+    #     relative_trajectories = parser.parse_to_relative_trajectory(input_path)
+    #     for traj in relative_trajectories:
+    #         context = traj[7:11]
             
-if __name__ == "__main__":
-    parser = trajectoryParser()
-
-    dt = 0.01
-
-    input_path = '/home/fmeccanici/Documents/thesis/lfd_ws/src/trajectory_teaching/data/with_object2/'
