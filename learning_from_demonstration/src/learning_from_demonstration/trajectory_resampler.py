@@ -85,3 +85,38 @@ class trajectoryResampler():
 
 
         return interpol_traj
+
+    def interpolate_predicted_trajectory(self, traj, n):
+        traj_pos = self.parser.getCartesianPositions(traj)
+        traj_time = self.parser.get_time_vector_float(traj)
+        T = self.parser.get_total_time(traj)
+
+        object_pos = self.parser.get_context(traj)
+
+        xvals = np.linspace(0, T, n)
+
+        traj_pos_x = (np.asarray(self.parser.getXpositions(traj_pos)).reshape(len(traj_time), 1))
+        traj_pos_y = (np.asarray(self.parser.getYpositions(traj_pos)).reshape(len(traj_time), 1))
+        traj_pos_z = (np.asarray(self.parser.getZpositions(traj_pos)).reshape(len(traj_time), 1))
+
+        yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
+        yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
+        yinterp_z = interp1d((traj_time), np.transpose(traj_pos_z), axis=1, fill_value="extrapolate")
+
+        y_new_x = yinterp_x(xvals)
+        y_new_y = yinterp_y(xvals)
+        y_new_z = yinterp_z(xvals)
+
+        qstart = traj[0][3:7]
+        qend = traj[-1][3:7]
+
+        interpol_traj = []
+
+        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
+            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
+            ynew = pos + object_pos + [xvals[i]]
+
+            interpol_traj.append(ynew)
+
+
+        return interpol_traj
