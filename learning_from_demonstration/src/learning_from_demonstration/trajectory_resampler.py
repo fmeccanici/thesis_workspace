@@ -120,3 +120,83 @@ class trajectoryResampler():
 
 
         return interpol_traj
+
+
+    def match_refined_predicted(self, pred_traj, refined_traj):
+        pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
+        
+        refined_traj = self.parser.normalize(refined_traj)
+
+        new_trajectory = []
+
+        ## resample trajectories such that they can be subtracted
+        
+        refined_traj_pose = self.parser.getCartesianPositions(refined_traj)
+        refined_traj_time = self.parser.get_time_vector_float(refined_traj)
+
+        pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
+        pred_traj_time = self.parser.get_time_vector_float(pred_traj)
+
+        # plt.plot(refined_traj_pose)
+        # plt.plot(pred_traj_pose)
+        # plt.title('Predicted and refined trajectory before resampling')
+        # plt.xlabel('datapoint [-]')
+        # plt.ylabel('position [m]')
+        # plt.show()
+
+        n_pred = len(pred_traj)
+        n_refined = len(refined_traj)
+
+        # get lengths of both vectors
+        n = [n_pred, n_refined]
+        max_length = max(n)
+
+        # dt = self.parser.getTimeInterval(trajectories[np.argmax(n)])
+        dt_pred = self.parser.getTimeInterval(pred_traj)
+        dt_refined = self.parser.getTimeInterval(refined_traj)
+
+        T_pred = self.parser.secs_nsecs_to_float_single(pred_traj_time[-1])
+        T_refined = self.parser.secs_nsecs_to_float_single(refined_traj_time[-1])
+
+        l = max_length
+
+        xvals_refined = np.linspace(0.0, T_refined, l)
+        xvals_pred = np.linspace(0.0, T_pred, l)
+        print('check2')
+
+        refined_traj_time = ((np.asarray(self.parser.secs_nsecs_to_float_vector(refined_traj_time))))
+        refined_traj_pos_x = (np.asarray(self.parser.getXpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
+        refined_traj_pos_y = (np.asarray(self.parser.getYpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
+        refined_traj_pos_z = (np.asarray(self.parser.getZpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
+
+        yinterp_refined_x = interp1d((refined_traj_time), np.transpose(refined_traj_pos_x), axis=1, fill_value="extrapolate")
+        yinterp_refined_y = interp1d((refined_traj_time), np.transpose(refined_traj_pos_y), axis=1, fill_value="extrapolate")
+        yinterp_refined_z = interp1d((refined_traj_time), np.transpose(refined_traj_pos_z), axis=1, fill_value="extrapolate")
+
+        y_refined_new_x = yinterp_refined_x(xvals_refined)
+        y_refined_new_y = yinterp_refined_y(xvals_refined)
+        y_refined_new_z = yinterp_refined_z(xvals_refined)
+        
+
+        pred_traj_time = ((np.asarray(self.parser.secs_nsecs_to_float_vector(pred_traj_time))))
+        pred_traj_pos_x = (np.asarray(self.parser.getXpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
+
+        pred_traj_pos_y = (np.asarray(self.parser.getYpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
+        pred_traj_pos_z = (np.asarray(self.parser.getZpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
+
+        print(pred_traj_pos_x[0])
+        yinterp_pred_x = interp1d((pred_traj_time), np.transpose(pred_traj_pos_x), axis=1, fill_value="extrapolate")
+        yinterp_pred_y = interp1d((pred_traj_time), np.transpose(pred_traj_pos_y), axis=1, fill_value="extrapolate")
+        yinterp_pred_z = interp1d((pred_traj_time), np.transpose(pred_traj_pos_z), axis=1, fill_value="extrapolate")
+
+        print('check3')
+
+
+        y_pred_new_x = yinterp_pred_x(xvals_pred)
+        y_pred_new_y = yinterp_pred_y(xvals_pred)
+        y_pred_new_z = yinterp_pred_z(xvals_pred)
+
+        ypred = [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])]
+        yref = [list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])]
+
+        return ypred, yref

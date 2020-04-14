@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from aruco_msgs.msg import MarkerArray
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
 from learning_from_demonstration.trajectory_resampler import trajectoryResampler
+from learning_from_demonstration.dynamic_time_warping import DTW
 
 import rospy, time, tf, os, thread
 import numpy as np
@@ -60,6 +61,7 @@ class trajectoryRefinement():
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
         self.visualizer = TrajectoryVisualizer()
+        self.dtw = DTW()
 
         # initialize button parameters
         self.grey_button = 0
@@ -370,93 +372,11 @@ class trajectoryRefinement():
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
-
-
-        trajectories = [pred_traj, refined_traj]
-
-        pred_traj = self.parser.trajFloatToSecsNsecs(pred_traj)
+        qstart = refined_traj[0][3:7]
+        qend = refined_traj[-1][3:7]  
+        ypred, yref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
         
-        refined_traj = self.parser._normalize(refined_traj)
-
-        new_trajectory = []
-
-        ## resample trajectories such that they can be subtracted
-        
-        refined_traj_pose = self.parser.getCartesianPositions(refined_traj)
-        refined_traj_time = self.parser._getTimeVector(refined_traj)
-
-        pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
-        pred_traj_time = self.parser._getTimeVector(pred_traj)
-
-        plt.plot(refined_traj_pose)
-        plt.plot(pred_traj_pose)
-        plt.title('Predicted and refined trajectory before resampling')
-        plt.xlabel('datapoint [-]')
-        plt.ylabel('position [m]')
-        # plt.show()
-
-        n_pred = len(pred_traj)
-        n_refined = len(refined_traj)
-
-        # get lengths of both vectors
-        n = [n_pred, n_refined]
-        max_length = max(n)
-
-        # dt = self.parser.getTimeInterval(trajectories[np.argmax(n)])
-        dt_pred = self.parser.getTimeInterval(pred_traj)
-        dt_refined = self.parser.getTimeInterval(refined_traj)
-
-        T_pred = self.parser.secsNsecsToFloatSingle(pred_traj_time[-1])
-        T_refined = self.parser.secsNsecsToFloatSingle(refined_traj_time[-1])
-
-        l = max_length
-
-        xvals_refined = np.linspace(0.0, T_refined, l)
-        xvals_pred = np.linspace(0.0, T_pred, l)
-        print('check2')
-
-        refined_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(refined_traj_time))))
-        refined_traj_pos_x = (np.asarray(self.parser.getXpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
-        refined_traj_pos_y = (np.asarray(self.parser.getYpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
-        refined_traj_pos_z = (np.asarray(self.parser.getZpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
-
-        yinterp_refined_x = interp1d((refined_traj_time), np.transpose(refined_traj_pos_x), axis=1, fill_value="extrapolate")
-        yinterp_refined_y = interp1d((refined_traj_time), np.transpose(refined_traj_pos_y), axis=1, fill_value="extrapolate")
-        yinterp_refined_z = interp1d((refined_traj_time), np.transpose(refined_traj_pos_z), axis=1, fill_value="extrapolate")
-
-        y_refined_new_x = yinterp_refined_x(xvals_refined)
-        y_refined_new_y = yinterp_refined_y(xvals_refined)
-        y_refined_new_z = yinterp_refined_z(xvals_refined)
-        
-
-        pred_traj_time = ((np.asarray(self.parser._secsNsecsToFloat(pred_traj_time))))
-        pred_traj_pos_x = (np.asarray(self.parser.getXpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
-
-        pred_traj_pos_y = (np.asarray(self.parser.getYpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
-        pred_traj_pos_z = (np.asarray(self.parser.getZpositions(pred_traj_pose)).reshape(len(pred_traj_time), 1))
-
-        print(pred_traj_pos_x[0])
-        yinterp_pred_x = interp1d((pred_traj_time), np.transpose(pred_traj_pos_x), axis=1, fill_value="extrapolate")
-        yinterp_pred_y = interp1d((pred_traj_time), np.transpose(pred_traj_pos_y), axis=1, fill_value="extrapolate")
-        yinterp_pred_z = interp1d((pred_traj_time), np.transpose(pred_traj_pos_z), axis=1, fill_value="extrapolate")
-
-        print('check3')
-
-
-        y_pred_new_x = yinterp_pred_x(xvals_pred)
-        y_pred_new_y = yinterp_pred_y(xvals_pred)
-        y_pred_new_z = yinterp_pred_z(xvals_pred)
-
-        plt.plot(np.asarray([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])]).transpose())
-        plt.plot(np.asarray([list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])]).transpose())
-
-        plt.title('Predicted and refined trajectory after resampling')
-        plt.xlabel('datapoint [-]')
-        plt.ylabel('position [m]')
-        # plt.show()
-        # apply DTW
-        # print(y_pred_new_x[0])
-        y_refined_aligned, y_pred_aligned = DTW.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
+        y_refined_aligned, y_pred_aligned = self.dtw.apply_dtw([list(y_refined_new_x[0]), list(y_refined_new_y[0]), list(y_refined_new_z[0])] , [list(y_pred_new_x[0]), list(y_pred_new_y[0]), list(y_pred_new_z[0])])
         # print(y_pred_aligned[0])
 
         plt.plot(y_refined_aligned)
@@ -468,8 +388,7 @@ class trajectoryRefinement():
         # plt.show()
         # lengths are the same so doesnt matter which length I take
         n = len(y_refined_aligned)
-        qstart = refined_traj[0][3:7]
-        qend = refined_traj[-1][3:7]
+
 
         refined_traj = []
         pred_traj = []
@@ -479,7 +398,7 @@ class trajectoryRefinement():
         t_refined = np.linspace(0.0, T_refined, n)
         t_pred = np.linspace(0.0, T_pred, n)
 
-        for i,q in enumerate(trajectoryParser.interpolateQuaternions(qstart, qend, n, False)):
+        for i,q in enumerate(self.resampler.interpolate_quaternions(qstart, qend, n, False)):
             refined_traj = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2], q[1], q[2], q[3], q[0], t_refined[i]] 
             pred_traj = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2], q[1], q[2], q[3], q[0], t_pred[i]]
 
@@ -537,7 +456,7 @@ class trajectoryRefinement():
     
     def visualize_trajectory(self, traj, r, g, b):
         for i in range(50):
-            self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
+            self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
 
     def run(self):
         self.goToInitialPose()
@@ -576,15 +495,15 @@ class trajectoryRefinement():
                 refine_counter += 1
 
             # visualize both resampled and keypoints
-            self.visualize_trajectory(prediction, r=1, g=0, b=0)
+            self.visualize_trajectory(prediction, r=0, g=0, b=1)
             self.visualize_trajectory(prediction_resampled, r=1, g=0, b=0)
 
             # refine trajectory
             traj_refined = self.refineTrajectory(prediction_resampled, dt)
-            traj_new, dt_new = self.determineNewTrajectory(traj_pred, traj_refined, alpha)
+            traj_new, dt_new = self.determineNewTrajectory(prediction_resampled, traj_refined, alpha)
             
             # visualize new trajectory
-            self.visualize_trajectory(traj_new)
+            self.visualize_trajectory(traj_new, r=0, g=1, b=0)
 
             # execute reversed trajectory
             traj_refined_reversed = self.reverseTrajectory(traj_refined)
