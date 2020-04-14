@@ -1,0 +1,16 @@
+<package>
+    <name>beginner_tutorials</name>
+    <version>1.0.0</version>
+    <description>
+        beginner_tutorials
+    </description>
+    <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
+    <author>Floris Meccanici</author>
+    <license>new BSD</license>
+
+<run_depend>rospy</run_depend>
+<buildtool_depend>catkin</buildtool_depend>
+<build_depend>message_generation</build_depend>
+<run_depend>message_runtime</run_depend>
+
+</package>
