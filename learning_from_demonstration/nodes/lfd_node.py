@@ -36,13 +36,9 @@ class lfdNode():
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self._marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         
-        # service for adding trajectories
+        # ros services
         self._add_demo_service = rospy.Service('add_demonstration', AddDemonstration, self._add_demonstration)
-
-        # service for getting a generalization
         self._predict = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
-
-        # service to set aruco position
         self._set_object = rospy.Service('set_object', SetObject, self._set_object_position)
 
         # initialize other classes
@@ -73,6 +69,7 @@ class lfdNode():
                 self.marker_pose.orientation.w = marker.pose.pose.orientation.w
 
             else: continue
+    
     def _get_parameters(self):
         raw_folder = rospy.get_param('~raw_folder')
         self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/" + str(raw_folder) + "/"
@@ -133,7 +130,6 @@ class lfdNode():
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
         t = list(self.parser.secs_nsecs_to_float_vector(self.parser.durationVector2secsNsecsVector(t)))
-        print(t)
         fx = interp1d(t, x, fill_value="extrapolate")
         fy = interp1d(t, y, fill_value="extrapolate")
         fz = interp1d(t, z, fill_value="extrapolate")
@@ -213,7 +209,6 @@ class lfdNode():
         trajectory = []
         object_position = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
 
-        print(traj_msg)
         for i,pose in enumerate(traj_msg.poses):
             x = pose.position.x
             y = pose.position.y

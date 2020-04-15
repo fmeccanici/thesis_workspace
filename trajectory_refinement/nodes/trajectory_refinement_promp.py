@@ -312,7 +312,7 @@ class trajectoryRefinement():
             object_position = self.parser.get_object_position(traj)
             ee_position = list(vnew)
             t_list = [t]
-            
+
             # append refined trajectory
             if i <= len(traj_pos)-1:
                 ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
@@ -519,7 +519,7 @@ class trajectoryRefinement():
             
             # set object position
             object_position = Point()
-            object_position.x = 0.8
+            object_position.x = 0.78
             object_position.y = -0.0231
             object_position.z = 1
 

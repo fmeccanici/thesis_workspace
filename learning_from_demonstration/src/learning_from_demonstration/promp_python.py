@@ -124,7 +124,7 @@ class ProMPContext(object):
 
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
-            if self.joints[joint][0] == 'o':
+            if self.joints[joint][0] == 'j':
                 print("final context = " + str(stretched_demo[0]))
                 plt.plot(stretched_demo)
                 plt.xlabel('datapoint [-]')
@@ -162,7 +162,7 @@ class ProMPContext(object):
             # print(len(self.W[1]))
             self.meanW = np.mean(self.W, 0)
 
-        # plt.show()
+        plt.show()
 
         self.sigmaW = np.cov(self.W.T)
         
