@@ -1,14 +1,14 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.5
 
 # import external python packages
-import rospy, time, tf, os, thread, rospkg
+import rospy, time, os, rospkg
 import numpy as np
-
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+from pyquaternion import Quaternion
 
 # import ros messages
-from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse
+from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
 from learning_from_demonstration.msg import prompTraj
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from master_control.msg import ControlComm
@@ -21,6 +21,7 @@ from aruco_msgs.msg import MarkerArray
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
 from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 from learning_from_demonstration.dynamic_time_warping import DTW
+from learning_from_demonstration.trajectory_parser import trajectoryParser
 
 
 class trajectoryStorageVariables():
@@ -36,7 +37,21 @@ class trajectoryRefinement():
     def __init__(self):
         rospy.init_node("refinement_node")
         self.rospack = rospkg.RosPack()
+        
+        # initialize button parameters
+        self.grey_button = 0
+        self.grey_button_prev = 0
+        self.grey_button_toggle = 0
 
+        self.white_button = 0
+        self.white_button_prev = 0
+        self.white_button_toggle = 0
+
+        # initialize other parameters
+        self.base_frame = 'base_footprint'
+        self.object_marker_pose = Pose()
+        self.gripper_wrt_ee = Pose()
+        
         # get rosparameters specified in launch
         self._get_parameters()
 
@@ -55,25 +70,12 @@ class trajectoryRefinement():
         self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
         
         # initialize other classes
-        # self.visualizer = trajectoryVisualizer()
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
-        self.visualizer = TrajectoryVisualizer()
+        self.visualizer = trajectoryVisualizer()
         self.dtw = DTW()
 
-        # initialize button parameters
-        self.grey_button = 0
-        self.grey_button_prev = 0
-        self.grey_button_toggle = 0
 
-        self.white_button = 0
-        self.white_button_prev = 0
-        self.white_button_toggle = 0
-
-        # initialize other parameters
-        self.frame_id = '/base_footprint'
-        self.object_marker_pose = Pose()
-        self.gripper_wrt_ee = Pose()
     
         # calibrate master pose
         self.initMasterNormalizePose()
@@ -203,7 +205,7 @@ class trajectoryRefinement():
             slave_goal.pose.orientation.w = datapoint[6]
 
             slave_goal.header.seq = 0
-            slave_goal.header.frame_id = "/base_footprint"
+            slave_goal.header.frame_id = self.base_frame
 
             slave_goal.header.stamp = (rospy.Time.now())
             self.end_effector_goal_pub.publish(slave_goal)
@@ -229,8 +231,8 @@ class trajectoryRefinement():
 
         t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
 
-        t = list(self.parser.get_time_vector_secs_nsecs(self.parser.durationVector2secsNsecsVector(t)))
-        
+        t = list(self.parser.secs_nsecs_to_float_vector(self.parser.durationVector2secsNsecsVector(t)))
+        print(t)
         fx = interp1d(t, x, fill_value="extrapolate")
         fy = interp1d(t, y, fill_value="extrapolate")
         fz = interp1d(t, z, fill_value="extrapolate")
@@ -248,14 +250,13 @@ class trajectoryRefinement():
             slave_goal.pose.position.y = ynew[i]
             slave_goal.pose.position.z = znew[i]
 
-
-            slave_goal.pose.orientation.w = 0.00470101575578
-            slave_goal.pose.orientation.x = 0.994781110161
-            slave_goal.pose.orientation.y = 0.100705187531
-            slave_goal.pose.orientation.z = 0.0157133230571
+            slave_goal.pose.orientation.x = 0.980837824843
+            slave_goal.pose.orientation.y = -0.00365989846539
+            slave_goal.pose.orientation.z = -0.194791016723
+            slave_goal.pose.orientation.w = 0.000475714270521
 
             slave_goal.header.seq = 0
-            slave_goal.header.frame_id = "/base_footprint"
+            slave_goal.header.frame_id = self.base_frame
 
             slave_goal.header.stamp = (rospy.Time.now())
             self.end_effector_goal_pub.publish(slave_goal)
@@ -303,38 +304,48 @@ class trajectoryRefinement():
             p = list(pos_next_wrt_pos_current)
 
             q2 = list(pos_next_wrt_pos_current)
-            q2.append(0.0)
+            # q2.append(0.0)
             if i <= len(traj_pos)-1:
                 q1 = self.parser.getQuaternion(traj[i])
+                
             else: 
                 q1 = self.parser.getQuaternion(traj[-1])
 
             # f(p) = q*p*q^(-1) --> Rotate vector 
-            qv = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q2,q1), tf.transformations.quaternion_conjugate(q1))[:3]
-            # q = Quaternion([q1[3], q1[0], q1[1], q1[2]])
-            # p_wrt_base = q.rotate(-1*np.asarray(p))
+            # qv = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q2,q1), tf.transformations.quaternion_conjugate(q1))[:3]
+            q1 = Quaternion([q1[3], q1[0], q1[1], q1[2]])
+            # q2 = Quaternion([q2[3], q2[0], q2[1], q2[2]])
+
+            # qv = (q1 * q2) * q1.conjugate
+            # qv = [qv[1], qv[2], qv[3]]
+
+            p_wrt_base = q1.rotate(np.asarray(q2))
             
+            # qv = q1.rotate(p)
+
             # add position of traj[i] wrt base
             if i <= len(traj_pos)-1:
-                vnew = qv + traj_pos[i]
+                # vnew = qv + traj_pos[i]
                 # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[i]))
-                # print(vnew)
-            else:
-                vnew = qv + traj_pos[-1]
-                # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[-1]))
 
+                vnew = np.add(p, traj_pos[i])
+
+            else:
+                # vnew = qv + traj_pos[-1]
+                # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[-1]))
+                vnew = np.add(p, traj_pos[-1])
+
+            object_position = self.parser.get_object_position(traj)
+            ee_position = list(vnew)
+            t_list = [t]
             # append refined trajectory
             if i <= len(traj_pos)-1:
-                # refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
-                refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], rospy.Duration(t).secs,  rospy.Duration(t).nsecs])
-
-                # refined_traj.append(list(vnew) + [traj[i][3], traj[i][4], traj[i][5], traj[i][6], t])
-
+                ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
+                refined_traj.append(ee_position + ee_orientation + object_position + t_list)
             else:
-                # refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], rospy.Time.now().secs, rospy.Time.now().nsecs])
-                refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], rospy.Duration(t).secs, rospy.Duration(t).nsecs])
+                ee_orientation = [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6]]
 
-                # refined_traj.append(list(vnew) + [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6], t])
+                refined_traj.append(ee_position + ee_orientation + object_position + t_list)
             
 
             slave_goal.pose.position.x = refined_traj[i][0]
@@ -355,7 +366,7 @@ class trajectoryRefinement():
                 slave_goal.pose.orientation.z = traj[-1][5]
                 slave_goal.pose.orientation.w = traj[-1][6]
 
-            slave_goal.header.frame_id = self.frame_id
+            slave_goal.header.frame_id = self.base_frame
             slave_goal.header.stamp = rospy.Time.now()
 
             self.moveEEto(slave_goal)
@@ -370,13 +381,18 @@ class trajectoryRefinement():
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
     def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
-        qstart = refined_traj[0][3:7]
-        qend = refined_traj[-1][3:7]  
+        
+        # quaternions used for interpolation
+        qstart = pred_traj[0][3:7]
+        qend = pred_traj[-1][3:7]  
+        
+        # object position
+        object_position = pred_traj[0][7:10] 
+
         T_refined = self.parser.get_total_time(refined_traj)
         T_pred = self.parser.get_total_time(pred_traj)
 
         y_pred, y_ref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
-        
         y_refined_aligned, y_pred_aligned = self.dtw.apply_dtw(y_ref, y_pred)
 
 
@@ -402,21 +418,67 @@ class trajectoryRefinement():
         t_pred = np.linspace(0.0, T_pred, n)
 
         for i,q in enumerate(self.resampler.interpolate_quaternions(qstart, qend, n, False)):
-            refined_traj = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2], q[1], q[2], q[3], q[0], t_refined[i]] 
-            pred_traj = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2], q[1], q[2], q[3], q[0], t_pred[i]]
+            ref_pos = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2]]
+            ref_ori = [q[1], q[2], q[3], q[0]]
+            ref_t = [t_refined[i]]
+            refined_traj = ref_pos + ref_ori + object_position + ref_t
+
+            pred_pos = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2]]
+            pred_ori = [q[1], q[2], q[3], q[0]]
+            pred_t = [t_pred[i]]
+
+            pred_traj = pred_pos + pred_ori + object_position + pred_t
 
 
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
-            new_trajectory.append(list(np.add(np.asarray(pred_traj[0:3]), alpha * (np.subtract(np.asarray(refined_traj[0:3]), np.asarray(pred_traj[0:3])) ))) + refined_traj[3:])
+            new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
         
         dt_new = t_refined[1]
 
         return new_trajectory, dt_new
 
+    def set_object_position_client(self, object_position):
+        rospy.wait_for_service('set_object')
+        try:
+            set_object = rospy.ServiceProxy('set_object', SetObject)
+            resp = set_object(object_position)
+            return resp.success
+
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+    
+    def predicted_trajectory_to_prompTraj_message(self, traj):
+        t_list = []
+        message = prompTraj()
+        message.object_position.x = traj[0][7]
+        message.object_position.y = traj[0][8]
+        message.object_position.z = traj[0][9]
+
+        for data in traj:
+            # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
+            ee_pose = Pose()
+            ee_pose.position.x = data[0]
+            ee_pose.position.y = data[1]
+            ee_pose.position.z = data[2]
+            ee_pose.orientation.x = data[3]
+            ee_pose.orientation.y = data[4]
+            ee_pose.orientation.z = data[5]
+            ee_pose.orientation.w = data[6]
+
+            message.poses.append(ee_pose)
+            
+            t_float = data[-1]
+            # message.times.append([t_float])
+            t_list += [t_float]
+
+        message.times = t_list
+
+        return message
     def add_demonstration_client(self, demo):
         rospy.wait_for_service('add_demonstration')
         try:
             add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+            demo = self.predicted_trajectory_to_prompTraj_message(demo)
             resp = add_demonstration(demo)
             return resp.success
 
@@ -460,6 +522,7 @@ class trajectoryRefinement():
     def visualize_trajectory(self, traj, r, g, b):
         for i in range(50):
             self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
+    
     def clear_trajectories_rviz(self):
         empty_traj = np.zeros((1, 7))
         for i in range(10):
@@ -468,7 +531,8 @@ class trajectoryRefinement():
     def run(self):
         self.goToInitialPose()
         self.calibrate_master_pose_for_normalization()
-        
+        self.clear_trajectories_rviz()
+
         n_pred = 10
         n_exec = 100
 
@@ -478,6 +542,14 @@ class trajectoryRefinement():
         # refinement loop
         while not rospy.is_shutdown() and self.grey_button_toggle == 0:
             
+            # set object position
+            object_position = Point()
+            object_position.x = 0.8
+            object_position.y = -0.0231
+            object_position.z = 1
+
+            self.set_object_position_client(object_position)
+
             # if this is the first time we are running the loop, make prediction
             # else we keep refining the current prediction
 
@@ -517,9 +589,11 @@ class trajectoryRefinement():
             traj_refined_reversed = self.reverseTrajectory(traj_refined)
             self.executeTrajectory(traj_refined_reversed, dt_new)
 
-            if input("Satisfied with this trajectory? 1/0") == 1: 
+            if input("Satisfied with this trajectory? 1/0: ") == "1": 
                 rospy.loginfo("Adding trajectory to model...")
                 traj_add = self.resampler.interpolate_predicted_trajectory(traj_new, n_pred)
+
+                self.add_demonstration_client(traj_add)
 
                 # make trajectory relative
                 # traj_add_for_learning = self.parser.get_trajectory_wrt_object(traj_add)
@@ -530,7 +604,7 @@ class trajectoryRefinement():
                     prediction_resampled = traj_new
                 else: pass
             
-            self.clearTrajectoriesRviz()
+            self.clear_trajectories_rviz()
 
 if __name__ == "__main__":
     node = trajectoryRefinement()

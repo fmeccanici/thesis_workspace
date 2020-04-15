@@ -41,6 +41,9 @@ class trajectoryParser():
     
     def get_object_pose(self, raw_traj):
         return raw_traj[0][7:14]
+    
+    def get_object_position(self, traj):
+        return traj[0][7:10]
 
     def get_dt(self, raw_traj):
         return raw_traj[1][-1] - raw_traj[0][-1]

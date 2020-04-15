@@ -7,7 +7,7 @@ from geometry_msgs.msg import PoseStamped, Pose
 from aruco_msgs.msg import MarkerArray
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
-from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse
+from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
 from learning_from_demonstration.msg import prompTraj
 from std_msgs.msg import Bool
 
@@ -41,6 +41,9 @@ class lfdNode():
 
         # service for getting a generalization
         self._predict = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
+
+        # service to set aruco position
+        self._set_object = rospy.Service('set_object', SetObject, self._set_object_position)
 
         # initialize other classes
         self.lfd = learningFromDemonstration()
@@ -210,6 +213,7 @@ class lfdNode():
         trajectory = []
         object_position = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
 
+        print(traj_msg)
         for i,pose in enumerate(traj_msg.poses):
             x = pose.position.x
             y = pose.position.y
@@ -235,7 +239,10 @@ class lfdNode():
     def predicted_trajectory_to_prompTraj_message(self, traj):
         t_list = []
         message = prompTraj()
-        
+        message.object_position.x = traj[0][7]
+        message.object_position.y = traj[0][8]
+        message.object_position.z = traj[0][9]
+
         for data in traj:
             # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
             ee_pose = Pose()
@@ -248,9 +255,7 @@ class lfdNode():
             ee_pose.orientation.w = data[6]
 
             message.poses.append(ee_pose)
-            message.object_position.x = traj[0][7]
-            message.object_position.y = traj[0][8]
-            message.object_position.z = traj[0][9]
+
             
             t_float = data[-1]
             # message.times.append([t_float])
@@ -260,6 +265,21 @@ class lfdNode():
 
         return message
 
+    def _set_object_position(self, req):
+        print("Setting Aruco position using service...")
+        x = req.position.x
+        y = req.position.y
+        z = req.position.z
+
+        self.set_aruco_position(x, y, z)
+
+        response = SetObjectResponse()
+        suc = Bool()
+        suc.data = True
+        response.success = suc
+
+        return response
+        
     def _make_prediction(self, req):
         print("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
@@ -334,10 +354,12 @@ class lfdNode():
         return trajectory_wrt_base
 
     def run(self):
+        pass
+        # rospy.loginfo("LfD node running...")
         # self.goToInitialPose()
-        x = 0.8
-        y = -0.0231
-        self.set_aruco_position(x, y)
+        # x = 0.8
+        # y = -0.0231
+        # self.set_aruco_position(x, y)
 
         # if input("Is the object placed at the desired location? 1/0"):
         #     self.clear_trajectories_rviz()
@@ -361,7 +383,9 @@ if __name__ == "__main__":
     node = lfdNode()
     node.initialize_lfd_model()
     node.goToInitialPose()
-
+    
+    r = rospy.Rate(30)
     while not rospy.is_shutdown():
         node.run()
+        r.sleep()
     # except Exception as e: rospy.loginfo(e)
