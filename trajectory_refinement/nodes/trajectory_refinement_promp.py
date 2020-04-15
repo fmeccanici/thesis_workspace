@@ -303,41 +303,16 @@ class trajectoryRefinement():
             ## transform this pose to base_footprint
             p = list(pos_next_wrt_pos_current)
 
-            q2 = list(pos_next_wrt_pos_current)
-            # q2.append(0.0)
-            if i <= len(traj_pos)-1:
-                q1 = self.parser.getQuaternion(traj[i])
-                
-            else: 
-                q1 = self.parser.getQuaternion(traj[-1])
-
-            # f(p) = q*p*q^(-1) --> Rotate vector 
-            # qv = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(q2,q1), tf.transformations.quaternion_conjugate(q1))[:3]
-            q1 = Quaternion([q1[3], q1[0], q1[1], q1[2]])
-            # q2 = Quaternion([q2[3], q2[0], q2[1], q2[2]])
-
-            # qv = (q1 * q2) * q1.conjugate
-            # qv = [qv[1], qv[2], qv[3]]
-
-            p_wrt_base = q1.rotate(np.asarray(q2))
-            
-            # qv = q1.rotate(p)
-
             # add position of traj[i] wrt base
             if i <= len(traj_pos)-1:
-                # vnew = qv + traj_pos[i]
-                # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[i]))
-
                 vnew = np.add(p, traj_pos[i])
-
             else:
-                # vnew = qv + traj_pos[-1]
-                # vnew = np.add(np.asarray(p_wrt_base), np.asarray(traj_pos[-1]))
                 vnew = np.add(p, traj_pos[-1])
 
             object_position = self.parser.get_object_position(traj)
             ee_position = list(vnew)
             t_list = [t]
+            
             # append refined trajectory
             if i <= len(traj_pos)-1:
                 ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
