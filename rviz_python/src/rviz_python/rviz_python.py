@@ -38,6 +38,7 @@ class rvizPython( QWidget ):
         ## VisualizationFrame reads its data from the config object.
         reader = rviz.YamlConfigReader()
         config = rviz.Config()
+        
         reader.readFile( config, "config.myviz" )
         self.frame.load( config )
 
