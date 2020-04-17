@@ -273,8 +273,8 @@ class lfdNode():
         suc.data = True
         response.success = suc
 
-        return response
-        
+        return response        
+    
     def _make_prediction(self, req):
         print("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
@@ -292,7 +292,6 @@ class lfdNode():
     def _add_demonstration(self, req):
         print("Adding demonstration using service...")
 
-        # print(req)
         trajectory = self.prompTrajMessage_to_correct_format(req.demo)
 
         self.lfd.add_trajectory_to_promp_model(trajectory)
@@ -343,6 +342,7 @@ class lfdNode():
         plt.xlabel("datapoints [-]")
         plt.ylabel("position [m]")
         plt.title("Final executed predicted trajectory")
+        plt.grid()
         plt.legend()
 
         plt.show()
@@ -350,16 +350,21 @@ class lfdNode():
 
     def run(self):
         pass
-        # rospy.loginfo("LfD node running...")
         # self.goToInitialPose()
-        # x = 0.8
+        # x = float(input("x: "))
+
+        # # x = 0.94
         # y = -0.0231
         # self.set_aruco_position(x, y)
 
-        # if input("Is the object placed at the desired location? 1/0"):
+        # if input("Is the object placed at the desired location? 1/0") == "0":
+        #     x = float(input("x: "))
+        # else:
         #     self.clear_trajectories_rviz()
 
         #     print("Making prediction...")
+        #     # self.lfd.promp_model.plot_conditioned_joints()
+
         #     traj_pred = self.predict()
 
         #     n = 100

@@ -1,7 +1,7 @@
 
 <launch>
 
-    <arg name="raw_folder" default="complete_model"/>
+    <arg name="raw_folder" default="one_plane"/>
     <arg name="gripper_joint_value" default="1.0"/>
     
     <include file="$(find trajectory_visualizer)/launch/trajectory_visualizer.launch"/> 

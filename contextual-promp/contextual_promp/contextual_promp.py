@@ -1,11 +1,7 @@
-#!/usr/bin/env python3.5
-
 import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from numpy.linalg import inv
-# import padasip as pa
-from welford.welford import *
 
 class ProMPContext(object):
     def __init__(self, joints, num_basis=20, sigma=0.1, num_points=1750):
@@ -37,82 +33,6 @@ class ProMPContext(object):
         self.Y = []
         self.sample = []
 
-    def init_welford(self):
-        self.welford = Welford(self.nrTraj, self.meanW, self.sigmaW)
-
-    def add_demonstration_welford(self, demonstration):
-        self.nrTraj += 1
-        
-
-        currentY = []
-        currentW = []
-
-        for joint in range(0, self.num_joints):
-            interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
-            stretched_demo = interpolate(self.z)
-            if self.joints[joint][0] == 'j':
-                plt.plot(stretched_demo)
-            currentY.append(stretched_demo)
-
-            # Psi^T * Psi 
-            aux = np.dot(self.phi, self.phi.T)
-
-            # linear least squares  
-            # w = ( Psi^T * Psi )^-1 * Psi^T * tau
-            currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
-            currentW = np.append(currentW, currentJointW)
-            
-
-        if self.no_traj:
-            self.Y = np.array(currentY)
-            self.W = currentW
-            self.no_traj = False
-            self.meanW = self.W
-        else:
-            self.W = np.vstack((self.W, currentW.T))
-            self.meanW, self.SigmaW = self.welford.update(currentW.T)
-        
-    # def rls_update(self, demonstration)
-    #     currentY = []
-    #     currentW = []
-    #     for joint in range(0, self.num_joints):
-    #         # interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
-    #         # stretched_demo = interpolate(self.z)
-    #         currentY.append(demonstration)
-            
-    #         rls = pa.filters.FilterRLS(n=self.num_points, mu=0.99, w=self.W)
-
-
-    #         # Psi^T * Psi 
-    #         aux = np.dot(self.phi, self.phi.T)
-
-    #         # linear least squares  
-    #         # w = ( Psi^T * Psi )^-1 * Psi^T * tau
-    #         currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
-    #         currentW = np.append(currentW, currentJointW)
-
-    #         ####### recursive least squares
-    #         # n = len(self.joints)
-            
-    #         # # learning rate
-    #         # mu = 0.9
-
-    #         # d = np.dot(self.phi, currentJointW)
-    #         # f = pa.filters.FilterRLS(n=n, mu=mu)
-    #         # y, e, currentJointW = f.run()
-    #         #######
-    #     if self.no_traj:
-    #         self.Y = np.array(currentY)
-    #         self.W = currentW
-    #         self.no_traj = False
-    #         self.meanW = self.W
-    #     else:
-    #         self.Y = np.vstack((self.Y, np.array(currentY)))
-    #         self.W = np.vstack((self.W, currentW.T))
-    #         self.meanW = np.mean(self.W, 0)
-
-    #     self.sigmaW = np.cov(self.W.T)
-
     def add_demonstration(self, demonstration):
         self.nrTraj += 1
         currentY = []
@@ -120,37 +40,21 @@ class ProMPContext(object):
 
         for joint in range(0, self.num_joints):
 
+
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
+            
             stretched_demo = interpolate(self.z)
-            if self.joints[joint][0] == 'o':
-                print("final context = " + str(stretched_demo[0]))
-                plt.plot(stretched_demo)
-                plt.xlabel('datapoint [-]')
-                plt.ylabel('position [m]')
-                plt.title("Final inputs to model")
-            if self.joints[joint][0] == 'j':
-                plt.plot(stretched_demo)
-
             currentY.append(stretched_demo)
-            # Psi^T * Psi 
+            
+            """
+            plt.plot(stretched_demo)
+            plt.title("Stretched demo")
+            """
+            
             aux = np.dot(self.phi, self.phi.T)
-
-            # linear least squares  
-            # w = ( Psi^T * Psi )^-1 * Psi^T * tau
             currentJointW = np.dot(np.linalg.inv(aux + np.eye(aux.shape[1])*1e-6), np.dot(self.phi, np.array(stretched_demo).T))
-            # print(len(currentW))
             currentW = np.append(currentW, currentJointW)
 
-            ####### recursive least squares
-            # n = len(self.joints)
-            
-            # # learning rate
-            # mu = 0.9
-
-            # d = np.dot(self.phi, currentJointW)
-            # f = pa.filters.FilterRLS(n=n, mu=mu)
-            # y, e, currentJointW = f.run()
-            #######
         if self.no_traj:
             self.Y = np.array(currentY)
             self.W = currentW
@@ -159,17 +63,9 @@ class ProMPContext(object):
         else:
             self.Y = np.vstack((self.Y, np.array(currentY)))
             self.W = np.vstack((self.W, currentW.T))
-            # print(len(self.W[1]))
             self.meanW = np.mean(self.W, 0)
 
-        # plt.show()
-
         self.sigmaW = np.cov(self.W.T)
-        
-        # try:
-        #     print(str(self.nrTraj) + ' ' + str(len(self.sigmaW[0]) + len(self.sigmaW[1])))
-        # except:
-        #     pass
 
     def get_trajectory_fromweights(self, weights):
         aux = np.dot(self.Phi.T, weights)
@@ -185,44 +81,29 @@ class ProMPContext(object):
 
         plt.figure(figsize=(6, 4))
         for joint_id, joint_name in enumerate(self.joints):
-        # for joint_id, joint_name in enumerate(self.joints[0:3] + self.joints[7:10] ):
-            if ('ee' in joint_name and not 'q' in joint_name) or 'dt' in joint_name:
+            if 'output' in joint_name:
                 plt.plot(np.arange(0, len(sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
                          self.num_points, sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], label=joint_name)
-                
-                # draw std
-                plt.fill_between(np.arange(0, len(sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
-                    self.num_points, sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0] -
-                    std[joint_id*self.num_points:(joint_id+1)*self.num_points],
-                        sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0] +
-                    std[joint_id*self.num_points:(joint_id+1)*self.num_points],
-                        alpha=0.2)
-
-            elif 'q' in joint_name:
-                # dont plot orientation
-                pass
-            elif 'object' in joint_name:
+            else:
                 plt.plot(np.arange(0, len(sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
                          self.num_points, sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], '-.', label=joint_name)
-                
-                # draw std            
-                plt.fill_between(np.arange(0, len(sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
+
+                         
+            plt.fill_between(np.arange(0, len(sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
                              self.num_points, sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0] -
                              std[joint_id*self.num_points:(joint_id+1)*self.num_points],
                                  sample[joint_id*self.num_points:(joint_id+1)*self.num_points, 0] +
                              std[joint_id*self.num_points:(joint_id+1)*self.num_points],
                                  alpha=0.2)
-
         plt.xlabel('t [s]')
-        plt.ylabel('position [m]')
-        plt.title("Unconditioned joints")
+        plt.ylabel('joint position [rad]')
+        # plt.title('Unconditioned joints')
+        plt.title('Mean and standard deviation')
+
         plt.grid()
 
-        # plt.title('Mean and variance')
-        # plt.title('Model Welford')
-
         plt.legend()
-        
+
     def generate_trajectory(self, sigma=1e-6):
         newMu = self.meanW
         newSigma = self.sigmaW
@@ -294,14 +175,10 @@ class ProMPContext(object):
         generated = self.generate_trajectory()
         plt.figure(figsize=(6, 4))
         for joint_id, joint_name in enumerate(self.joints):
-            if ('ee' in joint_name and not 'q' in joint_name) or 'dt' in joint_name:
+            if 'joint' in joint_name:
                 plt.plot(np.arange(0, len(generated[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
                          self.num_points, generated[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], label=joint_name)
-            
-            elif 'q' in joint_name:
-                # dont plot orientation
-                pass
-            elif 'object' in joint_name:
+            else:
                 plt.plot(np.arange(0, len(generated[joint_id*self.num_points:(joint_id+1)*self.num_points, 0])) /
                          self.num_points, generated[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], '-.', label=joint_name)
         plt.xlabel('t [s]')

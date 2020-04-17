@@ -153,7 +153,7 @@ class learningFromDemonstration():
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
         # if name is different, then it won't plot them
-        self.variables = ["joint_x", "joint_y","joint_z", "joint_qx", "joint_qy", "joint_qz", "joint_qw", "object_x", "object_y", "object_z", "joint_dt" ]
+        self.variables = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "object_x", "object_y", "object_z", "dt" ]
         
         # how to select the number of points??
         # if other trajectories are added to the model
@@ -238,6 +238,7 @@ class learningFromDemonstration():
 
         # set goal context
         goal[7:10] = context
+        print("goal = " + str(goal))
         self.promp_model.set_goal(goal)
 
         
@@ -246,10 +247,15 @@ class learningFromDemonstration():
         
         # generate trajectory using ProMP package
         generated_trajectory = self.promp_model.generate_trajectory(sigma_noise)
+        
         plt.figure()
+        self.promp_model.plot_unconditioned_joints()
+        self.promp_model.plot_conditioned_joints()
+        # plt.figure()
         # for joint_id, joint_name in enumerate(self.variables):
         #     print(joint_id)
         #     plt.plot(generated_trajectory[joint_id*self.num_points:(joint_id+1)*self.num_points, 0], label=joint_name)
+        #     plt.title('Conditioned joints')
         # plt.legend()
         
         # convert trajectory to correct format
