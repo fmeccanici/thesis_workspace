@@ -366,33 +366,33 @@ class lfdNode():
         return trajectory_wrt_base
 
     def run(self):
-        pass
-        # self.goToInitialPose()
-        # x = float(input("x: "))
+        # pass
+        self.goToInitialPose()
+        x = float(input("x: "))
 
-        # # x = 0.94
-        # y = -0.0231
-        # self.set_aruco_position(x, y)
+        # x = 0.94
+        y = -0.0231
+        self.set_aruco_position(x, y)
 
-        # if input("Is the object placed at the desired location? 1/0") == "0":
-        #     x = float(input("x: "))
-        # else:
-        #     self.clear_trajectories_rviz()
+        if input("Is the object placed at the desired location? 1/0") == "0":
+            x = float(input("x: "))
+        else:
+            # self.clear_trajectories_rviz()
 
-        #     print("Making prediction...")
-        #     # self.lfd.promp_model.plot_conditioned_joints()
+            print("Making prediction...")
+            # self.lfd.promp_model.plot_conditioned_joints()
 
-        #     traj_pred = self.predict()
+            traj_pred = self.predict()
 
-        #     n = 100
-        #     traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
+            n = 100
+            traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
             
-        #     self.visualize_trajectory(traj_pred, 1, 0, 0)
-        #     self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
+            # self.visualize_trajectory(traj_pred, 1, 0, 0)
+            # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
-        #     # dt = 0.1
-        #     self.executeTrajectory(traj_pred_resampled, dt)
-        #     time.sleep(5)
+            # dt = 0.1
+            self.executeTrajectory(traj_pred_resampled, dt)
+            time.sleep(5)
         
 
             

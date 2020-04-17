@@ -235,7 +235,12 @@ class experimentGUI(QMainWindow):
         try:
             visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
             visualization_msg = TrajectoryVisualization()
-            visualization_msg.pose_array = self.prediction
+            try:
+                visualization_msg.pose_array = self.prediction
+            
+            except AttributeError:
+                rospy.loginfo("No prediction made yet!")
+            
             visualization_msg.r = 1.0
             visualization_msg.g = 0.0
             visualization_msg.b = 0.0
