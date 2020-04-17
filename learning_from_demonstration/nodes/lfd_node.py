@@ -7,7 +7,10 @@ from geometry_msgs.msg import PoseStamped, Pose
 from aruco_msgs.msg import MarkerArray
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
-from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
+from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction,
+                                            MakePredictionResponse, SetObject, SetObjectResponse,
+                                            GetContext, GetContextResponse)
+
 from learning_from_demonstration.msg import prompTraj
 from std_msgs.msg import Bool
 
@@ -21,6 +24,10 @@ from learning_from_demonstration.trajectory_resampler import trajectoryResampler
 from scipy.interpolate import interp1d
 import numpy as np
 import time
+import matplotlib
+
+# use agg to avoid gui from over his nek gaan 
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 class lfdNode():
@@ -40,7 +47,8 @@ class lfdNode():
         self._add_demo_service = rospy.Service('add_demonstration', AddDemonstration, self._add_demonstration)
         self._predict = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
         self._set_object = rospy.Service('set_object', SetObject, self._set_object_position)
-
+        self._get_context = rospy.Service('get_context', GetContext, self._get_context_marker)
+        
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -50,6 +58,7 @@ class lfdNode():
         # initialize class variables
         self.marker_pose = Pose()
         self.add_demo_success = Bool()
+
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
@@ -275,8 +284,16 @@ class lfdNode():
 
         return response        
     
+    def _get_context_marker(self, req):
+        rospy.loginfo("Get context service...")
+
+        response = GetContextResponse()
+        response.context = self.marker_pose.position
+
+        return response
+
     def _make_prediction(self, req):
-        print("Making prediction using service...")
+        rospy.loginfo("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
 
         prediction = self.lfd.generalize(goal)

@@ -19,6 +19,7 @@ add_message_files(
     AddDemonstration.srv
     MakePrediction.srv
     SetObject.srv
+    GetContext.srv
   )
 catkin_python_setup()
 

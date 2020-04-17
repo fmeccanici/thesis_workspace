@@ -1,7 +1,8 @@
 import roslib; roslib.load_manifest('rviz_python_tutorial')
 import sys
-from python_qt_binding.QtGui import *
-from python_qt_binding.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 import rviz
 
 class rvizPython( QWidget ):

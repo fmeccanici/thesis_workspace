@@ -19,7 +19,7 @@ class trajectoryVisualizer():
                         z = positions[2])
         return point
 
-    def trajectory2markerArray(self, traj, r, g, b):
+    def trajectory2markerArray(self, traj, r, g, b, action=Marker.ADD):
         marker_array = []
         for i,positions in enumerate(traj):
             point = self.positions2pointMessage(positions)
@@ -32,14 +32,15 @@ class trajectoryVisualizer():
                                             scale=Vector3(0.02,0.02,0.02),
                                             id=i,
                                             color=ColorRGBA(r=r, g=g, b=b, a=1),
-                                            action=Marker.ADD)
+                                            action=action)
             marker_array.append(marker)
 
         return marker_array
 
+
     def VisMsgToTraj(self, vis_msg):
         traj = []
-        for pose in vis_msg.pose_array.poses:
+        for pose in vis_msg.pose_array:
             traj.append([pose.position.x, pose.position.y, pose.position.z, pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w ])
         
         return traj
