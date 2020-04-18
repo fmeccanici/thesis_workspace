@@ -30,6 +30,7 @@ class MyWindow(QMainWindow):
         print("clicked") # we will just print clicked when the button is pressed
         self.label.setText("you pressed the button")
         self.update()
+        
     def update(self):
         self.label.adjustSize()
 def window():

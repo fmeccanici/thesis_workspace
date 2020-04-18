@@ -34,141 +34,124 @@ class experimentGUI(QMainWindow):
 
     def initGUI(self):
         self.setObjectName("Online teaching GUI")
-        self.resize(800, 600)
-
+        self.resize(1680, 1050)
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
+        self.groupBox_2 = QGroupBox(self.centralwidget)
+        self.groupBox_2.setGeometry(QRect(660, 700, 161, 159))
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.pushButton_2 = QPushButton(self.groupBox_2)
+        self.pushButton_2.setGeometry(QRect(1, 64, 88, 27))
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton = QPushButton(self.groupBox_2)
+        self.pushButton.setGeometry(QRect(1, 31, 90, 27))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton_6 = QPushButton(self.groupBox_2)
+        self.pushButton_6.setGeometry(QRect(1, 97, 150, 27))
+        self.pushButton_6.setObjectName("pushButton_6")
+        self.groupBox_3 = QGroupBox(self.centralwidget)
+        self.groupBox_3.setGeometry(QRect(820, 700, 491, 159))
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.pushButton_7 = QPushButton(self.groupBox_3)
+        self.pushButton_7.setGeometry(QRect(150, 20, 99, 27))
+        self.pushButton_7.setObjectName("pushButton_7")
+        self.pushButton_4 = QPushButton(self.groupBox_3)
+        self.pushButton_4.setGeometry(QRect(18, 59, 88, 27))
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_3 = QPushButton(self.groupBox_3)
+        self.pushButton_3.setGeometry(QRect(18, 26, 90, 27))
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.label_5 = QLabel(self.groupBox_3)
+        self.label_5.setGeometry(QRect(114, 59, 16, 17))
+        self.label_5.setObjectName("label_5")
+        self.lineEdit_5 = QLineEdit(self.groupBox_3)
+        self.lineEdit_5.setGeometry(QRect(135, 59, 146, 27))
+        self.lineEdit_5.setObjectName("lineEdit_5")
+        self.label_4 = QLabel(self.groupBox_3)
+        self.label_4.setGeometry(QRect(114, 92, 16, 17))
+        self.label_4.setObjectName("label_4")
+        self.lineEdit_6 = QLineEdit(self.groupBox_3)
+        self.lineEdit_6.setGeometry(QRect(135, 92, 146, 27))
+        self.lineEdit_6.setObjectName("lineEdit_6")
+        self.label_6 = QLabel(self.groupBox_3)
+        self.label_6.setGeometry(QRect(114, 125, 16, 17))
+        self.label_6.setObjectName("label_6")
+        self.lineEdit_4 = QLineEdit(self.groupBox_3)
+        self.lineEdit_4.setGeometry(QRect(135, 125, 146, 27))
+        self.lineEdit_4.setObjectName("lineEdit_4")
+        self.pushButton_5 = QPushButton(self.groupBox_3)
+        self.pushButton_5.setGeometry(QRect(340, 26, 85, 27))
+        self.pushButton_5.setObjectName("pushButton_5")
+        self.pushButton_8 = QPushButton(self.groupBox_3)
+        self.pushButton_8.setGeometry(QRect(340, 59, 152, 27))
+        self.pushButton_8.setObjectName("pushButton_8")
+        self.pushButton_9 = QPushButton(self.groupBox_3)
+        self.pushButton_9.setGeometry(QRect(340, 92, 148, 27))
+        self.pushButton_9.setObjectName("pushButton_9")
+        self.pushButton_4.raise_()
+        self.pushButton_3.raise_()
+        self.label_5.raise_()
+        self.lineEdit_5.raise_()
+        self.label_4.raise_()
+        self.lineEdit_6.raise_()
+        self.label_6.raise_()
+        self.lineEdit_4.raise_()
+        self.pushButton_7.raise_()
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(-10, 10, 221, 162))
+        self.groupBox.setGeometry(QRect(340, 700, 231, 161))
         self.groupBox.setObjectName("groupBox")
-        self.gridLayout = QGridLayout(self.groupBox)
-        self.gridLayout.setObjectName("gridLayout")
+        self.buttonBox = QDialogButtonBox(self.groupBox)
+        self.buttonBox.setGeometry(QRect(17, 124, 176, 27))
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
         self.label = QLabel(self.groupBox)
+        self.label.setGeometry(QRect(18, 26, 16, 17))
         self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-
-        self.rviz_widget = rvizPython()
-
-        self.rviz_groupbox = QGroupBox(self.rviz_widget)
-
-        self.gridLayout_rviz = QGridLayout(self.rviz_groupbox)
-        # self.gridLayout.addWidget(self.rviz_widget, 0, 0, 5, 5)
-
-        # .addWidget(self.rviz, 0, 0 , 2, 2)
-
         self.lineEdit = QLineEdit(self.groupBox)
+        self.lineEdit.setGeometry(QRect(39, 26, 146, 27))
         self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout.addWidget(self.lineEdit, 0, 1, 1, 1)
         self.label_2 = QLabel(self.groupBox)
+        self.label_2.setGeometry(QRect(18, 59, 16, 17))
         self.label_2.setObjectName("label_2")
-        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
         self.lineEdit_2 = QLineEdit(self.groupBox)
+        self.lineEdit_2.setGeometry(QRect(39, 59, 146, 27))
         self.lineEdit_2.setObjectName("lineEdit_2")
-
-        self.gridLayout.addWidget(self.lineEdit_2, 1, 1, 1, 1)
         self.label_3 = QLabel(self.groupBox)
+        self.label_3.setGeometry(QRect(18, 92, 16, 17))
         self.label_3.setObjectName("label_3")
-        self.gridLayout.addWidget(self.label_3, 2, 0, 1, 1)
         self.lineEdit_3 = QLineEdit(self.groupBox)
+        self.lineEdit_3.setGeometry(QRect(39, 92, 146, 27))
         self.lineEdit_3.setObjectName("lineEdit_3")
 
         self.lineEdit.setText("0.8")
         self.lineEdit_2.setText("0.0")
         self.lineEdit_3.setText("0.9")
 
-        self.gridLayout.addWidget(self.lineEdit_3, 2, 1, 1, 1)
-        self.buttonBox = QDialogButtonBox(self.groupBox)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
-        self.gridLayout.addWidget(self.buttonBox, 3, 0, 1, 2)
-        self.buttonBox.raise_()
+
         self.label.raise_()
-        self.label_2.raise_()
-        self.label_3.raise_()
         self.lineEdit.raise_()
-        self.lineEdit_2.raise_()
-        self.lineEdit_3.raise_()
-        self.lineEdit_2.raise_()
-        self.lineEdit_3.raise_()
         self.label_2.raise_()
-        self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(10, 400, 272, 96))
-        self.groupBox_2.setObjectName("groupBox_2")
-        self.gridLayout_3 = QGridLayout(self.groupBox_2)
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.pushButton_2 = QPushButton(self.groupBox_2)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.gridLayout_3.addWidget(self.pushButton_2, 1, 0, 1, 1)
-        self.pushButton = QPushButton(self.groupBox_2)
-        self.pushButton.setObjectName("pushButton")
-        self.gridLayout_3.addWidget(self.pushButton, 0, 0, 1, 1)
-        self.pushButton_6 = QPushButton(self.groupBox_2)
-        self.pushButton_6.setObjectName("pushButton_6")
-        self.gridLayout_3.addWidget(self.pushButton_6, 0, 1, 1, 1)
-        self.pushButton.raise_()
-        self.pushButton_2.raise_()
-        self.pushButton_6.raise_()
-        self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(10, 190, 551, 162))
-        self.groupBox_3.setObjectName("groupBox_3")
-        self.gridLayout_2 = QGridLayout(self.groupBox_3)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.pushButton_3 = QPushButton(self.groupBox_3)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.gridLayout_2.addWidget(self.pushButton_3, 0, 0, 1, 1)
-        self.pushButton_7 = QPushButton(self.groupBox_3)
-        self.pushButton_7.setObjectName("pushButton_7")
-        self.gridLayout_2.addWidget(self.pushButton_7, 0, 1, 1, 2)
-        self.pushButton_5 = QPushButton(self.groupBox_3)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.gridLayout_2.addWidget(self.pushButton_5, 0, 3, 1, 1)
-        self.pushButton_4 = QPushButton(self.groupBox_3)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.gridLayout_2.addWidget(self.pushButton_4, 1, 0, 1, 1)
-        self.label_5 = QLabel(self.groupBox_3)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 1, 1, 1, 1)
-        self.lineEdit_5 = QLineEdit(self.groupBox_3)
-        self.lineEdit_5.setObjectName("lineEdit_5")
-        self.gridLayout_2.addWidget(self.lineEdit_5, 1, 2, 1, 1)
-        self.pushButton_8 = QPushButton(self.groupBox_3)
-        self.pushButton_8.setObjectName("pushButton_8")
-        self.gridLayout_2.addWidget(self.pushButton_8, 1, 3, 1, 1)
-        self.label_4 = QLabel(self.groupBox_3)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout_2.addWidget(self.label_4, 2, 1, 1, 1)
-        self.lineEdit_6 = QLineEdit(self.groupBox_3)
-        self.lineEdit_6.setObjectName("lineEdit_6")
-        self.gridLayout_2.addWidget(self.lineEdit_6, 2, 2, 1, 1)
-        self.pushButton_9 = QPushButton(self.groupBox_3)
-        self.pushButton_9.setObjectName("pushButton_9")
-        self.gridLayout_2.addWidget(self.pushButton_9, 2, 3, 2, 1)
-        self.label_6 = QLabel(self.groupBox_3)
-        self.label_6.setObjectName("label_6")
-        self.gridLayout_2.addWidget(self.label_6, 3, 1, 1, 1)
-        self.lineEdit_4 = QLineEdit(self.groupBox_3)
-        self.lineEdit_4.setObjectName("lineEdit_4")
-        self.gridLayout_2.addWidget(self.lineEdit_4, 3, 2, 1, 1)
-        self.pushButton_3.raise_()
-        self.pushButton_4.raise_()
-        self.pushButton_5.raise_()
-        self.pushButton_7.raise_()
-        self.label_4.raise_()
-        self.label_5.raise_()
-        self.lineEdit_4.raise_()
-        self.label_6.raise_()
-        self.lineEdit_5.raise_()
-        self.lineEdit_6.raise_()
-        self.pushButton_8.raise_()
-        self.pushButton_9.raise_()
-        self.groupBox.raise_()
-        self.groupBox.raise_()
+        self.lineEdit_2.raise_()
+        self.label_3.raise_()
+        self.lineEdit_3.raise_()
+        self.buttonBox.raise_()
+        self.groupBox_4 = QGroupBox(self.centralwidget)
+        self.groupBox_4.setGeometry(QRect(10, 10, 1661, 671))
+        self.groupBox_4.setObjectName("groupBox_4")
+
+        self.rviz_widget = rvizPython()
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.groupBox_4.setLayout(self.horizontalLayout_6)
+        self.horizontalLayout_6.addWidget(self.rviz_widget)
+
+        self.groupBox_2.raise_()
         self.groupBox_2.raise_()
         self.groupBox_3.raise_()
-        self.pushButton_6.raise_()
+        self.groupBox.raise_()
+        self.groupBox_4.raise_()
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 800, 25))
+        self.menubar.setGeometry(QRect(0, 0, 1680, 25))
         self.menubar.setObjectName("menubar")
         self.menuOnline_teaching_GUI = QMenu(self.menubar)
         self.menuOnline_teaching_GUI.setObjectName("menuOnline_teaching_GUI")
@@ -203,36 +186,39 @@ class experimentGUI(QMainWindow):
             rospy.loginfo( ("LfD node not launched yet") )
 
 
-    def set_object_position(self):
+    def on_set_object_position_click(self):
         object_position = Point()
         object_position.x = float(self.lineEdit.text())
         object_position.y = float(self.lineEdit_2.text())
         object_position.z = float(self.lineEdit_3.text())
 
-        rospy.wait_for_service('set_object')
         try:
+            rospy.wait_for_service('set_object', timeout=2.0)
+
             set_object = rospy.ServiceProxy('set_object', SetObject)
             resp = set_object(object_position)
             return resp.success
 
-        except rospy.ServiceException as e:
+        except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
 
-    def clear_trajectories(self):
-        rospy.wait_for_service('clear_trajectories')
+    def on_clear_trajectories_click(self):
         try:
+            rospy.wait_for_service('clear_trajectories', timeout=2.0)
+
             clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
 
             resp = clear_trajectories()
         
-        except rospy.ServiceException as e:
+        except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
-    def visualize_prediction(self):
+    def on_visualize_prediction_click(self):
 
         # visualize trajectory
-        rospy.wait_for_service('visualize_trajectory')
         try:
+            rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+
             visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
             visualization_msg = TrajectoryVisualization()
             try:
@@ -247,12 +233,13 @@ class experimentGUI(QMainWindow):
 
             resp = visualize_trajectory(visualization_msg)
         
-        except rospy.ServiceException as e:
+        except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
     
-    def get_context(self):
-        rospy.wait_for_service('get_context')
+    def on_get_context_click(self):
         try:
+            rospy.wait_for_service('get_context', timeout=2.0)
+
             get_context = rospy.ServiceProxy('get_context', GetContext)
             resp = get_context()
             self.context = resp.context
@@ -260,26 +247,31 @@ class experimentGUI(QMainWindow):
             self.lineEdit_5.setText(str(round(self.context.y, 2)))
             self.lineEdit_4.setText(str(round(self.context.z, 2)))
 
-        except rospy.ServiceException as e:
+        except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)       
 
-    def predict(self):
+    def on_predict_click(self):
         # make prediction using this context
-        rospy.wait_for_service('make_prediction')
 
         try:
-            make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
-            resp = make_prediction(self.context)
-            self.prediction = resp.prediction.poses
+            rospy.wait_for_service('make_prediction', timeout=2.0)
 
-        except rospy.ServiceException as e:
+            make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
+            try:
+                resp = make_prediction(self.context)
+                self.prediction = resp.prediction.poses
+            except AttributeError:
+                rospy.loginfo("Context not yet extracted!")
+        except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
+    # old/depricated
     def generalize(self):
         rospy.loginfo("CHECK")
         # get context 
-        rospy.wait_for_service('get_context')
+        
         try:
+            rospy.wait_for_service('get_context', timeout=2.0)
             get_context = rospy.ServiceProxy('get_context', GetContext)
             resp = get_context()
             self.context = resp.context
@@ -289,7 +281,7 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)
 
         # make prediction using this context
-        rospy.wait_for_service('make_prediction')
+        rospy.wait_for_service('make_prediction', timeout=2.0)
 
         try:
             make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
@@ -300,7 +292,7 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)
 
         # visualize trajectory
-        rospy.wait_for_service('visualize_trajectory')
+        rospy.wait_for_service('visualize_trajectory', timeout=2.0)
         try:
             visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
             visualization_msg = TrajectoryVisualization()
@@ -319,7 +311,7 @@ class experimentGUI(QMainWindow):
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox.setTitle(_translate("MainWindow", "Object position Gazebo"))
 
-        self.buttonBox.accepted.connect(self.set_object_position)
+        self.buttonBox.accepted.connect(self.on_set_object_position_click)
 
         self.label.setText(_translate("MainWindow", "x: "))
         self.label_2.setText(_translate("MainWindow", "y: "))
@@ -340,19 +332,19 @@ class experimentGUI(QMainWindow):
         self.pushButton_4.clicked.connect(self.stop_lfd_node)
 
         self.pushButton_5.setText(_translate("MainWindow", "Predict"))
-        self.pushButton_5.clicked.connect(self.predict)
+        self.pushButton_5.clicked.connect(self.on_predict_click)
 
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
-        self.pushButton_7.clicked.connect(self.get_context)
+        self.pushButton_7.clicked.connect(self.on_get_context_click)
 
         self.label_4.setText(_translate("MainWindow", "y: "))
         self.label_5.setText(_translate("MainWindow", "x: "))
         self.label_6.setText(_translate("MainWindow", "z: "))
         self.pushButton_8.setText(_translate("MainWindow", "Visualize prediction"))
-        self.pushButton_8.clicked.connect(self.visualize_prediction)
+        self.pushButton_8.clicked.connect(self.on_visualize_prediction_click)
 
         self.pushButton_9.setText(_translate("MainWindow", "Clear visualizations"))
-        self.pushButton_9.clicked.connect(self.clear_trajectories)
+        self.pushButton_9.clicked.connect(self.on_clear_trajectories_click)
 
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
 

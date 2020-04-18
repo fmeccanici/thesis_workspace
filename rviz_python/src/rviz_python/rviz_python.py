@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import rviz
+import rviz, os, rospkg
 
 class rvizPython( QWidget ):
     ## MyViz Constructor
@@ -38,8 +38,10 @@ class rvizPython( QWidget ):
         ## VisualizationFrame reads its data from the config object.
         reader = rviz.YamlConfigReader()
         config = rviz.Config()
-        
-        reader.readFile( config, "config.myviz" )
+        # config_file = os.path.abspath("gui.rviz")
+        _rospack = rospkg.RosPack()
+        config_file = _rospack.get_path('gui') + "/gui.rviz"
+        reader.readFile( config, config_file )
         self.frame.load( config )
 
         ## You can also store any other application data you like in
