@@ -15,10 +15,10 @@ cmap = get_cmap(num_traj)
 sigma_noise=0.03
 x = np.arange(0,1,0.01)
 
-joint_names = ['output', 'context']
+joint_names = ['output1', 'context1', 'context2','context3']
 
 num_samples = len(x)
-pmp = ProMPContext(joint_names, num_samples=num_samples)
+pmp = ProMPContext(joint_names, num_samples=num_samples,num_basis=20)
 
 samples = []
 
@@ -100,14 +100,19 @@ goal = np.zeros(len(joint_names))
 context = 1.0
 pred = pmp.generate_trajectory(context)
 
+print(pred)
 plt.figure()
-plt.plot(x, [y[1] for y in pred], '-.', color='blue')    
-plt.plot(x, [y[0] for y in pred], color='orange')    
+plt.plot(x, [y for y in pred], color='blue')    
+plt.plot(x, np.ones(pred.shape) * context, '-.',  color='orange')    
+plt.title("Prediction")
 plt.savefig('pred.png')
 
 
-plt.figure()
-pmp.plot(x, output_randomess=-1)
-plt.savefig('mean_std.png')
+pmp.plot_mean_variance()
+plt.savefig('mean_variance.png')
 
-plt.show()
+# plt.figure()
+# pmp.plot(x, output_randomess=-1)
+# plt.savefig('mean_std.png')
+
+# plt.show()

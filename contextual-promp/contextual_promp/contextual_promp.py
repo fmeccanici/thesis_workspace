@@ -126,10 +126,10 @@ class ProMPContext(object):
         p_w_given_c = np.random.multivariate_normal(mu_w_given_c, sigma_w_given_c)
 
         # mu_tau|c = Phi * mu_w|c
-        mu_traj_given_c = np.dot(self.Phi[:self.num_basis, :self.num_points], mu_w_given_c)
+        mu_traj_given_c = np.dot(self.Phi, mu_w_given_c)
         
         # Sigma_tau|c = sigma^2 * I_TxT + Phi * Sigma_w|c * Phi^T
-        sigma_traj_given_c = np.dot(self.sigma ** 2, np.eye(self.num_points)) + np.dot(np.dot(self.Phi, sigma_w_given_c), self.Phi.T)
+        sigma_traj_given_c = np.dot(self.sigma ** 2, np.eye(self.num_samples)) + np.dot(np.dot(self.Phi, self.sigma_w_given_c), self.Phi.T)
     
         return mu_traj_given_c
 
