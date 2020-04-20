@@ -42,8 +42,16 @@ class ProMPContext(object):
         
         ## basis function matrix as function of x (using lambda)
         self.centers = np.arange(0, self.num_basis)/(self.num_basis - 1.0)
-        self.Phi = np.exp(-.5 * (np.array(map(lambda x: x - self.centers, np.tile(self.x, (self.num_basis, 1)).T)).T ** 2 
-                                    / (self.sigma ** 2)))
+        # self.Phi = np.exp(-.5 * (np.array(map(lambda x: x - self.centers, np.tile(self.x, (self.num_basis, 1)).T)).T ** 2 
+        #                             / (self.sigma ** 2)))
+
+        self.phi = np.exp(-0.5 * (np.array(list(map(lambda x: x - self.centers, np.tile(self.x, (self.num_basis, 1)).T))).T ** 2
+                                  / self.sigma**2))
+        self.phi /= np.sum(self.phi, axis=0)
+        self.Phi = np.zeros((self.num_basis*self.num_outputs, self.num_samples*self.num_outputs))
+        for i in range(0, self.num_outputs):
+            self.Phi[i*self.num_basis:(i+1)*self.num_basis, i*self.num_samples:(i+1)*self.num_samples] = self.phi
+
         # normalize
         self.Phi /= sum(self.Phi)
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.5
 
 # import my own classes
-from learning_from_demonstration.promp_python import ProMPContext
+# from learning_from_demonstration.promp_python import ProMPContext
+from promp_context.promp_context import ProMPContext
+
 from learning_from_demonstration.dynamic_time_warping import DTW
 from learning_from_demonstration.trajectory_parser import trajectoryParser
 from learning_from_demonstration.trajectory_resampler import trajectoryResampler
@@ -153,13 +155,14 @@ class learningFromDemonstration():
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
         # if name is different, then it won't plot them
-        self.variables = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "object_x", "object_y", "object_z", "dt" ]
-        
+        self.outputs = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "dt" ]
+        self.contexts = ["object_x", "object_y", "object_z"]
+
         # how to select the number of points??
         # if other trajectories are added to the model
         # this will probably be wrongly compared to the existing
         # model, since the trajs will be squeezed/stretched
-        self.num_points = len(self.trajectories_for_learning[0])
+        self.num_samples = len(self.trajectories_for_learning[0])
         
         # default value
         num_basis = 20
@@ -167,7 +170,8 @@ class learningFromDemonstration():
         # default value
         sigma = 0.1
 
-        self.promp_model = ProMPContext(self.variables, num_points=self.num_points, num_basis=num_basis, sigma=sigma)
+        self.promps = [ProMPContext(output, self.contexts, num_samples=self.num_samples, num_basis=num_basis, sigma=sigma) for output in self.outputs]
+        self.promp_model = ProMPContext(self.contexts, num_points=self.num_points, num_basis=num_basis, sigma=sigma)
         print('Adding trajectories to ProMP model...')
 
         for i,traj in enumerate(self.trajectories_for_learning):
