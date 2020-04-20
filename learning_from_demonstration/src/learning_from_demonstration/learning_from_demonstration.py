@@ -4,9 +4,9 @@
 # from learning_from_demonstration.promp_python import ProMPContext
 from promp_context.promp_context import ProMPContext
 
-from learning_from_demonstration.dynamic_time_warping import DTW
-from learning_from_demonstration.trajectory_parser import trajectoryParser
-from learning_from_demonstration.trajectory_resampler import trajectoryResampler
+from learning_from_demonstration.dynamic_time_warping import *
+from learning_from_demonstration.trajectory_parser import *
+from learning_from_demonstration.trajectory_resampler import *
 
 # import other external classes
 import ast, os, time
@@ -170,91 +170,116 @@ class learningFromDemonstration():
         # default value
         sigma = 0.1
 
+        # for each output variable create a ProMP
         self.promps = [ProMPContext(output, self.contexts, num_samples=self.num_samples, num_basis=num_basis, sigma=sigma) for output in self.outputs]
-        self.promp_model = ProMPContext(self.contexts, num_points=self.num_points, num_basis=num_basis, sigma=sigma)
+        
+        # self.promp_model = ProMPContext(self.contexts, num_points=self.num_points, num_basis=num_basis, sigma=sigma)
         print('Adding trajectories to ProMP model...')
 
         for i,traj in enumerate(self.trajectories_for_learning):
             print("context = " + str(traj[0][7:10]))
-            self.add_trajectory_to_promp_model(traj)
+            context = traj[0][7:10]
+            for output_idx, output in enumerate(self.outputs):
+                
+                print(output_idx)
+                print(traj)
+                traj_one_output = [ [data[output_idx]] for data in traj]
+                demonstration = (traj_one_output, context)
+
+                # add relevant trajectories to promp
+                self.promps[output_idx].add_demonstration(demonstration)
+
+            # self.add_trajectory_to_promp_model(traj)
+            
+            
             print("Added trajectory " + str(i+1))
         plt.show()
 
-        self.promp_model.plot_unconditioned_joints()
+        # self.promp_model.plot_unconditioned_joints()
 
         plt.show()
-    def generated_traj_to_learned_traj_format(self, generated_trajectory):
-        num_points = self.promp_model.num_points
+        
+    # def generated_traj_to_learned_traj_format(self, generated_trajectory):
+    #     num_points = self.promp_model.num_points
 
-        joint_id = 0
-        pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 0
+    #     pred_traj_x = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 1
-        pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 1
+    #     pred_traj_y = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 2
-        pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 2
+    #     pred_traj_z = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 3
-        pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 3
+    #     pred_traj_qx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 4
-        pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 4
+    #     pred_traj_qy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 5
-        pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 5
+    #     pred_traj_qz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 6
-        pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 6
+    #     pred_traj_qw = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 7
-        pred_traj_objx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 7
+    #     pred_traj_objx = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 8
-        pred_traj_objy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 8
+    #     pred_traj_objy = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 9
-        pred_traj_objz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 9
+    #     pred_traj_objz = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        joint_id = 10
-        pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
+    #     joint_id = 10
+    #     pred_traj_dt = (generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0])
 
-        pred_traj = []
-        dt = pred_traj_dt[0]
-        t = 0
+    #     pred_traj = []
+    #     dt = pred_traj_dt[0]
+    #     t = 0
 
-        for i in range(len(pred_traj_dt)):
+    #     for i in range(len(pred_traj_dt)):
 
-            pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], pred_traj_objx[i], pred_traj_objy[i], pred_traj_objz[i], t])
+    #         pred_traj.append([pred_traj_x[i], pred_traj_y[i], pred_traj_z[i], pred_traj_qx[i], pred_traj_qy[i], pred_traj_qz[i], pred_traj_qw[i], pred_traj_objx[i], pred_traj_objy[i], pred_traj_objz[i], t])
             
 
-            t += dt
+    #         t += dt
 
 
-        return pred_traj, dt
+    #     return pred_traj, dt
     
     def generalize(self, context):
         
-        goal = np.zeros(len(self.promp_model.joints))
+        # goal = np.zeros(len(self.promp_model.joints))
 
         # clear all previous via points
-        self.promp_model.clear_viapoints()
+        # self.promp_model.clear_viapoints()
 
         # set goal context
-        goal[7:10] = context
-        print("goal = " + str(goal))
-        self.promp_model.set_goal(goal)
+        # goal[7:10] = context
+        # print("goal = " + str(goal))
+        print("context = " + str(context))
+        # self.promp_model.set_goal(goal)
 
         
         # default value
-        sigma_noise = 0.03
+        # sigma_noise = 0.03
         
         # generate trajectory using ProMP package
-        generated_trajectory = self.promp_model.generate_trajectory(sigma_noise)
+        # generated_trajectory = self.promp_model.generate_trajectory(sigma_noise)
         
+        pred_traj = self.promps[0].generate_trajectory(context)     
+        for promp in self.promps[1:]:
+            pred = promp.generate_trajectory(context)
+            pred_traj = np.vstack((pred_traj, pred))
+
+        # list format
+        pred_traj = [list(x) for x in pred_traj.T]
+
         plt.figure()
-        self.promp_model.plot_unconditioned_joints()
-        self.promp_model.plot_conditioned_joints()
+        # self.promp_model.plot_unconditioned_joints()
+        # self.promp_model.plot_conditioned_joints()
         # plt.figure()
         # for joint_id, joint_name in enumerate(self.variables):
         #     print(joint_id)
@@ -263,11 +288,11 @@ class learningFromDemonstration():
         # plt.legend()
         
         # convert trajectory to correct format
-        generated_trajectory_correct_format, dt = self.generated_traj_to_learned_traj_format(generated_trajectory)
+        # generated_trajectory_correct_format, dt = self.generated_traj_to_learned_traj_format(generated_trajectory)
 
-        print(generated_trajectory_correct_format[-1])
+        # print(generated_trajectory_correct_format[-1])
         
-        return generated_trajectory_correct_format
+        return pred_traj
 
     def trajectory_wrt_base(self, trajectory_wrt_object, object_wrt_base):
         # calculating trajectory wrt base instead of wrt object --> needed for execution
@@ -306,5 +331,6 @@ if __name__ == "__main__":
     ee_wrt_base = [0.41, -0.42, 1.14]
     object_wrt_ee = lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
-    prediction = lfd.generalize(object_wrt_ee)
+    prediction = lfd.generalize(object_wrt_base)
+    print("prediction = " + str(prediction))
     trajectory_wrt_base = lfd.trajectory_wrt_base(prediction, object_wrt_base)

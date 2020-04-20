@@ -83,6 +83,7 @@ class ProMPContext(object):
         trajectory = demonstration[0]
         context = demonstration[1]
 
+        print("trajectory = " + str(trajectory))
         trajectory = np.array(trajectory).T
         
         self.nr_traj += 1
