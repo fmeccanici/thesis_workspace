@@ -66,6 +66,14 @@ class ProMPContext(object):
             self.meanW = np.mean(self.W, 0)
 
         self.sigmaW = np.cov(self.W.T)
+        if self.nrTraj > 1:
+            self.sigma_ww = self.sigmaW[:self.num_basis, :self.num_basis]
+            self.sigma_wc = self.sigmaW[:self.num_basis, self.num_basis:]
+            self.sigma_cw = self.sigmaW[self.num_basis:, :self.num_basis]
+            self.sigma_cc = self.sigmaW[self.num_basis:, self.num_basis:]
+
+            self.mean_c = self.meanW[self.num_basis:]
+        print(self.sigmaW)
 
     def get_trajectory_fromweights(self, weights):
         aux = np.dot(self.Phi.T, weights)
@@ -104,32 +112,55 @@ class ProMPContext(object):
 
         plt.legend()
 
-    def generate_trajectory(self, sigma=1e-6):
-        newMu = self.meanW
-        newSigma = self.sigmaW
 
-        for viapoint in self.viapoints:
-            phiT = np.exp(-.5 * (np.array(list(map(lambda x: x - self.centers, np.tile(viapoint['t'], (self.num_basis, 1)).T))).T ** 2
-                                 / (self.sigma ** 2)))
-            phiT = phiT / sum(phiT)
-            PhiT = np.zeros((self.num_basis *self.num_joints, self.num_joints))
+    def generate_trajectory(self, context):
+        context = np.ones(self.mean_c.shape) * context
+        print(context)
 
-            for i in range(0, self.num_joints):
-                PhiT[i*self.num_basis:(i+1)*self.num_basis, i:(i+1)] = phiT
+        # mu_w|c = mu_w + Sigma_wc * Sigma_cc^-1 * (c - mu_c)
+        mu_w_given_c = self.meanW[:self.num_basis] + np.dot(np.dot(self.sigma_wc, np.linalg.inv(self.sigma_cc)), context - self.mean_c)
+        
+        print(mu_w_given_c)
+        # Sigma_w|c = Sigma_ww - Sigma_wc * Sigma^-1 * Sigma_cw
+        sigma_w_given_c = self.sigma_ww - np.dot(np.dot(self.sigma_wc, np.linalg.inv(self.sigma_cc)), self.sigma_cw)
+        p_w_given_c = np.random.multivariate_normal(mu_w_given_c, sigma_w_given_c)
 
-            ######### Conditioning
-            aux = viapoint['sigma'] + np.dot(np.dot(PhiT.T, newSigma), PhiT)
+        # mu_tau|c = Phi * mu_w|c
+        mu_traj_given_c = np.dot(self.Phi[:self.num_basis, :self.num_points], mu_w_given_c)
+        
+        # Sigma_tau|c = sigma^2 * I_TxT + Phi * Sigma_w|c * Phi^T
+        sigma_traj_given_c = np.dot(self.sigma ** 2, np.eye(self.num_points)) + np.dot(np.dot(self.Phi, sigma_w_given_c), self.Phi.T)
+    
+        return mu_traj_given_c
 
-            # trick: add some noise to avoid instabilities of matrix inverse
-            newMu = newMu + np.dot(np.dot(np.dot(newSigma, PhiT), inv(aux + np.eye(aux.shape[1])*sigma)),
-                                   viapoint['trajectory'] - np.dot(PhiT.T, newMu))
+    # def generate_trajectory(self, sigma=1e-6):
+    #     newMu = self.meanW
+    #     newSigma = self.sigmaW
 
-            newSigma = newSigma - np.dot(np.dot(np.dot(newSigma, PhiT), inv(aux + np.eye(aux.shape[1])*sigma)),
-                                         np.dot(PhiT.T, newSigma))
-            ##########
+    #     for viapoint in self.viapoints:
+    #         phiT = np.exp(-.5 * (np.array(list(map(lambda x: x - self.centers, np.tile(viapoint['t'], (self.num_basis, 1)).T))).T ** 2
+    #                              / (self.sigma ** 2)))
+    #         phiT = phiT / sum(phiT)
+    #         PhiT = np.zeros((self.num_basis *self.num_joints, self.num_joints))
 
-        sampW = np.random.multivariate_normal(newMu, newSigma, 1).T
-        return np.dot(self.Phi.T, sampW)
+    #         for i in range(0, self.num_joints):
+    #             PhiT[i*self.num_basis:(i+1)*self.num_basis, i:(i+1)] = phiT
+
+    #         ######### Conditioning
+    #         aux = viapoint['sigma'] + np.dot(np.dot(PhiT.T, newSigma), PhiT)
+
+    #         # trick: add some noise to avoid instabilities of matrix inverse
+    #         newMu = newMu + np.dot(np.dot(np.dot(newSigma, PhiT), inv(aux + np.eye(aux.shape[1])*sigma)),
+    #                                viapoint['trajectory'] - np.dot(PhiT.T, newMu))
+
+    #         newSigma = newSigma - np.dot(np.dot(np.dot(newSigma, PhiT), inv(aux + np.eye(aux.shape[1])*sigma)),
+    #                                      np.dot(PhiT.T, newSigma))
+    #         ##########
+
+    #     sampW = np.random.multivariate_normal(newMu, newSigma, 1).T
+
+        
+    #     return np.dot(self.Phi.T, sampW)
 
     def set_goal(self, trajectory, sigma=1e-6):
         if len(trajectory) != self.num_joints:

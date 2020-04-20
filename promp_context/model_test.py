@@ -68,11 +68,11 @@ for i in range(num_traj):
     # plt.plot(x, y[i], c=color, label='input ' + str(i+1))
     # plt.plot(x, context[i], '-.', c=color, label='context ' + str(i+1))
 
-    plt.plot(x, y, c=color, label='input ' + str(i+1))
-    plt.plot(x, context, '-.', c=color, label='context ' + str(i+1))
+    plt.plot(x, y, c=color, label='output ' + str(i+1))
+    plt.plot(x, context, '-.', c=color, label='input ' + str(i+1))
 
 
-    plt.title("Model input/output")
+    plt.title("Demonstrations")
     # sample = list(map(lambda x, y: [x, y], y[i], context[i]))
 
     sample = list(map(lambda x, y: [x, y], y, context))
@@ -83,15 +83,9 @@ for i in range(num_traj):
 plt.legend()
 plt.grid()
 
-
-plt.legend()
-plt.grid()
-plt.savefig('input.png')
-plt.show()
-
 # add samples to promp model
 for sample in samples:
-    pmp.add_demonstration(sample)
+    pmp.add_demonstration(np.asarray(sample))
 
 goal = np.zeros(len(joint_names))
 

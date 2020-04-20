@@ -79,29 +79,33 @@ plt.grid()
 for sample in samples:
     pmp.add_demonstration(np.asarray(sample))
 
-pmp.plot_unconditioned_joints()
 
-goal = np.zeros(len(joints))
-goal[1] = 1.0
+context = 1.0
+pred = pmp.generate_trajectory(context)
 
-pmp.clear_viapoints()
-pmp.set_goal(goal, sigma=1e-6)
+# pmp.plot_unconditioned_joints()
+
+# goal = np.zeros(len(joints))
+# goal[1] = 1.0
+
+# pmp.clear_viapoints()
+# pmp.set_goal(goal, sigma=1e-6)
 # start = [1.0, 1.0]
 
 # pmp.set_start(start)
 
-pmp.plot_conditioned_joints()
+# pmp.plot_conditioned_joints()
 
-generated_trajectory = pmp.generate_trajectory(sigma_noise)
-plt.figure(figsize=(6, 4))
-plt.title("Prediction")
-for joint_id, joint_name in enumerate(joints):
-    if joint_name == "input":
-        plt.plot(x, np.ones(len(x))*goal[1], '-.', label=joint_name)
-    else:
-        plt.plot(x, generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
-plt.legend()
-plt.grid()
-plt.show()
+# generated_trajectory = pmp.generate_trajectory(sigma_noise)
+# plt.figure(figsize=(6, 4))
+# plt.title("Prediction")
+# for joint_id, joint_name in enumerate(joints):
+#     if joint_name == "input":
+#         plt.plot(x, np.ones(len(x))*goal[1], '-.', label=joint_name)
+#     else:
+#         plt.plot(x, generated_trajectory[joint_id*num_points:(joint_id+1)*num_points, 0], label=joint_name)
+# plt.legend()
+# plt.grid()
+# plt.show()
 
-print(pmp.get_mean(0))
+# print(pmp.get_mean(0))

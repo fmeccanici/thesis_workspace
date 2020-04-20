@@ -78,7 +78,6 @@ class ProMPContext(object):
         for variable_idx, variable in enumerate(demonstration):
 
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[variable_idx, :])), demonstration[variable_idx, :], kind='cubic')
-            
             stretched_demo = interpolate(self.x)
 
             if variable_idx in self.outputs_ix:
@@ -86,10 +85,13 @@ class ProMPContext(object):
 
                 self.nrTraj = len(self.Y)
                 self.W = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, self.Y.T)).T  # weights for each trajectory
-            
+                print("W = " + str(self.W))
+
                 self.mean_w = np.mean(self.W, 0)                                                             # mean of weights
+                print("mean_w = " + str(self.mean_w))
                 # w1 = np.array(map(lambda x: x - self.meanW.T, self.W))
-                self.sigma_ww = np.var(self.W)
+                self.sigma_ww = np.var(self.W, 0)
+                print("sigma_ww = " + str(self.sigma_ww))
                 # self.sigma_w = np.dot(w1.T, w1)/self.nrTraj                                                  # covariance of weights
                 # self.sigmaSignal = np.sum(np.sum((np.dot(self.W, self.Phi) - self.Y) ** 2)) / (self.nrTraj * self.num_samples)
             
@@ -99,25 +101,26 @@ class ProMPContext(object):
 
                 # stack only the context values up until the amount of basis functions
                 self.C = np.vstack((self.C, stretched_demo[:self.num_basis]))
+                print("C = " + str(self.C))
 
                 self.mean_c = np.mean(self.C, 0)      
-                self.sigma_cc = np.var(self.C)
-                print(self.C)
-                print(self.sigma_cc)
+                print("mean_c = " + str(self.mean_c))
+
+                self.sigma_cc = np.var(self.C, 0)
+                print("sigma_cc = " + str(self.sigma_cc))
+                # print(self.C)
+                # print(self.sigma_cc)
 
             if self.C.shape[0] != 0 and self.W.shape[0] != 0:
-                self.sigma_wc = np.cov(self.W, self.C)
-                self.sigma_cw = np.cov(self.C, self.W)
+                self.sigma_wc = np.cov(self.W, self.C, rowvar=0)
+                self.sigma_cw = np.cov(self.C, self.W, rowvar=0)
 
+                print("sigma_wc = " + str(self.sigma_wc))
+                print("sigma_cw = " + str(self.sigma_cw))
 
         # stack mean matrix
         self.mu_total = np.vstack((self.mean_w, self.mean_c))
         
-        print(self.sigma_cc)
-        print(self.sigma_cc.shape)
-        print(self.sigma_wc)
-        print(self.sigma_wc.shape)
-
         print(np.hstack((self.sigma_cc, self.sigma_wc)))
 
 
