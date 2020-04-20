@@ -6,7 +6,7 @@ class ProMPContext(object):
     ## Contextualized ProMP as performed in Ewerton et al. 
     ## promplib code used 
 
-    def __init__(self, output_names, context_names, num_basis=11, sigma=0.05, num_samples=100):
+    def __init__(self, output_name, context_names, num_basis=11, sigma=0.05, num_samples=100):
         
         # self.variables = variable_names
         # self.outputs = []
@@ -26,12 +26,13 @@ class ProMPContext(object):
         #     else:
         #         self.outputs.append(j)
         #         self.outputs_ix.append(i)
-
-        self.outputs = output_names
+        self.outputs = [output_name]
         self.contexts = context_names
         # self.num_variables = len(self.variables)
-        self.num_outputs = len(output_names)
-        self.num_contexts = len(context_names)
+        self.num_outputs = len(self.outputs)
+        self.num_contexts = len(self.contexts)
+        
+        print(self.outputs)
 
         self.x = np.linspace(0, 1, num_samples)
         self.num_samples = len(self.x)
@@ -93,13 +94,15 @@ class ProMPContext(object):
             # calculate weights (size NxM, N=num_basis, M=num_demonstrations)
             self.W = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, self.Y.T)).T  # weights for each trajectory
             self.C = np.vstack((self.C, context))        
-
+            print("C = " + str(self.C))
+            
         if self.nr_traj > 1:
             # we can only calculate covariance if we have 2 or more demonstrations
-            print("C = " + str(self.C))
-            print("W = " + str(self.W))
+            # print("C = " + str(self.C))
+            # print("W = " + str(self.W))
 
             self.sigma_total = np.cov(self.W, self.C, rowvar=0)
+            print("sigma_total = " + str(self.sigma_total))
 
             self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
             self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
@@ -110,16 +113,15 @@ class ProMPContext(object):
             self.mean_w = np.mean(self.W, 0)                                                            
             self.mean_c = np.mean(self.C, 0)
 
-            # print("sigma_cc = " + str(self.sigma_cc))
-            # print("sigma_ww = " + str(self.sigma_ww))
-            # print("sigma_wc = " + str(self.sigma_wc))
-            # print("sigma_cw = " + str(self.sigma_cw))
-            # print("mean_w = " + str(self.mean_w))
-            # print("mean_c = " + str(self.mean_c))
+            print("sigma_cc = " + str(self.sigma_cc))
+            print("sigma_ww = " + str(self.sigma_ww))
+            print("sigma_wc = " + str(self.sigma_wc))
+            print("sigma_cw = " + str(self.sigma_cw))
+            print("mean_w = " + str(self.mean_w))
+            print("mean_c = " + str(self.mean_c))
             
             self.mean_total = np.append(self.mean_w, self.mean_c)
 
-            # print("sigma_total = " + str(self.sigma_total))
 
         else:
             self.mean_w = self.W[0]
@@ -129,11 +131,14 @@ class ProMPContext(object):
 
     def generate_trajectory(self, context):
 
+        # noise preventing the matrix Sigma_cc to be singular
+        noise = np.eye(self.sigma_cc.shape[0]) * self.sigma
+
         # mu_w|c = mu_w + Sigma_wc * Sigma_cc^-1 * (c - mu_c)
-        mu_w_given_c = self.mean_w + np.dot(np.dot(self.sigma_wc, np.linalg.inv(self.sigma_cc)), context - self.mean_c)
+        mu_w_given_c = self.mean_w + np.dot(np.dot(self.sigma_wc, np.linalg.inv(self.sigma_cc + noise)), context - self.mean_c)
         
         # Sigma_w|c = Sigma_ww - Sigma_wc * Sigma^-1 * Sigma_cw
-        sigma_w_given_c = self.sigma_ww - np.dot(np.dot(self.sigma_wc, np.linalg.inv(self.sigma_cc)), self.sigma_cw)
+        sigma_w_given_c = self.sigma_ww - np.dot(np.dot(self.sigma_wc, np.linalg.inv(self.sigma_cc + noise)), self.sigma_cw)
         p_w_given_c = np.random.multivariate_normal(mu_w_given_c, sigma_w_given_c)
 
         # mu_tau|c = Phi * mu_w|c

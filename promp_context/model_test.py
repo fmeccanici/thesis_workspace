@@ -16,21 +16,28 @@ sigma_noise=0.03
 x = np.arange(0,1,0.01)
 
 output_names = ['output1']
-context_names = ['context1']
+context_names = ['context1', 'context2', 'context3']
+# context_names = ['context1']
 
 num_samples = len(x)
-pmp = ProMPContext(output_names, context_names, num_samples=num_samples,num_basis=20)
+promps = [ProMPContext(output_name, context_names, num_samples=num_samples,num_basis=20) for output_name in output_names]
 
 
-samples = []
+samples1 = []
+samples2 = []
 
 plt.figure()
 # create samples
 for i in range(num_traj):
     # y = list(map(lambda x: [x + i, x + i, x + i], x))
-    y = list(map(lambda x: [x + i], x))
+    # y = list(map(lambda x: [x + i], x))
+    y1 = list(map(lambda x: [x + i], x))
+    y2 = list(map(lambda x: [x + 2*i], x))
+    y3 = list(map(lambda x: [x + 3*i], x))
 
-    context = i
+    context1 = [i, i, i]
+    # context2 = 3*i
+
     # context = [i, i, i]
     # context = [ [ x[0], x[1], x[2] ] for x in context ]
     # print(context)
@@ -44,8 +51,13 @@ for i in range(num_traj):
     # plt.plot(x, y[i], c=color, label='input ' + str(i+1))
     # plt.plot(x, context[i], '-.', c=color, label='context ' + str(i+1))
 
-    # plt.plot(x, y, c=color, label='output ' + str(i+1))
-    # plt.plot(x, context, '-.', c=color, label='input ' + str(i+1))
+    plt.plot(x, y1, c=color, label='output ' + str(1))
+    # plt.plot(x, y2, c=color, label='output ' + str(2))
+
+    for i in range(len(context1)):
+
+        plt.plot(x, np.ones(len(x)) * context1[i], '-.', c=color, label='input ' + str(i))
+    # plt.plot(x, np.ones(len(x)) * context1, '-.', c=color, label='input ' + str(i+1))
 
 
     plt.title("Demonstrations")
@@ -53,17 +65,25 @@ for i in range(num_traj):
 
     # print(context)
     # sample = list(map(lambda x: [x, i, i, i], y))
-    sample = (y, context)
-    samples.append(sample)
+    sample1 = (y1, context1)
+    # sample2 = (y2, context2)
+
+    samples1.append(sample1)
+    # samples2.append(sample2)
 
 plt.legend()
 plt.grid()
 
+plt.savefig('model.png')
+
 # add samples to promp model
-for sample in samples:
+for sample in samples1:
     
     # pmp.add_demonstration(np.asarray(sample))
-    pmp.add_demonstration(sample)
+    promps[0].add_demonstration(sample)
+
+# for sample in samples2:
+#     promps[1].add_demonstration(sample)
 
 # goal = np.zeros(len(joint_names))
 
@@ -75,21 +95,28 @@ for sample in samples:
 # start = [0.0, 1.0]
 # pmp.set_start(start)
 
-context = 1.0
-pred = pmp.generate_trajectory(context)
-
-print("prediction = " + str(pred))
-print("prediction = " + str(pred.shape))
+context = [1.0, 1.0, 1.0]
+# context = 1.0
 
 plt.figure()
-plt.plot(x, [y for y in pred], color='blue')    
-plt.plot(x, np.ones(pred.shape) * context, '-.',  color='orange')    
+# for promp in promps:
+pred = promps[0].generate_trajectory(context)
+plt.plot(x, [y for y in pred], color='blue', label='prediction')    
+plt.plot(x, np.ones(pred.shape) * context[0], '-',  color='orange', label='context1')   
+plt.plot(x, np.ones(pred.shape) * context[1], '-.',  color='black', label='context2')   
+plt.plot(x, np.ones(pred.shape) * context[2], '--',  color='green', label='context3')   
+
+# plt.figure()
+# plt.plot(x, [y for y in pred], color='blue')    
+# plt.plot(x, np.ones(pred.shape) * context, '-.',  color='orange')    
 plt.title("Prediction")
+plt.grid()
+plt.legend()
 plt.savefig('pred.png')
 
 
-pmp.plot_mean_variance()
-plt.savefig('mean_variance.png')
+# pmp.plot_mean_variance()
+# plt.savefig('mean_variance.png')
 
 # plt.figure()
 # pmp.plot(x, output_randomess=-1)
