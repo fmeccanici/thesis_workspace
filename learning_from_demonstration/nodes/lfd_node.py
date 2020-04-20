@@ -27,7 +27,7 @@ import time
 import matplotlib
 
 # use agg to avoid gui from over his nek gaan 
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 class lfdNode():
@@ -240,12 +240,12 @@ class lfdNode():
         
         return trajectory
     
-    def predicted_trajectory_to_prompTraj_message(self, traj):
+    def predicted_trajectory_to_prompTraj_message(self, traj, context):
         t_list = []
         message = prompTraj()
-        message.object_position.x = traj[0][7]
-        message.object_position.y = traj[0][8]
-        message.object_position.z = traj[0][9]
+        message.object_position.x = context[0]
+        message.object_position.y = context[1]
+        message.object_position.z = context[2]
 
         for data in traj:
             # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
@@ -299,7 +299,7 @@ class lfdNode():
         prediction = self.lfd.generalize(goal)
 
         # traj_pred = self.prompTrajMessage_to_correct_format(prediction)
-        traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction)
+        traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
 
         response = MakePredictionResponse()
         response.prediction = traj_pred_message
@@ -366,33 +366,33 @@ class lfdNode():
         return trajectory_wrt_base
 
     def run(self):
-        pass
-        # self.goToInitialPose()
-        # x = float(input("x: "))
+        # pass
+        self.goToInitialPose()
+        x = float(input("x: "))
 
-        # # x = 0.94
-        # y = -0.0231
-        # self.set_aruco_position(x, y)
+        # x = 0.94
+        y = -0.0231
+        self.set_aruco_position(x, y)
 
-        # if input("Is the object placed at the desired location? 1/0") == "0":
-        #     x = float(input("x: "))
-        # else:
-        #     # self.clear_trajectories_rviz()
+        if input("Is the object placed at the desired location? 1/0") == "0":
+            x = float(input("x: "))
+        else:
+            # self.clear_trajectories_rviz()
 
-        #     print("Making prediction...")
-        #     # self.lfd.promp_model.plot_conditioned_joints()
+            print("Making prediction...")
+            # self.lfd.promp_model.plot_conditioned_joints()
 
-        #     traj_pred = self.predict()
+            traj_pred = self.predict()
 
-        #     n = 100
-        #     traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
+            n = 100
+            traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
             
-        #     # self.visualize_trajectory(traj_pred, 1, 0, 0)
-        #     # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
+            # self.visualize_trajectory(traj_pred, 1, 0, 0)
+            # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
-        #     # dt = 0.1
-        #     self.executeTrajectory(traj_pred_resampled, dt)
-        #     time.sleep(5)
+            # dt = 0.1
+            self.executeTrajectory(traj_pred_resampled, dt)
+            time.sleep(5)
         
 
             
