@@ -15,49 +15,25 @@ cmap = get_cmap(num_traj)
 sigma_noise=0.03
 x = np.arange(0,1,0.01)
 
-joint_names = ['output1', 'context1', 'context2','context3']
+output_names = ['output1']
+context_names = ['context1']
 
 num_samples = len(x)
-pmp = ProMPContext(joint_names, num_samples=num_samples,num_basis=20)
+pmp = ProMPContext(output_names, context_names, num_samples=num_samples,num_basis=20)
+
 
 samples = []
-
-
-# make samples without random numbers
-y1 = list(map(lambda x: x, x))
-y2 = list(map(lambda x: x + 1, x))
-y3 = list(map(lambda x: x + 2, x))
-y4 = list(map(lambda x: x + 1, x))
-y5 = list(map(lambda x: x + 2, x))
-
-context1 = list(np.ones(len(x)) * 0)
-context2 = list(np.ones(len(x)) * 1)
-context3 = list(np.ones(len(x)) * 2)
-context4 = list(np.ones(len(x)) * 1)
-context5 = list(np.ones(len(x)) * 2)
-
-y = []
-context = []
-
-y.append(y1)
-y.append(y2)
-y.append(y3)
-# y.append(y4)
-# y.append(y5)
-
-context.append(context1)
-context.append(context2)
-context.append(context3)
-# context.append(context4)
-# context.append(context5)
 
 plt.figure()
 # create samples
 for i in range(num_traj):
-    y = list(map(lambda x: x + i, x))
-    # context = list(np.ones(len(x)) * np.random.randint(1,4))
-    context = list(np.ones(len(x)) * i)
-    
+    # y = list(map(lambda x: [x + i, x + i, x + i], x))
+    y = list(map(lambda x: [x + i], x))
+
+    context = i
+    # context = [i, i, i]
+    # context = [ [ x[0], x[1], x[2] ] for x in context ]
+    # print(context)
     # generate random colors
     r = round(random.random(), 1)
     b = round(random.random(), 1)
@@ -68,26 +44,28 @@ for i in range(num_traj):
     # plt.plot(x, y[i], c=color, label='input ' + str(i+1))
     # plt.plot(x, context[i], '-.', c=color, label='context ' + str(i+1))
 
-    plt.plot(x, y, c=color, label='output ' + str(i+1))
-    plt.plot(x, context, '-.', c=color, label='input ' + str(i+1))
+    # plt.plot(x, y, c=color, label='output ' + str(i+1))
+    # plt.plot(x, context, '-.', c=color, label='input ' + str(i+1))
 
 
     plt.title("Demonstrations")
     # sample = list(map(lambda x, y: [x, y], y[i], context[i]))
 
-    sample = list(map(lambda x, y: [x, y], y, context))
-
+    # print(context)
+    # sample = list(map(lambda x: [x, i, i, i], y))
+    sample = (y, context)
     samples.append(sample)
-
 
 plt.legend()
 plt.grid()
 
 # add samples to promp model
 for sample in samples:
-    pmp.add_demonstration(np.asarray(sample))
+    
+    # pmp.add_demonstration(np.asarray(sample))
+    pmp.add_demonstration(sample)
 
-goal = np.zeros(len(joint_names))
+# goal = np.zeros(len(joint_names))
 
 
 # goal[1] = 1.0
@@ -100,7 +78,9 @@ goal = np.zeros(len(joint_names))
 context = 1.0
 pred = pmp.generate_trajectory(context)
 
-print(pred)
+print("prediction = " + str(pred))
+print("prediction = " + str(pred.shape))
+
 plt.figure()
 plt.plot(x, [y for y in pred], color='blue')    
 plt.plot(x, np.ones(pred.shape) * context, '-.',  color='orange')    
