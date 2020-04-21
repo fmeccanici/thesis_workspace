@@ -31,9 +31,9 @@ plt.figure()
 for i in range(num_traj):
     # y = list(map(lambda x: [x + i, x + i, x + i], x))
     # y = list(map(lambda x: [x + i], x))
-    y1 = list(map(lambda x: [x + i], x))
-    y2 = list(map(lambda x: [x + 2*i], x))
-    y3 = list(map(lambda x: [x + 3*i], x))
+    y1 = list(map(lambda x: [np.sin(10*x) + i], x))
+    y2 = list(map(lambda x: [np.sin(10*x) + 2*i], x))
+    y3 = list(map(lambda x: [np.sin(10*x) + 3*i], x))
 
     context1 = [i, i, i]
     # context2 = 3*i
@@ -71,9 +71,9 @@ for i in range(num_traj):
     samples1.append(sample1)
     # samples2.append(sample2)
 
-plt.legend()
+# plt.legend()
 plt.grid()
-
+plt.show()
 plt.savefig('model.png')
 
 # add samples to promp model
