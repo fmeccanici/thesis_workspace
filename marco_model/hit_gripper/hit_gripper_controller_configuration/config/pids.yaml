@@ -1,0 +1,2 @@
+gains:
+  gripper_joint: {p: 2000,  d: 0,  i: 0, p_gain: 2000}

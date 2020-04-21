@@ -1,0 +1,5 @@
+<launch>
+
+    <node pkg="trajectory_refinement" name="gripper_wrt_ee_publisher" type="gripper_wrt_ee_publisher.py" output="screen"/>
+
+</launch>

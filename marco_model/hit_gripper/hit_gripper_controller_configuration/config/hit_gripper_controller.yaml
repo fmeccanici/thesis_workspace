@@ -1,0 +1,28 @@
+cartesian_controller:
+    type: "position_controllers/CartesianController"
+    joints:
+        - joint_a1
+        - joint_a2
+        - joint_a3
+        - joint_a4
+        - joint_a5
+        - joint_a6
+    base_frame: 'base_link'
+    ee_frame: 'tool0'
+    max_velocity: 1e9
+    max_acceleration: 1e9
+    gains: {lin_x_p:    5,
+            lin_x_max:  1,
+            lin_y_p:    5,
+            lin_y_max:  1,
+            lin_z_p:    5,
+            lin_z_max:  1,
+            ang_x_p:    5,
+            ang_x_max:  1,
+            ang_y_p:    5,
+            ang_y_max:  1,
+            ang_z_p:    5,
+            ang_z_max:  1}
+
+    state_publish_rate: 50 # Defaults to 50
+    #action_monitor_rate: 20 # Defaults to 20

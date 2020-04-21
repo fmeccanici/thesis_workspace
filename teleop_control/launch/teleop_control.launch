@@ -1,0 +1,19 @@
+<launch>
+
+<!-- <include file="$(find keyboard_state_publisher)/launch/keyboard.launch" >
+</include> -->
+
+<arg name="part_to_publish" default="both"/>
+<arg name="gripper_joint_value" default="1.0"/>
+
+<node pkg="teleop_control" name="teleop_control" 
+type="teleop_control.py" output="screen">
+
+    <param name="part_to_publish" value="$(arg part_to_publish)"/>
+
+</node>
+
+<node pkg="teleop_control" name="gripper_opener" type="gripper_opener.sh" output="screen" args="$(arg gripper_joint_value)">
+</node>
+
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+
+    <node pkg="trajectory_visualizer" name="trajectory_visualizer" 
+    type="trajectory_visualizer_node.py" output="screen"/>
+
+</launch>

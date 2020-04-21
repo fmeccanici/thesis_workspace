@@ -1,0 +1,19 @@
+<package>
+    <name>learning_from_demonstration</name>
+    <version>1.0.0</version>
+    <description>
+        ROS package for learning from demonstration applied to Marco. Used for my thesis.
+    </description>
+    <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
+    <author>Floris Meccanici</author>
+    <license>new BSD</license>
+
+<run_depend>rospy</run_depend>
+<buildtool_depend>catkin</buildtool_depend>
+<build_depend>message_generation</build_depend>
+<run_depend>message_runtime</run_depend>
+<run_depend>std_msgs</run_depend>
+<build_depend>std_msgs</build_depend>
+<run_depend>geometry_msgs</run_depend>
+<build_depend>geometry_msgs</build_depend>
+</package>
