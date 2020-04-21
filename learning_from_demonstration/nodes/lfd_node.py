@@ -334,7 +334,7 @@ class lfdNode():
         object_wrt_base = self.get_marker_wrt_base()
         prediction = self.lfd.generalize(goal)
         relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
-        print(relative_prediction)
+
         # traj_pred = self.prompTrajMessage_to_correct_format(prediction)
         # traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
         traj_pred_message = self.predicted_trajectory_to_prompTraj_message(relative_prediction, goal)
