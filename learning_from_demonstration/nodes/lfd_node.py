@@ -329,13 +329,13 @@ class lfdNode():
         self.add_demo_success.data = True
 
         response = AddDemonstrationResponse()
-
     
         response.success = self.add_demo_success
 
 
         return response
 
+    # for debugging
     def predict(self):
         object_wrt_base = self.get_context()
         print("goal = " + str(object_wrt_base))
@@ -357,9 +357,6 @@ class lfdNode():
         plt.plot([x[2] for x in prediction], label='z')
         plt.legend()
         
-
-
-
         # plt.plot([x[7:10] for x in prediction])
 
         plt.xlabel("datapoints [-]")
