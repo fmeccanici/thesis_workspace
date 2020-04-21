@@ -50,24 +50,31 @@ class trajectoryVisualizer():
         pose_array = PoseArray()
         visualization_msg = TrajectoryVisualization()
 
-        for pose in traj:
+        # visualization_msg.pose_array = [x[0:7] for x in traj]
+        visualization_msg.r = r
+        visualization_msg.g = g
+        visualization_msg.b = b
+        # rospy.loginfo(visualization_msg)
+        for data in traj:
+            
             pose_ = Pose()
 
-            pose_.position.x = pose[0]
-            pose_.position.y = pose[1]
-            pose_.position.z = pose[2]
+            pose_.position.x = data[0]
+            pose_.position.y = data[1]
+            pose_.position.z = data[2]
 
-            pose_.orientation.x = pose[3]
-            pose_.orientation.y = pose[4]
-            pose_.orientation.z = pose[5]
-            pose_.orientation.w = pose[6]
+            pose_.orientation.x = data[3]
+            pose_.orientation.y = data[4]
+            pose_.orientation.z = data[5]
+            pose_.orientation.w = data[6]
 
             pose_array.poses.append(pose_)
 
             pose_array.header.stamp = rospy.Time.now()
             pose_array.header.frame_id = frame_id
+        # rospy.loginfo(pose_array.poses)
 
-        visualization_msg.pose_array = pose_array
+        visualization_msg.pose_array = pose_array.poses
         visualization_msg.r = r
         visualization_msg.g = g
         visualization_msg.b = b

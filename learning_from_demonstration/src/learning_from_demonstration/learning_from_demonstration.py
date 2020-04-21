@@ -4,16 +4,16 @@
 # from learning_from_demonstration.promp_python import ProMPContext
 from promp_context.promp_context import ProMPContext
 
-from dynamic_time_warping import *
-from trajectory_parser import *
-from trajectory_resampler import *
+from learning_from_demonstration.dynamic_time_warping import *
+from learning_from_demonstration.trajectory_parser import *
+from learning_from_demonstration.trajectory_resampler import *
 
 # import other external classes
 import ast, os, time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 
 class learningFromDemonstration():
     def __init__(self):

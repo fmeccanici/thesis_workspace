@@ -127,7 +127,7 @@ class ProMPContext(object):
             # print("sigma_wc = " + str(self.sigma_wc))
             # print("sigma_cw = " + str(self.sigma_cw))
             # print("mean_w = " + str(self.mean_w))
-            # print("mean_c = " + str(self.mean_c))
+            print("mean_c = " + str(self.mean_c))
             
             self.mean_total = np.append(self.mean_w, self.mean_c)
 

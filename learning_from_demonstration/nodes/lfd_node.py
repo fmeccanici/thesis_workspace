@@ -13,6 +13,7 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
 
 from learning_from_demonstration.msg import prompTraj
 from std_msgs.msg import Bool
+from geometry_msgs.msg import Point
 
 # import my own classes
 from learning_from_demonstration.learning_from_demonstration import learningFromDemonstration
@@ -27,7 +28,7 @@ import time
 import matplotlib
 
 # use agg to avoid gui from over his nek gaan 
-# matplotlib.use('Agg')
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 class lfdNode():
@@ -105,10 +106,19 @@ class lfdNode():
             
             time.sleep(dt)
 
-    def get_current_marker_position(self):
-        x = self.marker_pose.position.x
-        y = self.marker_pose.position.y
-        z = self.marker_pose.position.z
+    def context_to_msg(self, context):
+        point = Point()
+        point.x = context[0]
+        point.y = context[1]
+        point.z = context[2]
+
+        return point
+
+    def get_context(self):
+        # times 10 to get the model to work
+        x = round(self.marker_pose.position.x*10, 2)
+        y = round(self.marker_pose.position.y*10, 2)
+        z = round(self.marker_pose.position.z*10, 2)
 
         return [x, y, z]
     
@@ -173,7 +183,7 @@ class lfdNode():
         self.base_frame = 'base_footprint'
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-        desired_datapoints = 10
+        desired_datapoints = 100
         self.lfd.prepare_for_learning(desired_datapoints)
         
         plt.figure()
@@ -188,6 +198,7 @@ class lfdNode():
 
     def visualize_trajectory(self, traj, r, g, b):
         for i in range(50):
+            # print(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
             self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
 
     def clear_trajectories_rviz(self):
@@ -247,6 +258,7 @@ class lfdNode():
         message.object_position.y = context[1]
         message.object_position.z = context[2]
 
+        print(traj[0])
         for data in traj:
             # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
             ee_pose = Pose()
@@ -288,19 +300,21 @@ class lfdNode():
         rospy.loginfo("Get context service...")
 
         response = GetContextResponse()
-        response.context = self.marker_pose.position
+        context = self.get_context()
+        context_msg = self.context_to_msg(context)
+        response.context = context_msg
 
         return response
 
     def _make_prediction(self, req):
         rospy.loginfo("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
+        print(goal)
 
         prediction = self.lfd.generalize(goal)
-
         # traj_pred = self.prompTrajMessage_to_correct_format(prediction)
         traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
-
+        print(traj_pred_message)
         response = MakePredictionResponse()
         response.prediction = traj_pred_message
 
@@ -323,15 +337,19 @@ class lfdNode():
         return response
 
     def predict(self):
-        object_wrt_base = self.get_current_marker_position()
+        object_wrt_base = self.get_context()
         print("goal = " + str(object_wrt_base))
         ee_wrt_base = self.get_current_slave_position()
         object_wrt_ee = self.lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
         # prediction = self.lfd.generalize(object_wrt_ee)
 
-        prediction = self.lfd.generalize(object_wrt_base)
+        rospy.loginfo(object_wrt_base)
+        object_wrt_base1 = [round(0*10,2), round(0.78*10, 2), round(0.68*10,2)]
 
+        prediction = self.lfd.generalize(object_wrt_base1)
+
+        rospy.loginfo(prediction)
 
         plt.figure()
         plt.plot([x[0] for x in prediction], label='x')
@@ -385,13 +403,13 @@ class lfdNode():
             traj_pred = self.predict()
 
             n = 100
-            traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
+            # traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
             
-            # self.visualize_trajectory(traj_pred, 1, 0, 0)
+            self.visualize_trajectory(traj_pred, 1, 0, 0)
             # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
             # dt = 0.1
-            self.executeTrajectory(traj_pred_resampled, dt)
+            # self.executeTrajectory(traj_pred_resampled, dt)
             time.sleep(5)
         
 

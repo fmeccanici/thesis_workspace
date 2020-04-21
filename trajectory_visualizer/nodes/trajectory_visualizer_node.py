@@ -62,7 +62,7 @@ class trajectoryVisualizerNode():
         rospy.loginfo("Visualizing trajectory")
         # traj = self.prompTrajMessage_to_correct_format(req.traj)
         traj = self.vis.VisMsgToTraj(req.traj_vis)
-
+        
         marker_array = self.vis.trajectory2markerArray(traj, req.traj_vis.r, req.traj_vis.g, req.traj_vis.b)
 
         response = VisualizeTrajectoryResponse()

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3.5
-from trajectory_parser import *
+from learning_from_demonstration.trajectory_parser import *
 
 import numpy as np
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from pyquaternion import Quaternion
+from geometry_msgs.msg import Point
 
 class trajectoryResampler():
     def __init__(self):
