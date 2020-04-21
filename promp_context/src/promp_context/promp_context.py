@@ -32,7 +32,7 @@ class ProMPContext(object):
         self.num_outputs = len(self.outputs)
         self.num_contexts = len(self.contexts)
         
-        print(self.outputs)
+        # print(self.outputs)
 
         self.x = np.linspace(0, 1, num_samples)
         self.num_samples = len(self.x)
@@ -83,7 +83,7 @@ class ProMPContext(object):
         trajectory = demonstration[0]
         context = demonstration[1]
 
-        print("trajectory = " + str(trajectory))
+        # print("trajectory = " + str(trajectory))
         trajectory = np.array(trajectory).T
         
         self.nr_traj += 1
@@ -103,7 +103,7 @@ class ProMPContext(object):
             # calculate weights (size NxM, N=num_basis, M=num_demonstrations)
             self.W = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, self.Y.T)).T  # weights for each trajectory
             self.C = np.vstack((self.C, context))        
-            print("C = " + str(self.C))
+            # print("C = " + str(self.C))
             
         if self.nr_traj > 1:
             # we can only calculate covariance if we have 2 or more demonstrations
@@ -111,7 +111,7 @@ class ProMPContext(object):
             # print("W = " + str(self.W))
 
             self.sigma_total = np.cov(self.W, self.C, rowvar=0)
-            print("sigma_total = " + str(self.sigma_total))
+            # print("sigma_total = " + str(self.sigma_total))
 
             self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
             self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
@@ -122,12 +122,12 @@ class ProMPContext(object):
             self.mean_w = np.mean(self.W, 0)                                                            
             self.mean_c = np.mean(self.C, 0)
 
-            print("sigma_cc = " + str(self.sigma_cc))
-            print("sigma_ww = " + str(self.sigma_ww))
-            print("sigma_wc = " + str(self.sigma_wc))
-            print("sigma_cw = " + str(self.sigma_cw))
-            print("mean_w = " + str(self.mean_w))
-            print("mean_c = " + str(self.mean_c))
+            # print("sigma_cc = " + str(self.sigma_cc))
+            # print("sigma_ww = " + str(self.sigma_ww))
+            # print("sigma_wc = " + str(self.sigma_wc))
+            # print("sigma_cw = " + str(self.sigma_cw))
+            # print("mean_w = " + str(self.mean_w))
+            # print("mean_c = " + str(self.mean_c))
             
             self.mean_total = np.append(self.mean_w, self.mean_c)
 

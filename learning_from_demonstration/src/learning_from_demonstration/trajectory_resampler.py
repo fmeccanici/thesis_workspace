@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.5
-from learning_from_demonstration.trajectory_parser import *
+from trajectory_parser import *
 
 import numpy as np
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
