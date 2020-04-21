@@ -1,8 +1,0 @@
-/home/fmeccanici/Documents/thesis/lfd_ws/src/dmp/CMakeLists.txt
-/home/fmeccanici/Documents/thesis/lfd_ws/src/dmp/package.xml
-/venv/*
-bin/*
-lib/*
-pip-selfcheck.json
-local/*
-share/*

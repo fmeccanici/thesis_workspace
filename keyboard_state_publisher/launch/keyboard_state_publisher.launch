@@ -1,7 +1,0 @@
-<launch>
-
-    <node pkg="keyboard_state_publisher" name="keyboard" 
-    type="keyboard_state_publisher.py" output="screen">
-    </node>
-
-</launch>
