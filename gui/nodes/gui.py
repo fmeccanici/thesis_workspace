@@ -262,7 +262,6 @@ class experimentGUI(QMainWindow):
                 self.prediction = resp.prediction.poses
 
 
-
             except AttributeError:
                 rospy.loginfo("Context not yet extracted!")
         except (rospy.ServiceException, rospy.ROSException) as e:
@@ -299,7 +298,9 @@ class experimentGUI(QMainWindow):
         try:
             visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
             visualization_msg = TrajectoryVisualization()
+
             visualization_msg.pose_array = self.prediction
+
             visualization_msg.r = 1.0
             visualization_msg.g = 0.0
             visualization_msg.b = 0.0

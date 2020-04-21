@@ -119,7 +119,7 @@ class lfdNode():
         object_wrt_base = [self.marker_pose.position.x, self.marker_pose.position.y, self.marker_pose.position.z]
         ee_pos_wrt_base = [self.current_slave_pose.position.x, self.current_slave_pose.position.y, self.current_slave_pose.position.z]
         
-        object_wrt_ee = np.subtract(object_wrt_base, ee_pos_wrt_base)
+        object_wrt_ee = list(np.subtract(object_wrt_base, ee_pos_wrt_base))
         
         # times 10 to get the model to work
         x = round(object_wrt_ee[0]*10, 2)
