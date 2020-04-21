@@ -114,6 +114,27 @@ class lfdNode():
 
         return point
 
+    def get_relative_context(self):
+        
+        object_wrt_base = [self.marker_pose.position.x, self.marker_pose.position.y, self.marker_pose.position.z]
+        ee_pos_wrt_base = [self.current_slave_pose.position.x, self.current_slave_pose.position.y, self.current_slave_pose.position.z]
+        
+        object_wrt_ee = np.subtract(object_wrt_base, ee_pos_wrt_base)
+        
+        # times 10 to get the model to work
+        x = round(object_wrt_ee[0]*10, 2)
+        y = round(object_wrt_ee[1]*10, 2)
+        z = round(object_wrt_ee[2]*10, 2)
+
+        return [x, y, z]
+
+    def get_marker_wrt_base(self):
+        x = round(self.marker_pose.position.x, 2)
+        y = round(self.marker_pose.position.y, 2)
+        z = round(self.marker_pose.position.z, 2)
+
+        return [x, y, z]
+
     def get_context(self):
         # times 10 to get the model to work
         x = round(self.marker_pose.position.x*10, 2)
@@ -300,7 +321,7 @@ class lfdNode():
         rospy.loginfo("Get context service...")
 
         response = GetContextResponse()
-        context = self.get_context()
+        context = self.get_relative_context()
         context_msg = self.context_to_msg(context)
         response.context = context_msg
 
@@ -309,12 +330,15 @@ class lfdNode():
     def _make_prediction(self, req):
         rospy.loginfo("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
-        print(goal)
 
+        object_wrt_base = self.get_marker_wrt_base()
         prediction = self.lfd.generalize(goal)
+        relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
+        print(relative_prediction)
         # traj_pred = self.prompTrajMessage_to_correct_format(prediction)
-        traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
-        print(traj_pred_message)
+        # traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
+        traj_pred_message = self.predicted_trajectory_to_prompTraj_message(relative_prediction, goal)
+
         response = MakePredictionResponse()
         response.prediction = traj_pred_message
 
@@ -376,6 +400,8 @@ class lfdNode():
         plt.show()
         return trajectory_wrt_base
 
+
+
     def run(self):
         # pass
         self.goToInitialPose()
@@ -400,7 +426,6 @@ class lfdNode():
             # print(traj_pred)
             n = 100
             # traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
-            
             self.visualize_trajectory(traj_pred, 1, 0, 0)
             # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 

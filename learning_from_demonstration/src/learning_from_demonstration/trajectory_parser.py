@@ -16,7 +16,15 @@ class trajectoryParser():
     
     def ee_wrt_base(self, ee_wrt_object, object_wrt_base):
         return np.add(ee_wrt_object, object_wrt_base)
-            
+    
+    def traj_wrt_base(self, traj_wrt_marker, marker_wrt_base):
+        traj_wrt_base = []
+        for data in traj_wrt_marker:
+            pos = list(np.add(data[0:3], marker_wrt_base))
+            traj_wrt_base.append(list(pos) + list(data[3:]))
+
+        return traj_wrt_base  
+        
     def get_trajectory_wrt_object(self, traj_wrt_base):
         traj_wrt_object = []
 

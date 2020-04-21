@@ -260,6 +260,9 @@ class experimentGUI(QMainWindow):
             try:
                 resp = make_prediction(self.context)
                 self.prediction = resp.prediction.poses
+
+
+
             except AttributeError:
                 rospy.loginfo("Context not yet extracted!")
         except (rospy.ServiceException, rospy.ROSException) as e:

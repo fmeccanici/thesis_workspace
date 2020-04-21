@@ -154,8 +154,8 @@ class learningFromDemonstration():
         # for traj in relevant_data_trajectories:
             traj_wrt_object = self.parser.get_trajectory_wrt_object(traj)
             
-            # self.trajectories_for_learning.append(traj_wrt_object)
-            self.trajectories_for_learning.append(traj)
+            self.trajectories_for_learning.append(traj_wrt_object)
+            # self.trajectories_for_learning.append(traj)
 
         print(self.trajectories_for_learning[0][0])
 
