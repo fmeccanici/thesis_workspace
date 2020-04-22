@@ -9,7 +9,8 @@ from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction,
                                             MakePredictionResponse, SetObject, SetObjectResponse,
-                                            GetContext, GetContextResponse, GoToPose, GoToPoseResponse)
+                                            GetContext, GetContextResponse, GoToPose, GoToPoseResponse,
+                                            ExecuteTrajectory, ExecuteTrajectoryResponse)
 
 from learning_from_demonstration.msg import prompTraj
 from std_msgs.msg import Bool
@@ -50,6 +51,7 @@ class lfdNode():
         self._set_object_service = rospy.Service('set_object', SetObject, self._set_object_position)
         self._get_context_service = rospy.Service('get_context', GetContext, self._get_context_marker)
         self._go_to_pose_service = rospy.Service('go_to_pose', GoToPose, self._go_to_pose)
+        self._execute_trajectory_service = rospy.Service('execute_trajectory', ExecuteTrajectory, self._execute_trajectory)
 
         # initialize other classes
         self.lfd = learningFromDemonstration()
@@ -288,10 +290,9 @@ class lfdNode():
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
 
-    def prompTrajMessage_to_correct_format(self, traj_msg):
+    def promptraj_msg_to_execution_format(self, traj_msg):
+        dt = traj_msg.times[1]
         trajectory = []
-        object_position = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
-
         for i,pose in enumerate(traj_msg.poses):
             x = pose.position.x
             y = pose.position.y
@@ -310,9 +311,36 @@ class lfdNode():
 
             
 
-            trajectory.append(pos + ori + object_position + t)
+            trajectory.append(pos + ori + t)
+
+        return trajectory, dt
+
+    def prompTrajMessage_to_demonstration_format(self, traj_msg):
+        trajectory = []
+        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
+        dt = [traj_msg.times[1]]
+
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
+
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            # t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + dt)
         
-        return trajectory
+        return trajectory, context
     
     def predicted_trajectory_to_prompTraj_message(self, traj, context):
         t_list = []
@@ -344,6 +372,15 @@ class lfdNode():
 
         return message
 
+    def _execute_trajectory(self, req):
+        traj, dt = self.promptraj_msg_to_execution_format(req.trajectory)
+        
+        # resample trajectory so that it can successfully be executed
+        ndesired = 100
+        traj, dt = self.resampler.interpolate_learned_keypoints(traj, ndesired)
+
+        self.executeTrajectory(traj, dt)
+
     def _go_to_pose(self, req):
         rospy.loginfo("Executing trajectory using service...")
         pose = req.pose
@@ -356,6 +393,7 @@ class lfdNode():
         response.success = suc
 
         return response
+
     def _set_object_position(self, req):
         print("Setting Aruco position using service...")
         x = req.position.x
@@ -400,9 +438,9 @@ class lfdNode():
     def _add_demonstration(self, req):
         print("Adding demonstration using service...")
 
-        trajectory = self.prompTrajMessage_to_correct_format(req.demo)
+        trajectory, context = self.prompTrajMessage_to_demonstration_format(req.demo)
 
-        self.lfd.add_trajectory_to_promp_model(trajectory)
+        self.lfd.add_trajectory_to_promp_model(trajectory, context)
         self.add_demo_success.data = True
 
         response = AddDemonstrationResponse()

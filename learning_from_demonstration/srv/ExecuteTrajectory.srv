@@ -1,0 +1,5 @@
+prompTraj trajectory
+
+---
+
+std_msgs/Bool success

@@ -13,7 +13,7 @@ from rviz_python.rviz_python import rvizPython
 # ROS messages
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, 
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
-                                            GoToPose, GoToPoseResponse)
+                                            GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse)
 
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from learning_from_demonstration.msg import prompTraj
@@ -370,7 +370,7 @@ class experimentGUI(QMainWindow):
             visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
             visualization_msg = TrajectoryVisualization()
             try:
-                visualization_msg.pose_array = self.prediction
+                visualization_msg.pose_array = self.prediction.poses
             
             except AttributeError:
                 rospy.loginfo("No prediction made yet!")
@@ -407,25 +407,30 @@ class experimentGUI(QMainWindow):
             make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
             try:
                 resp = make_prediction(self.context)
-                self.prediction = resp.prediction.poses
-                print("times = " + str(resp.prediction.times))
+                self.prediction = resp.prediction
 
             except AttributeError:
                 rospy.loginfo("Context not yet extracted!")
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
-    
-    def use_multithread(self, function):
-        worker = Worker(function)
-        self.threadpool.start(worker)
 
     # multithread for executing trajectories
     # needed since otherwise the GUI will freeze
-    def on_execute_click_multithread(self):
-        worker = Worker(self.on_execute_click)
+    def use_multithread(self, function):
+        worker = Worker(function)
         self.threadpool.start(worker)
+    
+    def on_execute_prediction_click(self):
+        try:
+            rospy.wait_for_service('execute_trajectory', timeout=2.0)
 
-    def on_execute_click(self):
+            execute_prediction = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+            resp = execute_prediction(self.prediction)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)   
+
+    def on_go_to_click(self):
         
         # get pose from text fields
         pose = Pose()
@@ -553,8 +558,8 @@ class experimentGUI(QMainWindow):
         self.pushButton_3.clicked.connect(self.start_lfd_node)
         self.pushButton_16.clicked.connect(self.on_random_pose_click)
         
-        self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_execute_click))
-        # self.pushButton_17.clicked.connect(self.on_execute_click_multithread)
+        self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_go_to_click))
+        self.pushButton_13.clicked.connect(lambda: self.use_multithread(self.on_execute_prediction_click))
 
         self.checkBox.toggled.connect(lambda:self.check_button_state(self.checkBox))
         self.checkBox_2.toggled.connect(lambda:self.check_button_state(self.checkBox_2))

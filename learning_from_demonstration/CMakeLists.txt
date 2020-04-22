@@ -21,6 +21,7 @@ add_message_files(
     SetObject.srv
     GetContext.srv
     GoToPose.srv
+    ExecuteTrajectory.srv
   )
 catkin_python_setup()
 
