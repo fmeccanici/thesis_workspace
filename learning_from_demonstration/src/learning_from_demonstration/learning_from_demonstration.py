@@ -239,7 +239,7 @@ class learningFromDemonstration():
             traj_wrt_base.append(ee_wrt_base + ori + object_wrt_base + t)
 
         return traj_wrt_base
-
+        
     def add_trajectory_to_promp_model(self, traj, context):
         # we need to extract each separate variable
         # and add this to the individual promp models

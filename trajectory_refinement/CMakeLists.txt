@@ -12,6 +12,17 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-find_package(catkin REQUIRED COMPONENTS message_generation rospy geometry_msgs)
+find_package(catkin REQUIRED COMPONENTS message_generation rospy geometry_msgs learning_from_demonstration)
 
+add_service_files(
+FILES
+RefineTrajectory.srv
+)
+
+generate_messages(
+    DEPENDENCIES
+    geometry_msgs
+    std_msgs
+    learning_from_demonstration
+  )
 catkin_package()

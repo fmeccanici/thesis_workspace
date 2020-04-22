@@ -315,34 +315,7 @@ class lfdNode():
             trajectory.append(pos + ori + t)
 
         return trajectory, dt
-
-    def prompTrajMessage_to_demonstration_format(self, traj_msg):
-        trajectory = []
-        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
-        dt = [traj_msg.times[1]]
-
-        for i,pose in enumerate(traj_msg.poses):
-            x = pose.position.x
-            y = pose.position.y
-            z = pose.position.z
-            
-            pos = [x, y, z]
-
-            qx = pose.orientation.x
-            qy = pose.orientation.y
-            qz = pose.orientation.z
-            qw = pose.orientation.w
-
-            ori = [qx, qy, qz, qw]
-
-            # t = [traj_msg.times[i]]
-
-            
-
-            trajectory.append(pos + ori + dt)
         
-        return trajectory, context
-    
     def predicted_trajectory_to_prompTraj_message(self, traj, context):
         t_list = []
         message = prompTraj()
@@ -372,6 +345,33 @@ class lfdNode():
         message.times = t_list
 
         return message
+
+    def prompTrajMessage_to_demonstration_format(self, traj_msg):
+        trajectory = []
+        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
+        dt = [traj_msg.times[1]]
+
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
+
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            # t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + dt)
+        
+        return trajectory, context
 
     def _execute_trajectory(self, req):
         traj, dt = self.promptraj_msg_to_execution_format(req.trajectory)

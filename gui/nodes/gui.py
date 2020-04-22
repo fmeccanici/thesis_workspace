@@ -14,7 +14,7 @@ from rviz_python.rviz_python import rvizPython
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, 
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse)
-
+from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from learning_from_demonstration.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
@@ -78,11 +78,15 @@ class experimentGUI(QMainWindow):
         self.groupBox_2.setGeometry(QRect(410, 690, 161, 211))
         self.groupBox_2.setObjectName("groupBox_2")
         self.pushButton_14 = QPushButton(self.groupBox_2)
-        self.pushButton_14.setGeometry(QRect(0, 30, 150, 27))
+        self.pushButton_14.setGeometry(QRect(0, 60, 150, 27))
         self.pushButton_14.setObjectName("pushButton_14")
         self.pushButton_6 = QPushButton(self.groupBox_2)
         self.pushButton_6.setGeometry(QRect(0, 60, 150, 27))
         self.pushButton_6.setObjectName("pushButton_6")
+        self.pushButton_21 = QPushButton(self.groupBox_2)
+        self.pushButton_21.setGeometry(QRect(0, 30, 150, 27))
+        self.pushButton_21.setObjectName("pushButton_21")
+
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(550, 690, 521, 291))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -324,6 +328,25 @@ class experimentGUI(QMainWindow):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
+    def start_refinement_node(self):
+        package = 'trajectory_refinement'
+        launch_file = 'trajectory_refinement.launch'
+
+        abs_path = self._rospack.get_path(package) + "/launch/" + launch_file
+        
+        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+
+
+        self.refinement_launch = roslaunch.parent.ROSLaunchParent(uuid, [abs_path])
+        self.refinement_launch.start()
+
+        rospy.loginfo( ("Started {} ").format(launch_file) )
+    
+    def stop_refinement_node(self):
+        try:
+            self.refinement_launch.shutdown()
+        except AttributeError:
+            rospy.loginfo( ("LfD node not launched yet") )
 
     def start_lfd_node(self):
         package = 'learning_from_demonstration'
@@ -345,6 +368,17 @@ class experimentGUI(QMainWindow):
         except AttributeError:
             rospy.loginfo( ("LfD node not launched yet") )
 
+    def on_refine_prediction_click(self):
+        try:
+            rospy.wait_for_service('refine_trajectory', timeout=2.0)
+
+            refine_trajectory = rospy.ServiceProxy('refine_trajectory', SetObject)
+            resp = refine_trajectory(self.prediction)
+
+            self.refined_trajectory = resp.refined_trajectory
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
 
     def on_set_object_position_click(self):
         object_position = Point()
@@ -539,6 +573,8 @@ class experimentGUI(QMainWindow):
         self.groupBox_2.setTitle(_translate("MainWindow", " Refinement"))
         self.pushButton_14.setText(_translate("MainWindow", "Visualize"))
         self.pushButton_6.setText(_translate("MainWindow", "Add to model"))
+        self.pushButton_21.setText(_translate("MainWindow", "Refine prediction"))
+
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -597,7 +633,12 @@ class experimentGUI(QMainWindow):
         self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_go_to_click))
         self.pushButton_13.clicked.connect(lambda: self.use_multithread(self.on_execute_prediction_click))
         self.pushButton_20.clicked.connect(self.on_initialize_head_joints_click)
-        
+        self.pushButton.clicked.connect(self.start_refinement_node)
+        self.pushButton_2.clicked.connect(self.stop_refinement_node)
+
+        self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
+
+
         self.checkBox.toggled.connect(lambda:self.check_button_state(self.checkBox))
         self.checkBox_2.toggled.connect(lambda:self.check_button_state(self.checkBox_2))
         self.checkBox_3.toggled.connect(lambda:self.check_button_state(self.checkBox_3))

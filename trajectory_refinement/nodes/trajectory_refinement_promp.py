@@ -10,9 +10,10 @@ from pyquaternion import Quaternion
 # import ros messages
 from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
 from learning_from_demonstration.msg import prompTraj
+from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from master_control.msg import ControlComm
-from lfd_msgs.msg import TrajectoryVisualization
+from trajectory_visualizer.msg import TrajectoryVisualization
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from aruco_msgs.msg import MarkerArray
 
@@ -315,11 +316,11 @@ class trajectoryRefinement():
             # append refined trajectory
             if i <= len(traj_pos)-1:
                 ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
-                refined_traj.append(ee_position + ee_orientation + object_position + t_list)
+                refined_traj.append(ee_position + ee_orientation + t_list)
             else:
                 ee_orientation = [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6]]
 
-                refined_traj.append(ee_position + ee_orientation + object_position + t_list)
+                refined_traj.append(ee_position + ee_orientation + t_list)
             
 
             slave_goal.pose.position.x = refined_traj[i][0]
@@ -395,13 +396,13 @@ class trajectoryRefinement():
             ref_pos = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2]]
             ref_ori = [q[1], q[2], q[3], q[0]]
             ref_t = [t_refined[i]]
-            refined_traj = ref_pos + ref_ori + object_position + ref_t
+            refined_traj = ref_pos + ref_ori + ref_t
 
             pred_pos = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2]]
             pred_ori = [q[1], q[2], q[3], q[0]]
             pred_t = [t_pred[i]]
 
-            pred_traj = pred_pos + pred_ori + object_position + pred_t
+            pred_traj = pred_pos + pred_ori + pred_t
 
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
             new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
@@ -419,14 +420,42 @@ class trajectoryRefinement():
 
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
+
+    def prompTrajMessage_to_demonstration_format(self, traj_msg):
+        trajectory = []
+        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
+        dt = [traj_msg.times[1]]
+
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
+
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            # t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + dt)
+        
+        return trajectory, context
     
-    def predicted_trajectory_to_prompTraj_message(self, traj):
+    def predicted_trajectory_to_prompTraj_message(self, traj, context):
         t_list = []
         message = prompTraj()
-        message.object_position.x = traj[0][7]
-        message.object_position.y = traj[0][8]
-        message.object_position.z = traj[0][9]
+        message.object_position.x = context[0]
+        message.object_position.y = context[1]
+        message.object_position.z = context[2]
 
+        print(traj[0])
         for data in traj:
             # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
             ee_pose = Pose()
@@ -439,6 +468,7 @@ class trajectoryRefinement():
             ee_pose.orientation.w = data[6]
 
             message.poses.append(ee_pose)
+
             
             t_float = data[-1]
             # message.times.append([t_float])
@@ -447,11 +477,23 @@ class trajectoryRefinement():
         message.times = t_list
 
         return message
-    
+
     # ROS service for refining trajectory
     def _refine_trajectory(self, req):
         rospy.loginfo("Refining trajectory...")
-        
+        prediction = self.prompTrajMessage_to_correct_format(req.trajectory)
+        dt = req.times[1]
+
+        refined_prediction = self.refineTrajectory(prediction, dt)
+        new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
+
+        context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
+        new_traj_msg = self.predicted_trajectory_to_prompTraj_message(new_traj, context)
+
+        response = RefineTrajectoryResponse()
+        response.refined_trajectory = new_traj_msg
+
+        return response
 
     def add_demonstration_client(self, demo):
         rospy.wait_for_service('add_demonstration')
@@ -508,82 +550,83 @@ class trajectoryRefinement():
             self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
     def run(self):
-        self.goToInitialPose()
-        self.calibrate_master_pose_for_normalization()
-        self.clear_trajectories_rviz()
+        pass
+        # self.goToInitialPose()
+        # self.calibrate_master_pose_for_normalization()
+        # self.clear_trajectories_rviz()
 
-        n_pred = 10
-        n_exec = 100
+        # n_pred = 10
+        # n_exec = 100
 
-        alpha = 1
-        refine_counter = 0
+        # alpha = 1
+        # refine_counter = 0
 
-        # refinement loop
-        while not rospy.is_shutdown() and self.grey_button_toggle == 0:
+        # # refinement loop
+        # while not rospy.is_shutdown() and self.grey_button_toggle == 0:
             
-            # set object position
-            object_position = Point()
-            object_position.x = 0.78
-            object_position.y = -0.0231
-            object_position.z = 1
+        #     # set object position
+        #     object_position = Point()
+        #     object_position.x = 0.78
+        #     object_position.y = -0.0231
+        #     object_position.z = 1
 
-            self.set_object_position_client(object_position)
+        #     self.set_object_position_client(object_position)
 
-            # if this is the first time we are running the loop, make prediction
-            # else we keep refining the current prediction
+        #     # if this is the first time we are running the loop, make prediction
+        #     # else we keep refining the current prediction
 
-            if refine_counter % 2 == 0:
+        #     if refine_counter % 2 == 0:
 
-                # set context
-                context = self.getMarkerWRTBase()
+        #         # set context
+        #         context = self.getMarkerWRTBase()
                 
-                context_msg = Point()
-                context_msg.x = context[0]
-                context_msg.y = context[1]
-                context_msg.z = context[2]
+        #         context_msg = Point()
+        #         context_msg.x = context[0]
+        #         context_msg.y = context[1]
+        #         context_msg.z = context[2]
 
-                # use server to get the prediction from the lfd_node
-                prediction = self.make_prediction_client(context_msg)
+        #         # use server to get the prediction from the lfd_node
+        #         prediction = self.make_prediction_client(context_msg)
 
-                # make list from this message
-                prediction = self.prompTrajMessage_to_correct_format(prediction)
+        #         # make list from this message
+        #         prediction = self.prompTrajMessage_to_correct_format(prediction)
                 
-                # resample to n 
-                prediction_resampled, dt = self.resampler.interpolate_learned_keypoints(prediction, n_exec)
+        #         # resample to n 
+        #         prediction_resampled, dt = self.resampler.interpolate_learned_keypoints(prediction, n_exec)
 
-                refine_counter += 1
+        #         refine_counter += 1
 
-            # visualize both resampled and keypoints
-            self.visualize_trajectory(prediction, r=0, g=0, b=1)
-            self.visualize_trajectory(prediction_resampled, r=1, g=0, b=0)
+        #     # visualize both resampled and keypoints
+        #     self.visualize_trajectory(prediction, r=0, g=0, b=1)
+        #     self.visualize_trajectory(prediction_resampled, r=1, g=0, b=0)
 
-            # refine trajectory
-            traj_refined = self.refineTrajectory(prediction_resampled, dt)
-            traj_new, dt_new = self.determineNewTrajectory(prediction_resampled, traj_refined, alpha)
+        #     # refine trajectory
+        #     traj_refined = self.refineTrajectory(prediction_resampled, dt)
+        #     traj_new, dt_new = self.determineNewTrajectory(prediction_resampled, traj_refined, alpha)
             
-            # visualize new trajectory
-            self.visualize_trajectory(traj_new, r=0, g=1, b=0)
+        #     # visualize new trajectory
+        #     self.visualize_trajectory(traj_new, r=0, g=1, b=0)
 
-            # execute reversed trajectory
-            traj_refined_reversed = self.reverseTrajectory(traj_refined)
-            self.executeTrajectory(traj_refined_reversed, dt_new)
+        #     # execute reversed trajectory
+        #     traj_refined_reversed = self.reverseTrajectory(traj_refined)
+        #     self.executeTrajectory(traj_refined_reversed, dt_new)
 
-            if input("Satisfied with this trajectory? 1/0: ") == "1": 
-                rospy.loginfo("Adding trajectory to model...")
-                traj_add = self.resampler.interpolate_predicted_trajectory(traj_new, n_pred)
+        #     if input("Satisfied with this trajectory? 1/0: ") == "1": 
+        #         rospy.loginfo("Adding trajectory to model...")
+        #         traj_add = self.resampler.interpolate_predicted_trajectory(traj_new, n_pred)
 
-                self.add_demonstration_client(traj_add)
+        #         self.add_demonstration_client(traj_add)
 
-                # make trajectory relative
-                # traj_add_for_learning = self.parser.get_trajectory_wrt_object(traj_add)
+        #         # make trajectory relative
+        #         # traj_add_for_learning = self.parser.get_trajectory_wrt_object(traj_add)
 
-                refine_counter += 1
-            else:
-                if input("Use refined or predicted trajectory for refinement? 1/0") == 1:
-                    prediction_resampled = traj_new
-                else: pass
+        #         refine_counter += 1
+        #     else:
+        #         if input("Use refined or predicted trajectory for refinement? 1/0") == 1:
+        #             prediction_resampled = traj_new
+        #         else: pass
             
-            self.clear_trajectories_rviz()
+        #     self.clear_trajectories_rviz()
 
 if __name__ == "__main__":
     node = trajectoryRefinement()
