@@ -271,6 +271,7 @@ class lfdNode():
         for i in range(10):
             self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
+
     def set_aruco_position(self, x=0.7, y=-0.43, z=1):
         state_msg = ModelState()
         state_msg.model_name = 'aruco_cube'

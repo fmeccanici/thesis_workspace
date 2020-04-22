@@ -1,0 +1,6 @@
+<launch>
+
+    <arg name="head_joint_values" default="0 -0.65"/>
+    <node pkg="teleop_control" name="head_position" type="head_position.sh" output="screen" args="$(arg head_joint_values)">
+    </node>
+</launch>

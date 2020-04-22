@@ -26,70 +26,44 @@
     <property name="title">
      <string> Refinement</string>
     </property>
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="geometry">
-      <rect>
-       <x>1</x>
-       <y>64</y>
-       <width>88</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Stop node</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton">
-     <property name="geometry">
-      <rect>
-       <x>1</x>
-       <y>31</y>
-       <width>90</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Start node</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="pushButton_14">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>100</y>
+       <y>30</y>
        <width>150</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>Visualize refinement</string>
+      <string>Visualize</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_6">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>130</y>
+       <y>60</y>
        <width>150</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>Add refinement</string>
+      <string>Add to model</string>
      </property>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>590</x>
+      <x>550</x>
       <y>690</y>
-      <width>671</width>
+      <width>521</width>
       <height>291</height>
      </rect>
     </property>
     <property name="title">
-     <string>                                                                        Learning from Demonstration</string>
+     <string>                                                            Learning from Demonstration</string>
     </property>
     <widget class="QPushButton" name="pushButton_7">
      <property name="geometry">
@@ -102,32 +76,6 @@
      </property>
      <property name="text">
       <string>Get context</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_4">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>250</y>
-       <width>88</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Stop node</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>217</y>
-       <width>90</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Start node</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_5">
@@ -251,76 +199,9 @@
       <string>Execute prediction</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_16">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>200</y>
-       <width>161</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Initial demonstrations</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_12">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>220</y>
-       <width>90</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Start node</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_11">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>253</y>
-       <width>88</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Stop node</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_17">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>200</y>
-       <width>31</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>LfD</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_18">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>170</y>
-       <width>67</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Nodes</string>
-     </property>
-    </widget>
     <zorder>pushButton_5</zorder>
     <zorder>pushButton_8</zorder>
     <zorder>pushButton_9</zorder>
-    <zorder>pushButton_4</zorder>
-    <zorder>pushButton_3</zorder>
     <zorder>label_5</zorder>
     <zorder>lineEdit_5</zorder>
     <zorder>label_4</zorder>
@@ -329,11 +210,6 @@
     <zorder>lineEdit_4</zorder>
     <zorder>pushButton_7</zorder>
     <zorder>pushButton_13</zorder>
-    <zorder>label_16</zorder>
-    <zorder>pushButton_12</zorder>
-    <zorder>pushButton_11</zorder>
-    <zorder>label_17</zorder>
-    <zorder>label_18</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
@@ -467,9 +343,9 @@
    <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
-      <x>1310</x>
+      <x>1120</x>
       <y>690</y>
-      <width>371</width>
+      <width>431</width>
       <height>301</height>
      </rect>
     </property>
@@ -724,6 +600,172 @@
       <string>Disable</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_19">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>20</y>
+       <width>101</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Head joints</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_20">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>40</y>
+       <width>85</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Initialize</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>850</y>
+      <width>441</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Nodes</string>
+    </property>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>20</y>
+       <width>161</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Initial demonstrations</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_12">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>40</y>
+       <width>90</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_11">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>70</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>20</y>
+       <width>31</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>LfD</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>40</y>
+       <width>90</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_4">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>70</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>20</y>
+       <width>91</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Refinement</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>40</y>
+       <width>90</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>73</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+    </widget>
+    <zorder>label_16</zorder>
+    <zorder>pushButton_12</zorder>
+    <zorder>groupBox_3</zorder>
+    <zorder>pushButton_11</zorder>
+    <zorder>label_17</zorder>
+    <zorder>pushButton_3</zorder>
+    <zorder>pushButton_4</zorder>
+    <zorder>label_18</zorder>
+    <zorder>pushButton</zorder>
+    <zorder>pushButton_2</zorder>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
