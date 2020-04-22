@@ -1,0 +1,12 @@
+self.rviz_widget = rvizPython()
+self.horizontalLayout_6 = QHBoxLayout()
+self.groupBox_4.setLayout(self.horizontalLayout_6)
+self.horizontalLayout_6.addWidget(self.rviz_widget)
+
+self.lineEdit.setText("0.8")
+self.lineEdit_2.setText("0.0")
+self.lineEdit_3.setText("0.9")
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *

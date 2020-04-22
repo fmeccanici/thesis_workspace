@@ -9,7 +9,7 @@ from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction,
                                             MakePredictionResponse, SetObject, SetObjectResponse,
-                                            GetContext, GetContextResponse)
+                                            GetContext, GetContextResponse, GoToPose, GoToPoseResponse)
 
 from learning_from_demonstration.msg import prompTraj
 from std_msgs.msg import Bool
@@ -46,10 +46,11 @@ class lfdNode():
         
         # ros services
         self._add_demo_service = rospy.Service('add_demonstration', AddDemonstration, self._add_demonstration)
-        self._predict = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
-        self._set_object = rospy.Service('set_object', SetObject, self._set_object_position)
-        self._get_context = rospy.Service('get_context', GetContext, self._get_context_marker)
-        
+        self._predict_service = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
+        self._set_object_service = rospy.Service('set_object', SetObject, self._set_object_position)
+        self._get_context_service = rospy.Service('get_context', GetContext, self._get_context_marker)
+        self._go_to_pose_service = rospy.Service('go_to_pose', GoToPose, self._go_to_pose)
+
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -150,6 +151,47 @@ class lfdNode():
 
         return [x, y, z]
 
+    def go_to_pose(self, pose):
+        rospy.wait_for_message('/end_effector_pose', PoseStamped)
+
+        T = 2
+        x = [self.current_slave_pose.position.x, pose.position.x]
+        y = [self.current_slave_pose.position.y, pose.position.y]
+        z = [self.current_slave_pose.position.z, pose.position.z]
+
+        t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
+
+        t = list(self.parser.secs_nsecs_to_float_vector(self.parser.durationVector2secsNsecsVector(t)))
+        fx = interp1d(t, x, fill_value="extrapolate")
+        fy = interp1d(t, y, fill_value="extrapolate")
+        fz = interp1d(t, z, fill_value="extrapolate")
+
+        dt = 0.1
+        tnew = np.arange(t[0],t[-1],dt)
+        xnew = fx(tnew)
+        ynew = fy(tnew)
+        znew = fz(tnew)
+
+        for i in range(len(ynew)):
+            slave_goal = PoseStamped()
+
+            slave_goal.pose.position.x = xnew[i]
+            slave_goal.pose.position.y = ynew[i]
+            slave_goal.pose.position.z = znew[i]
+
+            slave_goal.pose.orientation.x = pose.orientation.x
+            slave_goal.pose.orientation.y = pose.orientation.y
+            slave_goal.pose.orientation.z = pose.orientation.z
+            slave_goal.pose.orientation.w = pose.orientation.w
+
+            slave_goal.header.seq = 0
+            slave_goal.header.frame_id = "/base_footprint"
+
+            slave_goal.header.stamp = (rospy.Time.now())
+            self._end_effector_goal_pub.publish(slave_goal)
+            
+            time.sleep(dt)
+                
     def goToInitialPose(self):
         rospy.loginfo("Moving to initial pose")
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
@@ -190,7 +232,7 @@ class lfdNode():
             slave_goal.pose.orientation.x = 0.980837824843
             slave_goal.pose.orientation.y = -0.00365989846539
             slave_goal.pose.orientation.z = -0.194791016723
-            slave_goal.pose.orientation.w = 0.000475714270521
+            slave_goal.pose.orientation.w = -0.194791016723
 
             slave_goal.header.seq = 0
             slave_goal.header.frame_id = "/base_footprint"
@@ -302,6 +344,18 @@ class lfdNode():
 
         return message
 
+    def _go_to_pose(self, req):
+        rospy.loginfo("Executing trajectory using service...")
+        pose = req.pose
+
+        self.go_to_pose(pose)
+
+        response = GoToPoseResponse()
+        suc = Bool()
+        suc.data = True
+        response.success = suc
+
+        return response
     def _set_object_position(self, req):
         print("Setting Aruco position using service...")
         x = req.position.x
@@ -335,7 +389,6 @@ class lfdNode():
         prediction = self.lfd.generalize(goal)
         relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
 
-        # traj_pred = self.prompTrajMessage_to_correct_format(prediction)
         # traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
         traj_pred_message = self.predicted_trajectory_to_prompTraj_message(relative_prediction, goal)
 
@@ -400,38 +453,36 @@ class lfdNode():
         plt.show()
         return trajectory_wrt_base
 
-
-
     def run(self):
-        # pass
-        self.goToInitialPose()
-        x = float(input("x: "))
+        pass
+        # self.goToInitialPose()
+        # x = float(input("x: "))
 
-        # x = 0.94
-        y = -0.0231
-        self.set_aruco_position(x, y)
+        # # x = 0.94
+        # y = -0.0231
+        # self.set_aruco_position(x, y)
 
-        if input("Is the object placed at the desired location? 1/0") == "0":
-            x = float(input("x: "))
-        else:
-            # self.clear_trajectories_rviz()
+        # if input("Is the object placed at the desired location? 1/0") == "0":
+        #     x = float(input("x: "))
+        # else:
+        #     # self.clear_trajectories_rviz()
 
-            print("Making prediction...")
-            # self.lfd.promp_model.plot_conditioned_joints()
+        #     print("Making prediction...")
+        #     # self.lfd.promp_model.plot_conditioned_joints()
 
-            traj_pred = self.predict()
+        #     traj_pred = self.predict()
 
-            plt.plot([ x[0] for x in traj_pred])
-            plt.show()
-            # print(traj_pred)
-            n = 100
-            # traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
-            self.visualize_trajectory(traj_pred, 1, 0, 0)
-            # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
+        #     plt.plot([ x[0] for x in traj_pred])
+        #     plt.show()
+        #     # print(traj_pred)
+        #     n = 100
+        #     # traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
+        #     self.visualize_trajectory(traj_pred, 1, 0, 0)
+        #     # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
 
-            # dt = 0.1
-            # self.executeTrajectory(traj_pred_resampled, dt)
-            time.sleep(5)
+        #     # dt = 0.1
+        #     # self.executeTrajectory(traj_pred_resampled, dt)
+        #     time.sleep(5)
         
 
             

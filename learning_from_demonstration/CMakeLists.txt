@@ -20,6 +20,7 @@ add_message_files(
     MakePrediction.srv
     SetObject.srv
     GetContext.srv
+    GoToPose.srv
   )
 catkin_python_setup()
 
