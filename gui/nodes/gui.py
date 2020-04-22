@@ -6,7 +6,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 # other packages
-import rospy, sys, roslaunch, rospkg, os
+import rospy, sys, roslaunch, rospkg, os, random
+
 from rviz_python.rviz_python import rvizPython
 
 # ROS messages
@@ -407,7 +408,7 @@ class experimentGUI(QMainWindow):
             try:
                 resp = make_prediction(self.context)
                 self.prediction = resp.prediction.poses
-
+                print("times = " + str(resp.prediction.times))
 
             except AttributeError:
                 rospy.loginfo("Context not yet extracted!")
@@ -447,6 +448,20 @@ class experimentGUI(QMainWindow):
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
+
+    def on_random_pose_click(self):
+        x = random.uniform(0.3, 0.53)
+        y = random.uniform(-0.2, 0.4)
+        z = random.uniform(0.52, 1.24)
+
+        self.lineEdit_9.setText(str(round(x, 3)))
+        self.lineEdit_7.setText(str(round(y, 3)))
+        self.lineEdit_8.setText(str(round(z, 3)))
+
+        self.lineEdit_12.setText(str(round(0.980837824843, 3)))
+        self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
+        self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
+        self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
 
     def check_button_state(self, button):
         # if preset 1 and checked
@@ -536,7 +551,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_5.clicked.connect(self.on_predict_click)
         self.pushButton_4.clicked.connect(self.stop_lfd_node)
         self.pushButton_3.clicked.connect(self.start_lfd_node)
-
+        self.pushButton_16.clicked.connect(self.on_random_pose_click)
         
         self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_execute_click))
         # self.pushButton_17.clicked.connect(self.on_execute_click_multithread)

@@ -70,7 +70,19 @@ class trajectoryParser():
         
     def getZpositions(self, traj):
         return [traj[2] for traj in traj]
-
+    
+    def get_qx(self, traj):
+        return [traj[3] for traj in traj]
+    
+    def get_qy(self, traj):
+        return [traj[4] for traj in traj]
+    
+    def get_qz(self, traj):
+        return [traj[5] for traj in traj]
+    
+    def get_qw(self, traj):
+        return [traj[6] for traj in traj]
+    
     def openTrajectoryFile(self, traj_file, path):
         with open(path+traj_file, "r") as traj:
             raw_trajectory = ast.literal_eval(traj.read())    

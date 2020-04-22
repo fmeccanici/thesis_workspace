@@ -26,11 +26,11 @@ class ProMPContext(object):
         #     else:
         #         self.outputs.append(j)
         #         self.outputs_ix.append(i)
-        self.outputs = [output_name]
-        self.contexts = context_names
+        self.output_name = [output_name]
+        self.context_names = context_names
         # self.num_variables = len(self.variables)
-        self.num_outputs = len(self.outputs)
-        self.num_contexts = len(self.contexts)
+        self.num_outputs = len(self.output_name)
+        self.num_contexts = len(self.context_names)
         
         # print(self.outputs)
 

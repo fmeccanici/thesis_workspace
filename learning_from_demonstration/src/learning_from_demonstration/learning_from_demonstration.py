@@ -211,11 +211,20 @@ class learningFromDemonstration():
         pred_traj = self.promps[0].generate_trajectory(context)     
         for promp in self.promps[1:]:
             pred = promp.generate_trajectory(context)
-            pred_traj = np.vstack((pred_traj, pred))
+            
+            # if variable is dt --> convert to time vector
+            if promp.output_name[0] == 'dt':
+                dt = pred[0]
+                n = len(pred)
+                T = dt*n
+                t = np.linspace(0, T, n)
+                pred_traj = np.vstack((pred_traj, t))
+            else:
+                pred_traj = np.vstack((pred_traj, pred))
 
         # list format
         pred_traj = [list(x) for x in pred_traj.T]
-        
+
         return pred_traj
 
     def trajectory_wrt_base(self, trajectory_wrt_object, object_wrt_base):
@@ -231,9 +240,14 @@ class learningFromDemonstration():
 
         return traj_wrt_base
 
-    def add_trajectory_to_promp_model(self, traj):
-        print("Adding trajectory to promp model...")
-        self.promp_model.add_demonstration(np.asarray(traj))
+    def add_trajectory_to_promp_model(self, traj, context):
+        # we need to extract each separate variable
+        # and add this to the individual promp models
+        rospy.loginfo("Adding trajectory to promp model...")
+
+        for i in range(len(traj)):
+            single_variable_traj = traj[:,i]
+            self.promps[i].add_demonstration(single_variable_traj, context)
 
     def get_raw_trajectories(self):
         return self.raw_trajectories

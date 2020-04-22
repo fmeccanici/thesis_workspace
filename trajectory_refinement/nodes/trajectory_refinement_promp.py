@@ -69,6 +69,9 @@ class trajectoryRefinement():
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
         
+        # services
+        self._refine_trajectory_service = rospy.Service('refine_trajectory', RefineTrajectory, self._refine_trajectory)
+
         # initialize other classes
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
@@ -286,16 +289,12 @@ class trajectoryRefinement():
 
             slave_goal = PoseStamped()
 
-            # try:
             # calculate next pose wrt current pose
             if i <= len(traj_pos)-2:
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[i+1]), np.array(traj_pos[i]))
-                # pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[i]), np.array(traj_pos[i+1]))
 
             else:
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[-1]), np.array(traj_pos[-2]))
-                # pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[-2]), np.array(traj_pos[-1]))
-
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
             pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
@@ -404,7 +403,6 @@ class trajectoryRefinement():
 
             pred_traj = pred_pos + pred_ori + object_position + pred_t
 
-
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
             new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
         
@@ -449,6 +447,12 @@ class trajectoryRefinement():
         message.times = t_list
 
         return message
+    
+    # ROS service for refining trajectory
+    def _refine_trajectory(self, req):
+        rospy.loginfo("Refining trajectory...")
+        
+
     def add_demonstration_client(self, demo):
         rospy.wait_for_service('add_demonstration')
         try:
