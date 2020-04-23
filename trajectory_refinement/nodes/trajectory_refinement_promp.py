@@ -192,80 +192,7 @@ class trajectoryRefinement():
 
     @classmethod
     def reverseTrajectory(cls, traj):
-
         return traj[::-1]
-
-    def executeTrajectory(self, traj, dt):
-        rospy.loginfo("Executing trajectory...")
-        slave_goal = PoseStamped()
-        for datapoint in traj:
-            slave_goal.pose.position.x = datapoint[0]
-            slave_goal.pose.position.y = datapoint[1]
-            slave_goal.pose.position.z = datapoint[2]
-
-            slave_goal.pose.orientation.x = datapoint[3]
-            slave_goal.pose.orientation.y = datapoint[4]
-            slave_goal.pose.orientation.z = datapoint[5]
-            slave_goal.pose.orientation.w = datapoint[6]
-
-            slave_goal.header.seq = 0
-            slave_goal.header.frame_id = self.base_frame
-
-            slave_goal.header.stamp = (rospy.Time.now())
-            self.end_effector_goal_pub.publish(slave_goal)
-            
-            time.sleep(dt)
-
-    def goToInitialPose(self):
-        rospy.loginfo("Moving to initial pose")
-        rospy.wait_for_message('/end_effector_pose', PoseStamped)
-
-        T = 2
-        x = [self.current_slave_pose.position.x, 0.401946359213]
-        y = [self.current_slave_pose.position.y, -0.0230769199229]
-        z = [self.current_slave_pose.position.z, 0.840896642238]
-
-        # x = [self.current_slave_pose.position.x, 0.403399335619]
-        # y = [self.current_slave_pose.position.y, -0.430007534239]
-        # z = [self.current_slave_pose.position.z, 1.16269467394]
-        
-        # x = [self.current_slave_pose.position.x, 0.353543514402]
-        # y = [self.current_slave_pose.position.y, 0.435045131507]
-        # z = [self.current_slave_pose.position.z, 0.760080619348]
-
-        t = [rospy.Time.now(), rospy.Time.now() + rospy.Duration(T)]
-
-        t = list(self.parser.secs_nsecs_to_float_vector(self.parser.durationVector2secsNsecsVector(t)))
-        print(t)
-        fx = interp1d(t, x, fill_value="extrapolate")
-        fy = interp1d(t, y, fill_value="extrapolate")
-        fz = interp1d(t, z, fill_value="extrapolate")
-
-        dt = 0.1
-        tnew = np.arange(t[0],t[-1],dt)
-        xnew = fx(tnew)
-        ynew = fy(tnew)
-        znew = fz(tnew)
-
-        for i in range(len(ynew)):
-            slave_goal = PoseStamped()
-
-            slave_goal.pose.position.x = xnew[i]
-            slave_goal.pose.position.y = ynew[i]
-            slave_goal.pose.position.z = znew[i]
-
-            slave_goal.pose.orientation.x = 0.980837824843
-            slave_goal.pose.orientation.y = -0.00365989846539
-            slave_goal.pose.orientation.z = -0.194791016723
-            slave_goal.pose.orientation.w = 0.000475714270521
-
-            slave_goal.header.seq = 0
-            slave_goal.header.frame_id = self.base_frame
-
-            slave_goal.header.stamp = (rospy.Time.now())
-            self.end_effector_goal_pub.publish(slave_goal)
-            
-            time.sleep(dt)
         
     def PoseStampedToCartesianPositionList(self, pose):
         return [pose.pose.position.x, pose.pose.position.y, pose.pose.position.z]  
@@ -411,16 +338,6 @@ class trajectoryRefinement():
 
         return new_trajectory, dt_new
 
-    def set_object_position_client(self, object_position):
-        rospy.wait_for_service('set_object')
-        try:
-            set_object = rospy.ServiceProxy('set_object', SetObject)
-            resp = set_object(object_position)
-            return resp.success
-
-        except rospy.ServiceException as e:
-            print("Service call failed: %s"%e)
-
     def prompTrajMessage_to_demonstration_format(self, traj_msg):
         trajectory = []
         context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
@@ -494,60 +411,6 @@ class trajectoryRefinement():
         response.refined_trajectory = new_traj_msg
 
         return response
-
-    def add_demonstration_client(self, demo):
-        rospy.wait_for_service('add_demonstration')
-        try:
-            add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
-            demo = self.predicted_trajectory_to_prompTraj_message(demo)
-            resp = add_demonstration(demo)
-            return resp.success
-
-        except rospy.ServiceException as e:
-            print("Service call failed: %s"%e)
-
-    def make_prediction_client(self, context):
-        rospy.wait_for_service('make_prediction')
-        try:
-            make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
-            resp = make_prediction(context)
-            return resp.prediction
-
-        except rospy.ServiceException as e:
-            print("Service call failed: %s"%e)
-    
-    def prompTrajMessage_to_correct_format(self, traj_msg):
-        trajectory = []
-        object_position = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
-
-        for i,pose in enumerate(traj_msg.poses):
-            x = pose.position.x
-            y = pose.position.y
-            z = pose.position.z
-            
-            pos = [x, y, z]
-
-            qx = pose.orientation.x
-            qy = pose.orientation.y
-            qz = pose.orientation.z
-            qw = pose.orientation.w
-
-            ori = [qx, qy, qz, qw]
-
-            t = [traj_msg.times[i]]
-
-            trajectory.append(pos + ori + object_position + t)
-        
-        return trajectory
-    
-    def visualize_trajectory(self, traj, r, g, b):
-        for i in range(50):
-            self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(traj, r=r, g=g, b=b, frame_id=self.base_frame))
-    
-    def clear_trajectories_rviz(self):
-        empty_traj = np.zeros((1, 7))
-        for i in range(10):
-            self.traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
     def run(self):
         pass
