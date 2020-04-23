@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation rospy geometry_msgs p
 add_service_files(
 FILES
 RefineTrajectory.srv
+CalibrateMasterPose.srv
 )
 
 generate_messages(

@@ -115,7 +115,7 @@ class trajectoryResampler():
 
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
             pose = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-            ynew = pose + object_pos + [xvals[i]]
+            ynew = pose + [xvals[i]]
             interpol_traj.append(ynew)
 
 

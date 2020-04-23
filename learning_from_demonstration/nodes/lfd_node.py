@@ -357,8 +357,16 @@ class lfdNode():
 
     def _add_demonstration(self, req):
         print("Adding demonstration using service...")
-
         trajectory, context = self.lfd.parser.prompTrajMessage_to_demonstration_format(req.demo)
+        plt.figure()
+        plt.plot(self.parser.getCartesianPositions(trajectory), color='green')
+        plt.title("Added trajectory to model")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        plt.legend()
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/added_demonstration_to_model.png')
+        plt.close()   
 
         self.lfd.add_trajectory_to_promp_model(trajectory, context)
         self.add_demo_success.data = True

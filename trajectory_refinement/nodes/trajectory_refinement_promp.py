@@ -10,7 +10,8 @@ from pyquaternion import Quaternion
 # import ros messages
 from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
 from promp_context_ros.msg import prompTraj
-from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse
+from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose, CalibrateMasterPoseResponse
+
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from master_control.msg import ControlComm
 from trajectory_visualizer.msg import TrajectoryVisualization
@@ -72,7 +73,8 @@ class trajectoryRefinement():
         
         # services
         self._refine_trajectory_service = rospy.Service('refine_trajectory', RefineTrajectory, self._refine_trajectory)
-        rospy.loginfo("Trajectory refinement service ready...")
+        self._calibrate_master_pose_service = rospy.Service('calibrate_master_pose', CalibrateMasterPose, self._calibrate_master_pose)        
+        
         # initialize other classes
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
@@ -82,7 +84,7 @@ class trajectoryRefinement():
 
     
         # calibrate master pose
-        self.initMasterNormalizePose()
+        # self.initMasterNormalizePose()
 
 
     def _get_parameters(self):
@@ -148,6 +150,11 @@ class trajectoryRefinement():
         y = self.object_marker_pose.position.y - self.current_slave_pose.position.y 
         z = self.object_marker_pose.position.z - self.current_slave_pose.position.z 
 
+    def _calibrate_master_pose(self, req):
+        self.calibrate_master_pose_for_normalization()
+        response = CalibrateMasterPoseResponse()
+
+        return response
 
     def calibrate_master_pose_for_normalization(self):
         self.firstMasterPose = PoseStamped()
@@ -347,9 +354,55 @@ class trajectoryRefinement():
         refined_prediction = self.refineTrajectory(prediction, dt)
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
+        n_pred = len(prediction)
+
+        plt.figure()
+        plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
+        plt.title("Comparison refined and predicted trajectory (before resampling)")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        plt.legend()
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_before_resampling.png')
+        plt.close()
+
+        # resample new trajectory to match the prediction
+        new_traj = self.resampler.interpolate_predicted_trajectory(new_traj, n_pred)
+        plt.figure()
+        plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
+        plt.title("Comparison refined and predicted trajectory (after resampling)")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        plt.legend()
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_after_resampling.png')
+        plt.close()   
+
+        rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
+        rospy.loginfo("len pred before dtw = " + str(len(prediction)))
+
+        # apply dynamic time warping --> reference = prediction
+        pred_aligned, new_traj = self.dtw.apply_dtw(prediction, new_traj)
+        rospy.loginfo("len pred after dtw = " + str(len(pred_aligned)))
+        rospy.loginfo("len_new_traj after dtw = " + str(len(new_traj)))
+
+
+        plt.figure()
+        plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
+        plt.title("Comparison refined and predicted trajectory (after DTW)")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        plt.legend()
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_DTW_resampling_both.png')
+        plt.close()   
 
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
         new_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(new_traj, context)
+        rospy.loginfo("context = " + str(context))
 
         response = RefineTrajectoryResponse()
         response.refined_trajectory = new_traj_msg

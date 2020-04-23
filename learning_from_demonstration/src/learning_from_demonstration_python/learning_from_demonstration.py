@@ -245,9 +245,10 @@ class learningFromDemonstration():
         # and add this to the individual promp models
         rospy.loginfo("Adding trajectory to promp model...")
 
-        for i in range(len(traj)):
-            single_variable_traj = traj[:,i]
-            self.promps[i].add_demonstration(single_variable_traj, context)
+        for variable in range(np.asarray(traj).shape[1]):
+            single_variable_traj = [ [data[variable]] for data in traj]
+            demonstration = (single_variable_traj, context)
+            self.promps[variable].add_demonstration(demonstration)
 
     def get_raw_trajectories(self):
         return self.raw_trajectories

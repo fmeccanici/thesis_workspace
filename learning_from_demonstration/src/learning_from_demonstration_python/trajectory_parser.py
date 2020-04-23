@@ -11,6 +11,8 @@ class trajectoryParser():
         self.raw_trajectory = []
 
     # ROS msg related
+    def point_to_list(self, point):
+        return [point.x, point.y, point.z]
     def promptraj_msg_to_execution_format(self, traj_msg):
         dt = traj_msg.times[1]
         trajectory = []
@@ -68,7 +70,6 @@ class trajectoryParser():
         message.object_position.y = context[1]
         message.object_position.z = context[2]
 
-        print(traj[0])
         for data in traj:
             # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
             ee_pose = Pose()

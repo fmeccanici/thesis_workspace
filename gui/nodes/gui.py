@@ -14,7 +14,7 @@ from rviz_python.rviz_python import rvizPython
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, 
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse)
-from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse
+from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
@@ -537,16 +537,25 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)
     
     def on_add_to_model_click(self):
-        promp_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.refined_trajectory)
         
         try:
             rospy.wait_for_service('add_demonstration', timeout=2.0)
-            go_to_pose = rospy.ServiceProxy('add_demonstration', AddDemonstration)
-            resp = go_to_pose(promp_traj_msg)
+            add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+            resp = add_demonstration(self.refined_trajectory)
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
+    
+    def on_calibrate_click(self):
+        try:
+            rospy.wait_for_service('calibrate_master_pose', timeout=2.0)
+            calibrate = rospy.ServiceProxy('calibrate_master_pose', CalibrateMasterPose)
+            resp = calibrate()
 
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+    
+    
     def on_random_object_pose_click(self):
         x = random.uniform(0.7, 0.83)
         y = random.uniform(-0.3, 0.3)
@@ -659,6 +668,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_9.clicked.connect(self.on_clear_trajectories_click)
         self.pushButton_8.clicked.connect(self.on_visualize_prediction_click)
         self.pushButton_22.clicked.connect(self.on_visualize_refinement_click)
+        self.pushButton_10.clicked.connect(self.on_calibrate_click)
 
         self.pushButton_7.clicked.connect(self.on_get_context_click)
         self.pushButton_5.clicked.connect(self.on_predict_click)
