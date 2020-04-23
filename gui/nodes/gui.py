@@ -16,9 +16,11 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse)
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
-from learning_from_demonstration.msg import prompTraj
+from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
 from trajectory_visualizer.msg import TrajectoryVisualization
+
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 # class that enables multithreading with Qt
 class Worker(QRunnable):
@@ -64,6 +66,7 @@ class experimentGUI(QMainWindow):
         ## initialize ROS stuff
         rospy.init_node("experiment_gui")
         self._rospack = rospkg.RosPack()
+        self.parser = trajectoryParser()
 
         # initialize Qt GUI
         self.initGUI()
@@ -532,6 +535,17 @@ class experimentGUI(QMainWindow):
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
+    
+    def on_add_to_model_click(self):
+        promp_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.refined_trajectory)
+        
+        try:
+            rospy.wait_for_service('add_demonstration', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+            resp = go_to_pose(promp_traj_msg)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
 
     def on_random_object_pose_click(self):
         x = random.uniform(0.7, 0.83)
@@ -657,6 +671,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_20.clicked.connect(self.on_initialize_head_joints_click)
         self.pushButton.clicked.connect(self.start_refinement_node)
         self.pushButton_2.clicked.connect(self.stop_refinement_node)
+
+        self.pushButton_6.clicked.connect(self.on_add_to_model_click)
+
 
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
 

@@ -2,4 +2,4 @@ geometry_msgs/Point context
 
 ---
 
-prompTraj prediction
+promp_context_ros/prompTraj prediction

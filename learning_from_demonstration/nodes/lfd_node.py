@@ -12,15 +12,15 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GetContext, GetContextResponse, GoToPose, GoToPoseResponse,
                                             ExecuteTrajectory, ExecuteTrajectoryResponse)
 
-from learning_from_demonstration.msg import prompTraj
+from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
 from geometry_msgs.msg import Point
 
 # import my own classes
-from learning_from_demonstration.learning_from_demonstration import learningFromDemonstration
+from learning_from_demonstration_python.learning_from_demonstration import learningFromDemonstration
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
-from learning_from_demonstration.trajectory_parser import trajectoryParser
-from learning_from_demonstration.trajectory_resampler import trajectoryResampler
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 
 # import other python classes
 from scipy.interpolate import interp1d
@@ -271,7 +271,6 @@ class lfdNode():
         for i in range(10):
             self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
-
     def set_aruco_position(self, x=0.7, y=-0.43, z=1):
         state_msg = ModelState()
         state_msg.model_name = 'aruco_cube'
@@ -291,90 +290,8 @@ class lfdNode():
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
 
-    def promptraj_msg_to_execution_format(self, traj_msg):
-        dt = traj_msg.times[1]
-        trajectory = []
-        for i,pose in enumerate(traj_msg.poses):
-            x = pose.position.x
-            y = pose.position.y
-            z = pose.position.z
-            
-            pos = [x, y, z]
-
-            qx = pose.orientation.x
-            qy = pose.orientation.y
-            qz = pose.orientation.z
-            qw = pose.orientation.w
-
-            ori = [qx, qy, qz, qw]
-
-            t = [traj_msg.times[i]]
-
-            
-
-            trajectory.append(pos + ori + t)
-
-        return trajectory, dt
-        
-    def predicted_trajectory_to_prompTraj_message(self, traj, context):
-        t_list = []
-        message = prompTraj()
-        message.object_position.x = context[0]
-        message.object_position.y = context[1]
-        message.object_position.z = context[2]
-
-        print(traj[0])
-        for data in traj:
-            # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
-            ee_pose = Pose()
-            ee_pose.position.x = data[0]
-            ee_pose.position.y = data[1]
-            ee_pose.position.z = data[2]
-            ee_pose.orientation.x = data[3]
-            ee_pose.orientation.y = data[4]
-            ee_pose.orientation.z = data[5]
-            ee_pose.orientation.w = data[6]
-
-            message.poses.append(ee_pose)
-
-            
-            t_float = data[-1]
-            # message.times.append([t_float])
-            t_list += [t_float]
-
-        message.times = t_list
-
-        return message
-
-    def prompTrajMessage_to_demonstration_format(self, traj_msg):
-        trajectory = []
-        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
-        dt = [traj_msg.times[1]]
-
-        for i,pose in enumerate(traj_msg.poses):
-            x = pose.position.x
-            y = pose.position.y
-            z = pose.position.z
-            
-            pos = [x, y, z]
-
-            qx = pose.orientation.x
-            qy = pose.orientation.y
-            qz = pose.orientation.z
-            qw = pose.orientation.w
-
-            ori = [qx, qy, qz, qw]
-
-            # t = [traj_msg.times[i]]
-
-            
-
-            trajectory.append(pos + ori + dt)
-        
-        return trajectory, context
-
     def _execute_trajectory(self, req):
-        traj, dt = self.promptraj_msg_to_execution_format(req.trajectory)
+        traj, dt = self.lfd.parser.promptraj_msg_to_execution_format(req.trajectory)
 
         ndesired = 75
 
@@ -431,7 +348,7 @@ class lfdNode():
         relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
 
         # traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
-        traj_pred_message = self.predicted_trajectory_to_prompTraj_message(relative_prediction, goal)
+        traj_pred_message = self.lfd.parser.predicted_trajectory_to_prompTraj_message(relative_prediction, goal)
 
         response = MakePredictionResponse()
         response.prediction = traj_pred_message
@@ -441,7 +358,7 @@ class lfdNode():
     def _add_demonstration(self, req):
         print("Adding demonstration using service...")
 
-        trajectory, context = self.prompTrajMessage_to_demonstration_format(req.demo)
+        trajectory, context = self.lfd.parser.prompTrajMessage_to_demonstration_format(req.demo)
 
         self.lfd.add_trajectory_to_promp_model(trajectory, context)
         self.add_demo_success.data = True

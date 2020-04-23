@@ -1,6 +1,6 @@
   cmake_minimum_required(VERSION 2.8.3)
   project(trajectory_visualizer)
-  find_package(catkin REQUIRED COMPONENTS rospy std_msgs geometry_msgs message_generation learning_from_demonstration)
+  find_package(catkin REQUIRED COMPONENTS rospy std_msgs geometry_msgs message_generation promp_context_ros)
 
 
   add_message_files(
@@ -21,7 +21,7 @@
     DEPENDENCIES
     geometry_msgs
     std_msgs
-    learning_from_demonstration
+    promp_context_ros
   )
 
   catkin_package()

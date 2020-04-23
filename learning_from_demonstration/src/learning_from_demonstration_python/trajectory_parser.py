@@ -3,10 +3,93 @@
 import rospy, ast, os, os.path
 import numpy as np
 import matplotlib.pyplot as plt
+from geometry_msgs.msg import Pose
+from promp_context_ros.msg import prompTraj
 
 class trajectoryParser():
     def __init__(self):
         self.raw_trajectory = []
+
+    # ROS msg related
+    def promptraj_msg_to_execution_format(self, traj_msg):
+        dt = traj_msg.times[1]
+        trajectory = []
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
+
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + t)
+
+        return trajectory, dt
+    def prompTrajMessage_to_demonstration_format(self, traj_msg):
+        trajectory = []
+        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
+        dt = [traj_msg.times[1]]
+
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
+
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            # t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + dt)
+        
+        return trajectory, context
+    def predicted_trajectory_to_prompTraj_message(self, traj, context):
+        t_list = []
+        message = prompTraj()
+        message.object_position.x = context[0]
+        message.object_position.y = context[1]
+        message.object_position.z = context[2]
+
+        print(traj[0])
+        for data in traj:
+            # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
+            ee_pose = Pose()
+            ee_pose.position.x = data[0]
+            ee_pose.position.y = data[1]
+            ee_pose.position.z = data[2]
+            ee_pose.orientation.x = data[3]
+            ee_pose.orientation.y = data[4]
+            ee_pose.orientation.z = data[5]
+            ee_pose.orientation.w = data[6]
+
+            message.poses.append(ee_pose)
+
+            
+            t_float = data[-1]
+            # message.times.append([t_float])
+            t_list += [t_float]
+
+        message.times = t_list
+
+        return message
 
     def ee_wrt_object(self, ee_wrt_base, object_wrt_base):
         return np.subtract(ee_wrt_base, object_wrt_base)

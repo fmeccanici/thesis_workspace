@@ -8,7 +8,7 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from geometry_msgs.msg import Point, Pose, Vector3, PoseArray
 from std_msgs.msg import Header, ColorRGBA
 
-from learning_from_demonstration.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 class trajectoryVisualizer():
     def __init__(self):
         self.frame_id = "base_footprint"

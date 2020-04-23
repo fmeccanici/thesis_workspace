@@ -4,9 +4,9 @@
 # from learning_from_demonstration.promp_python import ProMPContext
 from promp_context.promp_context import ProMPContext
 
-from learning_from_demonstration.dynamic_time_warping import *
-from learning_from_demonstration.trajectory_parser import *
-from learning_from_demonstration.trajectory_resampler import *
+from learning_from_demonstration_python.dynamic_time_warping import *
+from learning_from_demonstration_python.trajectory_parser import *
+from learning_from_demonstration_python.trajectory_resampler import *
 
 # import other external classes
 import ast, os, time

@@ -9,7 +9,7 @@ from pyquaternion import Quaternion
 
 # import ros messages
 from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
-from learning_from_demonstration.msg import prompTraj
+from promp_context_ros.msg import prompTraj
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from master_control.msg import ControlComm
@@ -20,9 +20,9 @@ from aruco_msgs.msg import MarkerArray
 
 # import own python packages
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
-from learning_from_demonstration.trajectory_resampler import trajectoryResampler
-from learning_from_demonstration.dynamic_time_warping import DTW
-from learning_from_demonstration.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
+from learning_from_demonstration_python.dynamic_time_warping import DTW
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 
 class trajectoryStorageVariables():
@@ -336,91 +336,11 @@ class trajectoryRefinement():
         dt_new = t_refined[1]
 
         return new_trajectory, dt_new
-    def promptraj_msg_to_execution_format(self, traj_msg):
-        dt = traj_msg.times[1]
-        trajectory = []
-        for i,pose in enumerate(traj_msg.poses):
-            x = pose.position.x
-            y = pose.position.y
-            z = pose.position.z
-            
-            pos = [x, y, z]
-
-            qx = pose.orientation.x
-            qy = pose.orientation.y
-            qz = pose.orientation.z
-            qw = pose.orientation.w
-
-            ori = [qx, qy, qz, qw]
-
-            t = [traj_msg.times[i]]
-
-            
-
-            trajectory.append(pos + ori + t)
-
-        return trajectory, dt
-    def prompTrajMessage_to_demonstration_format(self, traj_msg):
-        trajectory = []
-        context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
-        dt = [traj_msg.times[1]]
-
-        for i,pose in enumerate(traj_msg.poses):
-            x = pose.position.x
-            y = pose.position.y
-            z = pose.position.z
-            
-            pos = [x, y, z]
-
-            qx = pose.orientation.x
-            qy = pose.orientation.y
-            qz = pose.orientation.z
-            qw = pose.orientation.w
-
-            ori = [qx, qy, qz, qw]
-
-            # t = [traj_msg.times[i]]
-
-            
-
-            trajectory.append(pos + ori + dt)
-        
-        return trajectory, context
-    
-    def predicted_trajectory_to_prompTraj_message(self, traj, context):
-        t_list = []
-        message = prompTraj()
-        message.object_position.x = context[0]
-        message.object_position.y = context[1]
-        message.object_position.z = context[2]
-
-        print(traj[0])
-        for data in traj:
-            # message.end_effector_pose.header.stamp = rospy.Duration(secs=data[-2], nsecs=data[-1])
-            ee_pose = Pose()
-            ee_pose.position.x = data[0]
-            ee_pose.position.y = data[1]
-            ee_pose.position.z = data[2]
-            ee_pose.orientation.x = data[3]
-            ee_pose.orientation.y = data[4]
-            ee_pose.orientation.z = data[5]
-            ee_pose.orientation.w = data[6]
-
-            message.poses.append(ee_pose)
-
-            
-            t_float = data[-1]
-            # message.times.append([t_float])
-            t_list += [t_float]
-
-        message.times = t_list
-
-        return message
 
     # ROS service for refining trajectory
     def _refine_trajectory(self, req):
         rospy.loginfo("Refining trajectory...")
-        prediction, context = self.promptraj_msg_to_execution_format(req.trajectory)
+        prediction, context = self.parser.promptraj_msg_to_execution_format(req.trajectory)
         
         dt = req.trajectory.times[1]
 
@@ -429,7 +349,7 @@ class trajectoryRefinement():
 
 
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
-        new_traj_msg = self.predicted_trajectory_to_prompTraj_message(new_traj, context)
+        new_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(new_traj, context)
 
         response = RefineTrajectoryResponse()
         response.refined_trajectory = new_traj_msg

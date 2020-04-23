@@ -3,7 +3,7 @@
 import rospy
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
 from trajectory_visualizer.msg import TrajectoryVisualization
-from learning_from_demonstration.msg import prompTraj
+from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
 
 from geometry_msgs.msg import Point, Pose, Vector3, PoseArray

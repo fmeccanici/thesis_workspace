@@ -3,7 +3,7 @@
 from fastdtw import fastdtw
 import numpy as np
 
-from learning_from_demonstration.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_parser import *
 import matplotlib.pyplot as plt
 import os, os.path
 
