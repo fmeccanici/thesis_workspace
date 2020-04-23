@@ -297,10 +297,10 @@ class trajectoryRefinement():
         T_refined = self.parser.get_total_time(refined_traj)
         T_pred = self.parser.get_total_time(pred_traj)
 
-
+        # resample so their n matches
         y_pred, y_ref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
-
-
+        
+        # apply DTW to align them
         y_refined_aligned, y_pred_aligned = self.dtw.apply_dtw(y_ref, y_pred)
 
 

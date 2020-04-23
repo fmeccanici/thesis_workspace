@@ -78,12 +78,20 @@ class ProMPContext(object):
         self.Y = np.empty((0, self.num_samples), float)
         self.C = np.empty((0, self.num_contexts), float)
 
+        self.figs = ["demonstrations_fig", "mean_variance_fig"]
+        
+
+    def save_plots(self):
+        plt.figure(self.figs[0])
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/added_trajectories_building_Phi_matrix.png', bbox_extra_artists=(self.lgd,), bbox_inches='tight')
+        plt.figure(self.figs[1])
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/mean_variance.png')
+        
     def add_demonstration(self, demonstration):
 
         trajectory = demonstration[0]
         context = demonstration[1]
 
-        # print("trajectory = " + str(trajectory))
         trajectory = np.array(trajectory).T
         
         self.nr_traj += 1
@@ -96,6 +104,16 @@ class ProMPContext(object):
         for variable_idx, variable in enumerate(trajectory):
             interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
             stretched_demo = interpolate(self.x)
+
+            if self.output_name[0] == 'ee_x':
+                fig = plt.figure(self.figs[0])
+                plt.title("Demonstrations used for Phi matrix: No demo's = " + str(self.nr_traj))
+                plt.plot(self.x, stretched_demo, label = 'context = ' + str(context))
+                plt.xlabel("datapoint [-]")
+                plt.ylabel("position [m]")
+                ax = fig.add_subplot(111)
+                self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
+                plt.grid()
 
             # stack Y matrix vertically with this variable
             self.Y = np.vstack((self.Y, stretched_demo))
@@ -161,7 +179,7 @@ class ProMPContext(object):
         return mu_traj_given_c
 
     def plot_mean_variance(self, x=None, legend='promp', color=None):
-        plt.figure()
+        plt.figure(self.figs[1])
 
         mean = np.dot(self.Phi.T, self.mean_w)
         x = self.x if x is None else x
@@ -172,3 +190,4 @@ class ProMPContext(object):
         std = np.sqrt(np.diag(np.dot(self.sigma ** 2, np.eye(self.num_samples)) + np.dot(self.Phi.T, np.dot(self.sigma_ww, self.Phi))))
         
         plt.fill_between(x, mean - std, mean + std, color=color, alpha=0.2)
+        

@@ -459,8 +459,8 @@ class experimentGUI(QMainWindow):
             get_context = rospy.ServiceProxy('get_context', GetContext)
             resp = get_context()
             self.context = resp.context
-            self.lineEdit_6.setText(str(round(self.context.x, 2)))
-            self.lineEdit_5.setText(str(round(self.context.y, 2)))
+            self.lineEdit_5.setText(str(round(self.context.x, 2)))
+            self.lineEdit_6.setText(str(round(self.context.y, 2)))
             self.lineEdit_4.setText(str(round(self.context.z, 2)))
 
         except (rospy.ServiceException, rospy.ROSException) as e:

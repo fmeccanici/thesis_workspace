@@ -340,6 +340,9 @@ class lfdNode():
         return response
 
     def _make_prediction(self, req):
+        self.lfd.promps[0].plot_mean_variance()
+        self.lfd.promps[0].save_plots()
+
         rospy.loginfo("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
 
@@ -359,7 +362,7 @@ class lfdNode():
         print("Adding demonstration using service...")
         trajectory, context = self.lfd.parser.prompTrajMessage_to_demonstration_format(req.demo)
         plt.figure()
-        plt.plot(self.parser.getCartesianPositions(trajectory), color='green')
+        plt.plot(self.parser.getCartesianPositions(trajectory), color='green', label='context = ' + str(context))
         plt.title("Added trajectory to model")
         plt.xlabel("datapoint [-]")
         plt.ylabel("position [m]")
@@ -378,6 +381,7 @@ class lfdNode():
 
     # for debugging
     def predict(self):
+        
         object_wrt_base = self.get_context()
         print("goal = " + str(object_wrt_base))
         ee_wrt_base = self.get_current_slave_position()

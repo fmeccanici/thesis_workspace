@@ -17,7 +17,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 # my classes
-from learning_from_demonstration.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 # import cProfile
 # from profilehooks import profile
