@@ -75,20 +75,30 @@ class experimentGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(410, 690, 161, 211))
+        self.groupBox_2.setGeometry(QRect(350, 690, 351, 171))
         self.groupBox_2.setObjectName("groupBox_2")
-        self.pushButton_14 = QPushButton(self.groupBox_2)
-        self.pushButton_14.setGeometry(QRect(0, 60, 150, 27))
-        self.pushButton_14.setObjectName("pushButton_14")
         self.pushButton_6 = QPushButton(self.groupBox_2)
-        self.pushButton_6.setGeometry(QRect(0, 60, 150, 27))
+        self.pushButton_6.setGeometry(QRect(0, 120, 150, 27))
         self.pushButton_6.setObjectName("pushButton_6")
         self.pushButton_21 = QPushButton(self.groupBox_2)
         self.pushButton_21.setGeometry(QRect(0, 30, 150, 27))
         self.pushButton_21.setObjectName("pushButton_21")
-
+        self.pushButton_22 = QPushButton(self.groupBox_2)
+        self.pushButton_22.setGeometry(QRect(0, 90, 150, 27))
+        self.pushButton_22.setObjectName("pushButton_22")
+        self.pushButton_23 = QPushButton(self.groupBox_2)
+        self.pushButton_23.setGeometry(QRect(0, 60, 150, 27))
+        self.pushButton_23.setObjectName("pushButton_23")
+        self.pushButton_10 = QPushButton(self.groupBox_2)
+        self.pushButton_10.setGeometry(QRect(180, 30, 150, 27))
+        self.pushButton_10.setObjectName("pushButton_10")
+        self.pushButton_6.raise_()
+        self.pushButton_21.raise_()
+        self.pushButton_22.raise_()
+        self.pushButton_23.raise_()
+        self.pushButton_10.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(550, 690, 521, 291))
+        self.groupBox_3.setGeometry(QRect(620, 690, 521, 291))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton_7 = QPushButton(self.groupBox_3)
         self.pushButton_7.setGeometry(QRect(150, 20, 99, 27))
@@ -135,7 +145,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_7.raise_()
         self.pushButton_13.raise_()
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(60, 690, 331, 161))
+        self.groupBox.setGeometry(QRect(0, 690, 331, 161))
         self.groupBox.setObjectName("groupBox")
         self.label = QLabel(self.groupBox)
         self.label.setGeometry(QRect(18, 26, 16, 17))
@@ -174,7 +184,7 @@ class experimentGUI(QMainWindow):
         self.groupBox_4.setGeometry(QRect(10, 10, 1661, 671))
         self.groupBox_4.setObjectName("groupBox_4")
         self.groupBox_6 = QGroupBox(self.centralwidget)
-        self.groupBox_6.setGeometry(QRect(1120, 690, 431, 301))
+        self.groupBox_6.setGeometry(QRect(1210, 690, 431, 301))
         self.groupBox_6.setObjectName("groupBox_6")
         self.label_7 = QLabel(self.groupBox_6)
         self.label_7.setGeometry(QRect(11, 102, 16, 17))
@@ -233,20 +243,6 @@ class experimentGUI(QMainWindow):
         self.pushButton_17 = QPushButton(self.groupBox_6)
         self.pushButton_17.setGeometry(QRect(180, 240, 85, 27))
         self.pushButton_17.setObjectName("pushButton_17")
-        self.layoutWidget1 = QWidget(self.groupBox_6)
-        self.layoutWidget1.setGeometry(QRect(200, 140, 41, 80))
-        self.layoutWidget1.setObjectName("layoutWidget1")
-        self.verticalLayout_2 = QVBoxLayout(self.layoutWidget1)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.checkBox = QCheckBox(self.layoutWidget1)
-        self.checkBox.setObjectName("checkBox")
-        self.verticalLayout_2.addWidget(self.checkBox)
-        self.checkBox_2 = QCheckBox(self.layoutWidget1)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.verticalLayout_2.addWidget(self.checkBox_2)
-        self.checkBox_3 = QCheckBox(self.layoutWidget1)
-        self.checkBox_3.setObjectName("checkBox_3")
-        self.verticalLayout_2.addWidget(self.checkBox_3)
         self.label_14 = QLabel(self.groupBox_6)
         self.label_14.setGeometry(QRect(200, 120, 67, 17))
         self.label_14.setObjectName("label_14")
@@ -265,8 +261,17 @@ class experimentGUI(QMainWindow):
         self.pushButton_20 = QPushButton(self.groupBox_6)
         self.pushButton_20.setGeometry(QRect(300, 40, 85, 27))
         self.pushButton_20.setObjectName("pushButton_20")
+        self.checkBox = QCheckBox(self.groupBox_6)
+        self.checkBox.setGeometry(QRect(201, 141, 39, 22))
+        self.checkBox.setObjectName("checkBox")
+        self.checkBox_2 = QCheckBox(self.groupBox_6)
+        self.checkBox_2.setGeometry(QRect(201, 169, 39, 22))
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.checkBox_3 = QCheckBox(self.groupBox_6)
+        self.checkBox_3.setGeometry(QRect(201, 197, 39, 22))
+        self.checkBox_3.setObjectName("checkBox_3")
         self.groupBox_5 = QGroupBox(self.centralwidget)
-        self.groupBox_5.setGeometry(QRect(80, 850, 441, 141))
+        self.groupBox_5.setGeometry(QRect(20, 860, 441, 141))
         self.groupBox_5.setObjectName("groupBox_5")
         self.label_16 = QLabel(self.groupBox_5)
         self.label_16.setGeometry(QRect(0, 20, 161, 17))
@@ -295,16 +300,6 @@ class experimentGUI(QMainWindow):
         self.pushButton_2 = QPushButton(self.groupBox_5)
         self.pushButton_2.setGeometry(QRect(330, 73, 88, 27))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.label_16.raise_()
-        self.pushButton_12.raise_()
-        self.groupBox_3.raise_()
-        self.pushButton_11.raise_()
-        self.label_17.raise_()
-        self.pushButton_3.raise_()
-        self.pushButton_4.raise_()
-        self.label_18.raise_()
-        self.pushButton.raise_()
-        self.pushButton_2.raise_()
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1650, 25))
@@ -316,6 +311,7 @@ class experimentGUI(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
         self.menubar.addAction(self.menuOnline_teaching_GUI.menuAction())
+
         
         self.lineEdit.setText("0.8")
         self.lineEdit_2.setText("0.0")
@@ -370,9 +366,9 @@ class experimentGUI(QMainWindow):
 
     def on_refine_prediction_click(self):
         try:
-            rospy.wait_for_service('refine_trajectory', timeout=2.0)
+            # rospy.wait_for_service('refine_trajectory', timeout=2.0)
 
-            refine_trajectory = rospy.ServiceProxy('refine_trajectory', SetObject)
+            refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
             resp = refine_trajectory(self.prediction)
 
             self.refined_trajectory = resp.refined_trajectory
@@ -406,6 +402,29 @@ class experimentGUI(QMainWindow):
         
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
+    
+    def on_visualize_refinement_click(self):
+        # visualize refined trajectory
+        try:
+            rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+
+            visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+            visualization_msg = TrajectoryVisualization()
+            try:
+                visualization_msg.pose_array = self.refined_trajectory.poses
+            
+            except AttributeError:
+                rospy.loginfo("No prediction made yet!")
+            
+            visualization_msg.r = 0.0
+            visualization_msg.g = 1.0
+            visualization_msg.b = 0.0
+
+            resp = visualize_trajectory(visualization_msg)
+        
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+    
 
     def on_visualize_prediction_click(self):
 
@@ -538,7 +557,7 @@ class experimentGUI(QMainWindow):
 
     def check_button_state(self, button):
         # if preset 1 and checked
-        if button.text() == 'inial_pose_preset_1' and button.isChecked():
+        if button.text() == '1' and button.isChecked():
 
             self.lineEdit_9.setText(str(round(0.401946359213, 3)))
             self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
@@ -548,7 +567,7 @@ class experimentGUI(QMainWindow):
             self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
             self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
             self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
-        elif button.text() == 'inial_pose_preset_2' and button.isChecked():
+        elif button.text() == '2' and button.isChecked():
             self.lineEdit_9.setText(str(round(0.403399335619, 3)))
             self.lineEdit_7.setText(str(round(-0.430007534239, 3)))
             self.lineEdit_8.setText(str(round(1.16269467394, 3)))
@@ -557,7 +576,7 @@ class experimentGUI(QMainWindow):
             self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
             self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
             self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
-        elif button.text() == 'inial_pose_preset_3' and button.isChecked():
+        elif button.text() == '3' and button.isChecked():
             self.lineEdit_9.setText(str(round(0.353543514402, 3)))
             self.lineEdit_7.setText(str(round(0.435045131507, 3)))
             self.lineEdit_8.setText(str(round(0.760080619348, 3)))
@@ -571,10 +590,11 @@ class experimentGUI(QMainWindow):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox_2.setTitle(_translate("MainWindow", " Refinement"))
-        self.pushButton_14.setText(_translate("MainWindow", "Visualize"))
         self.pushButton_6.setText(_translate("MainWindow", "Add to model"))
         self.pushButton_21.setText(_translate("MainWindow", "Refine prediction"))
-
+        self.pushButton_22.setText(_translate("MainWindow", "Visualize"))
+        self.pushButton_23.setText(_translate("MainWindow", "Refine refinement"))
+        self.pushButton_10.setText(_translate("MainWindow", "Calibrate init pose"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -600,9 +620,9 @@ class experimentGUI(QMainWindow):
         self.label_13.setText(_translate("MainWindow", "qw: "))
         self.pushButton_16.setText(_translate("MainWindow", "Random"))
         self.pushButton_17.setText(_translate("MainWindow", "Execute"))
-        self.checkBox.setText(_translate("MainWindow", "inial_pose_preset_1"))
-        self.checkBox_2.setText(_translate("MainWindow", "inial_pose_preset_2"))
-        self.checkBox_3.setText(_translate("MainWindow", "inial_pose_preset_3"))
+        self.checkBox.setText(_translate("MainWindow", "1"))
+        self.checkBox_2.setText(_translate("MainWindow", "2"))
+        self.checkBox_3.setText(_translate("MainWindow", "3"))
         self.label_14.setText(_translate("MainWindow", "Presets"))
         self.label_15.setText(_translate("MainWindow", "Manual control"))
         self.pushButton_18.setText(_translate("MainWindow", "Enable"))
@@ -624,6 +644,8 @@ class experimentGUI(QMainWindow):
         self.buttonBox.accepted.connect(self.on_set_object_position_click)
         self.pushButton_9.clicked.connect(self.on_clear_trajectories_click)
         self.pushButton_8.clicked.connect(self.on_visualize_prediction_click)
+        self.pushButton_22.clicked.connect(self.on_visualize_refinement_click)
+
         self.pushButton_7.clicked.connect(self.on_get_context_click)
         self.pushButton_5.clicked.connect(self.on_predict_click)
         self.pushButton_4.clicked.connect(self.stop_lfd_node)

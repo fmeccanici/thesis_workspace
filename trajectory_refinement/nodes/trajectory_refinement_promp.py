@@ -72,7 +72,7 @@ class trajectoryRefinement():
         
         # services
         self._refine_trajectory_service = rospy.Service('refine_trajectory', RefineTrajectory, self._refine_trajectory)
-
+        rospy.loginfo("Trajectory refinement service ready...")
         # initialize other classes
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
@@ -482,7 +482,7 @@ class trajectoryRefinement():
     def _refine_trajectory(self, req):
         rospy.loginfo("Refining trajectory...")
         prediction = self.prompTrajMessage_to_correct_format(req.trajectory)
-        dt = req.times[1]
+        dt = req.trajectory.times[1]
 
         refined_prediction = self.refineTrajectory(prediction, dt)
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
@@ -630,5 +630,9 @@ class trajectoryRefinement():
 
 if __name__ == "__main__":
     node = trajectoryRefinement()
-    node.run()
+    
+    r = rospy.Rate(30)
+    while not rospy.is_shutdown():
+        node.run()
+        r.sleep()
        
