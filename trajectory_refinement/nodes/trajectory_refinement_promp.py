@@ -236,7 +236,6 @@ class trajectoryRefinement():
             else:
                 vnew = np.add(p, traj_pos[-1])
 
-            object_position = self.parser.get_object_position(traj)
             ee_position = list(vnew)
             t_list = [t]
 
@@ -288,13 +287,13 @@ class trajectoryRefinement():
         qstart = pred_traj[0][3:7]
         qend = pred_traj[-1][3:7]  
         
-        # object position
-        object_position = pred_traj[0][7:10] 
-
         T_refined = self.parser.get_total_time(refined_traj)
         T_pred = self.parser.get_total_time(pred_traj)
 
+
         y_pred, y_ref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
+
+
         y_refined_aligned, y_pred_aligned = self.dtw.apply_dtw(y_ref, y_pred)
 
 
@@ -337,7 +336,30 @@ class trajectoryRefinement():
         dt_new = t_refined[1]
 
         return new_trajectory, dt_new
+    def promptraj_msg_to_execution_format(self, traj_msg):
+        dt = traj_msg.times[1]
+        trajectory = []
+        for i,pose in enumerate(traj_msg.poses):
+            x = pose.position.x
+            y = pose.position.y
+            z = pose.position.z
+            
+            pos = [x, y, z]
 
+            qx = pose.orientation.x
+            qy = pose.orientation.y
+            qz = pose.orientation.z
+            qw = pose.orientation.w
+
+            ori = [qx, qy, qz, qw]
+
+            t = [traj_msg.times[i]]
+
+            
+
+            trajectory.append(pos + ori + t)
+
+        return trajectory, dt
     def prompTrajMessage_to_demonstration_format(self, traj_msg):
         trajectory = []
         context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 
@@ -398,11 +420,13 @@ class trajectoryRefinement():
     # ROS service for refining trajectory
     def _refine_trajectory(self, req):
         rospy.loginfo("Refining trajectory...")
-        prediction = self.prompTrajMessage_to_correct_format(req.trajectory)
+        prediction, context = self.promptraj_msg_to_execution_format(req.trajectory)
+        
         dt = req.trajectory.times[1]
 
         refined_prediction = self.refineTrajectory(prediction, dt)
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
+
 
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
         new_traj_msg = self.predicted_trajectory_to_prompTraj_message(new_traj, context)

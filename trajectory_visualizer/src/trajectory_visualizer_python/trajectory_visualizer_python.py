@@ -12,6 +12,10 @@ from learning_from_demonstration.trajectory_parser import trajectoryParser
 class trajectoryVisualizer():
     def __init__(self):
         self.frame_id = "base_footprint"
+        self.marker_ids = []
+
+    def store_marker_id(self, id):
+        self.marker_ids.append(id)
 
     def positions2pointMessage(self, positions):
         point = Point(x=positions[0], 
@@ -22,6 +26,10 @@ class trajectoryVisualizer():
     def trajectory2markerArray(self, traj, r, g, b, action=Marker.ADD):
         marker_array = []
         for i,positions in enumerate(traj):
+            # if the marker id already exist we need to create new ids
+            # to prevent from overwriting
+            if i in self.marker_ids:
+                i += self.marker_ids[-1]
             point = self.positions2pointMessage(positions)
             pose = Pose(position=point)
 
@@ -33,6 +41,7 @@ class trajectoryVisualizer():
                                             id=i,
                                             color=ColorRGBA(r=r, g=g, b=b, a=1),
                                             action=action)
+            self.store_marker_id(i)
             marker_array.append(marker)
 
         return marker_array

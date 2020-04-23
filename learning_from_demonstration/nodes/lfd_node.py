@@ -248,7 +248,7 @@ class lfdNode():
         self.base_frame = 'base_footprint'
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-        desired_datapoints = 10
+        desired_datapoints = 100
         self.lfd.prepare_for_learning(desired_datapoints)
         
         plt.figure()
@@ -375,10 +375,12 @@ class lfdNode():
 
     def _execute_trajectory(self, req):
         traj, dt = self.promptraj_msg_to_execution_format(req.trajectory)
-        
+
+        ndesired = 75
+
         # resample trajectory so that it can successfully be executed
-        ndesired = 100
-        traj, dt = self.resampler.interpolate_learned_keypoints(traj, ndesired)
+        if len(traj) < ndesired:
+            traj, dt = self.resampler.interpolate_learned_keypoints(traj, ndesired)
 
         self.executeTrajectory(traj, dt)
 

@@ -16,19 +16,21 @@ class teleopControl():
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self.geo_effort_pub = rospy.Publisher("/geo_control_effort_m", WrenchStamped, queue_size=10)
 
-        self.end_effector_goal_sub = rospy.Subscriber("/whole_body_kinematic_controller/arm_tool_link_goal_dummy", PoseStamped, self._end_effector_callback)
+        self.end_effector_goal_sub = rospy.Subscriber("/whole_body_kinematic_controller/arm_tool_link_goal_dummy", PoseStamped, self._end_effector_goal_callback)
         self.geo_effort_sub = rospy.Subscriber("/geo_control_effort_m_dummy", WrenchStamped, self._effort_callback)
+        self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
 
+    def _end_effector_pose_callback(self, data):
+        self.current_slave_pose = data.pose
 
-        
 
     def _effort_callback(self, data):
         # rospy.loginfo('check1')
         pass
     
 
-    def _end_effector_callback(self, data):
+    def _end_effector_goal_callback(self, data):
         ee_pose = PoseStamped()
 
         # rospy.loginfo('check')
@@ -37,6 +39,11 @@ class teleopControl():
             ee_pose.pose.position.x = data.pose.position.x
             ee_pose.pose.position.y = data.pose.position.y
             ee_pose.pose.position.z = data.pose.position.z
+            ee_pose.pose.orientation.x = self.current_slave_pose.orientation.x
+            ee_pose.pose.orientation.y = self.current_slave_pose.orientation.y
+            ee_pose.pose.orientation.z = self.current_slave_pose.orientation.z
+            ee_pose.pose.orientation.w = self.current_slave_pose.orientation.w
+
             ee_pose.header.stamp = rospy.Time.now()
             self.end_effector_goal_pub.publish(ee_pose)
             

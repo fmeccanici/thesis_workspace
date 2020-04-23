@@ -123,19 +123,21 @@ class trajectoryResampler():
 
 
     def match_refined_predicted(self, pred_traj, refined_traj):
-        pred_traj = self.parser.normalize_trajectory_time_float(pred_traj)
+        # pred_traj = self.parser.normalize_trajectory_time_float(pred_traj)
         
-        refined_traj = self.parser.normalize_trajectory_time_float(refined_traj)
-
-        new_trajectory = []
+        # refined_traj = self.parser.normalize_trajectory_time_float(refined_traj)
 
         ## resample trajectories such that they can be subtracted
-        
+
         refined_traj_pose = self.parser.getCartesianPositions(refined_traj)
         refined_traj_time = self.parser.get_time_vector_float(refined_traj)
 
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser.get_time_vector_float(pred_traj)
+        print("pred_traj_time = " + str(pred_traj_time))
+        print("ref_traj_time = " + str(refined_traj_time))
+        print("pred_traj_pos = " + str(pred_traj_pose))
+        print("ref_traj_pos = " + str(refined_traj_pose))
 
         n_pred = len(pred_traj)
         n_refined = len(refined_traj)
@@ -155,7 +157,6 @@ class trajectoryResampler():
 
         xvals_refined = np.linspace(0.0, T_refined, l)
         xvals_pred = np.linspace(0.0, T_pred, l)
-        print('check2')
 
         refined_traj_pos_x = (np.asarray(self.parser.getXpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))
         refined_traj_pos_y = (np.asarray(self.parser.getYpositions(refined_traj_pose)).reshape(len(refined_traj_time), 1))

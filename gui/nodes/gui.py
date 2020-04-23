@@ -342,7 +342,7 @@ class experimentGUI(QMainWindow):
         try:
             self.refinement_launch.shutdown()
         except AttributeError:
-            rospy.loginfo( ("LfD node not launched yet") )
+            rospy.loginfo( ("Refinement node not launched yet") )
 
     def start_lfd_node(self):
         package = 'learning_from_demonstration'
