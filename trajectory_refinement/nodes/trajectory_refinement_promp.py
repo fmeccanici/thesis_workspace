@@ -288,7 +288,7 @@ class trajectoryRefinement():
 
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
-    def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
+    def determineNewTrajectory(self, pred_traj, refined_traj, context, alpha = 1):
         
         # quaternions used for interpolation
         qstart = pred_traj[0][3:7]
@@ -352,7 +352,7 @@ class trajectoryRefinement():
         dt = req.trajectory.times[1]
 
         refined_prediction = self.refineTrajectory(prediction, dt)
-        new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
+        new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction, context)
 
         n_pred = len(prediction)
 
@@ -380,13 +380,13 @@ class trajectoryRefinement():
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_after_resampling.png')
         plt.close()   
 
-        rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
-        rospy.loginfo("len pred before dtw = " + str(len(prediction)))
+        # rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
+        # rospy.loginfo("len pred before dtw = " + str(len(prediction)))
 
         # apply dynamic time warping --> reference = prediction
         pred_aligned, new_traj = self.dtw.apply_dtw(prediction, new_traj)
-        rospy.loginfo("len pred after dtw = " + str(len(pred_aligned)))
-        rospy.loginfo("len_new_traj after dtw = " + str(len(new_traj)))
+        # rospy.loginfo("len pred after dtw = " + str(len(pred_aligned)))
+        # rospy.loginfo("len_new_traj after dtw = " + str(len(new_traj)))
 
 
         plt.figure()
@@ -399,6 +399,20 @@ class trajectoryRefinement():
         plt.legend()
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_DTW_resampling_both.png')
         plt.close()   
+
+        # new_traj is wrt base so make it relative to the object
+        # object_pos_wrt_base = self.getMarkerWRTBase()
+        # new_traj = self.parser.get_trajectory_wrt_context(new_traj, object_pos_wrt_base)
+        # plt.figure()
+        # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        # # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
+        # plt.title("Relative trajectory")
+        # plt.xlabel("datapoint [-]")
+        # plt.ylabel("position [m]")
+        # plt.grid()
+        # plt.legend()
+        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
+        # plt.close()   
 
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
         new_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(new_traj, context)

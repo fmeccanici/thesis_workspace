@@ -134,10 +134,10 @@ class trajectoryResampler():
 
         pred_traj_pose = self.parser.getCartesianPositions(pred_traj)
         pred_traj_time = self.parser.get_time_vector_float(pred_traj)
-        print("pred_traj_time = " + str(pred_traj_time))
-        print("ref_traj_time = " + str(refined_traj_time))
-        print("pred_traj_pos = " + str(pred_traj_pose))
-        print("ref_traj_pos = " + str(refined_traj_pose))
+        # print("pred_traj_time = " + str(pred_traj_time))
+        # print("ref_traj_time = " + str(refined_traj_time))
+        # print("pred_traj_pos = " + str(pred_traj_pose))
+        # print("ref_traj_pos = " + str(refined_traj_pose))
 
         n_pred = len(pred_traj)
         n_refined = len(refined_traj)

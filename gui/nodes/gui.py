@@ -13,9 +13,14 @@ from rviz_python.rviz_python import rvizPython
 # ROS messages
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, 
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
-                                            GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse)
+                                            GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse,
+                                            GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
+                                            WelfordUpdateResponse)
+                                            
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
+from std_msgs.msg import String
+
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
 from trajectory_visualizer.msg import TrajectoryVisualization
@@ -375,7 +380,7 @@ class experimentGUI(QMainWindow):
             resp = refine_trajectory(self.prediction)
 
             self.refined_trajectory = resp.refined_trajectory
-
+            rospy.loginfo("Got a refined trajectory")
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
 
@@ -537,11 +542,35 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)
     
     def on_add_to_model_click(self):
-        
+
         try:
-            rospy.wait_for_service('add_demonstration', timeout=2.0)
-            add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
-            resp = add_demonstration(self.refined_trajectory)
+            # rospy.wait_for_service('add_demonstration', timeout=2.0)
+            rospy.wait_for_service('welford_update', timeout=2.0)
+
+            rospy.wait_for_service('get_object_position', timeout=2.0)
+
+            reference_frame = String()
+            reference_frame.data = 'base'
+            get_object = rospy.ServiceProxy('get_object_position', GetObjectPosition)
+
+            resp = get_object(reference_frame)
+            object_wrt_base = resp.object_position
+            try:
+                refined_trajectory, dt = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+            
+
+                refined_trajectory_wrt_object = self.parser.get_trajectory_wrt_context(refined_trajectory, self.parser.point_to_list(object_wrt_base))
+
+                # add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+                welford_update = rospy.ServiceProxy('welford_update', WelfordUpdate)
+
+                refined_trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(refined_trajectory_wrt_object, self.parser.point_to_list(self.context))
+                # resp = add_demonstration(refined_trajectory_wrt_object_msg)
+                resp = welford_update(refined_trajectory_wrt_object_msg)
+                
+                rospy.loginfo("Added trajectory to model")
+            except (AttributeError, ValueError) as e:
+                rospy.loginfo("Problem with adding trajectory: %s" %e)
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)

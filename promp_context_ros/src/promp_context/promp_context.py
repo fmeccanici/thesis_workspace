@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+from welford.welford import Welford
 
 class ProMPContext(object):
     ## Contextualized ProMP as performed in Ewerton et al. 
@@ -78,21 +79,88 @@ class ProMPContext(object):
         self.Y = np.empty((0, self.num_samples), float)
         self.C = np.empty((0, self.num_contexts), float)
 
-        self.figs = ["demonstrations_fig", "mean_variance_fig"]
-        
+        self.figs = ["demonstrations_fig", "mean_variance_fig", "welford_generated", "welford_update"]
+        self.plot_counter = 0
 
     def save_plots(self):
         plt.figure(self.figs[0])
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/added_trajectories_building_Phi_matrix.png', bbox_extra_artists=(self.lgd,), bbox_inches='tight')
+        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/added_trajectories_building_Phi_matrix.png')
+
         plt.figure(self.figs[1])
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/mean_variance.png')
+        plt.figure(self.figs[2])
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/welford.png')
+
+
+    # welford update where x = [w_M, c_M]
+    # thus containing the weights and context of the refined trajectory
+    def welford_update(self, demonstration):
         
+        trajectory = demonstration[0]
+        context = demonstration[1]
+        trajectory = np.array(trajectory).T
+        if len(trajectory) != self.num_outputs:
+            raise ValueError("The given demonstration has {} outputs while num_outputs={}".format(len(trajectory), self.num_outputs))
+
+        self.nr_traj += 1
+
+        # first we calculate the weights
+        # according to Ewerton et al.
+        for variable_idx, variable in enumerate(trajectory):
+
+            # interpolate to fit the Phi matrix
+            interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
+            
+            # name convention from Ewerton et al.
+            tau = interpolate(self.x)
+
+            if self.output_name[0] == 'ee_x':
+
+                fig = plt.figure(self.figs[3])
+                print("stretched = " + str(stretched_demo))
+                plt.title("Demonstrations used for Welford update: No demo's = " + str(self.nr_traj))
+                plt.plot(self.x, stretched_demo, label = 'context = ' + str(context))
+                plt.xlabel("datapoint [-]")
+                plt.ylabel("position [m]")
+                plt.grid()
+
+                # if self.plot_counter == 0:
+                ax = fig.add_subplot(111)
+                self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
+
+            # calculate weights of Mth demonstration: refinement
+            # (size N, N=num_basis, M=num_demonstrations)
+            w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T  # weights for each trajectory
+            c_M = context
+
+            x = np.append(w_M, c_M)
+
+            # print("mean_before = " + str((self.mean_w)))
+            # print("mean_total_before = " + str((self.mean_total)))
+
+            # do a welford update step and update the mean and variance
+            welford = Welford(N=2, Mean=self.mean_total, Sigma=self.sigma_total)
+            mean_total, sigma_total = welford.update(x)
+
+            self.mean_total = mean_total
+            self.sigma_total = sigma_total
+
+            self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
+            self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
+            self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
+            self.sigma_cc = self.sigma_total[self.num_basis:, self.num_basis:] 
+
+            self.mean_w = self.mean_total[:self.num_basis] 
+            self.mean_c = self.mean_total[self.num_basis:] 
+
     def add_demonstration(self, demonstration):
 
         trajectory = demonstration[0]
         context = demonstration[1]
 
         trajectory = np.array(trajectory).T
+
         
         self.nr_traj += 1
 
@@ -106,14 +174,20 @@ class ProMPContext(object):
             stretched_demo = interpolate(self.x)
 
             if self.output_name[0] == 'ee_x':
+
                 fig = plt.figure(self.figs[0])
+                print("stretched = " + str(stretched_demo))
                 plt.title("Demonstrations used for Phi matrix: No demo's = " + str(self.nr_traj))
                 plt.plot(self.x, stretched_demo, label = 'context = ' + str(context))
                 plt.xlabel("datapoint [-]")
                 plt.ylabel("position [m]")
+                plt.grid()
+
+                # if self.plot_counter == 0:
                 ax = fig.add_subplot(111)
                 self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
-                plt.grid()
+
+                # self.plot_counter += 1
 
             # stack Y matrix vertically with this variable
             self.Y = np.vstack((self.Y, stretched_demo))
@@ -157,6 +231,8 @@ class ProMPContext(object):
             self.mean_total = np.append(self.mean_w, self.mean_c)
 
     def generate_trajectory(self, context):
+        # print("mean_w_after = " + str((self.mean_w)))
+        # print("mean_total_after = " + str((self.mean_total)))
 
         # noise preventing the matrix Sigma_cc to be singular
         noise = np.eye(self.sigma_cc.shape[0]) * self.sigma
@@ -175,6 +251,16 @@ class ProMPContext(object):
         sigma_traj_given_c = np.dot(self.sigma ** 2, np.eye(self.num_samples)) + np.dot(np.dot(self.Phi.T, sigma_w_given_c), self.Phi)
     
         p_traj_given_c = np.random.multivariate_normal(mu_traj_given_c, sigma_traj_given_c)
+
+        try:
+            if self.output_name[0][3] != 'q':
+                plt.figure(self.figs[2])
+                plt.plot(mu_traj_given_c)
+                plt.title('Generated trajectory after Welford')
+                plt.xlabel("datapoint [-]")
+                plt.ylabel("position [m]")
+                plt.grid()
+        except: pass
 
         return mu_traj_given_c
 

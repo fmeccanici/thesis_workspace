@@ -15,7 +15,7 @@ class Welford():
     def update(self,x):
         if x is None:
             return
-        self.N += 1
+        # self.N += 1
 
         # auxiliary matrix (ewerton et al.)
         self.S = (self.N - 1) * self.Sigma

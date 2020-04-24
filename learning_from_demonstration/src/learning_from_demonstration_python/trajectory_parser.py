@@ -108,7 +108,27 @@ class trajectoryParser():
             traj_wrt_base.append(list(pos) + list(data[3:]))
 
         return traj_wrt_base  
-        
+
+    def get_trajectory_wrt_context(self, traj_wrt_base, context_wrt_base):
+            traj_wrt_object = []
+
+            # initialize information needed for relative calculations
+            # ee_wrt_base_0 = traj_wrt_base[0][0:3]
+            # object_wrt_ee_0 = list(self.object_wrt_ee(ee_wrt_base_0, context_wrt_base))
+            
+            # calculate relative vectors
+            for data in traj_wrt_base:
+                ee_wrt_base = data[0:3]
+                print(ee_wrt_base)
+                print(context_wrt_base)
+                ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, context_wrt_base))            
+                ee_ori =  list(data[3:7])
+                dt = [data[-1]]
+
+                traj_wrt_object.append(ee_wrt_object + ee_ori + dt )
+
+            return traj_wrt_object        
+
     def get_trajectory_wrt_object(self, traj_wrt_base):
         traj_wrt_object = []
 

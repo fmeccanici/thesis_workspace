@@ -125,6 +125,7 @@ class learningFromDemonstration():
             relevant_data_trajectories.append(relevant_traj)
             # print(traj[0][7:10])
         
+        print("nr input traj = " + str(np.asarray(relevant_data_trajectories).shape))
 
         # apply dynamic time warping
         print("Applying DTW...")
@@ -157,7 +158,6 @@ class learningFromDemonstration():
             self.trajectories_for_learning.append(traj_wrt_object)
             # self.trajectories_for_learning.append(traj)
 
-        print(self.trajectories_for_learning[0][0])
 
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
@@ -225,6 +225,8 @@ class learningFromDemonstration():
         # list format
         pred_traj = [list(x) for x in pred_traj.T]
 
+
+
         return pred_traj
 
     def trajectory_wrt_base(self, trajectory_wrt_object, object_wrt_base):
@@ -239,7 +241,18 @@ class learningFromDemonstration():
             traj_wrt_base.append(ee_wrt_base + ori + object_wrt_base + t)
 
         return traj_wrt_base
-        
+
+    def welford_update(self, traj, context):
+        # we need to extract each separate variable
+        # and add this to the individual promp models
+        rospy.loginfo("Welford update...")
+
+        for variable in range(np.asarray(traj).shape[1]):
+            single_variable_traj = [ [data[variable]] for data in traj]
+            demonstration = (single_variable_traj, context)
+            self.promps[variable].welford_update(demonstration)
+
+
     def add_trajectory_to_promp_model(self, traj, context):
         # we need to extract each separate variable
         # and add this to the individual promp models

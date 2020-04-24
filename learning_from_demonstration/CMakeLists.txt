@@ -17,6 +17,8 @@
     GetContext.srv
     GoToPose.srv
     ExecuteTrajectory.srv
+    GetObjectPosition.srv
+    WelfordUpdate.srv
   )
 catkin_python_setup()
 

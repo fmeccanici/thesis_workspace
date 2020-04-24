@@ -258,13 +258,21 @@ class DTW():
         # they are missed out by the alignment code
 
         indices = self.get_demonstration_indices(traj_for_learning)
+        print("indices = " + str(indices))
         trajs_one_demonstration = []
-        for index_demo in indices:
-            # if an index from initial demonstrations is not in alignment matrix
-            # we are sure it has only one demonstration
-            # add it to the vector
-            if index_demo not in align_matrix:
-                trajs_one_demonstration.append(index_demo)
+
+        for index in indices:
+            for same_context in align_matrix:
+                if index in same_context:
+                    continue
+                elif index not in same_context:
+                    trajs_one_demonstration.append(index)
+                # if there are multiple demonstrations but we appended it to the single demo
+                # vector, we must delete it from this vector
+                elif index in same_context and index in trajs_one_demonstration:
+                    trajs_one_demonstration.remove(index)
+        
+        print("trajs_one = " + str(trajs_one_demonstration))
 
         # add one demonstrations to the alignment data
         for i in trajs_one_demonstration:

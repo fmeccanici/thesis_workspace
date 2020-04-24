@@ -10,7 +10,9 @@ from gazebo_msgs.srv import SetModelState
 from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationResponse, MakePrediction,
                                             MakePredictionResponse, SetObject, SetObjectResponse,
                                             GetContext, GetContextResponse, GoToPose, GoToPoseResponse,
-                                            ExecuteTrajectory, ExecuteTrajectoryResponse)
+                                            ExecuteTrajectory, ExecuteTrajectoryResponse, GoToPoseResponse, 
+                                            GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
+                                            WelfordUpdateResponse)
 
 from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
@@ -52,7 +54,9 @@ class lfdNode():
         self._get_context_service = rospy.Service('get_context', GetContext, self._get_context_marker)
         self._go_to_pose_service = rospy.Service('go_to_pose', GoToPose, self._go_to_pose)
         self._execute_trajectory_service = rospy.Service('execute_trajectory', ExecuteTrajectory, self._execute_trajectory)
-
+        self._get_object_position_service = rospy.Service('get_object_position', GetObjectPosition, self._get_object_position)
+        self._welford_update_service = rospy.Service('welford_update', WelfordUpdate, self._welford_update)
+        
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -117,6 +121,12 @@ class lfdNode():
 
         return point
 
+    def get_object_wrt_base(self):
+        object_wrt_base = [self.marker_pose.position.x, self.marker_pose.position.y, self.marker_pose.position.z]
+
+        return object_wrt_base
+    
+
     def get_relative_context(self):
         
         object_wrt_base = [self.marker_pose.position.x, self.marker_pose.position.y, self.marker_pose.position.z]
@@ -128,6 +138,17 @@ class lfdNode():
         x = round(object_wrt_ee[0]*10, 2)
         y = round(object_wrt_ee[1]*10, 2)
         z = round(object_wrt_ee[2]*10, 2)
+
+        return [x, y, z]
+    
+    def get_marker_wrt_ee(self):
+        # x = self.object_marker_pose.position.x
+        # y = self.object_marker_pose.position.y
+        # z = self.object_marker_pose.position.z
+
+        x = self.object_marker_pose.position.x - self.current_slave_pose.position.x  
+        y = self.object_marker_pose.position.y - self.current_slave_pose.position.y 
+        z = self.object_marker_pose.position.z - self.current_slave_pose.position.z 
 
         return [x, y, z]
 
@@ -289,6 +310,22 @@ class lfdNode():
 
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
+    
+    def _get_object_position(self, req):
+        if req.reference_frame.data == 'base':
+            marker_pos = self.get_marker_wrt_base()
+        elif req.reference_frame.data == 'ee':
+            marker_pos = self.get_marker_wrt_ee()
+        
+        pos = Point()
+        pos.x = marker_pos[0]
+        pos.y = marker_pos[1]
+        pos.z = marker_pos[2]
+
+        response = GetObjectPositionResponse()
+        response.object_position = pos
+
+        return response
 
     def _execute_trajectory(self, req):
         traj, dt = self.lfd.parser.promptraj_msg_to_execution_format(req.trajectory)
@@ -340,8 +377,7 @@ class lfdNode():
         return response
 
     def _make_prediction(self, req):
-        self.lfd.promps[0].plot_mean_variance()
-        self.lfd.promps[0].save_plots()
+
 
         rospy.loginfo("Making prediction using service...")
         goal = [req.context.x, req.context.y, req.context.z]
@@ -355,6 +391,19 @@ class lfdNode():
 
         response = MakePredictionResponse()
         response.prediction = traj_pred_message
+        self.lfd.promps[0].plot_mean_variance()
+        self.lfd.promps[0].save_plots()
+        return response
+
+    def _welford_update(self, req):
+        rospy.loginfo("Welford update using service...")
+        trajectory, context = self.lfd.parser.prompTrajMessage_to_demonstration_format(req.demo)
+        
+        self.lfd.welford_update(trajectory, context)
+        
+        self.add_demo_success.data = True
+        response = WelfordUpdateResponse()
+        response.success = self.add_demo_success
 
         return response
 
