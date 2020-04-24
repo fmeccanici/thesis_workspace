@@ -140,7 +140,7 @@ class ProMPContext(object):
             # print("mean_total_before = " + str((self.mean_total)))
 
             # do a welford update step and update the mean and variance
-            welford = Welford(N=2, Mean=self.mean_total, Sigma=self.sigma_total)
+            welford = Welford(N=self.nr_traj, Mean=self.mean_total, Sigma=self.sigma_total)
             mean_total, sigma_total = welford.update(x)
 
             self.mean_total = mean_total
