@@ -86,7 +86,7 @@ class experimentGUI(QMainWindow):
     def initGUI(self):
         self.setObjectName("Online teaching GUI")
         self.resize(1680, 1050)
-         self.centralwidget = QWidget(self)
+        self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(350, 690, 351, 171))
