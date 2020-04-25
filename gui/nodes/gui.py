@@ -339,6 +339,7 @@ class experimentGUI(QMainWindow):
         QMetaObject.connectSlotsByName(self)
 
     def start_node(self, package, launch_file):
+        
         if launch_file not in self.nodes: 
             abs_path = self._rospack.get_path(package) + "/launch/" + launch_file
             uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
@@ -364,51 +365,15 @@ class experimentGUI(QMainWindow):
             self.nodes[launch_file] = launch
 
             self.nodes[launch_file].start()
+            rospy.loginfo( ("Started {} ").format(launch_file) )
 
 
     def stop_node(self, launch_file):
         # look through dictionary to find corresponding launch object
-        self.nodes[launch_file].shutdown()
-
-    def start_refinement_node(self):
-        package = 'trajectory_refinement'
-        launch_file = 'trajectory_refinement.launch'
-
-        abs_path = self._rospack.get_path(package) + "/launch/" + launch_file
-        
-        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-
-
-        self.refinement_launch = roslaunch.parent.ROSLaunchParent(uuid, [abs_path])
-        self.refinement_launch.start()
-
-        rospy.loginfo( ("Started {} ").format(launch_file) )
-    
-    def stop_refinement_node(self):
         try:
-            self.refinement_launch.shutdown()
+            self.nodes[launch_file].shutdown()
         except AttributeError:
-            rospy.loginfo( ("Refinement node not launched yet") )
-
-    def start_lfd_node(self):
-        package = 'learning_from_demonstration'
-        launch_file = 'learning_from_demonstration.launch'
-
-        abs_path = self._rospack.get_path(package) + "/launch/" + launch_file
-        
-        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-
-
-        self.lfd_launch = roslaunch.parent.ROSLaunchParent(uuid, [abs_path])
-        self.lfd_launch.start()
-
-        rospy.loginfo( ("Started {} ").format(launch_file) )
-
-    def stop_lfd_node(self):
-        try:
-            self.lfd_launch.shutdown()
-        except AttributeError:
-            rospy.loginfo( ("LfD node not launched yet") )
+            rospy.loginfo( ("Node not launched yet") )
 
     def on_refine_prediction_click(self):
         try:
@@ -739,8 +704,8 @@ class experimentGUI(QMainWindow):
 
         self.pushButton_7.clicked.connect(self.on_get_context_click)
         self.pushButton_5.clicked.connect(self.on_predict_click)
-        self.pushButton_4.clicked.connect(self.stop_lfd_node)
-        self.pushButton_3.clicked.connect(self.start_lfd_node)
+        self.pushButton_4.clicked.connect(lambda:self.stop_node('learning_from_demonstration.launch'))
+        self.pushButton_3.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch'))
         
         self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
         self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
@@ -751,8 +716,8 @@ class experimentGUI(QMainWindow):
         self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_go_to_click))
         self.pushButton_13.clicked.connect(lambda: self.use_multithread(self.on_execute_prediction_click))
         self.pushButton_20.clicked.connect(self.on_initialize_head_joints_click)
-        self.pushButton.clicked.connect(self.start_refinement_node)
-        self.pushButton_2.clicked.connect(self.stop_refinement_node)
+        self.pushButton.clicked.connect(lambda:self.start_node('trajectory_refinement', 'trajectory_refinement.launch'))
+        self.pushButton_2.clicked.connect(lambda:self.stop_node('trajectory_refinement.launch'))
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
 
