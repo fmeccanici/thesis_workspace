@@ -12,11 +12,12 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GetContext, GetContextResponse, GoToPose, GoToPoseResponse,
                                             ExecuteTrajectory, ExecuteTrajectoryResponse, GoToPoseResponse, 
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
-                                            WelfordUpdateResponse)
+                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse)
 
 from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
 from geometry_msgs.msg import Point
+from geomagic_touch_m.msg import GeomagicButtonEvent
 
 # import my own classes
 from learning_from_demonstration_python.learning_from_demonstration import learningFromDemonstration
@@ -29,6 +30,9 @@ from scipy.interpolate import interp1d
 import numpy as np
 import time
 import matplotlib
+from os import listdir
+from os.path import isfile, join
+import os, stat, time
 
 # use agg to avoid gui from over his nek gaan 
 matplotlib.use('Agg')
@@ -71,6 +75,7 @@ class lfdNode():
         self._execute_trajectory_service = rospy.Service('execute_trajectory', ExecuteTrajectory, self._execute_trajectory)
         self._get_object_position_service = rospy.Service('get_object_position', GetObjectPosition, self._get_object_position)
         self._welford_update_service = rospy.Service('welford_update', WelfordUpdate, self._welford_update)
+        self._teaching_mode_service = rospy.Service('set_teaching_mode', SetTeachingMode, self._set_teaching_mode)
         
         # initialize other classes
         self.lfd = learningFromDemonstration()
@@ -82,10 +87,81 @@ class lfdNode():
         self.marker_pose = Pose()
         self.add_demo_success = Bool()
 
+        # for initial teaching
+        self.teaching_mode = 0
+        self.EEtrajectory = []
+
+    ## for teaching
+    def _set_teaching_mode(self, req):
+        self.teaching_mode = req.teaching_mode.data
+
+        rospy.loginfo(("Set teaching mode to {}").format(self.teaching_mode) )
+
+        resp = SetTeachingModeResponse()
+
+        return resp
+
+
+    # button callback
+    def _buttonCallback(self, data):
+        self.grey_button_previous = self.grey_button 
+        self.grey_button = data.grey_button
+        self.white_button_previous = self.white_button
+        self.white_button = data.white_button
+
+        if (self.grey_button != self.grey_button_previous) and (self.grey_button == 1):
+            
+            self.grey_button_toggle = not self.grey_button_toggle
+            self.grey_button_toggle_previous = not self.grey_button_toggle
+
+        if (self.white_button != self.white_button_previous) and (self.white_button == 1):
+            self.white_button_toggle = not self.white_button_toggle
+            self.white_button_toggle_previous = not self.white_button_toggle
+    
+    # saving data in folder
+    def _save_data(self, path, file_name):
+        with open(path+file_name, 'w+') as f:
+            f.write(str(self.EEtrajectory))
+        os.chmod(path+file_name,stat.S_IRWXO)
+        os.chmod(path+file_name,stat.S_IRWXU)
+
+    def _get_trajectory_file_name(self, path):
+        # get existing files from folder
+        files = [f for f in listdir(path) if isfile(join(path, f))]
+        
+        # get numbers from these files
+        numbers = [int(os.path.splitext(f)[0].split('_')[-1]) for f in files]
+        
+        # sort them in ascending order
+        numbers.sort()
+
+        # make list of these files
+        files = ["raw_trajectory_" + str(number) + ".txt" for number in numbers]
+        
+        try:
+            # add 1 to the last trajectory number and create new name
+            return "raw_trajectory_" + str(int(os.path.splitext(files[-1])[0].split('_')[-1]) + 1) + ".txt"
+        except IndexError:
+            # no files in folder yet --> create first file
+            return "raw_trajectory_1.txt"
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
 
+        # only do this when teaching mode is on
+        if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1 and self.teaching_mode:
+            print("Appending trajectory")
+
+            data.header.stamp = rospy.Time.now()
+
+            # marker x and y seem to be flipped wrt base_footprint
+            # no flipping needed anymore as this is done in callback
+            self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,
+             data.pose.orientation.x,data.pose.orientation.y,data.pose.orientation.z,data.pose.orientation.w,
+             self.marker_pose.position.x, self.marker_pose.position.y, self.marker_pose.position.z,
+             self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
+             data.header.stamp.secs, data.header.stamp.nsecs])
+    
     def _marker_detection_callback(self, data):
         # rospy.loginfo("marker pose = " + str(self.object_marker_pose.position))
         for marker in data.markers:
@@ -164,9 +240,9 @@ class lfdNode():
         # y = self.object_marker_pose.position.y
         # z = self.object_marker_pose.position.z
 
-        x = self.object_marker_pose.position.x - self.current_slave_pose.position.x  
-        y = self.object_marker_pose.position.y - self.current_slave_pose.position.y 
-        z = self.object_marker_pose.position.z - self.current_slave_pose.position.z 
+        x = self.marker_pose.position.x - self.current_slave_pose.position.x  
+        y = self.marker_pose.position.y - self.current_slave_pose.position.y 
+        z = self.marker_pose.position.z - self.current_slave_pose.position.z 
 
         return [x, y, z]
 
@@ -356,6 +432,11 @@ class lfdNode():
 
         self.executeTrajectory(traj, dt)
 
+        # is empty but need to create class otherwise error
+        resp = ExecuteTrajectoryResponse()
+
+        return resp
+
     def _go_to_pose(self, req):
         rospy.loginfo("Executing trajectory using service...")
         pose = req.pose
@@ -491,35 +572,20 @@ class lfdNode():
         return trajectory_wrt_base
 
     def run(self):
-        pass
-        # self.goToInitialPose()
-        # x = float(input("x: "))
+        
+        # only do this when teaching mode is on
+        if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0 and self.teaching_mode:
+            rospy.loginfo("Saving trajectory data")
+            
+            rospy.loginfo("file_name = " + self._get_trajectory_file_name(self.raw_path))
+            file_name = self._get_trajectory_file_name(self.raw_path)
+            self._save_data(self.raw_path, file_name)
 
-        # # x = 0.94
-        # y = -0.0231
-        # self.set_aruco_position(x, y)
+            del self.EEtrajectory[:]
 
-        # if input("Is the object placed at the desired location? 1/0") == "0":
-        #     x = float(input("x: "))
-        # else:
-        #     # self.clear_trajectories_rviz()
-
-        #     print("Making prediction...")
-        #     # self.lfd.promp_model.plot_conditioned_joints()
-
-        #     traj_pred = self.predict()
-
-        #     plt.plot([ x[0] for x in traj_pred])
-        #     plt.show()
-        #     # print(traj_pred)
-        #     n = 100
-        #     # traj_pred_resampled, dt = self.resampler.interpolate_learned_keypoints(traj_pred, n)
-        #     self.visualize_trajectory(traj_pred, 1, 0, 0)
-        #     # self.visualize_trajectory(traj_pred_resampled, 0, 0, 1)
-
-        #     # dt = 0.1
-        #     # self.executeTrajectory(traj_pred_resampled, dt)
-        #     time.sleep(5)
+            # set to 0 to prevent multiple savings
+            self.white_button_toggle_previous = 0
+            
         
 
             

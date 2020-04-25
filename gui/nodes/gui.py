@@ -15,11 +15,11 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse,
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
-                                            WelfordUpdateResponse)
+                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse)
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
@@ -587,7 +587,30 @@ class experimentGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
     
+    def on_start_teaching_click(self):
+        try:
+            rospy.wait_for_service('set_teaching_mode', timeout=2.0)
+            set_teaching_mode = rospy.ServiceProxy('set_teaching_mode', SetTeachingMode)
+            mode = Bool()
+            mode.data = True
+            set_teaching_mode(mode)
+
+            # rospy.loginfo(("Set teaching mode to {}").format(resp.current_teaching_mode) )
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
     
+    def on_stop_teaching_click(self):
+        try:
+            rospy.wait_for_service('set_teaching_mode', timeout=2.0)
+            set_teaching_mode = rospy.ServiceProxy('set_teaching_mode', SetTeachingMode)
+            mode = Bool()
+            mode.data = False
+            set_teaching_mode(mode)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
     def on_random_object_pose_click(self):
         x = random.uniform(0.7, 0.83)
         y = random.uniform(-0.3, 0.3)
@@ -707,9 +730,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_4.clicked.connect(lambda:self.stop_node('learning_from_demonstration.launch'))
         self.pushButton_3.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch'))
         
-        self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
-        self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
-        
+        # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
+        # self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
+        self.pushButton_12.clicked.connect(self.on_start_teaching_click)        
+        self.pushButton_11.clicked.connect(self.on_stop_teaching_click)        
         
         self.pushButton_16.clicked.connect(self.on_random_ee_pose_click)
         self.pushButton_15.clicked.connect(self.on_random_object_pose_click)
