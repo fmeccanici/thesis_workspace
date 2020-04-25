@@ -19,6 +19,7 @@ from scipy.interpolate import interp1d
 # my classes
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
+
 class trajectoryTeaching():
     def __init__(self):
         rospy.init_node("trajectory_teaching")
