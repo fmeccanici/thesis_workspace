@@ -51,11 +51,7 @@ class trajectoryTeaching():
 
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
-
-
-
-        # self.marker_pose = Pose()
-        # self.current_slave_pose = Pose()
+        
 
     def _get_parameters(self):
         raw_folder = rospy.get_param('~raw_folder')
@@ -79,7 +75,6 @@ class trajectoryTeaching():
             print("Appending trajectory")
 
             data.header.stamp = rospy.Time.now()
-
 
             # marker x and y seem to be flipped wrt base_footprint
             self.EEtrajectory.append([data.pose.position.x,data.pose.position.y,data.pose.position.z,

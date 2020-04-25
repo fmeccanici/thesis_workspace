@@ -36,8 +36,18 @@ import matplotlib.pyplot as plt
 
 class lfdNode():
     def __init__(self):
+        self.grey_button = 0
+        self.grey_button_previous = 0
+        self.white_button = 0
+        self.white_button_previous = 0
+        self.grey_button_toggle = 0
+        self.grey_button_toggle_previous = 0
+        self.white_button_toggle = 0
+        self.white_button_toggle_previous = 0
+        
         # #initialize ros related
         rospy.init_node('lfd_node')
+
         self._rospack = rospkg.RosPack()
 
         self._get_parameters()
@@ -46,6 +56,11 @@ class lfdNode():
         self._end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self._marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
+        
+        if self.button_source == "omni":
+            self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+        elif self.button_source == "keyboard":
+            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
         
         # ros services
         self._add_demo_service = rospy.Service('add_demonstration', AddDemonstration, self._add_demonstration)
@@ -91,7 +106,10 @@ class lfdNode():
         raw_folder = rospy.get_param('~raw_folder')
         self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/" + str(raw_folder) + "/"
         print("Set raw trajectory path to " + str(self.raw_path))
-
+        
+        self.button_source = rospy.get_param('~button_source')
+        print("Button source set to: " + str(self.button_source))
+    
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")
         slave_goal = PoseStamped()
