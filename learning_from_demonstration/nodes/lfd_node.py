@@ -12,7 +12,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GetContext, GetContextResponse, GoToPose, GoToPoseResponse,
                                             ExecuteTrajectory, ExecuteTrajectoryResponse, GoToPoseResponse, 
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
-                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse)
+                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
+                                            BuildInitialModel, BuildInitialModelResponse )
 
 from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
@@ -76,7 +77,8 @@ class lfdNode():
         self._get_object_position_service = rospy.Service('get_object_position', GetObjectPosition, self._get_object_position)
         self._welford_update_service = rospy.Service('welford_update', WelfordUpdate, self._welford_update)
         self._teaching_mode_service = rospy.Service('set_teaching_mode', SetTeachingMode, self._set_teaching_mode)
-        
+        self._build_initial_model_service = rospy.Service('build_initial_model', BuildInitialModel, self._build_initial_model)
+
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -571,8 +573,16 @@ class lfdNode():
         plt.show()
         return trajectory_wrt_base
 
+    def _build_initial_model(self, req):
+        self.initialize_lfd_model()
+
+        resp = BuildInitialModelResponse()
+        resp.success.data = True
+
+        return resp 
+
     def run(self):
-        
+
         # only do this when teaching mode is on
         if self.white_button_toggle_previous == 1 and self.white_button_toggle == 0 and self.teaching_mode:
             rospy.loginfo("Saving trajectory data")
@@ -591,8 +601,7 @@ class lfdNode():
             
 if __name__ == "__main__":
     node = lfdNode()
-    node.initialize_lfd_model()
-    node.goToInitialPose()
+    # node.goToInitialPose()
     
     r = rospy.Rate(30)
     while not rospy.is_shutdown():

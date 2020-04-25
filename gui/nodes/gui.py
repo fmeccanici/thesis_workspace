@@ -15,7 +15,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse,
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
-                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse)
+                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
+                                            BuildInitialModel, BuildInitialModelResponse)
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
@@ -151,6 +152,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_11 = QPushButton(self.groupBox_3)
         self.pushButton_11.setGeometry(QRect(150, 220, 88, 27))
         self.pushButton_11.setObjectName("pushButton_11")
+        self.pushButton_14 = QPushButton(self.groupBox_3)
+        self.pushButton_14.setGeometry(QRect(150, 250, 90, 27))
+        self.pushButton_14.setObjectName("pushButton_14")
         self.pushButton_5.raise_()
         self.pushButton_8.raise_()
         self.pushButton_9.raise_()
@@ -165,6 +169,8 @@ class experimentGUI(QMainWindow):
         self.label_20.raise_()
         self.pushButton_12.raise_()
         self.pushButton_11.raise_()
+        self.pushButton_14.raise_()
+
         self.groupBox = QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QRect(0, 690, 331, 161))
         self.groupBox.setObjectName("groupBox")
@@ -609,6 +615,15 @@ class experimentGUI(QMainWindow):
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
+    
+    def on_build_model_click(self):
+        try:
+            rospy.wait_for_service('build_initial_model', timeout=2.0)
+            build_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+            resp = build_model()
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
 
     def on_random_object_pose_click(self):
         x = random.uniform(0.7, 0.83)
@@ -684,6 +699,8 @@ class experimentGUI(QMainWindow):
         self.label_20.setText(_translate("MainWindow", "Initial teaching"))
         self.pushButton_12.setText(_translate("MainWindow", "Start"))
         self.pushButton_11.setText(_translate("MainWindow", "Stop"))
+        self.pushButton_14.setText(_translate("MainWindow", "Build model"))
+
         self.groupBox.setTitle(_translate("MainWindow", "     Set object position Gazebo"))
         self.label.setText(_translate("MainWindow", "x: "))
         self.label_2.setText(_translate("MainWindow", "y: "))
@@ -723,6 +740,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_8.clicked.connect(self.on_visualize_prediction_click)
         self.pushButton_22.clicked.connect(self.on_visualize_refinement_click)
         self.pushButton_10.clicked.connect(self.on_calibrate_click)
+        self.pushButton_14.clicked.connect(self.on_build_model_click)
 
         self.pushButton_7.clicked.connect(self.on_get_context_click)
         self.pushButton_5.clicked.connect(self.on_predict_click)

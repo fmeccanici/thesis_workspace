@@ -20,6 +20,7 @@
     GetObjectPosition.srv
     WelfordUpdate.srv
     SetTeachingMode.srv
+    BuildInitialModel.srv
   )
 catkin_python_setup()
 
