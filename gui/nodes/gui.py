@@ -15,11 +15,11 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             SetObject, SetObjectResponse, GetContext, GetContextResponse, 
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse,
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
-                                            WelfordUpdateResponse)
+                                            WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse)
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
@@ -106,11 +106,6 @@ class experimentGUI(QMainWindow):
         self.pushButton_10 = QPushButton(self.groupBox_2)
         self.pushButton_10.setGeometry(QRect(180, 30, 150, 27))
         self.pushButton_10.setObjectName("pushButton_10")
-        self.pushButton_6.raise_()
-        self.pushButton_21.raise_()
-        self.pushButton_22.raise_()
-        self.pushButton_23.raise_()
-        self.pushButton_10.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(620, 690, 521, 291))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -147,6 +142,15 @@ class experimentGUI(QMainWindow):
         self.pushButton_13 = QPushButton(self.groupBox_3)
         self.pushButton_13.setGeometry(QRect(340, 130, 151, 27))
         self.pushButton_13.setObjectName("pushButton_13")
+        self.label_20 = QLabel(self.groupBox_3)
+        self.label_20.setGeometry(QRect(140, 170, 111, 16))
+        self.label_20.setObjectName("label_20")
+        self.pushButton_12 = QPushButton(self.groupBox_3)
+        self.pushButton_12.setGeometry(QRect(150, 190, 90, 27))
+        self.pushButton_12.setObjectName("pushButton_12")
+        self.pushButton_11 = QPushButton(self.groupBox_3)
+        self.pushButton_11.setGeometry(QRect(150, 220, 88, 27))
+        self.pushButton_11.setObjectName("pushButton_11")
         self.pushButton_5.raise_()
         self.pushButton_8.raise_()
         self.pushButton_9.raise_()
@@ -158,6 +162,9 @@ class experimentGUI(QMainWindow):
         self.lineEdit_4.raise_()
         self.pushButton_7.raise_()
         self.pushButton_13.raise_()
+        self.label_20.raise_()
+        self.pushButton_12.raise_()
+        self.pushButton_11.raise_()
         self.groupBox = QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QRect(0, 690, 331, 161))
         self.groupBox.setObjectName("groupBox")
@@ -287,32 +294,23 @@ class experimentGUI(QMainWindow):
         self.groupBox_5 = QGroupBox(self.centralwidget)
         self.groupBox_5.setGeometry(QRect(20, 860, 441, 141))
         self.groupBox_5.setObjectName("groupBox_5")
-        self.label_16 = QLabel(self.groupBox_5)
-        self.label_16.setGeometry(QRect(0, 20, 161, 17))
-        self.label_16.setObjectName("label_16")
-        self.pushButton_12 = QPushButton(self.groupBox_5)
-        self.pushButton_12.setGeometry(QRect(0, 40, 90, 27))
-        self.pushButton_12.setObjectName("pushButton_12")
-        self.pushButton_11 = QPushButton(self.groupBox_5)
-        self.pushButton_11.setGeometry(QRect(0, 70, 88, 27))
-        self.pushButton_11.setObjectName("pushButton_11")
         self.label_17 = QLabel(self.groupBox_5)
-        self.label_17.setGeometry(QRect(200, 20, 31, 17))
+        self.label_17.setGeometry(QRect(40, 37, 31, 17))
         self.label_17.setObjectName("label_17")
         self.pushButton_3 = QPushButton(self.groupBox_5)
-        self.pushButton_3.setGeometry(QRect(170, 40, 90, 27))
+        self.pushButton_3.setGeometry(QRect(10, 57, 90, 27))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_4 = QPushButton(self.groupBox_5)
-        self.pushButton_4.setGeometry(QRect(170, 70, 88, 27))
+        self.pushButton_4.setGeometry(QRect(10, 87, 88, 27))
         self.pushButton_4.setObjectName("pushButton_4")
         self.label_18 = QLabel(self.groupBox_5)
-        self.label_18.setGeometry(QRect(330, 20, 91, 17))
+        self.label_18.setGeometry(QRect(170, 37, 91, 17))
         self.label_18.setObjectName("label_18")
         self.pushButton = QPushButton(self.groupBox_5)
-        self.pushButton.setGeometry(QRect(330, 40, 90, 27))
+        self.pushButton.setGeometry(QRect(170, 57, 90, 27))
         self.pushButton.setObjectName("pushButton")
         self.pushButton_2 = QPushButton(self.groupBox_5)
-        self.pushButton_2.setGeometry(QRect(330, 73, 88, 27))
+        self.pushButton_2.setGeometry(QRect(170, 90, 88, 27))
         self.pushButton_2.setObjectName("pushButton_2")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
@@ -325,6 +323,7 @@ class experimentGUI(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
         self.menubar.addAction(self.menuOnline_teaching_GUI.menuAction())
+
 
         
         self.lineEdit.setText("0.8")
@@ -587,7 +586,30 @@ class experimentGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
     
+    def on_start_teaching_click(self):
+        try:
+            rospy.wait_for_service('set_teaching_mode', timeout=2.0)
+            set_teaching_mode = rospy.ServiceProxy('set_teaching_mode', SetTeachingMode)
+            mode = Bool()
+            mode.data = True
+            set_teaching_mode(mode)
+
+            # rospy.loginfo(("Set teaching mode to {}").format(resp.current_teaching_mode) )
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
     
+    def on_stop_teaching_click(self):
+        try:
+            rospy.wait_for_service('set_teaching_mode', timeout=2.0)
+            set_teaching_mode = rospy.ServiceProxy('set_teaching_mode', SetTeachingMode)
+            mode = Bool()
+            mode.data = False
+            set_teaching_mode(mode)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
     def on_random_object_pose_click(self):
         x = random.uniform(0.7, 0.83)
         y = random.uniform(-0.3, 0.3)
@@ -659,6 +681,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_8.setText(_translate("MainWindow", "Visualize prediction"))
         self.pushButton_9.setText(_translate("MainWindow", "Clear visualizations"))
         self.pushButton_13.setText(_translate("MainWindow", "Execute prediction"))
+        self.label_20.setText(_translate("MainWindow", "Initial teaching"))
+        self.pushButton_12.setText(_translate("MainWindow", "Start"))
+        self.pushButton_11.setText(_translate("MainWindow", "Stop"))
         self.groupBox.setTitle(_translate("MainWindow", "     Set object position Gazebo"))
         self.label.setText(_translate("MainWindow", "x: "))
         self.label_2.setText(_translate("MainWindow", "y: "))
@@ -675,19 +700,16 @@ class experimentGUI(QMainWindow):
         self.label_13.setText(_translate("MainWindow", "qw: "))
         self.pushButton_16.setText(_translate("MainWindow", "Random"))
         self.pushButton_17.setText(_translate("MainWindow", "Execute"))
-        self.checkBox.setText(_translate("MainWindow", "1"))
-        self.checkBox_2.setText(_translate("MainWindow", "2"))
-        self.checkBox_3.setText(_translate("MainWindow", "3"))
         self.label_14.setText(_translate("MainWindow", "Presets"))
         self.label_15.setText(_translate("MainWindow", "Manual control"))
         self.pushButton_18.setText(_translate("MainWindow", "Enable"))
         self.pushButton_19.setText(_translate("MainWindow", "Disable"))
         self.label_19.setText(_translate("MainWindow", "Head joints"))
         self.pushButton_20.setText(_translate("MainWindow", "Initialize"))
+        self.checkBox.setText(_translate("MainWindow", "1"))
+        self.checkBox_2.setText(_translate("MainWindow", "2"))
+        self.checkBox_3.setText(_translate("MainWindow", "3"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Nodes"))
-        self.label_16.setText(_translate("MainWindow", "Initial demonstrations"))
-        self.pushButton_12.setText(_translate("MainWindow", "Start"))
-        self.pushButton_11.setText(_translate("MainWindow", "Stop"))
         self.label_17.setText(_translate("MainWindow", "LfD"))
         self.pushButton_3.setText(_translate("MainWindow", "Start"))
         self.pushButton_4.setText(_translate("MainWindow", "Stop"))
@@ -707,9 +729,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_4.clicked.connect(lambda:self.stop_node('learning_from_demonstration.launch'))
         self.pushButton_3.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch'))
         
-        self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
-        self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
-        
+        # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
+        # self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
+        self.pushButton_12.clicked.connect(self.on_start_teaching_click)        
+        self.pushButton_11.clicked.connect(self.on_stop_teaching_click)        
         
         self.pushButton_16.clicked.connect(self.on_random_ee_pose_click)
         self.pushButton_15.clicked.connect(self.on_random_object_pose_click)

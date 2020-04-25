@@ -19,6 +19,7 @@
     ExecuteTrajectory.srv
     GetObjectPosition.srv
     WelfordUpdate.srv
+    SetTeachingMode.srv
   )
 catkin_python_setup()
 
