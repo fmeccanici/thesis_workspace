@@ -70,8 +70,14 @@ class experimentGUI(QMainWindow):
 
         ## initialize ROS stuff
         rospy.init_node("experiment_gui")
+
         self._rospack = rospkg.RosPack()
         self.parser = trajectoryParser()
+
+        self.launch_files = {'learning_from_demonstration':'learning_from_demonstration.launch', 
+                            'trajectory_refinement':'trajectory_refinement.launch',
+                            'learning_from_demonstration':'trajectory_teaching.launch'}
+        self.nodes = {}
 
         # initialize Qt GUI
         self.initGUI()
@@ -331,6 +337,38 @@ class experimentGUI(QMainWindow):
         self.horizontalLayout_6.addWidget(self.rviz_widget)
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
+
+    def start_node(self, package, launch_file):
+        if launch_file not in self.nodes: 
+            abs_path = self._rospack.get_path(package) + "/launch/" + launch_file
+            uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+            launch = roslaunch.parent.ROSLaunchParent(uuid, [abs_path])
+
+            # needed to be able to stop the node
+            self.nodes[launch_file] = launch
+
+            # start node
+            self.nodes[launch_file].start()
+            
+        else:
+            # we need to delete the previous node from dict
+            # else it gives an error
+            del self.nodes[launch_file]
+
+            # and append a new one again
+            abs_path = self._rospack.get_path(package) + "/launch/" + launch_file
+            uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+            launch = roslaunch.parent.ROSLaunchParent(uuid, [abs_path])
+
+            # needed to be able to stop the node
+            self.nodes[launch_file] = launch
+
+            self.nodes[launch_file].start()
+
+
+    def stop_node(self, launch_file):
+        # look through dictionary to find corresponding launch object
+        self.nodes[launch_file].shutdown()
 
     def start_refinement_node(self):
         package = 'trajectory_refinement'
@@ -703,6 +741,11 @@ class experimentGUI(QMainWindow):
         self.pushButton_5.clicked.connect(self.on_predict_click)
         self.pushButton_4.clicked.connect(self.stop_lfd_node)
         self.pushButton_3.clicked.connect(self.start_lfd_node)
+        
+        self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
+        self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
+        
+        
         self.pushButton_16.clicked.connect(self.on_random_ee_pose_click)
         self.pushButton_15.clicked.connect(self.on_random_object_pose_click)
         self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_go_to_click))

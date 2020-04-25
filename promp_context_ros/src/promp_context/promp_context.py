@@ -118,9 +118,9 @@ class ProMPContext(object):
             if self.output_name[0] == 'ee_x':
 
                 fig = plt.figure(self.figs[3])
-                print("stretched = " + str(stretched_demo))
+                print("stretched = " + str(tau))
                 plt.title("Demonstrations used for Welford update: No demo's = " + str(self.nr_traj))
-                plt.plot(self.x, stretched_demo, label = 'context = ' + str(context))
+                plt.plot(self.x, tau, label = 'context = ' + str(context))
                 plt.xlabel("datapoint [-]")
                 plt.ylabel("position [m]")
                 plt.grid()
