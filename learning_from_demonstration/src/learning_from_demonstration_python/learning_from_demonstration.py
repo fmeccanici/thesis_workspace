@@ -139,7 +139,7 @@ class learningFromDemonstration():
             # plt.plot([x[7:10] for x in traj])
             plt.xlabel("datapoints [-]")
             plt.ylabel("position [m]")
-            plt.title("Relative trajectories")
+            plt.title("Relevant data trajectories")
             plt.legend()
         plt.grid()
         plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/relevant_data_trajectories.png')
@@ -209,7 +209,7 @@ class learningFromDemonstration():
         self.num_samples = len(self.trajectories_for_learning[0])
         
         # default value
-        num_basis = 10
+        num_basis = 20
 
         # default value
         sigma = 0.1
@@ -242,7 +242,6 @@ class learningFromDemonstration():
             
     def generalize(self, context):
         # generate trajectory using ProMP package
-        
         pred_traj = self.promps[0].generate_trajectory(context)     
         for promp in self.promps[1:]:
             pred = promp.generate_trajectory(context)

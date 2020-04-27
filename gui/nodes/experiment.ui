@@ -20,7 +20,7 @@
       <x>350</x>
       <y>690</y>
       <width>351</width>
-      <height>171</height>
+      <height>241</height>
      </rect>
     </property>
     <property name="title">
@@ -91,6 +91,54 @@
       <string>Calibrate init pose</string>
      </property>
     </widget>
+    <widget class="QRadioButton" name="radioButton_2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>150</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Welford</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_3">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>180</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Normal</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_24">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>60</y>
+       <width>150</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Execute refinement</string>
+     </property>
+    </widget>
+    <zorder>pushButton_6</zorder>
+    <zorder>pushButton_21</zorder>
+    <zorder>pushButton_22</zorder>
+    <zorder>pushButton_23</zorder>
+    <zorder>pushButton_10</zorder>
+    <zorder>radioButton_2</zorder>
+    <zorder>radioButton_3</zorder>
+    <zorder>pushButton_24</zorder>
+    <zorder>groupBox_3</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
@@ -422,19 +470,6 @@
     <zorder>label_3</zorder>
     <zorder>lineEdit_3</zorder>
    </widget>
-   <widget class="QGroupBox" name="groupBox_4">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>1661</width>
-      <height>671</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>RViz</string>
-    </property>
-   </widget>
    <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
@@ -733,7 +768,7 @@
      <rect>
       <x>20</x>
       <y>860</y>
-      <width>441</width>
+      <width>271</width>
       <height>141</height>
      </rect>
     </property>
@@ -818,6 +853,19 @@
       <string>Stop</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>1641</width>
+      <height>671</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>RViz</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

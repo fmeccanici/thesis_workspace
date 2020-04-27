@@ -5,6 +5,9 @@ import rospy, time, os, rospkg
 import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+
 from pyquaternion import Quaternion
 
 # import ros messages
@@ -84,7 +87,7 @@ class trajectoryRefinement():
 
     
         # calibrate master pose
-        # self.initMasterNormalizePose()
+        self.calibrate_master_pose_for_normalization()
 
 
     def _get_parameters(self):
@@ -157,6 +160,7 @@ class trajectoryRefinement():
         return response
 
     def calibrate_master_pose_for_normalization(self):
+        rospy.wait_for_message('/master_control_comm', ControlComm, timeout=5.0)
         self.firstMasterPose = PoseStamped()
         self.firstMasterPose.pose.position.x = self.master_pose.position.x
         self.firstMasterPose.pose.position.y = self.master_pose.position.y
@@ -167,6 +171,8 @@ class trajectoryRefinement():
         self.firstMasterPose.pose.orientation.y = self.master_pose.orientation.y
         self.firstMasterPose.pose.orientation.z = self.master_pose.orientation.z
         self.firstMasterPose.pose.orientation.w = self.master_pose.orientation.w
+
+        rospy.loginfo('Calibrated master pose for refinement')
 
     def initMasterNormalizePose(self):
         self.firstMasterPose = PoseStamped()
@@ -400,19 +406,18 @@ class trajectoryRefinement():
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_DTW_resampling_both.png')
         plt.close()   
 
-        # new_traj is wrt base so make it relative to the object
         # object_pos_wrt_base = self.getMarkerWRTBase()
         # new_traj = self.parser.get_trajectory_wrt_context(new_traj, object_pos_wrt_base)
         # plt.figure()
-        # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
-        # # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
-        # plt.title("Relative trajectory")
-        # plt.xlabel("datapoint [-]")
-        # plt.ylabel("position [m]")
-        # plt.grid()
-        # plt.legend()
-        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
-        # plt.close()   
+        plt.plot(self.parser.getCartesianPositions(new_traj))
+        # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
+        plt.title("Relative trajectory")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        plt.legend()
+        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
+        plt.close()   
 
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
         new_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(new_traj, context)
