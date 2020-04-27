@@ -97,7 +97,6 @@ class DTW():
         # we need to align the trajectories with DTW that have similar context
 
         dx, dy, dz, dtotal = self.get_dcontext_matrices(demonstrations)
-
         appended_ix = []
 
         threshold = 0.01
@@ -129,6 +128,11 @@ class DTW():
         # get the tuples that have the same context
         ix_for_dtw = self.get_trajectories_ix_for_dtw(traj_for_learning)        
         
+        # if all trajectories have different contexts, we return the original trajectories
+        # no alignment is necessary
+        if len(ix_for_dtw) == 0:
+            return traj_for_learning 
+
         # makea copy of this used for the logic
         ix_for_dtw_copy = ix_for_dtw[:]
                 

@@ -41,6 +41,8 @@ import matplotlib.pyplot as plt
 
 class lfdNode():
     def __init__(self):
+        ## initialize class variables
+
         self.grey_button = 0
         self.grey_button_previous = 0
         self.white_button = 0
@@ -49,8 +51,15 @@ class lfdNode():
         self.grey_button_toggle_previous = 0
         self.white_button_toggle = 0
         self.white_button_toggle_previous = 0
-        
-        # #initialize ros related
+ 
+        self.marker_pose = Pose()
+        self.add_demo_success = Bool()
+
+        # for initial teaching
+        self.teaching_mode = 0
+        self.EEtrajectory = []
+
+        ## initialize ros related
         rospy.init_node('lfd_node')
 
         self._rospack = rospkg.RosPack()
@@ -85,17 +94,16 @@ class lfdNode():
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
 
-        # initialize class variables
-        self.marker_pose = Pose()
-        self.add_demo_success = Bool()
-
-        # for initial teaching
-        self.teaching_mode = 0
-        self.EEtrajectory = []
 
     ## for teaching
     def _set_teaching_mode(self, req):
         self.teaching_mode = req.teaching_mode.data
+
+        # reset white buttons to prevent the append code to run when 
+        # we switch to teaching mode when we forgot to press the button
+        self.white_button_toggle_previous = 0
+        self.white_button_toggle = 0
+
 
         rospy.loginfo(("Set teaching mode to {}").format(self.teaching_mode) )
 
@@ -363,6 +371,9 @@ class lfdNode():
 
     def initialize_lfd_model(self):
         self.base_frame = 'base_footprint'
+        self.lfd.raw_trajectories = []
+        self.lfd.trajectories_for_learning = []
+        
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
         desired_datapoints = 100
@@ -574,6 +585,7 @@ class lfdNode():
         return trajectory_wrt_base
 
     def _build_initial_model(self, req):
+
         self.initialize_lfd_model()
 
         resp = BuildInitialModelResponse()

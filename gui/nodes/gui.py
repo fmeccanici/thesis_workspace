@@ -377,7 +377,7 @@ class experimentGUI(QMainWindow):
         # look through dictionary to find corresponding launch object
         try:
             self.nodes[launch_file].shutdown()
-        except AttributeError:
+        except AttributeError, KeyError:
             rospy.loginfo( ("Node not launched yet") )
 
     def on_refine_prediction_click(self):
@@ -746,7 +746,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_5.clicked.connect(self.on_predict_click)
         self.pushButton_4.clicked.connect(lambda:self.stop_node('learning_from_demonstration.launch'))
         self.pushButton_3.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch'))
-        
+
+        self.pushButton_19.clicked.connect(lambda:self.stop_node('teleop_control.launch'))
+        self.pushButton_18.clicked.connect(lambda:self.start_node('teleop_control', 'teleop_control.launch'))
+
         # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
         # self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))
         self.pushButton_12.clicked.connect(self.on_start_teaching_click)        

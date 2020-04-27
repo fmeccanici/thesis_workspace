@@ -124,7 +124,6 @@ class trajectoryParser():
                 ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, context_wrt_base))            
                 ee_ori =  list(data[3:7])
                 dt = [data[-1]]
-
                 traj_wrt_object.append(ee_wrt_object + ee_ori + dt )
 
             return traj_wrt_object        

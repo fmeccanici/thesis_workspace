@@ -95,11 +95,13 @@ class learningFromDemonstration():
                 print("Raw trajectory has incorrect length, check if it contains essential paramaters")
 
     def prepare_for_learning(self, desired_datapoints):
+        
         print("Preparing raw trajectories for learning...")
         
         # normalize time
         print("Normalizing trajectories wrt time...")
         for traj in self.raw_trajectories:
+            # due to pointers, this changes the raw trajectories
             traj = self.parser.normalize_trajectory_time_float(traj)
 
         # resample trajectories
@@ -108,6 +110,7 @@ class learningFromDemonstration():
         for traj in self.raw_trajectories:
             resampled_trajectories.append(self.resampler.interpolate_raw_trajectory(traj, desired_datapoints))
         plt.figure()
+
         for traj in resampled_trajectories:
             plt.plot([x[0:3] for x in traj])
             # plt.plot([x[7:10] for x in traj])
@@ -115,7 +118,9 @@ class learningFromDemonstration():
             plt.ylabel("position [m]")
             plt.title("Resampled trajectories")
         plt.grid()
-        plt.show()
+        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/resampled_trajectories.png')
+
+        plt.close()
 
         # get relevant learning data
         print("Extracting relevant learning data: [ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, obj_x, obj_y, obj_z, dt]...")
@@ -123,17 +128,57 @@ class learningFromDemonstration():
         for traj in resampled_trajectories:
             relevant_traj = self.parse_relevant_learning_data(traj)
             relevant_data_trajectories.append(relevant_traj)
-            # print(traj[0][7:10])
         
-        print("nr input traj = " + str(np.asarray(relevant_data_trajectories).shape))
+        plt.figure()
+        for traj in relevant_data_trajectories:
+            plt.plot([x[0:3] for x in traj])
+            # plt.plot([x[0] for x in traj], label="context=" + str([round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)] ))
+            # plt.plot([x[1] for x in traj], label='y')
+            # plt.plot([x[2] for x in traj], label='z')
+
+            # plt.plot([x[7:10] for x in traj])
+            plt.xlabel("datapoints [-]")
+            plt.ylabel("position [m]")
+            plt.title("Relative trajectories")
+            plt.legend()
+        plt.grid()
+        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/relevant_data_trajectories.png')
+        plt.close()
+        # convert trajectory to relative trajectory wrt ee
+        # and change object pose wrt base to wrt ee
+        print("Converting to relative trajectory...")
+
+        relative_trajectories = []
+        for traj in relevant_data_trajectories:
+        # for traj in relevant_data_trajectories:
+            traj_wrt_object = self.parser.get_trajectory_wrt_object(traj)
+            
+            relative_trajectories.append(traj_wrt_object)
+            # self.trajectories_for_learning.append(traj)
+
+        plt.figure()
+        for traj in relative_trajectories:
+            plt.plot([x[0:3] for x in traj])
+            # plt.plot([x[0] for x in traj], label="context=" + str([round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)] ))
+            # plt.plot([x[1] for x in traj], label='y')
+            # plt.plot([x[2] for x in traj], label='z')
+
+            # plt.plot([x[7:10] for x in traj])
+            plt.xlabel("datapoints [-]")
+            plt.ylabel("position [m]")
+            plt.title("Relative trajectories")
+            plt.legend()
+        plt.grid()
+        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/relative_trajectories.png')
+        plt.close()
 
         # apply dynamic time warping
         print("Applying DTW...")
-        traj_aligned_for_learning = self.dtw.align_necessary_trajectories(relevant_data_trajectories)
+        self.trajectories_for_learning = self.dtw.align_necessary_trajectories(relative_trajectories)
 
         # print(len(traj_aligned_for_learning))
         plt.figure()
-        for traj in traj_aligned_for_learning:
+        for traj in self.trajectories_for_learning:
             plt.plot([x[0:3] for x in traj])
             # plt.plot([x[0] for x in traj], label="context=" + str([round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)] ))
             # plt.plot([x[1] for x in traj], label='y')
@@ -145,19 +190,8 @@ class learningFromDemonstration():
             plt.title("Aligned trajectories")
             plt.legend()
         plt.grid()
-        plt.show()
-
-
-        # convert trajectory to relative trajectory wrt ee
-        # and change object pose wrt base to wrt ee
-        print("Converting to relative trajectory...")
-        for traj in traj_aligned_for_learning:
-        # for traj in relevant_data_trajectories:
-            traj_wrt_object = self.parser.get_trajectory_wrt_object(traj)
-            
-            self.trajectories_for_learning.append(traj_wrt_object)
-            # self.trajectories_for_learning.append(traj)
-
+        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/trajectories_for_learning.png')
+        plt.close()
 
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
@@ -186,6 +220,7 @@ class learningFromDemonstration():
         print('Adding trajectories to ProMP model...')
 
         for i,traj in enumerate(self.trajectories_for_learning):
+            # print(traj[0])
             print("context = " + str(traj[0][7:10]))
 
             context = [round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)]
