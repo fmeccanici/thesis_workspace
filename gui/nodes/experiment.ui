@@ -130,15 +130,6 @@
       <string>Execute refinement</string>
      </property>
     </widget>
-    <zorder>pushButton_6</zorder>
-    <zorder>pushButton_21</zorder>
-    <zorder>pushButton_22</zorder>
-    <zorder>pushButton_23</zorder>
-    <zorder>pushButton_10</zorder>
-    <zorder>radioButton_2</zorder>
-    <zorder>radioButton_3</zorder>
-    <zorder>pushButton_24</zorder>
-    <zorder>groupBox_3</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
@@ -683,8 +674,8 @@
     <widget class="QPushButton" name="pushButton_17">
      <property name="geometry">
       <rect>
-       <x>180</x>
-       <y>240</y>
+       <x>270</x>
+       <y>270</y>
        <width>85</width>
        <height>27</height>
       </rect>
@@ -696,8 +687,8 @@
     <widget class="QLabel" name="label_14">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>120</y>
+       <x>190</x>
+       <y>160</y>
        <width>67</width>
        <height>17</height>
       </rect>
@@ -775,7 +766,7 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>150</y>
+       <y>180</y>
        <width>117</width>
        <height>22</height>
       </rect>
@@ -788,7 +779,7 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>180</y>
+       <y>210</y>
        <width>117</width>
        <height>22</height>
       </rect>
@@ -801,13 +792,26 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>210</y>
+       <y>240</y>
        <width>117</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>3</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_25">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>100</y>
+       <width>85</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Copy pose</string>
      </property>
     </widget>
    </widget>

@@ -16,7 +16,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GoToPose, GoToPoseResponse, ExecuteTrajectory, ExecuteTrajectoryResponse,
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
-                                            BuildInitialModel, BuildInitialModelResponse)
+                                            BuildInitialModel, BuildInitialModelResponse, 
+                                            GetEEPose, GetEEPoseResponse)
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
@@ -118,14 +119,6 @@ class experimentGUI(QMainWindow):
         self.pushButton_24 = QPushButton(self.groupBox_2)
         self.pushButton_24.setGeometry(QRect(180, 60, 150, 27))
         self.pushButton_24.setObjectName("pushButton_24")
-        self.pushButton_6.raise_()
-        self.pushButton_21.raise_()
-        self.pushButton_22.raise_()
-        self.pushButton_23.raise_()
-        self.pushButton_10.raise_()
-        self.radioButton_2.raise_()
-        self.radioButton_3.raise_()
-        self.pushButton_24.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(620, 690, 521, 291))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -290,10 +283,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_16.setGeometry(QRect(180, 270, 85, 27))
         self.pushButton_16.setObjectName("pushButton_16")
         self.pushButton_17 = QPushButton(self.groupBox_6)
-        self.pushButton_17.setGeometry(QRect(180, 240, 85, 27))
+        self.pushButton_17.setGeometry(QRect(270, 270, 85, 27))
         self.pushButton_17.setObjectName("pushButton_17")
         self.label_14 = QLabel(self.groupBox_6)
-        self.label_14.setGeometry(QRect(200, 120, 67, 17))
+        self.label_14.setGeometry(QRect(190, 160, 67, 17))
         self.label_14.setObjectName("label_14")
         self.label_15 = QLabel(self.groupBox_6)
         self.label_15.setGeometry(QRect(190, 20, 101, 17))
@@ -311,14 +304,17 @@ class experimentGUI(QMainWindow):
         self.pushButton_20.setGeometry(QRect(300, 40, 85, 27))
         self.pushButton_20.setObjectName("pushButton_20")
         self.radioButton = QRadioButton(self.groupBox_6)
-        self.radioButton.setGeometry(QRect(200, 150, 117, 22))
+        self.radioButton.setGeometry(QRect(200, 180, 117, 22))
         self.radioButton.setObjectName("radioButton")
         self.radioButton_4 = QRadioButton(self.groupBox_6)
-        self.radioButton_4.setGeometry(QRect(200, 180, 117, 22))
+        self.radioButton_4.setGeometry(QRect(200, 210, 117, 22))
         self.radioButton_4.setObjectName("radioButton_4")
         self.radioButton_5 = QRadioButton(self.groupBox_6)
-        self.radioButton_5.setGeometry(QRect(200, 210, 117, 22))
+        self.radioButton_5.setGeometry(QRect(200, 240, 117, 22))
         self.radioButton_5.setObjectName("radioButton_5")
+        self.pushButton_25 = QPushButton(self.groupBox_6)
+        self.pushButton_25.setGeometry(QRect(190, 100, 85, 27))
+        self.pushButton_25.setObjectName("pushButton_25")
         self.groupBox_5 = QGroupBox(self.centralwidget)
         self.groupBox_5.setGeometry(QRect(0, 880, 271, 121))
         self.groupBox_5.setObjectName("groupBox_5")
@@ -356,12 +352,12 @@ class experimentGUI(QMainWindow):
         self.menubar.addAction(self.menuOnline_teaching_GUI.menuAction())
 
         # object position
-        self.lineEdit.setText("0.83")
+        self.lineEdit.setText("0.73")
         self.lineEdit_2.setText("0.0")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.65")
+        self.lineEdit_14.setText("0.5")
         self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
 
@@ -423,7 +419,7 @@ class experimentGUI(QMainWindow):
     
     def on_set_obstacle_position_click(self):
         obstacle_position = ModelState()
-        obstacle_position.model_name = 'parrot_bebop_2_0'
+        obstacle_position.model_name = 'parrot_bebop_2'
         obstacle_position.pose.position.x = float(self.lineEdit_14.text())
         obstacle_position.pose.position.y = float(self.lineEdit_15.text())
         obstacle_position.pose.position.z = float(self.lineEdit_16.text())
@@ -445,12 +441,12 @@ class experimentGUI(QMainWindow):
 
     def on_cancel_position_click(self):
         # object position
-        self.lineEdit.setText("0.83")
+        self.lineEdit.setText("0.73")
         self.lineEdit_2.setText("0.0")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.65")
+        self.lineEdit_14.setText("0.5")
         self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
 
@@ -706,6 +702,24 @@ class experimentGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
+    def on_copy_pose_click(self):
+        try:
+            rospy.wait_for_service('get_ee_pose', timeout=2.0)
+            get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+            resp = get_ee_pose()
+            
+            self.lineEdit_9.setText(str(round(resp.pose.position.x, 3)))
+            self.lineEdit_7.setText(str(round(resp.pose.position.y, 3)))
+            self.lineEdit_8.setText(str(round(resp.pose.position.z, 3)))
+
+            self.lineEdit_12.setText(str(round(resp.pose.orientation.x, 3)))
+            self.lineEdit_11.setText(str(round(resp.pose.orientation.y, 3)))
+            self.lineEdit_10.setText(str(round(resp.pose.orientation.z, 3)))
+            self.lineEdit_13.setText(str(round(resp.pose.orientation.w, 3)))
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
     def on_random_object_pose_click(self):
         x = random.uniform(0.7, 0.83)
         y = random.uniform(-0.3, 0.3)
@@ -740,15 +754,17 @@ class experimentGUI(QMainWindow):
             self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
             self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
             self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
-        elif button.text() == '2' and button.isChecked():
-            self.lineEdit_9.setText(str(round(0.403399335619, 3)))
-            self.lineEdit_7.setText(str(round(-0.430007534239, 3)))
-            self.lineEdit_8.setText(str(round(1.16269467394, 3)))
 
-            self.lineEdit_12.setText(str(round(0.980837824843, 3)))
-            self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
-            self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
-            self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
+        elif button.text() == '2' and button.isChecked():
+            self.lineEdit_9.setText(str(round(0.371, 3)))
+            self.lineEdit_7.setText(str(round(-0.14, 3)))
+            self.lineEdit_8.setText(str(round(0.879, 3)))
+
+            self.lineEdit_12.setText(str(round(0.988, 3)))
+            self.lineEdit_11.setText(str(round(-0.0, 3)))
+            self.lineEdit_10.setText(str(round(-0.151, 3)))
+            self.lineEdit_13.setText(str(round(0.03, 3)))
+
         elif button.text() == '3' and button.isChecked():
             self.lineEdit_9.setText(str(round(0.353543514402, 3)))
             self.lineEdit_7.setText(str(round(0.435045131507, 3)))
@@ -811,6 +827,7 @@ class experimentGUI(QMainWindow):
         self.radioButton.setText(_translate("MainWindow", "1"))
         self.radioButton_4.setText(_translate("MainWindow", "2"))
         self.radioButton_5.setText(_translate("MainWindow", "3"))
+        self.pushButton_25.setText(_translate("MainWindow", "Copy pose"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Nodes"))
         self.label_17.setText(_translate("MainWindow", "LfD"))
         self.pushButton_3.setText(_translate("MainWindow", "Start"))
@@ -840,6 +857,8 @@ class experimentGUI(QMainWindow):
 
         self.pushButton_19.clicked.connect(lambda:self.stop_node('teleop_control.launch'))
         self.pushButton_18.clicked.connect(lambda:self.start_node('teleop_control', 'teleop_control.launch'))
+        self.pushButton_25.clicked.connect(self.on_copy_pose_click)
+
 
         # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))
         # self.pushButton_11.clicked.connect(lambda:self.stop_node('trajectory_teaching.launch'))

@@ -21,6 +21,7 @@
     WelfordUpdate.srv
     SetTeachingMode.srv
     BuildInitialModel.srv
+    GetEEPose.srv
   )
 catkin_python_setup()
 

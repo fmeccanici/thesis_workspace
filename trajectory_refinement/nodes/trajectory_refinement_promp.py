@@ -254,10 +254,18 @@ class trajectoryRefinement():
 
             # append refined trajectory
             if i <= len(traj_pos)-1:
+                # ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
+                qx = self.current_slave_pose.orientation.x
+                qy = self.current_slave_pose.orientation.y
+                qz = self.current_slave_pose.orientation.z
+                qw = self.current_slave_pose.orientation.w
+
                 ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
+                # ee_orientation = [qx, qy, qz, qw]
                 refined_traj.append(ee_position + ee_orientation + t_list)
             else:
                 ee_orientation = [traj[-1][3], traj[-1][4], traj[-1][5], traj[-1][6]]
+                # ee_orientation = [qx, qy, qz, qw]
 
                 refined_traj.append(ee_position + ee_orientation + t_list)
             

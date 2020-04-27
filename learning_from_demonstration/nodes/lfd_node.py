@@ -13,7 +13,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             ExecuteTrajectory, ExecuteTrajectoryResponse, GoToPoseResponse, 
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
-                                            BuildInitialModel, BuildInitialModelResponse )
+                                            BuildInitialModel, BuildInitialModelResponse, 
+                                            GetEEPose, GetEEPoseResponse)
 
 from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
@@ -87,13 +88,20 @@ class lfdNode():
         self._welford_update_service = rospy.Service('welford_update', WelfordUpdate, self._welford_update)
         self._teaching_mode_service = rospy.Service('set_teaching_mode', SetTeachingMode, self._set_teaching_mode)
         self._build_initial_model_service = rospy.Service('build_initial_model', BuildInitialModel, self._build_initial_model)
-
+        self._get_ee_pose_service = rospy.Service('get_ee_pose', GetEEPose, self._get_ee_pose)
+        
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
 
+    # get pose service used for GUI
+    def _get_ee_pose(self, req):
+        resp = GetEEPoseResponse()
+        resp.pose = self.current_slave_pose
+
+        return resp
 
     ## for teaching
     def _set_teaching_mode(self, req):
