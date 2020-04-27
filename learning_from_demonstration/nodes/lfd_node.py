@@ -399,6 +399,25 @@ class lfdNode():
         for i in range(10):
             self._traj_vis_pub.publish(self.visualizer.trajToVisMsg(list(empty_traj), r=0, g=0, b=0))
     
+    def set_model_position(self, model_name, x, y, z):
+        state_msg = ModelState()
+        state_msg.model_name = model_name
+        state_msg.pose.position.x = x
+        state_msg.pose.position.y = y
+        state_msg.pose.position.z = z
+        state_msg.pose.orientation.x = 0
+        state_msg.pose.orientation.y = 0
+        state_msg.pose.orientation.z = 0
+        state_msg.pose.orientation.w = 1
+
+        rospy.wait_for_service('/gazebo/set_model_state')
+        try:
+            set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+            resp = set_state( state_msg )
+
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
+
     def set_aruco_position(self, x=0.7, y=-0.43, z=1):
         state_msg = ModelState()
         state_msg.model_name = 'aruco_cube'

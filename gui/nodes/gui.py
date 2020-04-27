@@ -21,6 +21,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from std_msgs.msg import String, Bool
+from gazebo_msgs.msg import ModelState 
+from gazebo_msgs.srv import SetModelState
 
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
@@ -188,41 +190,48 @@ class experimentGUI(QMainWindow):
         self.pushButton_11.raise_()
         self.pushButton_14.raise_()
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(0, 690, 331, 161))
+        self.groupBox.setGeometry(QRect(0, 690, 331, 181))
         self.groupBox.setObjectName("groupBox")
         self.label = QLabel(self.groupBox)
-        self.label.setGeometry(QRect(18, 26, 16, 17))
+        self.label.setGeometry(QRect(0, 50, 16, 17))
         self.label.setObjectName("label")
         self.lineEdit = QLineEdit(self.groupBox)
-        self.lineEdit.setGeometry(QRect(39, 26, 146, 27))
+        self.lineEdit.setGeometry(QRect(21, 51, 39, 26))
         self.lineEdit.setObjectName("lineEdit")
         self.label_2 = QLabel(self.groupBox)
-        self.label_2.setGeometry(QRect(18, 59, 16, 17))
+        self.label_2.setGeometry(QRect(0, 83, 16, 17))
         self.label_2.setObjectName("label_2")
-        self.lineEdit_2 = QLineEdit(self.groupBox)
-        self.lineEdit_2.setGeometry(QRect(39, 59, 146, 27))
-        self.lineEdit_2.setObjectName("lineEdit_2")
-        self.label_3 = QLabel(self.groupBox)
-        self.label_3.setGeometry(QRect(18, 92, 16, 17))
-        self.label_3.setObjectName("label_3")
-        self.lineEdit_3 = QLineEdit(self.groupBox)
-        self.lineEdit_3.setGeometry(QRect(39, 92, 146, 27))
-        self.lineEdit_3.setObjectName("lineEdit_3")
         self.buttonBox = QDialogButtonBox(self.groupBox)
-        self.buttonBox.setGeometry(QRect(18, 121, 176, 27))
+        self.buttonBox.setGeometry(QRect(0, 145, 176, 27))
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
+        self.lineEdit_2 = QLineEdit(self.groupBox)
+        self.lineEdit_2.setGeometry(QRect(21, 83, 39, 26))
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.lineEdit_3 = QLineEdit(self.groupBox)
+        self.lineEdit_3.setGeometry(QRect(21, 115, 39, 25))
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.label_3 = QLabel(self.groupBox)
+        self.label_3.setGeometry(QRect(0, 116, 16, 17))
+        self.label_3.setObjectName("label_3")
         self.pushButton_15 = QPushButton(self.groupBox)
-        self.pushButton_15.setGeometry(QRect(200, 121, 85, 27))
+        self.pushButton_15.setGeometry(QRect(182, 145, 85, 27))
         self.pushButton_15.setObjectName("pushButton_15")
-        self.buttonBox.raise_()
-        self.pushButton_15.raise_()
-        self.label.raise_()
-        self.lineEdit.raise_()
-        self.label_2.raise_()
-        self.lineEdit_2.raise_()
-        self.label_3.raise_()
-        self.lineEdit_3.raise_()
+        self.label_16 = QLabel(self.groupBox)
+        self.label_16.setGeometry(QRect(0, 30, 67, 17))
+        self.label_16.setObjectName("label_16")
+        self.label_21 = QLabel(self.groupBox)
+        self.label_21.setGeometry(QRect(90, 30, 67, 17))
+        self.label_21.setObjectName("label_21")
+        self.lineEdit_14 = QLineEdit(self.groupBox)
+        self.lineEdit_14.setGeometry(QRect(101, 51, 39, 26))
+        self.lineEdit_14.setObjectName("lineEdit_14")
+        self.lineEdit_15 = QLineEdit(self.groupBox)
+        self.lineEdit_15.setGeometry(QRect(101, 83, 39, 26))
+        self.lineEdit_15.setObjectName("lineEdit_15")
+        self.lineEdit_16 = QLineEdit(self.groupBox)
+        self.lineEdit_16.setGeometry(QRect(101, 115, 39, 25))
+        self.lineEdit_16.setObjectName("lineEdit_16")
         self.groupBox_6 = QGroupBox(self.centralwidget)
         self.groupBox_6.setGeometry(QRect(1210, 690, 431, 301))
         self.groupBox_6.setObjectName("groupBox_6")
@@ -301,17 +310,17 @@ class experimentGUI(QMainWindow):
         self.pushButton_20 = QPushButton(self.groupBox_6)
         self.pushButton_20.setGeometry(QRect(300, 40, 85, 27))
         self.pushButton_20.setObjectName("pushButton_20")
-        self.checkBox = QCheckBox(self.groupBox_6)
-        self.checkBox.setGeometry(QRect(201, 141, 39, 22))
-        self.checkBox.setObjectName("checkBox")
-        self.checkBox_2 = QCheckBox(self.groupBox_6)
-        self.checkBox_2.setGeometry(QRect(201, 169, 39, 22))
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.checkBox_3 = QCheckBox(self.groupBox_6)
-        self.checkBox_3.setGeometry(QRect(201, 197, 39, 22))
-        self.checkBox_3.setObjectName("checkBox_3")
+        self.radioButton = QRadioButton(self.groupBox_6)
+        self.radioButton.setGeometry(QRect(200, 150, 117, 22))
+        self.radioButton.setObjectName("radioButton")
+        self.radioButton_4 = QRadioButton(self.groupBox_6)
+        self.radioButton_4.setGeometry(QRect(200, 180, 117, 22))
+        self.radioButton_4.setObjectName("radioButton_4")
+        self.radioButton_5 = QRadioButton(self.groupBox_6)
+        self.radioButton_5.setGeometry(QRect(200, 210, 117, 22))
+        self.radioButton_5.setObjectName("radioButton_5")
         self.groupBox_5 = QGroupBox(self.centralwidget)
-        self.groupBox_5.setGeometry(QRect(20, 860, 271, 141))
+        self.groupBox_5.setGeometry(QRect(0, 880, 271, 121))
         self.groupBox_5.setObjectName("groupBox_5")
         self.label_17 = QLabel(self.groupBox_5)
         self.label_17.setGeometry(QRect(40, 37, 31, 17))
@@ -346,9 +355,15 @@ class experimentGUI(QMainWindow):
         self.setStatusBar(self.statusbar)
         self.menubar.addAction(self.menuOnline_teaching_GUI.menuAction())
 
-        self.lineEdit.setText("0.8")
+        # object position
+        self.lineEdit.setText("0.83")
         self.lineEdit_2.setText("0.0")
         self.lineEdit_3.setText("0.9")
+
+        # obstacle position
+        self.lineEdit_14.setText("0.65")
+        self.lineEdit_15.setText("0")
+        self.lineEdit_16.setText("0.7")
 
         self.rviz_widget = rvizPython()
         self.horizontalLayout_6 = QHBoxLayout()
@@ -405,17 +420,56 @@ class experimentGUI(QMainWindow):
             rospy.loginfo("Got a refined trajectory")
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
-
-    def on_set_object_position_click(self):
-        object_position = Point()
-        object_position.x = float(self.lineEdit.text())
-        object_position.y = float(self.lineEdit_2.text())
-        object_position.z = float(self.lineEdit_3.text())
+    
+    def on_set_obstacle_position_click(self):
+        obstacle_position = ModelState()
+        obstacle_position.model_name = 'parrot_bebop_2_0'
+        obstacle_position.pose.position.x = float(self.lineEdit_14.text())
+        obstacle_position.pose.position.y = float(self.lineEdit_15.text())
+        obstacle_position.pose.position.z = float(self.lineEdit_16.text())
+        obstacle_position.pose.orientation.x = 0
+        obstacle_position.pose.orientation.y = 0
+        obstacle_position.pose.orientation.z = 0
+        obstacle_position.pose.orientation.w = 1
 
         try:
-            rospy.wait_for_service('set_object', timeout=2.0)
+            rospy.wait_for_service('/gazebo/set_model_state')
 
-            set_object = rospy.ServiceProxy('set_object', SetObject)
+            set_obstacle = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+            resp = set_obstacle(obstacle_position)
+            return resp.success
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
+
+    def on_cancel_position_click(self):
+        # object position
+        self.lineEdit.setText("0.83")
+        self.lineEdit_2.setText("0.0")
+        self.lineEdit_3.setText("0.9")
+
+        # obstacle position
+        self.lineEdit_14.setText("0.65")
+        self.lineEdit_15.setText("0")
+        self.lineEdit_16.setText("0.7")
+
+
+    def on_set_object_position_click(self):
+        object_position = ModelState()
+        object_position.model_name = 'aruco_cube'
+        object_position.pose.position.x = float(self.lineEdit.text())
+        object_position.pose.position.y = float(self.lineEdit_2.text())
+        object_position.pose.position.z = float(self.lineEdit_3.text())
+        object_position.pose.orientation.x = 0
+        object_position.pose.orientation.y = 0
+        object_position.pose.orientation.z = 0
+        object_position.pose.orientation.w = 1
+
+        try:
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
             resp = set_object(object_position)
             return resp.success
 
@@ -731,11 +785,13 @@ class experimentGUI(QMainWindow):
         self.pushButton_12.setText(_translate("MainWindow", "Start"))
         self.pushButton_11.setText(_translate("MainWindow", "Stop"))
         self.pushButton_14.setText(_translate("MainWindow", "Build model"))
-        self.groupBox.setTitle(_translate("MainWindow", "     Set object position Gazebo"))
+        self.groupBox.setTitle(_translate("MainWindow", "Simulation environment"))
         self.label.setText(_translate("MainWindow", "x: "))
         self.label_2.setText(_translate("MainWindow", "y: "))
         self.label_3.setText(_translate("MainWindow", "z: "))
         self.pushButton_15.setText(_translate("MainWindow", "Random"))
+        self.label_16.setText(_translate("MainWindow", "Object"))
+        self.label_21.setText(_translate("MainWindow", "Obstacle"))
         self.groupBox_6.setTitle(_translate("MainWindow", "Movement"))
         self.label_7.setText(_translate("MainWindow", "z: "))
         self.label_8.setText(_translate("MainWindow", "y: "))
@@ -752,9 +808,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_19.setText(_translate("MainWindow", "Disable"))
         self.label_19.setText(_translate("MainWindow", "Head joints"))
         self.pushButton_20.setText(_translate("MainWindow", "Initialize"))
-        self.checkBox.setText(_translate("MainWindow", "1"))
-        self.checkBox_2.setText(_translate("MainWindow", "2"))
-        self.checkBox_3.setText(_translate("MainWindow", "3"))
+        self.radioButton.setText(_translate("MainWindow", "1"))
+        self.radioButton_4.setText(_translate("MainWindow", "2"))
+        self.radioButton_5.setText(_translate("MainWindow", "3"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Nodes"))
         self.label_17.setText(_translate("MainWindow", "LfD"))
         self.pushButton_3.setText(_translate("MainWindow", "Start"))
@@ -766,7 +822,11 @@ class experimentGUI(QMainWindow):
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
 
 
+        # set object and obstacle when OK is pressed
         self.buttonBox.accepted.connect(self.on_set_object_position_click)
+        self.buttonBox.accepted.connect(self.on_set_obstacle_position_click)
+        self.buttonBox.rejected.connect(self.on_cancel_position_click)
+
         self.pushButton_9.clicked.connect(self.on_clear_trajectories_click)
         self.pushButton_8.clicked.connect(self.on_visualize_prediction_click)
         self.pushButton_22.clicked.connect(self.on_visualize_refinement_click)
@@ -800,9 +860,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
 
 
-        self.checkBox.toggled.connect(lambda:self.check_button_state(self.checkBox))
-        self.checkBox_2.toggled.connect(lambda:self.check_button_state(self.checkBox_2))
-        self.checkBox_3.toggled.connect(lambda:self.check_button_state(self.checkBox_3))
+        self.radioButton.toggled.connect(lambda:self.check_button_state(self.radioButton))
+        self.radioButton_4.toggled.connect(lambda:self.check_button_state(self.radioButton_4))
+        self.radioButton_5.toggled.connect(lambda:self.check_button_state(self.radioButton_5))
 
 
 
