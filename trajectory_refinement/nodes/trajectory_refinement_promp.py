@@ -363,9 +363,12 @@ class trajectoryRefinement():
         rospy.loginfo("Refining trajectory...")
         prediction, context = self.parser.promptraj_msg_to_execution_format(req.trajectory)
         
+        Tdesired = 10
         ndesired = 75
+        dt = Tdesired / ndesired
+
         n = len(prediction)
-        dt = req.trajectory.times[1]
+        # dt = req.trajectory.times[1]
         
         if n < ndesired:
             prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)

@@ -464,11 +464,13 @@ class lfdNode():
     def _execute_trajectory(self, req):
         traj, dt = self.lfd.parser.promptraj_msg_to_execution_format(req.trajectory)
 
+        Tdesired = 10
         ndesired = 75
+        dt = Tdesired / ndesired
 
         # resample trajectory so that it can successfully be executed
         if len(traj) < ndesired:
-            traj, dt = self.resampler.interpolate_learned_keypoints(traj, ndesired)
+            traj = self.resampler.interpolate_learned_keypoints(traj, ndesired)
 
         self.executeTrajectory(traj, dt)
 
@@ -528,7 +530,7 @@ class lfdNode():
         n = len(prediction)
         
         if n < ndesired:
-            prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
+            prediction = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
 
         relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
 

@@ -18,6 +18,8 @@ class trajectoryResampler():
     def interpolate_learned_keypoints(self, pred_traj, n_desired):
         n = len(pred_traj)
         T = pred_traj[-1][-1]
+        # T = T_desired
+
         x = np.linspace(0, T, n)
         # print("n = " + str(n))
         # print("x = " + str(x))
@@ -50,7 +52,7 @@ class trajectoryResampler():
 
             interpol_pred_traj.append(ynew)
 
-        return interpol_pred_traj, dt_new
+        return interpol_pred_traj
 
     def interpolate_raw_trajectory(self, raw_traj, n):
         traj_pose = self.parser.getCartesianPositions(raw_traj)
