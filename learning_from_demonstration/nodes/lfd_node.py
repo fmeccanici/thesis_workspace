@@ -473,6 +473,9 @@ class lfdNode():
         if len(traj) < ndesired:
             traj = self.resampler.interpolate_learned_keypoints(traj, ndesired)
 
+        print("executed trajectory = " + str(traj))
+        print("dt = " + str(dt))
+        
         self.executeTrajectory(traj, dt)
 
         # is empty but need to create class otherwise error

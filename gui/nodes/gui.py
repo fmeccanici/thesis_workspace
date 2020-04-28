@@ -462,7 +462,7 @@ class experimentGUI(QMainWindow):
             try:
                 resp = refine_trajectory(self.prediction, self.T_desired)
                 self.refined_trajectory = resp.refined_trajectory
-                print(self.refined_trajectory.times)
+                # print(self.refined_trajectory.times)
                 rospy.loginfo("Got a refined trajectory")
 
             except AttributeError as e:
@@ -643,15 +643,14 @@ class experimentGUI(QMainWindow):
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
 
             execute_refinement = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-            req = ExecuteTrajectory()
-            req.trajectory = self.refined_trajectory
+
             if self.radioButton_9.isChecked():
-                req.T_desired = float(self.lineEdit_17.text())
+                self.T_desired = float(self.lineEdit_17.text())
             else:
-                req.T_desired = None
+                self.T_desired = None
 
             try:
-                resp = execute_refinement(req)
+                resp = execute_refinement(self.refined_trajectory, self.T_desired)
 
             except AttributeError:
                 rospy.loginfo("No refined trajectory available yet!")
