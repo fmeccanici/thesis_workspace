@@ -371,7 +371,7 @@ class experimentGUI(QMainWindow):
 
 
         # initialize default radio buttons
-        self.radioButton_2.setChecked(True)
+        self.radioButton_8.setChecked(True)
         self.radioButton_3.setChecked(True)
 
         # object position

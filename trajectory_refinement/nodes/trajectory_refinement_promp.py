@@ -221,6 +221,9 @@ class trajectoryRefinement():
         t = 0
 
         master_pose_scaling = 0.5
+        
+        # time scaling needed since the waiting of "dt" is accumulated to the 
+        time_scaling = 0.5
 
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
@@ -291,14 +294,16 @@ class trajectoryRefinement():
                 slave_goal.pose.orientation.w = traj[-1][6]
 
             slave_goal.header.frame_id = self.base_frame
-            slave_goal.header.stamp = rospy.Time.now()
+            slave_goal.header.stamp = rospy.Time.now() 
 
             self.moveEEto(slave_goal)
+            # print("dt = " + str(dt))
 
             time.sleep(dt)
             t += dt
             i += 1
         
+        print("total time after refinement = " + str(t_list))
         return refined_traj
 
 
