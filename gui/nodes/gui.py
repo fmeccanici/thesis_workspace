@@ -404,6 +404,18 @@ class experimentGUI(QMainWindow):
             self.nodes[launch_file].shutdown()
         except AttributeError, KeyError:
             rospy.loginfo( ("Node not launched yet") )
+    
+    def on_refine_refinement_click(self):
+        try:
+            rospy.wait_for_service('refine_trajectory', timeout=2.0)
+
+            refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
+            resp = refine_trajectory(self.refined_trajectory)
+
+            self.refined_trajectory = resp.refined_trajectory
+            rospy.loginfo("Got a refined trajectory")
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
 
     def on_refine_prediction_click(self):
         try:
@@ -418,16 +430,18 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s"%e)
     
     def on_set_obstacle_position_click(self):
-        obstacle_position = ModelState()
-        obstacle_position.model_name = 'coke_can'
-        obstacle_position.pose.position.x = float(self.lineEdit_14.text())
-        obstacle_position.pose.position.y = float(self.lineEdit_15.text())
-        obstacle_position.pose.position.z = float(self.lineEdit_16.text())
-        obstacle_position.pose.orientation.x = 0
-        obstacle_position.pose.orientation.y = 0
-        obstacle_position.pose.orientation.z = 0
-        obstacle_position.pose.orientation.w = 1
-
+        try:
+            obstacle_position = ModelState()
+            obstacle_position.model_name = 'coke_can_0'
+            obstacle_position.pose.position.x = float(self.lineEdit_14.text())
+            obstacle_position.pose.position.y = float(self.lineEdit_15.text())
+            obstacle_position.pose.position.z = float(self.lineEdit_16.text())
+            obstacle_position.pose.orientation.x = 0
+            obstacle_position.pose.orientation.y = 0
+            obstacle_position.pose.orientation.z = 0
+            obstacle_position.pose.orientation.w = 1
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
         try:
             rospy.wait_for_service('/gazebo/set_model_state')
 
@@ -442,25 +456,28 @@ class experimentGUI(QMainWindow):
     def on_cancel_position_click(self):
         # object position
         self.lineEdit.setText("0.73")
-        self.lineEdit_2.setText("0.0")
+        self.lineEdit_2.setText("0.26")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.5")
-        self.lineEdit_15.setText("0")
+        self.lineEdit_14.setText("0.58")
+        self.lineEdit_15.setText("0") 
         self.lineEdit_16.setText("0.7")
 
 
     def on_set_object_position_click(self):
-        object_position = ModelState()
-        object_position.model_name = 'aruco_cube'
-        object_position.pose.position.x = float(self.lineEdit.text())
-        object_position.pose.position.y = float(self.lineEdit_2.text())
-        object_position.pose.position.z = float(self.lineEdit_3.text())
-        object_position.pose.orientation.x = 0
-        object_position.pose.orientation.y = 0
-        object_position.pose.orientation.z = 0
-        object_position.pose.orientation.w = 1
+        try:
+            object_position = ModelState()
+            object_position.model_name = 'aruco_cube'
+            object_position.pose.position.x = float(self.lineEdit.text())
+            object_position.pose.position.y = float(self.lineEdit_2.text())
+            object_position.pose.position.z = float(self.lineEdit_3.text())
+            object_position.pose.orientation.x = 0
+            object_position.pose.orientation.y = 0
+            object_position.pose.orientation.z = 0
+            object_position.pose.orientation.w = 1
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
 
         try:
             rospy.wait_for_service('/gazebo/set_model_state')
@@ -579,6 +596,21 @@ class experimentGUI(QMainWindow):
         worker = Worker(function)
         self.threadpool.start(worker)
     
+    def on_execute_refinement_click(self):
+        try:
+            rospy.wait_for_service('execute_trajectory', timeout=2.0)
+
+            execute_refinement = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+            try:
+                resp = execute_refinement(self.refined_trajectory)
+                print(resp)
+            except AttributeError:
+                rospy.loginfo("No refined trajectory available yet!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)   
+            
+
     def on_execute_prediction_click(self):
         try:
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
@@ -872,11 +904,13 @@ class experimentGUI(QMainWindow):
         self.pushButton_20.clicked.connect(self.on_initialize_head_joints_click)
         self.pushButton.clicked.connect(lambda:self.start_node('trajectory_refinement', 'trajectory_refinement.launch'))
         self.pushButton_2.clicked.connect(lambda:self.stop_node('trajectory_refinement.launch'))
+        self.pushButton_24.clicked.connect(lambda: self.use_multithread(self.on_execute_refinement_click))
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
 
 
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
+        self.pushButton_23.clicked.connect(lambda: self.use_multithread(self.on_refine_refinement_click))
 
 
         self.radioButton.toggled.connect(lambda:self.check_button_state(self.radioButton))
