@@ -13,6 +13,7 @@ class trajectoryParser():
     # ROS msg related
     def point_to_list(self, point):
         return [point.x, point.y, point.z]
+        
     def promptraj_msg_to_execution_format(self, traj_msg):
         dt = traj_msg.times[1]
         trajectory = []
@@ -37,6 +38,7 @@ class trajectoryParser():
             trajectory.append(pos + ori + t)
 
         return trajectory, dt
+
     def prompTrajMessage_to_demonstration_format(self, traj_msg):
         trajectory = []
         context = [traj_msg.object_position.x, traj_msg.object_position.y, traj_msg.object_position.z] 

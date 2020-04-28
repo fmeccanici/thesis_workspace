@@ -68,13 +68,13 @@ class learningFromDemonstration():
     
     def parse_relevant_learning_data(self, traj):
         traj_relevant_data = []
-        dt = self.parser.get_time_interval_float(traj)
+        T = self.parser.get_total_time(traj)
         object_positions = traj[0][7:10]
 
         # T doesnt work properly --> chose dt as output
         for data in traj:
             ee_pose = data[0:7]
-            traj_relevant_data.append(ee_pose + object_positions + [dt] )
+            traj_relevant_data.append(ee_pose + object_positions + [T] )
 
         return traj_relevant_data
 
@@ -123,7 +123,7 @@ class learningFromDemonstration():
         plt.close()
 
         # get relevant learning data
-        print("Extracting relevant learning data: [ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, obj_x, obj_y, obj_z, dt]...")
+        print("Extracting relevant learning data: [ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, obj_x, obj_y, obj_z, T]...")
         relevant_data_trajectories = []
         for traj in resampled_trajectories:
             relevant_traj = self.parse_relevant_learning_data(traj)
@@ -196,11 +196,11 @@ class learningFromDemonstration():
     def build_initial_promp_model(self):
         # in promp package, input and output are all called joints
         # if name is different, then it won't plot them
-        self.outputs = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "dt" ]
+        self.outputs = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "T" ]
         self.contexts = ["object_x", "object_y", "object_z"]
         # self.contexts = ["object_y"]
 
-        self.variables = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "object_x", "object_y", "object_z", "dt" ]
+        self.variables = ["ee_x", "ee_y","ee_z", "ee_qx", "ee_qy", "ee_qz", "ee_qw", "object_x", "object_y", "object_z", "T" ]
 
         # how to select the number of points??
         # if other trajectories are added to the model
@@ -247,10 +247,11 @@ class learningFromDemonstration():
             pred = promp.generate_trajectory(context)
             
             # if variable is dt --> convert to time vector
-            if promp.output_name[0] == 'dt':
-                dt = pred[0]
+            if promp.output_name[0] == 'T':
+                # dt = pred[0]
                 n = len(pred)
-                T = dt*n
+                # T = dt*n
+                T = pred[0]
                 t = np.linspace(0, T, n)
                 pred_traj = np.vstack((pred_traj, t))
             else:

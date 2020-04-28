@@ -432,7 +432,7 @@ class experimentGUI(QMainWindow):
     def on_set_obstacle_position_click(self):
         try:
             obstacle_position = ModelState()
-            obstacle_position.model_name = 'coke_can_0'
+            obstacle_position.model_name = 'coke_can'
             obstacle_position.pose.position.x = float(self.lineEdit_14.text())
             obstacle_position.pose.position.y = float(self.lineEdit_15.text())
             obstacle_position.pose.position.z = float(self.lineEdit_16.text())
