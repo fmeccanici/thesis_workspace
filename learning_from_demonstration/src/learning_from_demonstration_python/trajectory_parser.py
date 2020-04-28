@@ -16,6 +16,7 @@ class trajectoryParser():
         
     def promptraj_msg_to_execution_format(self, traj_msg):
         dt = traj_msg.times[1]
+        
         trajectory = []
         for i,pose in enumerate(traj_msg.poses):
             x = pose.position.x
@@ -414,6 +415,9 @@ class trajectoryParser():
             trajectories_lengths.append(len(trajectory))
 
         return trajectories, trajectories_lengths
+
+    def reverse_trajectory(self, traj):
+        return traj[::-1]
 
     # def resample_trajectory(self,traj1, traj2):
 

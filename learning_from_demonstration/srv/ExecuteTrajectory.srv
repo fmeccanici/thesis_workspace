@@ -1,4 +1,5 @@
 promp_context_ros/prompTraj trajectory
+float64 T_desired
 
 ---
 

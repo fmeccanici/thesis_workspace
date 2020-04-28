@@ -130,13 +130,65 @@
       <string>Execute refinement</string>
      </property>
     </widget>
+    <widget class="QGroupBox" name="groupBox_7">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>100</y>
+       <width>120</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Execution time</string>
+     </property>
+     <widget class="QRadioButton" name="radioButton_8">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>117</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Predicted</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>117</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Manual</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_17">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>90</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="placeholderText">
+       <string>10</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>620</x>
+      <x>630</x>
       <y>690</y>
-      <width>521</width>
+      <width>511</width>
       <height>291</height>
      </rect>
     </property>
@@ -767,7 +819,7 @@
       <rect>
        <x>200</x>
        <y>180</y>
-       <width>117</width>
+       <width>41</width>
        <height>22</height>
       </rect>
      </property>
@@ -812,6 +864,32 @@
      </property>
      <property name="text">
       <string>Copy pose</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_6">
+     <property name="geometry">
+      <rect>
+       <x>271</x>
+       <y>181</y>
+       <width>158</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reverse prediction</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_7">
+     <property name="geometry">
+      <rect>
+       <x>271</x>
+       <y>209</y>
+       <width>171</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reverse refinement</string>
      </property>
     </widget>
    </widget>

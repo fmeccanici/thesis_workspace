@@ -302,7 +302,7 @@ class trajectoryRefinement():
 
 
     # from Ewerton: tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
-    def determineNewTrajectory(self, pred_traj, refined_traj, context, alpha = 1):
+    def determineNewTrajectory(self, pred_traj, refined_traj, alpha = 1):
         
         # quaternions used for interpolation
         qstart = pred_traj[0][3:7]
@@ -361,11 +361,12 @@ class trajectoryRefinement():
     # ROS service for refining trajectory
     def _refine_trajectory(self, req):
         rospy.loginfo("Refining trajectory...")
-        prediction, context = self.parser.promptraj_msg_to_execution_format(req.trajectory)
+        prediction, dt = self.parser.promptraj_msg_to_execution_format(req.trajectory)
         
-        Tdesired = 10
         ndesired = 75
-        dt = Tdesired / ndesired
+
+        if req.T_desired != 0.0:
+            dt = req.T_desired / ndesired
 
         n = len(prediction)
         # dt = req.trajectory.times[1]
@@ -374,7 +375,8 @@ class trajectoryRefinement():
             prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
 
         refined_prediction = self.refineTrajectory(prediction, dt)
-        new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction, context)
+        print("check")
+        new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
         n_pred = len(prediction)
 

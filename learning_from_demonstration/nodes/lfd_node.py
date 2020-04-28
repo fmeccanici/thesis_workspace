@@ -463,10 +463,11 @@ class lfdNode():
 
     def _execute_trajectory(self, req):
         traj, dt = self.lfd.parser.promptraj_msg_to_execution_format(req.trajectory)
-
-        Tdesired = 10
         ndesired = 75
-        dt = Tdesired / ndesired
+
+        print("T_desired = " + str(req.T_desired))
+        if req.T_desired != 0.0:
+            dt = req.T_desired / ndesired
 
         # resample trajectory so that it can successfully be executed
         if len(traj) < ndesired:

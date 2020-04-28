@@ -119,8 +119,20 @@ class experimentGUI(QMainWindow):
         self.pushButton_24 = QPushButton(self.groupBox_2)
         self.pushButton_24.setGeometry(QRect(180, 60, 150, 27))
         self.pushButton_24.setObjectName("pushButton_24")
+        self.groupBox_7 = QGroupBox(self.groupBox_2)
+        self.groupBox_7.setGeometry(QRect(180, 100, 120, 131))
+        self.groupBox_7.setObjectName("groupBox_7")
+        self.radioButton_8 = QRadioButton(self.groupBox_7)
+        self.radioButton_8.setGeometry(QRect(10, 30, 117, 22))
+        self.radioButton_8.setObjectName("radioButton_8")
+        self.radioButton_9 = QRadioButton(self.groupBox_7)
+        self.radioButton_9.setGeometry(QRect(10, 60, 117, 22))
+        self.radioButton_9.setObjectName("radioButton_9")
+        self.lineEdit_17 = QLineEdit(self.groupBox_7)
+        self.lineEdit_17.setGeometry(QRect(40, 90, 41, 27))
+        self.lineEdit_17.setObjectName("lineEdit_17")
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(620, 690, 521, 291))
+        self.groupBox_3.setGeometry(QRect(630, 690, 511, 291))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton_7 = QPushButton(self.groupBox_3)
         self.pushButton_7.setGeometry(QRect(150, 20, 99, 27))
@@ -304,7 +316,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_20.setGeometry(QRect(300, 40, 85, 27))
         self.pushButton_20.setObjectName("pushButton_20")
         self.radioButton = QRadioButton(self.groupBox_6)
-        self.radioButton.setGeometry(QRect(200, 180, 117, 22))
+        self.radioButton.setGeometry(QRect(200, 180, 41, 22))
         self.radioButton.setObjectName("radioButton")
         self.radioButton_4 = QRadioButton(self.groupBox_6)
         self.radioButton_4.setGeometry(QRect(200, 210, 117, 22))
@@ -315,6 +327,12 @@ class experimentGUI(QMainWindow):
         self.pushButton_25 = QPushButton(self.groupBox_6)
         self.pushButton_25.setGeometry(QRect(190, 100, 85, 27))
         self.pushButton_25.setObjectName("pushButton_25")
+        self.radioButton_6 = QRadioButton(self.groupBox_6)
+        self.radioButton_6.setGeometry(QRect(271, 181, 158, 22))
+        self.radioButton_6.setObjectName("radioButton_6")
+        self.radioButton_7 = QRadioButton(self.groupBox_6)
+        self.radioButton_7.setGeometry(QRect(271, 209, 171, 22))
+        self.radioButton_7.setObjectName("radioButton_7")
         self.groupBox_5 = QGroupBox(self.centralwidget)
         self.groupBox_5.setGeometry(QRect(0, 880, 271, 121))
         self.groupBox_5.setObjectName("groupBox_5")
@@ -351,6 +369,11 @@ class experimentGUI(QMainWindow):
         self.setStatusBar(self.statusbar)
         self.menubar.addAction(self.menuOnline_teaching_GUI.menuAction())
 
+
+        # initialize default radio buttons
+        self.radioButton_2.setChecked(True)
+        self.radioButton_3.setChecked(True)
+
         # object position
         self.lineEdit.setText("0.73")
         self.lineEdit_2.setText("0.0")
@@ -360,6 +383,8 @@ class experimentGUI(QMainWindow):
         self.lineEdit_14.setText("0.5")
         self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
+
+        self.lineEdit_17.setText("10")
 
         self.rviz_widget = rvizPython()
         self.horizontalLayout_6 = QHBoxLayout()
@@ -410,10 +435,16 @@ class experimentGUI(QMainWindow):
             rospy.wait_for_service('refine_trajectory', timeout=2.0)
 
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
-            resp = refine_trajectory(self.refined_trajectory)
+            
+            if self.radioButton_9.isChecked():
+                self.T_desired = float(self.lineEdit_17.text())
+            elif self.radioButton_8.isChecked():
+                self.T_desired = 0.0
 
+            resp = refine_trajectory(self.refined_trajectory, self.T_desired)
             self.refined_trajectory = resp.refined_trajectory
             rospy.loginfo("Got a refined trajectory")
+
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
 
@@ -422,10 +453,19 @@ class experimentGUI(QMainWindow):
             # rospy.wait_for_service('refine_trajectory', timeout=2.0)
 
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
-            resp = refine_trajectory(self.prediction)
+            
+            if self.radioButton_9.isChecked():
+                self.T_desired = float(self.lineEdit_17.text())
+            elif self.radioButton_8.isChecked():
+                self.T_desired = 0.0
+            try:
+                resp = refine_trajectory(self.prediction, self.T_desired)
+                self.refined_trajectory = resp.refined_trajectory
+                rospy.loginfo("Got a refined trajectory")
 
-            self.refined_trajectory = resp.refined_trajectory
-            rospy.loginfo("Got a refined trajectory")
+            except AttributeError:
+                rospy.loginfo("No refined trajectory available yet!")
+
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
     
@@ -601,9 +641,16 @@ class experimentGUI(QMainWindow):
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
 
             execute_refinement = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+            req = ExecuteTrajectory()
+            req.trajectory = self.refined_trajectory
+            if self.radioButton_9.isChecked():
+                req.T_desired = float(self.lineEdit_17.text())
+            else:
+                req.T_desired = None
+
             try:
-                resp = execute_refinement(self.refined_trajectory)
-                print(resp)
+                resp = execute_refinement(req)
+
             except AttributeError:
                 rospy.loginfo("No refined trajectory available yet!")
 
@@ -612,39 +659,83 @@ class experimentGUI(QMainWindow):
             
 
     def on_execute_prediction_click(self):
+        
         try:
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
 
             execute_prediction = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-            resp = execute_prediction(self.prediction)
+
+            if self.radioButton_9.isChecked():
+                self.T_desired = float(self.lineEdit_17.text())
+            elif self.radioButton_8.isChecked():
+                self.T_desired = 0.0
+            try:
+                resp = execute_prediction(self.prediction, self.T_desired)
+
+            except AttributeError:
+                rospy.loginfo("No refined trajectory available yet!")
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)   
             
     def on_go_to_click(self):
         
-        # get pose from text fields
-        pose = Pose()
-        try:
-            pose.position.x = float(self.lineEdit_9.text())
-            pose.position.y = float(self.lineEdit_7.text())
-            pose.position.z = float(self.lineEdit_8.text())
+        if self.radioButton or self.radioButton_4 or self.radioButton_5:
+            # get pose from text fields
+            pose = Pose()
+            try:
+                pose.position.x = float(self.lineEdit_9.text())
+                pose.position.y = float(self.lineEdit_7.text())
+                pose.position.z = float(self.lineEdit_8.text())
 
-            pose.orientation.x = float(self.lineEdit_12.text())
-            pose.orientation.y = float(self.lineEdit_11.text())
-            pose.orientation.z = float(self.lineEdit_10.text())
-            pose.orientation.w = float(self.lineEdit_13.text())
-        except ValueError:
-            rospy.loginfo("Make sure you set a pose!")
+                pose.orientation.x = float(self.lineEdit_12.text())
+                pose.orientation.y = float(self.lineEdit_11.text())
+                pose.orientation.z = float(self.lineEdit_10.text())
+                pose.orientation.w = float(self.lineEdit_13.text())
+            except ValueError:
+                rospy.loginfo("Make sure you set a pose!")
 
-        try:
-            rospy.wait_for_service('go_to_pose', timeout=2.0)
-            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
-            resp = go_to_pose(pose)
+            try:
+                rospy.wait_for_service('go_to_pose', timeout=2.0)
+                go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+                resp = go_to_pose(pose)
 
-        except (rospy.ServiceException, rospy.ROSException) as e:
-            print("Service call failed: %s" %e)
-    
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+        
+        # reverse predicted trajectory
+        elif self.radioButton_6:
+            pred = self.parser.promptraj_msg_to_execution_format(self.prediction)
+            pred_rev = self.parser.reverse_trajectory(pred)
+            pred_rev_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.parser.point_to_list(self.context))
+            try:
+                rospy.wait_for_service('execute_trajectory', timeout=2.0)
+
+                execute_reverse_prediction = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+                try:
+                    resp = execute_reverse_prediction(pred_rev_msg)
+                except AttributeError:
+                    rospy.loginfo("No refined trajectory available yet!")
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)   
+
+        # reverse refined trajectory
+        elif self.radioButton_7:  
+            pred = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+            pred_rev = self.parser.reverse_trajectory(pred)
+            pred_rev_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.parser.point_to_list(self.context))
+            try:
+                rospy.wait_for_service('execute_trajectory', timeout=2.0)
+
+                execute_reverse_refined = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+                try:
+                    resp = execute_reverse_refined(pred_rev_msg)
+                    
+                except AttributeError:
+                    rospy.loginfo("No refined trajectory available yet!")
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)  
+
     def on_add_to_model_click(self):
 
         try:
@@ -810,7 +901,6 @@ class experimentGUI(QMainWindow):
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
-
         self.groupBox_2.setTitle(_translate("MainWindow", " Refinement"))
         self.pushButton_6.setText(_translate("MainWindow", "Add to model"))
         self.pushButton_21.setText(_translate("MainWindow", "Refine prediction"))
@@ -820,6 +910,9 @@ class experimentGUI(QMainWindow):
         self.radioButton_2.setText(_translate("MainWindow", "Welford"))
         self.radioButton_3.setText(_translate("MainWindow", "Normal"))
         self.pushButton_24.setText(_translate("MainWindow", "Execute refinement"))
+        self.groupBox_7.setTitle(_translate("MainWindow", "Execution time"))
+        self.radioButton_8.setText(_translate("MainWindow", "Predicted"))
+        self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -860,6 +953,8 @@ class experimentGUI(QMainWindow):
         self.radioButton_4.setText(_translate("MainWindow", "2"))
         self.radioButton_5.setText(_translate("MainWindow", "3"))
         self.pushButton_25.setText(_translate("MainWindow", "Copy pose"))
+        self.radioButton_6.setText(_translate("MainWindow", "Reverse prediction"))
+        self.radioButton_7.setText(_translate("MainWindow", "Reverse refinement"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Nodes"))
         self.label_17.setText(_translate("MainWindow", "LfD"))
         self.pushButton_3.setText(_translate("MainWindow", "Start"))
@@ -869,6 +964,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_2.setText(_translate("MainWindow", "Stop"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
+
 
 
         # set object and obstacle when OK is pressed
@@ -916,6 +1012,7 @@ class experimentGUI(QMainWindow):
         self.radioButton.toggled.connect(lambda:self.check_button_state(self.radioButton))
         self.radioButton_4.toggled.connect(lambda:self.check_button_state(self.radioButton_4))
         self.radioButton_5.toggled.connect(lambda:self.check_button_state(self.radioButton_5))
+
 
 
 
