@@ -435,7 +435,8 @@ class experimentGUI(QMainWindow):
             rospy.wait_for_service('refine_trajectory', timeout=2.0)
 
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
-            
+            # print(self.refined_trajectory.times)
+
             if self.radioButton_9.isChecked():
                 self.T_desired = float(self.lineEdit_17.text())
             elif self.radioButton_8.isChecked():
@@ -461,6 +462,7 @@ class experimentGUI(QMainWindow):
             try:
                 resp = refine_trajectory(self.prediction, self.T_desired)
                 self.refined_trajectory = resp.refined_trajectory
+                print(self.refined_trajectory.times)
                 rospy.loginfo("Got a refined trajectory")
 
             except AttributeError:

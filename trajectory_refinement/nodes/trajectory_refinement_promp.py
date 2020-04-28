@@ -252,6 +252,8 @@ class trajectoryRefinement():
             ee_position = list(vnew)
             t_list = [t]
 
+            # print(t_list)
+
             # append refined trajectory
             if i <= len(traj_pos)-1:
                 # ee_orientation = [traj[i][3], traj[i][4], traj[i][5], traj[i][6]]
@@ -297,7 +299,6 @@ class trajectoryRefinement():
             t += dt
             i += 1
         
-
         return refined_traj
 
 
@@ -373,6 +374,8 @@ class trajectoryRefinement():
         
         if n < ndesired:
             prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
+
+        print("time vector = " + str([x[-1] for x in prediction]))
 
         refined_prediction = self.refineTrajectory(prediction, dt)
         print("check")
