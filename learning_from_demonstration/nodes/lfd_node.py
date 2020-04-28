@@ -384,7 +384,7 @@ class lfdNode():
         
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-        desired_datapoints = 100
+        desired_datapoints = 10
         self.lfd.prepare_for_learning(desired_datapoints)
         
         plt.figure()
@@ -523,6 +523,13 @@ class lfdNode():
 
         object_wrt_base = self.get_marker_wrt_base()
         prediction = self.lfd.generalize(goal)
+
+        ndesired = 75
+        n = len(prediction)
+        
+        if n < ndesired:
+            prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
+
         relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
 
         # traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)

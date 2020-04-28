@@ -45,8 +45,8 @@ class trajectoryResampler():
 
         interpol_pred_traj = []
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_desired, False)):
-            pos = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-            ynew = pos + object_pose + [xdesired[i]]
+            pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
+            ynew = pose + [xdesired[i]]
 
             interpol_pred_traj.append(ynew)
 

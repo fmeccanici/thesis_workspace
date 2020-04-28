@@ -363,7 +363,12 @@ class trajectoryRefinement():
         rospy.loginfo("Refining trajectory...")
         prediction, context = self.parser.promptraj_msg_to_execution_format(req.trajectory)
         
+        ndesired = 75
+        n = len(prediction)
         dt = req.trajectory.times[1]
+        
+        if n < ndesired:
+            prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
 
         refined_prediction = self.refineTrajectory(prediction, dt)
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction, context)
@@ -394,8 +399,8 @@ class trajectoryRefinement():
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_after_resampling.png')
         plt.close()   
 
-        # rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
-        # rospy.loginfo("len pred before dtw = " + str(len(prediction)))
+        rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
+        rospy.loginfo("len pred before dtw = " + str(len(prediction)))
 
         # apply dynamic time warping --> reference = prediction
         pred_aligned, new_traj = self.dtw.apply_dtw(prediction, new_traj)
