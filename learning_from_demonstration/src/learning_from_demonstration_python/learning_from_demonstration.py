@@ -310,7 +310,7 @@ if __name__ == "__main__":
 
     lfd.load_trajectories_from_folder(raw_path)
 
-    desired_datapoints = 100
+    desired_datapoints = 10
     lfd.prepare_for_learning(desired_datapoints)
     lfd.build_initial_promp_model()
 
