@@ -465,8 +465,8 @@ class experimentGUI(QMainWindow):
                 print(self.refined_trajectory.times)
                 rospy.loginfo("Got a refined trajectory")
 
-            except AttributeError:
-                rospy.loginfo("No refined trajectory available yet!")
+            except AttributeError as e:
+                rospy.loginfo(("No refined trajectory available yet!: {}").format(e))
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)

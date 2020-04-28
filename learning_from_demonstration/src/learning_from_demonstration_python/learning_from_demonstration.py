@@ -209,7 +209,7 @@ class learningFromDemonstration():
         self.num_samples = len(self.trajectories_for_learning[0])
         
         # default value
-        num_basis = 10
+        num_basis = 20
 
         # default value
         sigma = 0.1
