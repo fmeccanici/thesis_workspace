@@ -17,6 +17,7 @@ type="refinement_force_publisher.py" output="screen">
     <arg name="part_to_publish" value="position" />
 </include>
 
+
 <node pkg="trajectory_refinement" name="trajectory_refinement" 
 type="trajectory_refinement_promp.py" output="screen">
     <param name="button_source" value="$(arg button_source)"/>

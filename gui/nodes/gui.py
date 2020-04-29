@@ -93,7 +93,7 @@ class experimentGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(350, 690, 351, 241))
+        self.groupBox_2.setGeometry(QRect(350, 690, 351, 301))
         self.groupBox_2.setObjectName("groupBox_2")
         self.pushButton_6 = QPushButton(self.groupBox_2)
         self.pushButton_6.setGeometry(QRect(0, 120, 150, 27))
@@ -131,6 +131,12 @@ class experimentGUI(QMainWindow):
         self.lineEdit_17 = QLineEdit(self.groupBox_7)
         self.lineEdit_17.setGeometry(QRect(40, 90, 41, 27))
         self.lineEdit_17.setObjectName("lineEdit_17")
+        self.pushButton_26 = QPushButton(self.groupBox_2)
+        self.pushButton_26.setGeometry(QRect(0, 210, 150, 27))
+        self.pushButton_26.setObjectName("pushButton_26")
+        self.lineEdit_18 = QLineEdit(self.groupBox_2)
+        self.lineEdit_18.setGeometry(QRect(0, 240, 171, 27))
+        self.lineEdit_18.setObjectName("lineEdit_18")
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(630, 690, 511, 291))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -393,6 +399,17 @@ class experimentGUI(QMainWindow):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
+    def on_load_trajectory_click(self):
+        traj_file = str(self.lineEdit_18.text())
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/' 
+        try:
+            ref_traj = self.parser.openTrajectoryFile(traj_file, path)
+            print(ref_traj)
+            print(type(ref_traj))
+            self.refined_trajectory = self.parser.predicted_trajectory_to_prompTraj_message(ref_traj, self.parser.point_to_list(self.context))
+        except Exception as e:
+            rospy.loginfo(e)
+
     def start_node(self, package, launch_file):
         
         if launch_file not in self.nodes: 
@@ -435,7 +452,6 @@ class experimentGUI(QMainWindow):
             rospy.wait_for_service('refine_trajectory', timeout=2.0)
 
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
-            # print(self.refined_trajectory.times)
 
             if self.radioButton_9.isChecked():
                 self.T_desired = float(self.lineEdit_17.text())
@@ -462,6 +478,11 @@ class experimentGUI(QMainWindow):
             try:
                 resp = refine_trajectory(self.prediction, self.T_desired)
                 self.refined_trajectory = resp.refined_trajectory
+                f = open("/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/refined_trajectory.txt", 'w+')
+                f.write(str(self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)[0]))
+                f.close()
+
+
                 # print(self.refined_trajectory.times)
                 rospy.loginfo("Got a refined trajectory")
 
@@ -914,6 +935,9 @@ class experimentGUI(QMainWindow):
         self.groupBox_7.setTitle(_translate("MainWindow", "Execution time"))
         self.radioButton_8.setText(_translate("MainWindow", "Predicted"))
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
+        self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
+        self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
+        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_slow.txt"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -967,7 +991,7 @@ class experimentGUI(QMainWindow):
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
 
 
-
+ 
         # set object and obstacle when OK is pressed
         self.buttonBox.accepted.connect(self.on_set_object_position_click)
         self.buttonBox.accepted.connect(self.on_set_obstacle_position_click)
@@ -987,6 +1011,8 @@ class experimentGUI(QMainWindow):
         self.pushButton_19.clicked.connect(lambda:self.stop_node('teleop_control.launch'))
         self.pushButton_18.clicked.connect(lambda:self.start_node('teleop_control', 'teleop_control.launch'))
         self.pushButton_25.clicked.connect(self.on_copy_pose_click)
+
+        self.pushButton_26.clicked.connect(self.on_load_trajectory_click)
 
 
         # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))

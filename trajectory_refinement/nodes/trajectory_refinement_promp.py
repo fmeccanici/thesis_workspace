@@ -221,9 +221,6 @@ class trajectoryRefinement():
         t = 0
 
         master_pose_scaling = 0.5
-        
-        # time scaling needed since the waiting of "dt" is accumulated to the 
-        time_scaling = 0.5
 
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
@@ -304,6 +301,7 @@ class trajectoryRefinement():
             i += 1
         
         print("total time after refinement = " + str(t_list))
+        print("refinded_traj = " + str(refined_traj))
         return refined_traj
 
 
@@ -354,6 +352,7 @@ class trajectoryRefinement():
             pred_pos = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2]]
             pred_ori = [q[1], q[2], q[3], q[0]]
             pred_t = [t_pred[i]]
+            
 
             pred_traj = pred_pos + pred_ori + pred_t
 
@@ -361,7 +360,7 @@ class trajectoryRefinement():
             new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
         
         dt_new = t_refined[1]
-
+        print( "new_traj time = " + str([ x[-1] for x in new_trajectory]))
         return new_trajectory, dt_new
 
     # ROS service for refining trajectory
@@ -369,6 +368,7 @@ class trajectoryRefinement():
         rospy.loginfo("Refining trajectory...")
         prediction, dt = self.parser.promptraj_msg_to_execution_format(req.trajectory)
         
+        print("prediction = " + str(prediction))
         ndesired = 75
 
         if req.T_desired != 0.0:
@@ -376,14 +376,13 @@ class trajectoryRefinement():
 
         n = len(prediction)
         # dt = req.trajectory.times[1]
-        
+        print("len prediction = " + str(len(prediction)))
         if n < ndesired:
             prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
 
-        print("time vector = " + str([x[-1] for x in prediction]))
+        # print("time vector = " + str([x[-1] for x in prediction]))
 
         refined_prediction = self.refineTrajectory(prediction, dt)
-        print("check")
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
         n_pred = len(prediction)
@@ -415,15 +414,18 @@ class trajectoryRefinement():
         rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
         rospy.loginfo("len pred before dtw = " + str(len(prediction)))
 
+        print("time vector before dtw = " + str([x[-1] for x in new_traj]))
+
         # apply dynamic time warping --> reference = prediction
-        pred_aligned, new_traj = self.dtw.apply_dtw(prediction, new_traj)
+        # pred_aligned, new_traj = self.dtw.apply_dtw(prediction, new_traj)
         # rospy.loginfo("len pred after dtw = " + str(len(pred_aligned)))
         # rospy.loginfo("len_new_traj after dtw = " + str(len(new_traj)))
 
+        # print("pred_aligned_time = " + str( [x[-1] for x in pred_aligned]))
 
         plt.figure()
         plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
-        plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
+        # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
         plt.title("Comparison refined and predicted trajectory (after DTW)")
         plt.xlabel("datapoint [-]")
         plt.ylabel("position [m]")
@@ -445,10 +447,12 @@ class trajectoryRefinement():
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
         plt.close()   
 
+        print("time vector after dtw = " + str([x[-1] for x in new_traj]))
+
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
         new_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(new_traj, context)
-        rospy.loginfo("context = " + str(context))
-
+        # rospy.loginfo("context = " + str(context))
+        print("new_traj_msg = " + str(new_traj_msg.times))
         response = RefineTrajectoryResponse()
         response.refined_trajectory = new_traj_msg
 
