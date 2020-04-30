@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from welford.welford import Welford
+# from padasip import FilterRLS
 
 class ProMPContext(object):
     ## Contextualized ProMP as performed in Ewerton et al. 
@@ -29,12 +30,9 @@ class ProMPContext(object):
         #         self.outputs_ix.append(i)
         self.output_name = [output_name]
         self.context_names = context_names
-        # self.num_variables = len(self.variables)
         self.num_outputs = len(self.output_name)
         self.num_contexts = len(self.context_names)
         
-        # print(self.outputs)
-
         self.x = np.linspace(0, 1, num_samples)
         self.num_samples = len(self.x)
         self.num_basis = num_basis
@@ -92,6 +90,59 @@ class ProMPContext(object):
         plt.figure(self.figs[2])
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/welford.png')
 
+    # def rls_update(self, demonstration):
+        
+    #     trajectory = demonstration[0]
+    #     context = demonstration[1]
+    #     trajectory = np.array(trajectory).T
+
+    #     if len(trajectory) != self.num_outputs:
+    #         raise ValueError("The given demonstration has {} outputs while num_outputs={}".format(len(trajectory), self.num_outputs))
+
+    #     self.nr_traj += 1
+
+    #     # first we calculate the weights
+    #     # according to Ewerton et al.
+    #     for variable_idx, variable in enumerate(trajectory):
+
+    #         # interpolate to fit the Phi matrix
+    #         interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
+            
+    #         # name convention from Ewerton et al.
+    #         tau = interpolate(self.x)
+
+    #         # calculate weights of Mth demonstration: refinement
+    #         # (size N, N=num_basis, M=num_demonstrations)
+    #         # do it with recursive least squares
+    #         rls = FilterRLS(n=self.num_basis, w = self.mean)
+    #         w_M =             
+    #         w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T  # weights for each trajectory
+    #         c_M = context
+    #         FilterRLS(n=self.num_basis, w = w_M)
+
+    #         x = np.append(w_M, c_M)
+
+    #         # print("mean_before = " + str((self.mean_w)))
+    #         # print("mean_total_before = " + str((self.mean_total)))
+
+    #         # do a welford update step and update the mean and variance
+    #         print("Number of trajectories = " + str(self.nr_traj))
+    #         N = self.nr_traj
+    #         # N = 2
+
+    #         welford = Welford(N=N, Mean=self.mean_total, Sigma=self.sigma_total)
+    #         mean_total, sigma_total = welford.update(x)
+
+    #         self.mean_total = mean_total
+    #         self.sigma_total = sigma_total
+
+    #         self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
+    #         self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
+    #         self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
+    #         self.sigma_cc = self.sigma_total[self.num_basis:, self.num_basis:] 
+
+    #         self.mean_w = self.mean_total[:self.num_basis] 
+    #         self.mean_c = self.mean_total[self.num_basis:] 
 
     # welford update where x = [w_M, c_M]
     # thus containing the weights and context of the refined trajectory
@@ -131,7 +182,7 @@ class ProMPContext(object):
 
             # calculate weights of Mth demonstration: refinement
             # (size N, N=num_basis, M=num_demonstrations)
-            w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T  # weights for each trajectory
+            w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T
             c_M = context
 
             x = np.append(w_M, c_M)

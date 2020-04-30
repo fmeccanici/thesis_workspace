@@ -1,4 +1,6 @@
 import math
+import numpy as np
+
 class Welford():
 
     def __init__(self, N, Mean, Sigma, lst=None):
@@ -17,12 +19,26 @@ class Welford():
             return
         # self.N += 1
 
+
         # auxiliary matrix (ewerton et al.)
         self.S = (self.N - 1) * self.Sigma
-        
+
+        # initialize np matrix        
+        newS = np.zeros((self.S.shape))
+        newSigma = np.zeros((self.S.shape))
+
         newMean = self.Mean + (x - self.Mean)*1./self.N
-        newS = self.S + (self.N - 1) / self.N * (x - self.Mean)*(x - self.Mean)
-        newSigma = newS / (self.N - 1)
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                newS[i,j] = self.S[i,j] + (self.N - 1) / self.N * (x[i] - self.Mean[i]) * (x[j] - self.Mean[j])
+                newSigma[i,j] = newS[i,j] / (self.N - 1)
+
+        # print("Sigma = " + str(self.Sigma))
+        # print("newSigma = " + str(newSigma))
+        # newS = self.S + (self.N - 1) / self.N * (x - self.Mean).T*(x - self.Mean)
+        # newSigma = newS / (self.N - 1)
+
         self.Mean, self.Sigma = newMean, newSigma
         
         return self.Mean, self.Sigma
