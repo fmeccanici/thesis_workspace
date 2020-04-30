@@ -15,6 +15,15 @@ class trajectoryResampler():
 
         return Quaternion.intermediates(q1, q2, n, include_endpoints=include_endpoints)
     
+    def resample_time(self, traj, T):
+        n = len(traj)
+        t = np.linspace(0, T, n)
+
+        for i in range(len(traj)):
+            traj[i][-1] = t[i]
+        
+        return traj
+
     def interpolate_learned_keypoints(self, pred_traj, n_desired):
         n = len(pred_traj)
         T = pred_traj[-1][-1]

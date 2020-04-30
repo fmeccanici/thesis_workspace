@@ -381,12 +381,12 @@ class experimentGUI(QMainWindow):
         self.radioButton_3.setChecked(True)
 
         # object position
-        self.lineEdit.setText("0.73")
-        self.lineEdit_2.setText("0.0")
+        self.lineEdit.setText("0.8")
+        self.lineEdit_2.setText("0.3")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.5")
+        self.lineEdit_14.setText("0.6")
         self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
 
@@ -518,15 +518,14 @@ class experimentGUI(QMainWindow):
 
     def on_cancel_position_click(self):
         # object position
-        self.lineEdit.setText("0.9")
-        self.lineEdit_2.setText("0.2")
+        self.lineEdit.setText("0.8")
+        self.lineEdit_2.setText("0.3")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
         self.lineEdit_14.setText("0.6")
-        self.lineEdit_15.setText("0") 
+        self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
-
 
     def on_set_object_position_click(self):
         try:
@@ -911,14 +910,14 @@ class experimentGUI(QMainWindow):
             self.lineEdit_13.setText(str(round(0.03, 3)))
 
         elif button.text() == '3' and button.isChecked():
-            self.lineEdit_9.setText(str(round(0.353543514402, 3)))
-            self.lineEdit_7.setText(str(round(0.435045131507, 3)))
-            self.lineEdit_8.setText(str(round(0.760080619348, 3)))
+            self.lineEdit_9.setText(str(round(0.5087, 3)))
+            self.lineEdit_7.setText(str(round(-0.177, 3)))
+            self.lineEdit_8.setText(str(round(0.793, 3)))
 
-            self.lineEdit_12.setText(str(round(0.980837824843, 3)))
-            self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
-            self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
-            self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
+            self.lineEdit_12.setText(str(round(0.988, 3)))
+            self.lineEdit_11.setText(str(round(-0.0, 3)))
+            self.lineEdit_10.setText(str(round(-0.151, 3)))
+            self.lineEdit_13.setText(str(round(0.03, 3)))
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
@@ -937,7 +936,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
         self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
-        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_slow.txt"))
+        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_new_model.txt"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))

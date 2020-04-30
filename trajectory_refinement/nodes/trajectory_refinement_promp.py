@@ -300,8 +300,8 @@ class trajectoryRefinement():
             t += dt
             i += 1
         
-        print("total time after refinement = " + str(t_list))
-        print("refinded_traj = " + str(refined_traj))
+        # print("total time after refinement = " + str(t_list))
+        # print("refinded_traj = " + str(refined_traj))
         return refined_traj
 
 
@@ -368,7 +368,7 @@ class trajectoryRefinement():
         rospy.loginfo("Refining trajectory...")
         prediction, dt = self.parser.promptraj_msg_to_execution_format(req.trajectory)
         
-        print("prediction = " + str(prediction))
+        # print("prediction = " + str(prediction))
         ndesired = 75
 
         if req.T_desired != 0.0:
@@ -376,7 +376,7 @@ class trajectoryRefinement():
 
         n = len(prediction)
         # dt = req.trajectory.times[1]
-        print("len prediction = " + str(len(prediction)))
+        # print("len prediction = " + str(len(prediction)))
         if n < ndesired:
             prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
 
@@ -385,6 +385,8 @@ class trajectoryRefinement():
         refined_prediction = self.refineTrajectory(prediction, dt)
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
+        new_traj = self.resampler.resample_time(new_traj, self.parser.get_total_time(prediction))
+        print("new_traj good T = " + str(new_traj))
         n_pred = len(prediction)
 
         plt.figure()
@@ -400,6 +402,7 @@ class trajectoryRefinement():
 
         # resample new trajectory to match the prediction
         new_traj = self.resampler.interpolate_predicted_trajectory(new_traj, n_pred)
+
         plt.figure()
         plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
         plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
@@ -414,7 +417,7 @@ class trajectoryRefinement():
         rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
         rospy.loginfo("len pred before dtw = " + str(len(prediction)))
 
-        print("time vector before dtw = " + str([x[-1] for x in new_traj]))
+        # print("time vector before dtw = " + str([x[-1] for x in new_traj]))
 
         # apply dynamic time warping --> reference = prediction
         # pred_aligned, new_traj = self.dtw.apply_dtw(prediction, new_traj)
@@ -447,12 +450,12 @@ class trajectoryRefinement():
         plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
         plt.close()   
 
-        print("time vector after dtw = " + str([x[-1] for x in new_traj]))
+        # print("time vector after dtw = " + str([x[-1] for x in new_traj]))
 
         context = [req.trajectory.object_position.x, req.trajectory.object_position.y, req.trajectory.object_position.z]
         new_traj_msg = self.parser.predicted_trajectory_to_prompTraj_message(new_traj, context)
         # rospy.loginfo("context = " + str(context))
-        print("new_traj_msg = " + str(new_traj_msg.times))
+        # print("new_traj_msg = " + str(new_traj_msg.times))
         response = RefineTrajectoryResponse()
         response.refined_trajectory = new_traj_msg
 

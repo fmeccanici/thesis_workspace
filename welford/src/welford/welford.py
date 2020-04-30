@@ -19,7 +19,6 @@ class Welford():
             return
         # self.N += 1
 
-
         # auxiliary matrix (ewerton et al.)
         self.S = (self.N - 1) * self.Sigma
 
@@ -29,15 +28,11 @@ class Welford():
 
         newMean = self.Mean + (x - self.Mean)*1./self.N
 
+        # update covariance matrix
         for i in range(len(x)):
             for j in range(len(x)):
                 newS[i,j] = self.S[i,j] + (self.N - 1) / self.N * (x[i] - self.Mean[i]) * (x[j] - self.Mean[j])
                 newSigma[i,j] = newS[i,j] / (self.N - 1)
-
-        # print("Sigma = " + str(self.Sigma))
-        # print("newSigma = " + str(newSigma))
-        # newS = self.S + (self.N - 1) / self.N * (x - self.Mean).T*(x - self.Mean)
-        # newSigma = newS / (self.N - 1)
 
         self.Mean, self.Sigma = newMean, newSigma
         
