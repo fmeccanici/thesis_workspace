@@ -558,7 +558,8 @@ class lfdNode():
         rospy.loginfo("Welford update using service...")
         trajectory, context = self.lfd.parser.prompTrajMessage_to_demonstration_format(req.demo)
         
-        self.lfd.welford_update(trajectory, context)
+        for i in range(20):
+            self.lfd.welford_update(trajectory, context)
         
         self.add_demo_success.data = True
         response = WelfordUpdateResponse()
