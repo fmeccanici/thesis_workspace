@@ -1,7 +1,7 @@
 
 <launch>
 
-    <arg name="raw_folder" default="constant_initial_pose"/>
+    <arg name="raw_folder" default="complete_model"/>
     <arg name="gripper_joint_value" default="1.0"/>
     <arg name="button_source" default="omni"/>
 

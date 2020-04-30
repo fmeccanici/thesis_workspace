@@ -107,6 +107,9 @@ class lfdNode():
     def _set_teaching_mode(self, req):
         self.teaching_mode = req.teaching_mode.data
 
+        if self.teaching_mode == 0:
+            self.EEtrajectory = []
+
         # reset white buttons to prevent the append code to run when 
         # we switch to teaching mode when we forgot to press the button
         self.white_button_toggle_previous = 0
@@ -530,6 +533,7 @@ class lfdNode():
         object_wrt_base = self.get_marker_wrt_base()
         prediction = self.lfd.generalize(goal)
 
+        print("prediction = " + str(prediction))
         ndesired = 75
         n = len(prediction)
         

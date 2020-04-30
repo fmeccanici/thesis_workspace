@@ -518,12 +518,12 @@ class experimentGUI(QMainWindow):
 
     def on_cancel_position_click(self):
         # object position
-        self.lineEdit.setText("0.73")
-        self.lineEdit_2.setText("0.26")
+        self.lineEdit.setText("0.9")
+        self.lineEdit_2.setText("0.2")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.58")
+        self.lineEdit_14.setText("0.6")
         self.lineEdit_15.setText("0") 
         self.lineEdit_16.setText("0.7")
 

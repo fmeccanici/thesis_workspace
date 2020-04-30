@@ -251,7 +251,11 @@ class learningFromDemonstration():
                 # dt = pred[0]
                 n = len(pred)
                 # T = dt*n
+
+                # if this produces negative results probably the marker is not detected properly
+                # this also produces a weird trajectory
                 T = pred[0]
+                print("T = " + str(T))
                 t = np.linspace(0, T, n)
                 pred_traj = np.vstack((pred_traj, t))
             else:
