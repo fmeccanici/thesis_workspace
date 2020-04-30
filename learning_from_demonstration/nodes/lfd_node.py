@@ -96,6 +96,9 @@ class lfdNode():
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
 
+        # initialize model 
+        self.initialize_lfd_model()
+
     # get pose service used for GUI
     def _get_ee_pose(self, req):
         resp = GetEEPoseResponse()
