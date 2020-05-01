@@ -390,7 +390,7 @@ class lfdNode():
         
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-        desired_datapoints = 10
+        desired_datapoints = 5
         self.lfd.prepare_for_learning(desired_datapoints)
         
         plt.figure()
@@ -558,8 +558,8 @@ class lfdNode():
         rospy.loginfo("Welford update using service...")
         trajectory, context = self.lfd.parser.prompTrajMessage_to_demonstration_format(req.demo)
         
-        for i in range(20):
-            self.lfd.welford_update(trajectory, context)
+        # for i in range(20):
+        self.lfd.welford_update(trajectory, context)
         
         self.add_demo_success.data = True
         response = WelfordUpdateResponse()

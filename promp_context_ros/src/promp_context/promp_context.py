@@ -147,7 +147,7 @@ class ProMPContext(object):
 
     # welford update where x = [w_M, c_M]
     # thus containing the weights and context of the refined trajectory
-    def welford_update(self, demonstration):
+    def welford_update(self, demonstration, amount=1):
         
         trajectory = demonstration[0]
         context = demonstration[1]
@@ -188,9 +188,6 @@ class ProMPContext(object):
 
             x = np.append(w_M, c_M)
 
-            # print("mean_before = " + str((self.mean_w)))
-            # print("mean_total_before = " + str((self.mean_total)))
-
             # do a welford update step and update the mean and variance
             print("Number of trajectories = " + str(self.nr_traj))
             N = self.nr_traj
@@ -198,7 +195,11 @@ class ProMPContext(object):
 
             welford = Welford(N=N, Mean=self.mean_total, Sigma=self.sigma_total)
 
-            mean_total, sigma_total = welford.update(x)
+            if amount > 1:
+                for i in range(amount):
+                    mean_total, sigma_total = welford.update(x)
+            else: 
+                mean_total, sigma_total = welford.update(x)
 
             self.mean_total = mean_total
             self.sigma_total = sigma_total

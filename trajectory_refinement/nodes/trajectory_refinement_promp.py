@@ -239,6 +239,8 @@ class trajectoryRefinement():
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
             pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
+            # pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.keyboard_pose)]
+
 
             ## transform this pose to base_footprint
             p = list(pos_next_wrt_pos_current)

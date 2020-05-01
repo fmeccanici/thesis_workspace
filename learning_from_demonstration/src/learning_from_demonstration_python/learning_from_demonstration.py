@@ -209,7 +209,7 @@ class learningFromDemonstration():
         self.num_samples = len(self.trajectories_for_learning[0])
         
         # default value
-        num_basis = 10
+        num_basis = 5
 
         # default value
         sigma = 0.1
@@ -289,7 +289,7 @@ class learningFromDemonstration():
         for variable in range(np.asarray(traj).shape[1]):
             single_variable_traj = [ [data[variable]] for data in traj]
             demonstration = (single_variable_traj, context)
-            self.promps[variable].welford_update(demonstration)
+            self.promps[variable].welford_update(demonstration, 1)
 
 
     def add_trajectory_to_promp_model(self, traj, context):
