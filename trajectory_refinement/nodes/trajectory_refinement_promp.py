@@ -20,6 +20,7 @@ from master_control.msg import ControlComm
 from trajectory_visualizer.msg import TrajectoryVisualization
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from aruco_msgs.msg import MarkerArray
+from teleop_control.msg import Keyboard
 
 
 # import own python packages
@@ -72,8 +73,10 @@ class trajectoryRefinement():
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
-        self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
-        
+        # self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
+        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
+
+
         # services
         self._refine_trajectory_service = rospy.Service('refine_trajectory', RefineTrajectory, self._refine_trajectory)
         self._calibrate_master_pose_service = rospy.Service('calibrate_master_pose', CalibrateMasterPose, self._calibrate_master_pose)        
@@ -85,7 +88,8 @@ class trajectoryRefinement():
         self.dtw = DTW()
 
 
-    
+        self.master_pose = Pose()
+
         # calibrate master pose
         self.calibrate_master_pose_for_normalization()
 
@@ -94,6 +98,21 @@ class trajectoryRefinement():
         self.button_source = rospy.get_param('~button_source')
         print("Button source set to: " + str(self.button_source))
 
+    def _keyboard_callback(self, data):
+
+        added_value = 0.01
+        
+        # move pose upwards
+        if data.key.data == 'up':
+            self.master_pose.position.x += added_value
+        elif data.key.data == 'down':
+            self.master_pose.position.x -= added_value
+        elif data.key.data == 'left':
+            self.master_pose.position.y += added_value
+        elif data.key.data == 'right':
+            self.master_pose.position.y -= added_value
+
+        print(self.master_pose)
     def _marker_detection_callback(self, data):
         self.object_marker_pose = data.pose
 
@@ -239,7 +258,6 @@ class trajectoryRefinement():
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
             pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
-            # pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.keyboard_pose)]
 
 
             ## transform this pose to base_footprint

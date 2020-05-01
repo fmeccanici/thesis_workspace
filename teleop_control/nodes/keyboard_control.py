@@ -1,78 +1,74 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.5
 
-import rospy, time, tf
-
-import rospy
-from geometry_msgs.msg import PoseStamped, WrenchStamped
+import rospy, keyboard, os
+from std_msgs.msg import Bool
 from pynput.keyboard import Key, Listener
 import threading, pynput
+from geomagic_touch_m.msg import GeomagicButtonEvent
+from teleop_control.msg import Keyboard
 
-class teleopControl():
+class KeyboardControl():
     def __init__(self):
-        rospy.init_node("teleop_control")
-        self.frame_id = 'base_footprint'
+        rospy.init_node('keyboard_control')
+        # self.up_pub_ = rospy.Publisher('keyboard/up', Bool, queue_size=10)
+        # self.down_pub_ = rospy.Publisher('keyboard/down', Bool, queue_size=10)
+        self.keyboard_pub_ = rospy.Publisher('keyboard_control', Keyboard, queue_size=10)
+        self.keyboard = Keyboard()
+        self.up = 0
+        self.down = 0
+        self.left = 0
+        self.right = 0
 
-        # get ros parameters
-        self._getParameters()
-
-        self.end_effector_goal_sub = rospy.Subscriber("/whole_body_kinematic_controller/arm_tool_link_goal_dummy", PoseStamped, self._end_effector_goal_callback)
-        self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
-        
-        self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-
-
-    def _end_effector_pose_callback(self, data):
-        self.current_slave_pose = data.pose
-
-
-    def _end_effector_goal_callback(self, data):
-        ee_pose = PoseStamped()
-
-        # rospy.loginfo('check')
-        if self.part_to_publish == "position":
-            
-            ee_pose.pose.position.x = data.pose.position.x
-            ee_pose.pose.position.y = data.pose.position.y
-            ee_pose.pose.position.z = data.pose.position.z
-            ee_pose.pose.orientation.x = self.current_slave_pose.orientation.x
-            ee_pose.pose.orientation.y = self.current_slave_pose.orientation.y
-            ee_pose.pose.orientation.z = self.current_slave_pose.orientation.z
-            ee_pose.pose.orientation.w = self.current_slave_pose.orientation.w
-
-            ee_pose.header.stamp = rospy.Time.now()
-            self.end_effector_goal_pub.publish(ee_pose)
-            
-        elif self.part_to_publish == "both":
-            
-            ee_pose.pose.position.x = data.pose.position.x
-            ee_pose.pose.position.y = data.pose.position.y
-            ee_pose.pose.position.z = data.pose.position.z
-
-            ee_pose.pose.orientation.x = data.pose.orientation.x
-            ee_pose.pose.orientation.y = data.pose.orientation.y
-            ee_pose.pose.orientation.z = data.pose.orientation.z
-            ee_pose.pose.orientation.w = data.pose.orientation.w
-
-            ee_pose.header.stamp = rospy.Time.now()
-            self.end_effector_goal_pub.publish(ee_pose)
-
-        elif self.part_to_publish == "none":
-            pass
-
-        
-
-    def _getParameters(self):
-        self.part_to_publish = rospy.get_param('~part_to_publish')            
-
-    def run(self):
+    def pub_keys(self):
         r = rospy.Rate(30)
         while not rospy.is_shutdown():
+            self.keyboard_pub_.publish(self.keyboard)
             r.sleep()
 
+    def on_press(self, key):
+        if key == Key.up:
+            self.keyboard.key.data = 'up'
+
+        elif key == Key.down:            
+            self.keyboard.key.data = 'down'
+        
+        elif key == Key.right:
+            self.keyboard.key.data = 'right'
+
+        elif key == Key.left:
+            self.keyboard.key.data = 'left'
+
+    def on_release(self, key):
+        if key == Key.up:
+            self.keyboard.key.data = ''
+
+        elif key == Key.down:            
+            self.keyboard.key.data = ''
+        
+        elif key == Key.right:
+            self.keyboard.key.data = ''
+
+        elif key == Key.left:
+            self.keyboard.key.data = ''
+            
+        elif key == Key.esc:
+            # kill node when esc is pressed
+            os.system('kill %d' % os.getpid())
+            raise pynput.keyboard.Listener.StopException
+
+    def run(self):
+        ros_thread = threading.Thread(target=self.pub_keys, args = ())
+        ros_thread.start()
+
+        # Collect events until release
+        with Listener(
+                on_press=self.on_press,
+                on_release=self.on_release) as listener:
+            listener.join()
+
 if __name__ == "__main__":
+    node = KeyboardControl()
     try:
-        node = teleopControl()
         node.run()
     except Exception as e: 
-        rospy.loginfo(e)
-        pass
+        print(e)

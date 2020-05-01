@@ -7,7 +7,7 @@
 <arg name="gripper_joint_value" default="1.0"/>
 
 <node pkg="teleop_control" name="teleop_control" 
-type="teleop_control.py" output="screen">
+type="teleop_control_node.py" output="screen">
 
     <param name="part_to_publish" value="$(arg part_to_publish)"/>
 

@@ -390,7 +390,7 @@ class lfdNode():
         
         self.lfd.load_trajectories_from_folder(self.raw_path)
 
-        desired_datapoints = 5
+        desired_datapoints = 10
         self.lfd.prepare_for_learning(desired_datapoints)
         
         plt.figure()
