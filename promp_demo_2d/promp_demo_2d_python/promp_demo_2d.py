@@ -28,14 +28,19 @@ class PrompDemo2D():
 
         self.promp = ProMPContext(output_name=['y'], context_names=['y1', 'y2'], num_basis=20, num_samples=len(self.t))
         self.demonstrations = []
-
+    
     def on_press(self, key):
 
         if key == Key.up:
-            self.a = 200
-
+            if self.mode == 1:
+                self.a = 50
+            elif self.mode == 0:
+                self.a = 100
         elif key == Key.down:
-            self.a = -200
+            if self.mode == 1:
+                self.a = -50
+            elif self.mode == 0:
+                self.a = -100
 
     def on_release(self, key):
         if key == Key.up:
@@ -81,8 +86,12 @@ class PrompDemo2D():
         context2 = [3.6, random.randint(self.a_min, self.a_max)]
 
         plt.switch_backend('TkAgg')
-
-
+        t_plot = self.t[50]
+        y_plot = -0.5
+        try:
+            draw_obstacle = int(input("Do you want to draw an obstacle? 1/0: "))
+        except ValueError:
+            draw_obstacle = 1
         plt.ion()
         for i in range(len(self.t)):
             try:
@@ -95,6 +104,8 @@ class PrompDemo2D():
             
                 circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
                 circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
+                obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
+
 
                 
 
@@ -106,7 +117,8 @@ class PrompDemo2D():
                 
                 ax.add_artist(circle1)
                 ax.add_artist(circle2)
-
+                if draw_obstacle == 1:
+                    ax.add_artist(obstacle)
                 plt.pause(self.dt)
                 plt.clf()
 
@@ -117,7 +129,7 @@ class PrompDemo2D():
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
         file_name = self.get_demonstration_file_name(path)
         self.save_data(path, file_name, demonstration)
-    
+        
     def load_demonstration_from_folder(self, path, traj_file):
         with open(path+traj_file, "r") as traj:
             demo = ast.literal_eval(traj.read())    
@@ -166,13 +178,14 @@ class PrompDemo2D():
 
             self.y = np.asarray(self.generalize(context))
             t_plot = self.t[50]
-            y_plot = self.y[50]-0.5
+            y_plot = -0.5
 
             circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
             circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
-            obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 0.5, linewidth=1, fill=True)
+            obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
             
-
+            plt.xlabel("x")
+            plt.ylabel("y")
 
 
             plt.xlim( (self.t0, self.T) )
@@ -215,12 +228,13 @@ class PrompDemo2D():
                         circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
                         circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
                         
-                        obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 0.5, linewidth=1, fill=True)
+                        obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
 
 
                         plt.plot(self.t, self.y, color='orange')
                         plt.plot(self.t[:i], self.y[:i], color='blue')
-
+                        plt.xlabel("x")
+                        plt.ylabel("y")
                         plt.grid()
                         plt.draw()
                         ax = plt.gca()
@@ -256,91 +270,28 @@ class PrompDemo2D():
                 continue_prediction = int(input("Do you want to continue predicting and refining new trajectories? 1/0: "))
             except ValueError:
                 continue_prediction = 1
-            # try:
-            #     plot_prediction = int(input("Do you want to plot a prediction? 1/0: "))
-            # except ValueError:
-            #     plot_prediction = 1
 
-            # while plot_prediction == 1:
-
-                
-            #     if plot_prediction == 1:
-            #         context1 = [2.0, random.randrange(self.a_min+1, self.a_max-1, 2)]
-            #         context2 = [3.6, random.randrange(self.a_min+1, self.a_max-1, 2)]
-
-            #         plt.xlim( (self.t0, self.T) )
-            #         plt.ylim( (self.a_min, self.a_max) )
-                
-            #         circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-            #         circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
-            #         obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 0.5, linewidth=1, fill=True)
-
-            #         plt.switch_backend('TkAgg')
-
-            #         context = [context1[1], context2[1]]
-            #         y = self.generalize(context)
-            #         plt.xlim( (self.t0, self.T) )
-            #         plt.ylim( (self.a_min, self.a_max) )
-
-            #         plt.plot(self.t, y)
-            #         ax = plt.gca()
-            #         ax.set_aspect('equal')
-                    
-            #         ax.add_artist(circle1)
-            #         ax.add_artist(circle2)
-            #         if draw_obstacle == 1:
-            #             ax.add_artist(obstacle)
-                        
-            #         plt.grid()
-            #         plt.show()
-            #     try:
-            #         plot_prediction = int(input("Do you want to plot a prediction? 1/0: "))
-            #     except ValueError:
-            #         plot_prediction = 1
-
-        # while True:
-        #     context1 = [2.0, random.randrange(self.a_min, self.a_max, 2)]
-        #     context2 = [3.6, random.randrange(self.a_min, self.a_max, 2)]
-
-        #     plt.xlim( (self.t0, self.T) )
-        #     plt.ylim( (self.a_min, self.a_max) )
-        
-        #     circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-        #     circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
-        #     obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 0.5, linewidth=1, fill=True)
-
-        #     plt.switch_backend('TkAgg')
-
-        #     context = [context1[1], context2[1]]
-        #     y = self.generalize(context)
-        #     plt.xlim( (self.t0, self.T) )
-        #     plt.ylim( (self.a_min, self.a_max) )
-
-        #     plt.plot(self.t, y)
-        #     ax = plt.gca()
-        #     ax.set_aspect('equal')
-            
-        #     ax.add_artist(circle1)
-        #     ax.add_artist(circle2)
-        #     if draw_obstacle == 1:
-        #         ax.add_artist(obstacle)
-                
-        #     plt.grid()
-        #     plt.show()
-        
     def run(self):
-        # animate_thread = threading.Thread(target=self.animate, args = ())
-        # animate_thread.start()
+        try:
+            self.mode = int(input("Teaching or refining?: 1/0"))
+        except:
+            self.mode = 1
+
         self.build_model()
 
-        refine_thread = threading.Thread(target=self.refine, args=())
-        refine_thread.start()
-
+        if self.mode == 0:
+            refine_thread = threading.Thread(target=self.refine, args=())
+            refine_thread.start()
+        elif self.mode == 1:
+            teaching_thread = threading.Thread(target=self.animate, args=())
+            teaching_thread.start()
+        
         with Listener(
             on_press=self.on_press,
             on_release=self.on_release) as listener:
                 listener.join()
 
+        ###### GENERALIZE #######
         # context1 = [2.0, random.randrange(self.a_min, self.a_max, 2)]
         # context2 = [3.6, random.randrange(self.a_min, self.a_max, 2)]
 
