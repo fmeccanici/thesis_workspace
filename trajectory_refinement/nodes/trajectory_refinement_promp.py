@@ -73,8 +73,8 @@ class trajectoryRefinement():
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
-        # self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
-        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
+        self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
+        # self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
 
 
         # services
