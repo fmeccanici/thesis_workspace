@@ -113,6 +113,9 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_4 = QPushButton(self.groupBox_2)
         self.pushButton_4.setGeometry(QRect(0, 50, 161, 27))
         self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_6 = QPushButton(self.groupBox_2)
+        self.pushButton_6.setGeometry(QRect(0, 240, 161, 27))
+        self.pushButton_6.setObjectName("pushButton_6")
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(10, 290, 281, 361))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -178,6 +181,7 @@ class Demo2dGUI(QMainWindow):
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
+
         self.retranslateUi(self)
         QMetaObject.connectSlotsByName(self)
 
@@ -202,6 +206,7 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_3.setText(_translate("MainWindow", "Predict"))
         self.pushButton_5.setText(_translate("MainWindow", "Set context"))
         self.pushButton_4.setText(_translate("MainWindow", "Demonstrate"))
+        self.pushButton_6.setText(_translate("MainWindow", "Enable keyboard"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Refinement"))
         self.pushButton_2.setText(_translate("MainWindow", "Refine"))
         self.radioButton_2.setText(_translate("MainWindow", "Normal"))
@@ -216,6 +221,7 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_2.clicked.connect(lambda: self.use_multithread(self.on_refine_click))
         self.pushButton_4.clicked.connect(self.on_demonstrate_click)
         self.pushButton_5.clicked.connect(lambda: self.use_multithread(self.on_set_context_click))
+        self.pushButton_6.clicked.connect(lambda: self.use_multithread(self.on_enable_keyboard_click))
 
     # multithread for executing trajectories
     # needed since otherwise the GUI will freeze
@@ -230,11 +236,13 @@ class Demo2dGUI(QMainWindow):
         self.context = [y1, y2]
 
     def on_demonstrate_click(self):
-        self.promp_demo_2d.demonstrate(self.context, self.figure)
+        self.promp_demo_2d.demonstrate(self.context, self.figure, self.canvas)
 
     def on_refine_click(self):
-        
         self.promp_demo_2d.refine()
+
+    def on_enable_keyboard_click(self):
+        self.promp_demo_2d.enable_keyboard()
 
     def plot(self):
         ''' plot some random stuff '''

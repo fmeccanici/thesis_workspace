@@ -15,7 +15,7 @@ class PrompDemo2D():
         self.a_min = -2
 
         self.T = 4
-        self.dt = 0.01
+        self.dt = 0.03
         self.t0 = 0
         self.t = np.arange(self.t0, self.T, self.dt)
         
@@ -30,17 +30,20 @@ class PrompDemo2D():
         self.demonstrations = []
 
         self.figure = plt.figure()
+        self.mode = 1
 
     def on_press(self, key):
 
         if key == Key.up:
+            print("Pressed up")
             if self.mode == 1:
-                self.a = 50
+                self.a = 15
             elif self.mode == 0:
                 self.a = 100
         elif key == Key.down:
+            print("Pressed down")
             if self.mode == 1:
-                self.a = -50
+                self.a = -15
             elif self.mode == 0:
                 self.a = -100
 
@@ -83,27 +86,32 @@ class PrompDemo2D():
         os.chmod(path+file_name,stat.S_IRWXO)
         os.chmod(path+file_name,stat.S_IRWXU)
 
+        print("Saved demonstration data: " + str(file_name))
 
-    def demonstrate(self, context, fig, draw_obstacle=False):
+    def ode_update_step(self):
+        
 
+    def demonstrate(self, context, fig, canvas, draw_obstacle=False):
         # context1 = [2.0, random.randint(self.a_min, self.a_max)]
         # context2 = [3.6, random.randint(self.a_min, self.a_max)]
         context1 = [2.0, context[0]]
         context2 = [3.6, context[1]]
-        circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-        circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
-        
+
         t_plot = self.t[50]
         y_plot = -0.5
 
-        obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
-
-        plt.figure(fig.number)
+        
         plt.ion()
+        # plt.figure(fig.number)
         for i in range(len(self.t)):
+            plt.figure(fig.number)
+
             try:
                 self.v[i+1] = float(self.v[i] + self.dt*self.a)
                 self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])
+                circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+                circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
+                obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
 
 
                 plt.xlim( (self.t0, self.T) )
@@ -111,14 +119,18 @@ class PrompDemo2D():
 
                 plt.plot(self.t[:i], self.y[:i])
                 plt.grid()
-                plt.draw()
                 ax = plt.gca()
+                # ax = fig.add_subplot(111)
+                ax.plot(self.t[:i], self.y[:i])
+                
                 ax.set_aspect('equal')
                 
                 ax.add_artist(circle1)
                 ax.add_artist(circle2)
                 if draw_obstacle == 1:
                     ax.add_artist(obstacle)
+                plt.draw()
+        
                 plt.pause(self.dt)
                 plt.clf()
 
@@ -213,7 +225,6 @@ class PrompDemo2D():
                 self.v[:] = np.NaN
                 self.v[0] = 0
             
-
                 # plt.switch_backend('TkAgg')
 
                 for i in range(len(self.t)):
@@ -229,7 +240,6 @@ class PrompDemo2D():
                         circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
                         
                         obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
-
 
                         plt.plot(self.t, self.y, color='orange')
                         plt.plot(self.t[:i], self.y[:i], color='blue')
@@ -270,21 +280,28 @@ class PrompDemo2D():
                 continue_prediction = int(input("Do you want to continue predicting and refining new trajectories? 1/0: "))
             except ValueError:
                 continue_prediction = 1
+    
+    def enable_keyboard(self):
+        print("Enabled keyboard")
+        with Listener(
+            on_press=self.on_press,
+            on_release=self.on_release) as listener:
+                listener.join()
 
     def run(self):
-        try:
-            self.mode = int(input("Teaching or refining?: 1/0"))
-        except:
-            self.mode = 1
+        # try:
+        #     self.mode = int(input("Teaching or refining?: 1/0"))
+        # except:
+        #     self.mode = 1
 
-        self.build_model()
+        # self.build_model()
 
-        if self.mode == 0:
-            refine_thread = threading.Thread(target=self.refine, args=())
-            refine_thread.start()
-        elif self.mode == 1:
-            teaching_thread = threading.Thread(target=self.animate, args=())
-            teaching_thread.start()
+        # if self.mode == 0:
+        #     refine_thread = threading.Thread(target=self.refine, args=())
+        #     refine_thread.start()
+        # elif self.mode == 1:
+        #     teaching_thread = threading.Thread(target=self.demonstrate, args=())
+        #     teaching_thread.start()
         
         with Listener(
             on_press=self.on_press,

@@ -17,9 +17,9 @@
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>620</x>
       <y>10</y>
-      <width>471</width>
+      <width>171</width>
       <height>541</height>
      </rect>
     </property>
@@ -33,7 +33,7 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>221</width>
+      <width>451</width>
       <height>271</height>
      </rect>
     </property>
@@ -157,13 +157,26 @@
       <string>Demonstrate</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_6">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>240</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Enable keyboard</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>290</y>
-      <width>281</width>
+      <width>361</width>
       <height>361</height>
      </rect>
     </property>
@@ -287,6 +300,19 @@
       <string>Welford: no forgetting factor</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_7">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>40</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Load trajectory</string>
+     </property>
+    </widget>
     <zorder>radioButton_2</zorder>
     <zorder>pushButton_2</zorder>
     <zorder>pushButton</zorder>
@@ -314,6 +340,7 @@
     <zorder>radioButton_5</zorder>
     <zorder>lineEdit_5</zorder>
     <zorder>radioButton</zorder>
+    <zorder>pushButton_7</zorder>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
