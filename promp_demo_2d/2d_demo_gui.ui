@@ -184,6 +184,19 @@
       <string>Random context</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_11">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>50</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Initialize model</string>
+     </property>
+    </widget>
     <zorder>lineEdit_3</zorder>
     <zorder>label_3</zorder>
     <zorder>radioButton_6</zorder>
@@ -196,6 +209,7 @@
     <zorder>pushButton_6</zorder>
     <zorder>groupBox_3</zorder>
     <zorder>pushButton_10</zorder>
+    <zorder>pushButton_11</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">

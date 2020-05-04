@@ -60,8 +60,8 @@ class Demo2dGUI(QMainWindow):
         self.max_y = 2
 
         self.figure, self.ax = plt.subplots()
-        self.lines1, = self.ax.plot([],[], 'ro-', zorder=0)
-        self.lines2, = self.ax.plot([],[], 'go-', zorder=10)
+        self.lines1, = self.ax.plot([],[], 'ro-', zorder=0, linewidth=1)
+        self.lines2, = self.ax.plot([],[], 'go-', zorder=10, linewidth=1)
         
         #Autoscale on unknown axis and known lims on the other
         self.ax.set_autoscaley_on(True)
@@ -313,9 +313,11 @@ class Demo2dGUI(QMainWindow):
         y_plot = -1.0
         context1 = [2.0, self.context[0]]
         context2 = [3.6, self.context[1]]
+        
+        diameter = 0.1
 
-        circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-        circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)   
+        circle1 = plt.Circle((context1[0], context1[1]), diameter, color='b', fill=False, linewidth=2)
+        circle2 = plt.Circle((context2[0], context2[1]), diameter, color='b', fill=False, linewidth=2)   
 
         self.geometries.append(circle1)
         self.geometries.append(circle2)
@@ -330,7 +332,10 @@ class Demo2dGUI(QMainWindow):
         for geometry in self.geometries:
             self.ax.add_artist(geometry)
             print("Added " + str(geometry))
-        
+    
+    def clear_plot(self):
+        for geometry in self.geometries:
+            geometry.remove()
 
     def on_running(self, xdata, ydata, geometries, which_line=1):
         if which_line == 1:
@@ -346,9 +351,6 @@ class Demo2dGUI(QMainWindow):
         self.ax.relim()
         self.ax.autoscale_view()
 
-        
-        # for geometry in self.geometries:
-        #     self.ax.add_artist(geometry)
 
         t = time.time()
         #We need to draw *and* flush
@@ -366,27 +368,13 @@ class Demo2dGUI(QMainWindow):
 
             self.refined_prediction = read_demo[0]
             self.context = read_demo[1]
-
+        
+        y1 = self.lineEdit_4.setText(str(int(self.context[0])))
+        y2 = self.lineEdit_3.setText(str(int(self.context[1])))
+        
     def on_demonstrate_click(self):
         self.on_set_context_click()
-
-        context1 = [2.0, self.context[0]]
-        context2 = [3.6, self.context[1]]
-        t_plot = self.promp_demo_2d.t[20]
-        y_plot = -1.0
-
-        circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-        circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)   
-
-        self.geometries = [circle1, circle2]
-
-        if self.radioButton_7.isChecked():
-            obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
-            self.geometries.append(obstacle)
-        
-        elif self.radioButton_6.isChecked():
-            pass
-
+        self.add_geometries()
         for i in range(len(self.promp_demo_2d.t)):
             try:    
                 self.promp_demo_2d.ode_update_step(i)
@@ -401,40 +389,16 @@ class Demo2dGUI(QMainWindow):
         self.promp_demo_2d.demonstrate(self.context, self.figure, self.canvas)
 
     def on_predict_click(self):
-        # self.on_clear_plots_click()
 
         self.on_set_context_click()
-
-        # context1 = [2.0, self.context[0]]
-        # context2 = [3.6, self.context[1]]
-
-        # t_plot = self.promp_demo_2d.t[20]
-        # y_plot = -1.0
-
         self.prediction = np.asarray(self.promp_demo_2d.generalize(self.context))
         
         xdata = self.promp_demo_2d.t
         ydata = self.prediction
 
-        # circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-        # circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)        
-        # self.geometries = [circle1, circle2]
-
-        # if self.radioButton_7.isChecked():
-        #     obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
-        #     self.geometries.append(obstacle)
-        
-        # elif self.radioButton_6.isChecked():
-        #     pass
-
         self.add_geometries()
-
         self.on_running(xdata, ydata, self.geometries, 1)
-        for geometry in self.geometries:
-            print("Cleared " + str(geometry))
-            geometry.remove()
-        
-        self.geometries = []
+
 
 
     def on_clear_plots_click(self):
@@ -442,12 +406,15 @@ class Demo2dGUI(QMainWindow):
         for geometry in self.geometries:
             print("Cleared " + str(geometry))
             geometry.remove()
+        
+        self.geometries = []
         self.lines1.remove()
         self.lines2.remove()
 
         self.lines1, = self.ax.plot([],[], 'ro-', zorder=10)
         self.lines2, = self.ax.plot([],[], 'go', zorder=0)
-
+        self.figure.canvas.draw()
+        self.figure.canvas.flush_events()
 
     def on_refine_click(self):
         # self.on_clear_plots_click()
@@ -457,26 +424,6 @@ class Demo2dGUI(QMainWindow):
 
         self.promp_demo_2d.y = self.prediction
         self.add_geometries()
-        # self.lines2.set_xdata(self.promp_demo_2d.t)
-        # self.lines2.set_ydata(self.prediction)
-
-        # t_plot = self.promp_demo_2d.t[20]
-        # y_plot = -1.0
-
-        # circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-        # circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)        
-        # self.geometries = [circle1, circle2]
-
-        # if self.radioButton_5.isChecked():
-        #     obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
-        #     self.geometries.append(obstacle)
-        
-        # elif self.radioButton_4.isChecked():
-        #     pass
-        
-        print("Plotting " + str(len(self.geometries)) + (" geometries")) 
-        print("Sleeping for " + str(self.promp_demo_2d.dt) + str("s"))
-        print("len(t) = " + str(len(self.promp_demo_2d.t)))
 
         t0 = time.time()
         elapsed = 0
@@ -500,11 +447,7 @@ class Demo2dGUI(QMainWindow):
         elapsed = time.time() - t0
         print("Total elapsed time = " + str(elapsed))
         self.refined_prediction = np.add(np.asarray(self.prediction), alpha * np.subtract(np.asarray(self.prediction), refined_prediction))
-        for geometry in self.geometries:
-            print("Cleared " + str(geometry))
-            geometry.remove()
-        
-        self.geometries = []
+
 
     def on_plot_refinement_click(self):
         # self.on_clear_plots_click()
@@ -519,12 +462,14 @@ class Demo2dGUI(QMainWindow):
 
     def on_add_to_model_click(self):
         demonstration = ( list(self.refined_prediction), self.context )
-
+        alpha = float(self.lineEdit_5.text())
         if self.radioButton.isChecked():
             self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ))
         elif self.radioButton_2.isChecked():
             self.promp_demo_2d.promp.add_demonstration(demonstration)
-    
+        elif self.radioButton_3.isChecked():
+            self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ), alpha=alpha)
+
     def on_enable_keyboard_click(self):
         self.promp_demo_2d.enable_keyboard()
 
