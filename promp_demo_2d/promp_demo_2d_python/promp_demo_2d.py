@@ -28,7 +28,9 @@ class PrompDemo2D():
 
         self.promp = ProMPContext(output_name=['y'], context_names=['y1', 'y2'], num_basis=20, num_samples=len(self.t))
         self.demonstrations = []
-    
+
+        self.figure = plt.figure()
+
     def on_press(self, key):
 
         if key == Key.up:
@@ -80,18 +82,23 @@ class PrompDemo2D():
         
         os.chmod(path+file_name,stat.S_IRWXO)
         os.chmod(path+file_name,stat.S_IRWXU)
-    
-    def animate(self):
-        context1 = [2.0, random.randint(self.a_min, self.a_max)]
-        context2 = [3.6, random.randint(self.a_min, self.a_max)]
 
-        plt.switch_backend('TkAgg')
+
+    def demonstrate(self, context, fig, draw_obstacle=False):
+
+        # context1 = [2.0, random.randint(self.a_min, self.a_max)]
+        # context2 = [3.6, random.randint(self.a_min, self.a_max)]
+        context1 = [2.0, context[0]]
+        context2 = [3.6, context[1]]
+        circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+        circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
+        
         t_plot = self.t[50]
         y_plot = -0.5
-        try:
-            draw_obstacle = int(input("Do you want to draw an obstacle? 1/0: "))
-        except ValueError:
-            draw_obstacle = 1
+
+        obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
+
+        plt.figure(fig.number)
         plt.ion()
         for i in range(len(self.t)):
             try:
@@ -101,13 +108,6 @@ class PrompDemo2D():
 
                 plt.xlim( (self.t0, self.T) )
                 plt.ylim( (self.a_min, self.a_max) )
-            
-                circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-                circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
-                obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
-
-
-                
 
                 plt.plot(self.t[:i], self.y[:i])
                 plt.grid()
@@ -158,7 +158,7 @@ class PrompDemo2D():
             self.promp.add_demonstration( (np.asarray([demo[0]]).T, demo[1] ) )
 
     def generalize(self, context):
-        return self.promp.generate_trajectory(context)
+        return self.promp.generate_trajectory(context) 
 
     def refine(self):
 
