@@ -474,7 +474,7 @@ class Demo2dGUI(QMainWindow):
         if self.radioButton.isChecked():
             self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ))
         elif self.radioButton_2.isChecked():
-            self.promp_demo_2d.promp.add_demonstration(demonstration)
+            self.promp_demo_2d.promp.add_demonstration((np.asarray([demonstration[0]]).T, demonstration[1] ))
         elif self.radioButton_3.isChecked():
             self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ), alpha=alpha)
 
