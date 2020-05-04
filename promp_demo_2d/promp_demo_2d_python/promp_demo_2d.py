@@ -88,8 +88,10 @@ class PrompDemo2D():
 
         print("Saved demonstration data: " + str(file_name))
 
-    def ode_update_step(self):
+    def ode_update_step(self, i):
         
+        self.v[i+1] = float(self.v[i] + self.dt*self.a)
+        self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])
 
     def demonstrate(self, context, fig, canvas, draw_obstacle=False):
         # context1 = [2.0, random.randint(self.a_min, self.a_max)]
@@ -107,12 +109,10 @@ class PrompDemo2D():
             plt.figure(fig.number)
 
             try:
-                self.v[i+1] = float(self.v[i] + self.dt*self.a)
-                self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])
+
                 circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
                 circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
                 obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
-
 
                 plt.xlim( (self.t0, self.T) )
                 plt.ylim( (self.a_min, self.a_max) )

@@ -7,10 +7,10 @@ from PyQt5.QtGui import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
-import sys
+import sys, time
 import matplotlib.pyplot as plt
 import random
-
+import numpy as np
 
 from promp_demo_2d_python.promp_demo_2d import PrompDemo2D 
 # class that enables multithreading with Qt
@@ -52,9 +52,20 @@ class Demo2dGUI(QMainWindow):
         # multithreading
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+        
+        ####### Set up plot #########
+        self.min_x = 0
+        self.max_x = 10
+        self.figure, self.ax = plt.subplots()
+        self.lines, = self.ax.plot([],[], 'o')
+        #Autoscale on unknown axis and known lims on the other
+        self.ax.set_autoscaley_on(True)
+        self.ax.set_xlim(self.min_x, self.max_x)
+        #Other stuff
+        self.ax.grid()
 
         # a figure instance to plot on
-        self.figure = plt.figure()
+        # self.figure = plt.figure()
         
         # this is the Canvas Widget that displays the `figure`
         # it takes the `figure` instance as a parameter to __init__
@@ -63,6 +74,8 @@ class Demo2dGUI(QMainWindow):
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
         self.toolbar = NavigationToolbar(self.canvas, self)
+
+
 
         self.promp_demo_2d = PrompDemo2D()
         self.promp_demo_2d.build_model()
@@ -234,6 +247,17 @@ class Demo2dGUI(QMainWindow):
         y2 = float(self.lineEdit_3.text())
 
         self.context = [y1, y2]
+    
+    def on_running(self, xdata, ydata):
+        #Update data (with the new _and_ the old points)
+        self.lines.set_xdata(xdata)
+        self.lines.set_ydata(ydata)
+        #Need both of these in order to rescale
+        self.ax.relim()
+        self.ax.autoscale_view()
+        #We need to draw *and* flush
+        self.figure.canvas.draw()
+        self.figure.canvas.flush_events()
 
     def on_demonstrate_click(self):
         self.promp_demo_2d.demonstrate(self.context, self.figure, self.canvas)
@@ -246,23 +270,33 @@ class Demo2dGUI(QMainWindow):
 
     def plot(self):
         ''' plot some random stuff '''
+        plt.ion()
+
         # random data
         data = [random.random() for i in range(10)]
+        xdata = []
+        ydata = []
 
-        # instead of ax.hold(False)
-        self.figure.clear()
+        for x in np.arange(0,10,0.5):
+            # data[j] += j
+            # instead of ax.hold(False)
+            # self.figure.clear()
 
-        # create an axis
-        ax = self.figure.add_subplot(111)
+            # create an axis
+            # ax = self.figure.add_subplot(111)
 
-        # discards the old graph
-        # ax.hold(False) # deprecated, see above
+            # discards the old graph
+            # ax.hold(False) # deprecated, see above
 
-        # plot data
-        ax.plot(data, '*-')
+            # plot data
+            # ax.plot(data, '*-')
 
-        # refresh canvas
-        self.canvas.draw()
+            # refresh canvas
+            # self.canvas.draw()
+            xdata.append(x)
+            ydata.append(np.exp(-x**2)+10*np.exp(-(x-7)**2))
+            self.on_running(xdata, ydata)
+            time.sleep(1)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
