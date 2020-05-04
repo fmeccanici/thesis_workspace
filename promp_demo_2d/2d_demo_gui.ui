@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1198</width>
+    <height>933</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,15 +17,16 @@
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>620</x>
+      <x>370</x>
       <y>10</y>
-      <width>171</width>
-      <height>541</height>
+      <width>791</width>
+      <height>781</height>
      </rect>
     </property>
     <property name="title">
      <string>Plot</string>
     </property>
+    <zorder>groupBox_3</zorder>
     <zorder>groupBox_3</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
@@ -170,6 +171,31 @@
       <string>Enable keyboard</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_10">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>20</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Random context</string>
+     </property>
+    </widget>
+    <zorder>lineEdit_3</zorder>
+    <zorder>label_3</zorder>
+    <zorder>radioButton_6</zorder>
+    <zorder>label_4</zorder>
+    <zorder>lineEdit_4</zorder>
+    <zorder>radioButton_7</zorder>
+    <zorder>pushButton_3</zorder>
+    <zorder>pushButton_5</zorder>
+    <zorder>pushButton_4</zorder>
+    <zorder>pushButton_6</zorder>
+    <zorder>groupBox_3</zorder>
+    <zorder>pushButton_10</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
@@ -196,19 +222,6 @@
       <string>Refine</string>
      </property>
     </widget>
-    <widget class="QRadioButton" name="radioButton_2">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>230</y>
-       <width>117</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Normal</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
@@ -220,19 +233,6 @@
      </property>
      <property name="text">
       <string>Add to model</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButton_3">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>180</y>
-       <width>231</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Welford: forgetting factor</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="radioButton_4">
@@ -248,19 +248,6 @@
       <string>No obstacle</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_5">
-     <property name="geometry">
-      <rect>
-       <x>25</x>
-       <y>200</y>
-       <width>41</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>alpha</string>
-     </property>
-    </widget>
     <widget class="QRadioButton" name="radioButton_5">
      <property name="geometry">
       <rect>
@@ -272,32 +259,6 @@
      </property>
      <property name="text">
       <string>Obstacle</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEdit_5">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>200</y>
-       <width>113</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButton">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>150</y>
-       <width>231</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Welford: no forgetting factor</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_7">
@@ -313,34 +274,138 @@
       <string>Load trajectory</string>
      </property>
     </widget>
-    <zorder>radioButton_2</zorder>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>70</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>demonstration_1</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_8">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>120</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Plot refinement</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>150</y>
+       <width>231</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Model adding method</string>
+     </property>
+     <widget class="QRadioButton" name="radioButton_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>100</y>
+        <width>117</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Normal</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>231</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Welford: forgetting factor</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>70</y>
+        <width>41</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>alpha</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_5">
+      <property name="geometry">
+       <rect>
+        <x>45</x>
+        <y>70</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>20</y>
+        <width>231</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Welford: no forgetting factor</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QPushButton" name="pushButton_9">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>10</y>
+       <width>161</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Clear plots</string>
+     </property>
+    </widget>
     <zorder>pushButton_2</zorder>
     <zorder>pushButton</zorder>
-    <zorder>radioButton_3</zorder>
     <zorder>radioButton_4</zorder>
     <zorder>radioButton_5</zorder>
-    <zorder>label_5</zorder>
-    <zorder>lineEdit_5</zorder>
-    <zorder>radioButton</zorder>
     <zorder>pushButton_2</zorder>
-    <zorder>radioButton_2</zorder>
-    <zorder>pushButton</zorder>
-    <zorder>radioButton_3</zorder>
     <zorder>radioButton_4</zorder>
     <zorder>radioButton_5</zorder>
-    <zorder>label_5</zorder>
-    <zorder>lineEdit_5</zorder>
-    <zorder>radioButton</zorder>
     <zorder>pushButton_2</zorder>
-    <zorder>radioButton_2</zorder>
-    <zorder>pushButton</zorder>
-    <zorder>radioButton_3</zorder>
     <zorder>radioButton_4</zorder>
-    <zorder>label_5</zorder>
     <zorder>radioButton_5</zorder>
-    <zorder>lineEdit_5</zorder>
-    <zorder>radioButton</zorder>
     <zorder>pushButton_7</zorder>
+    <zorder>lineEdit</zorder>
+    <zorder>pushButton_8</zorder>
+    <zorder>groupBox_4</zorder>
+    <zorder>pushButton_9</zorder>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -348,7 +413,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1198</width>
      <height>25</height>
     </rect>
    </property>

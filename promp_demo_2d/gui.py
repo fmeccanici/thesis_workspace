@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
-import sys, time
+import sys, time, ast
 import matplotlib.pyplot as plt
 import random
 import numpy as np
@@ -55,12 +55,21 @@ class Demo2dGUI(QMainWindow):
         
         ####### Set up plot #########
         self.min_x = 0
-        self.max_x = 10
+        self.max_x = 4
+        self.min_y = -2
+        self.max_y = 2
+
         self.figure, self.ax = plt.subplots()
-        self.lines, = self.ax.plot([],[], 'o')
+        self.lines1, = self.ax.plot([],[], 'ro-', zorder=0)
+        self.lines2, = self.ax.plot([],[], 'go-', zorder=10)
+        
         #Autoscale on unknown axis and known lims on the other
         self.ax.set_autoscaley_on(True)
         self.ax.set_xlim(self.min_x, self.max_x)
+        self.ax.set_ylim(self.min_y, self.max_y)
+        self.ax.set_ylabel("y")
+        self.ax.set_xlabel("x")
+
         #Other stuff
         self.ax.grid()
 
@@ -83,6 +92,10 @@ class Demo2dGUI(QMainWindow):
         # Just some button connected to `plot` method
         self.button = QPushButton('Plot')
         self.button.clicked.connect(self.plot)
+        
+        self.use_multithread(self.on_enable_keyboard_click)
+
+        self.geometries = []
 
         # initialize Qt GUI
         self.initGUI()
@@ -90,14 +103,14 @@ class Demo2dGUI(QMainWindow):
 
     def initGUI(self):
         self.setObjectName("MainWindow")
-        self.resize(800, 600)
+        self.resize(1166, 933)
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(320, 10, 471, 541))
+        self.groupBox.setGeometry(QRect(370, 10, 791, 781))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(0, 10, 221, 271))
+        self.groupBox_2.setGeometry(QRect(0, 10, 451, 271))
         self.groupBox_2.setObjectName("groupBox_2")
         self.lineEdit_3 = QLineEdit(self.groupBox_2)
         self.lineEdit_3.setGeometry(QRect(30, 120, 113, 27))
@@ -129,71 +142,89 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_6 = QPushButton(self.groupBox_2)
         self.pushButton_6.setGeometry(QRect(0, 240, 161, 27))
         self.pushButton_6.setObjectName("pushButton_6")
+        self.pushButton_10 = QPushButton(self.groupBox_2)
+        self.pushButton_10.setGeometry(QRect(170, 20, 161, 27))
+        self.pushButton_10.setObjectName("pushButton_10")
+        self.lineEdit_3.raise_()
+        self.label_3.raise_()
+        self.radioButton_6.raise_()
+        self.label_4.raise_()
+        self.lineEdit_4.raise_()
+        self.radioButton_7.raise_()
+        self.pushButton_3.raise_()
+        self.pushButton_5.raise_()
+        self.pushButton_4.raise_()
+        self.pushButton_6.raise_()
+        self.pushButton_10.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(10, 290, 281, 361))
+        self.groupBox_3.setGeometry(QRect(10, 290, 361, 361))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton_2 = QPushButton(self.groupBox_3)
         self.pushButton_2.setGeometry(QRect(20, 40, 161, 27))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.radioButton_2 = QRadioButton(self.groupBox_3)
-        self.radioButton_2.setGeometry(QRect(40, 230, 117, 22))
-        self.radioButton_2.setObjectName("radioButton_2")
         self.pushButton = QPushButton(self.groupBox_3)
         self.pushButton.setGeometry(QRect(20, 120, 161, 27))
         self.pushButton.setObjectName("pushButton")
-        self.radioButton_3 = QRadioButton(self.groupBox_3)
-        self.radioButton_3.setGeometry(QRect(40, 180, 231, 22))
-        self.radioButton_3.setObjectName("radioButton_3")
         self.radioButton_4 = QRadioButton(self.groupBox_3)
         self.radioButton_4.setGeometry(QRect(40, 70, 117, 22))
         self.radioButton_4.setObjectName("radioButton_4")
-        self.label_5 = QLabel(self.groupBox_3)
-        self.label_5.setGeometry(QRect(25, 200, 41, 20))
-        self.label_5.setObjectName("label_5")
         self.radioButton_5 = QRadioButton(self.groupBox_3)
         self.radioButton_5.setGeometry(QRect(40, 90, 117, 22))
         self.radioButton_5.setObjectName("radioButton_5")
-        self.lineEdit_5 = QLineEdit(self.groupBox_3)
-        self.lineEdit_5.setGeometry(QRect(70, 200, 113, 27))
+        self.pushButton_7 = QPushButton(self.groupBox_3)
+        self.pushButton_7.setGeometry(QRect(190, 40, 161, 27))
+        self.pushButton_7.setObjectName("pushButton_7")
+        self.lineEdit = QLineEdit(self.groupBox_3)
+        self.lineEdit.setGeometry(QRect(190, 70, 161, 27))
+        self.lineEdit.setObjectName("lineEdit")
+        self.pushButton_8 = QPushButton(self.groupBox_3)
+        self.pushButton_8.setGeometry(QRect(190, 120, 161, 27))
+        self.pushButton_8.setObjectName("pushButton_8")
+        self.groupBox_4 = QGroupBox(self.groupBox_3)
+        self.groupBox_4.setGeometry(QRect(30, 150, 231, 121))
+        self.groupBox_4.setObjectName("groupBox_4")
+        self.radioButton_2 = QRadioButton(self.groupBox_4)
+        self.radioButton_2.setGeometry(QRect(0, 100, 117, 22))
+        self.radioButton_2.setObjectName("radioButton_2")
+        self.radioButton_3 = QRadioButton(self.groupBox_4)
+        self.radioButton_3.setGeometry(QRect(0, 50, 231, 22))
+        self.radioButton_3.setObjectName("radioButton_3")
+        self.label_5 = QLabel(self.groupBox_4)
+        self.label_5.setGeometry(QRect(0, 70, 41, 20))
+        self.label_5.setObjectName("label_5")
+        self.lineEdit_5 = QLineEdit(self.groupBox_4)
+        self.lineEdit_5.setGeometry(QRect(45, 70, 113, 27))
         self.lineEdit_5.setObjectName("lineEdit_5")
-        self.radioButton = QRadioButton(self.groupBox_3)
-        self.radioButton.setGeometry(QRect(40, 150, 231, 22))
+        self.radioButton = QRadioButton(self.groupBox_4)
+        self.radioButton.setGeometry(QRect(0, 20, 231, 22))
         self.radioButton.setObjectName("radioButton")
-        self.radioButton_2.raise_()
+        self.pushButton_9 = QPushButton(self.groupBox_3)
+        self.pushButton_9.setGeometry(QRect(190, 10, 161, 27))
+        self.pushButton_9.setObjectName("pushButton_9")
         self.pushButton_2.raise_()
         self.pushButton.raise_()
-        self.radioButton_3.raise_()
         self.radioButton_4.raise_()
         self.radioButton_5.raise_()
-        self.label_5.raise_()
-        self.lineEdit_5.raise_()
-        self.radioButton.raise_()
         self.pushButton_2.raise_()
-        self.radioButton_2.raise_()
-        self.pushButton.raise_()
-        self.radioButton_3.raise_()
         self.radioButton_4.raise_()
         self.radioButton_5.raise_()
-        self.label_5.raise_()
-        self.lineEdit_5.raise_()
-        self.radioButton.raise_()
         self.pushButton_2.raise_()
-        self.radioButton_2.raise_()
-        self.pushButton.raise_()
-        self.radioButton_3.raise_()
         self.radioButton_4.raise_()
-        self.label_5.raise_()
         self.radioButton_5.raise_()
-        self.lineEdit_5.raise_()
-        self.radioButton.raise_()
+        self.pushButton_7.raise_()
+        self.lineEdit.raise_()
+        self.pushButton_8.raise_()
+        self.groupBox_4.raise_()
+        self.pushButton_9.raise_()
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 800, 25))
+        self.menubar.setGeometry(QRect(0, 0, 1198, 25))
         self.menubar.setObjectName("menubar")
         self.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
+
 
         self.retranslateUi(self)
         QMetaObject.connectSlotsByName(self)
@@ -220,21 +251,37 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_5.setText(_translate("MainWindow", "Set context"))
         self.pushButton_4.setText(_translate("MainWindow", "Demonstrate"))
         self.pushButton_6.setText(_translate("MainWindow", "Enable keyboard"))
+        self.pushButton_10.setText(_translate("MainWindow", "Random context"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Refinement"))
         self.pushButton_2.setText(_translate("MainWindow", "Refine"))
-        self.radioButton_2.setText(_translate("MainWindow", "Normal"))
         self.pushButton.setText(_translate("MainWindow", "Add to model"))
-        self.radioButton_3.setText(_translate("MainWindow", "Welford: forgetting factor"))
         self.radioButton_4.setText(_translate("MainWindow", "No obstacle"))
-        self.label_5.setText(_translate("MainWindow", "alpha"))
         self.radioButton_5.setText(_translate("MainWindow", "Obstacle"))
+        self.pushButton_7.setText(_translate("MainWindow", "Load trajectory"))
+        self.pushButton_8.setText(_translate("MainWindow", "Plot refinement"))
+        self.groupBox_4.setTitle(_translate("MainWindow", "Model adding method"))
+        self.radioButton_2.setText(_translate("MainWindow", "Normal"))
+        self.radioButton_3.setText(_translate("MainWindow", "Welford: forgetting factor"))
+        self.label_5.setText(_translate("MainWindow", "alpha"))
         self.lineEdit_5.setText(_translate("MainWindow", "1"))
         self.radioButton.setText(_translate("MainWindow", "Welford: no forgetting factor"))
+        self.pushButton_9.setText(_translate("MainWindow", "Clear plots"))
 
         self.pushButton_2.clicked.connect(lambda: self.use_multithread(self.on_refine_click))
         self.pushButton_4.clicked.connect(self.on_demonstrate_click)
         self.pushButton_5.clicked.connect(lambda: self.use_multithread(self.on_set_context_click))
         self.pushButton_6.clicked.connect(lambda: self.use_multithread(self.on_enable_keyboard_click))
+        self.pushButton_3.clicked.connect(self.on_predict_click)
+        self.pushButton.clicked.connect(self.on_add_to_model_click)
+        self.pushButton_8.clicked.connect(self.on_plot_refinement_click)
+        self.pushButton_9.clicked.connect(self.on_clear_plots_click)
+        self.pushButton_7.clicked.connect(self.on_load_trajectory_click)
+        self.pushButton_10.clicked.connect(self.on_set_random_context_click)
+        self.lineEdit.setText(_translate("MainWindow", "obstacle_demonstration_3"))
+
+        self.radioButton_6.setChecked(1)
+        self.radioButton_4.setChecked(1)
+        self.radioButton.setChecked(1)
 
     # multithread for executing trajectories
     # needed since otherwise the GUI will freeze
@@ -247,24 +294,237 @@ class Demo2dGUI(QMainWindow):
         y2 = float(self.lineEdit_3.text())
 
         self.context = [y1, y2]
-    
-    def on_running(self, xdata, ydata):
-        #Update data (with the new _and_ the old points)
-        self.lines.set_xdata(xdata)
-        self.lines.set_ydata(ydata)
+    def on_set_random_context_click(self):
+        y1 = random.randrange(self.min_y+1, self.max_y-1, 1)
+        y2 = random.randrange(self.min_y+1, self.max_y-1, 1)
+
+
+        self.context = [y1, y2]
+
+        self.lineEdit_4.setText(str(y1))
+        self.lineEdit_3.setText(str(y2))
+
+    def add_geometries(self):
+        for geometry in self.geometries:
+            geometry.remove()
+        self.geometries = []
+        
+        t_plot = self.promp_demo_2d.t[20]
+        y_plot = -1.0
+        context1 = [2.0, self.context[0]]
+        context2 = [3.6, self.context[1]]
+
+        circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+        circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)   
+
+        self.geometries.append(circle1)
+        self.geometries.append(circle2)
+
+        if self.radioButton_7.isChecked():
+            obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
+            self.geometries.append(obstacle)
+        
+        elif self.radioButton_6.isChecked():
+            pass
+        
+        for geometry in self.geometries:
+            self.ax.add_artist(geometry)
+            print("Added " + str(geometry))
+        
+
+    def on_running(self, xdata, ydata, geometries, which_line=1):
+        if which_line == 1:
+
+            #Update data (with the new _and_ the old points)
+            self.lines1.set_xdata(xdata)
+            self.lines1.set_ydata(ydata)
+        elif which_line == 2:
+            self.lines2.set_xdata(xdata)
+            self.lines2.set_ydata(ydata)
+
         #Need both of these in order to rescale
         self.ax.relim()
         self.ax.autoscale_view()
+
+        
+        # for geometry in self.geometries:
+        #     self.ax.add_artist(geometry)
+
+        t = time.time()
         #We need to draw *and* flush
         self.figure.canvas.draw()
         self.figure.canvas.flush_events()
+        elapsed = time.time() - t
+
+        return elapsed
+
+    def on_load_trajectory_click(self):
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/obstacle/'
+        file_name = str(self.lineEdit.text()) + '.txt'
+        with open(path+file_name, "r") as demo:
+            read_demo = ast.literal_eval(demo.read())
+
+            self.refined_prediction = read_demo[0]
+            self.context = read_demo[1]
 
     def on_demonstrate_click(self):
+        self.on_set_context_click()
+
+        context1 = [2.0, self.context[0]]
+        context2 = [3.6, self.context[1]]
+        t_plot = self.promp_demo_2d.t[20]
+        y_plot = -1.0
+
+        circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+        circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)   
+
+        self.geometries = [circle1, circle2]
+
+        if self.radioButton_7.isChecked():
+            obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
+            self.geometries.append(obstacle)
+        
+        elif self.radioButton_6.isChecked():
+            pass
+
+        for i in range(len(self.promp_demo_2d.t)):
+            try:    
+                self.promp_demo_2d.ode_update_step(i)
+                xdata = self.promp_demo_2d.t[:i]
+                ydata = self.promp_demo_2d.y[:i]
+                
+                self.on_running(xdata, ydata, self.geometries, 1)
+                time.sleep(self.promp_demo_2d.dt)
+            except IndexError:
+                plt.close()
+
         self.promp_demo_2d.demonstrate(self.context, self.figure, self.canvas)
 
-    def on_refine_click(self):
-        self.promp_demo_2d.refine()
+    def on_predict_click(self):
+        # self.on_clear_plots_click()
 
+        self.on_set_context_click()
+
+        # context1 = [2.0, self.context[0]]
+        # context2 = [3.6, self.context[1]]
+
+        # t_plot = self.promp_demo_2d.t[20]
+        # y_plot = -1.0
+
+        self.prediction = np.asarray(self.promp_demo_2d.generalize(self.context))
+        
+        xdata = self.promp_demo_2d.t
+        ydata = self.prediction
+
+        # circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+        # circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)        
+        # self.geometries = [circle1, circle2]
+
+        # if self.radioButton_7.isChecked():
+        #     obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
+        #     self.geometries.append(obstacle)
+        
+        # elif self.radioButton_6.isChecked():
+        #     pass
+
+        self.add_geometries()
+
+        self.on_running(xdata, ydata, self.geometries, 1)
+        for geometry in self.geometries:
+            print("Cleared " + str(geometry))
+            geometry.remove()
+        
+        self.geometries = []
+
+
+    def on_clear_plots_click(self):
+
+        for geometry in self.geometries:
+            print("Cleared " + str(geometry))
+            geometry.remove()
+        self.lines1.remove()
+        self.lines2.remove()
+
+        self.lines1, = self.ax.plot([],[], 'ro-', zorder=10)
+        self.lines2, = self.ax.plot([],[], 'go', zorder=0)
+
+
+    def on_refine_click(self):
+        # self.on_clear_plots_click()
+
+        context1 = [2.0, self.context[0]]
+        context2 = [3.6, self.context[1]]
+
+        self.promp_demo_2d.y = self.prediction
+        self.add_geometries()
+        # self.lines2.set_xdata(self.promp_demo_2d.t)
+        # self.lines2.set_ydata(self.prediction)
+
+        # t_plot = self.promp_demo_2d.t[20]
+        # y_plot = -1.0
+
+        # circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+        # circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)        
+        # self.geometries = [circle1, circle2]
+
+        # if self.radioButton_5.isChecked():
+        #     obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
+        #     self.geometries.append(obstacle)
+        
+        # elif self.radioButton_4.isChecked():
+        #     pass
+        
+        print("Plotting " + str(len(self.geometries)) + (" geometries")) 
+        print("Sleeping for " + str(self.promp_demo_2d.dt) + str("s"))
+        print("len(t) = " + str(len(self.promp_demo_2d.t)))
+
+        t0 = time.time()
+        elapsed = 0
+        for i in range(len(self.promp_demo_2d.t)):
+            try:    
+
+                self.promp_demo_2d.refine_update_step(i)
+
+                xdata = self.promp_demo_2d.t[:i]
+                ydata = self.promp_demo_2d.y[:i]
+
+                elapsed += self.on_running(xdata, ydata, self.geometries, 2)
+
+                time.sleep(self.promp_demo_2d.dt)
+            except IndexError:
+                pass
+        
+        print("Elapsed time = " + str(elapsed))
+        refined_prediction = self.promp_demo_2d.y
+        alpha = 1
+        elapsed = time.time() - t0
+        print("Total elapsed time = " + str(elapsed))
+        self.refined_prediction = np.add(np.asarray(self.prediction), alpha * np.subtract(np.asarray(self.prediction), refined_prediction))
+        for geometry in self.geometries:
+            print("Cleared " + str(geometry))
+            geometry.remove()
+        
+        self.geometries = []
+
+    def on_plot_refinement_click(self):
+        # self.on_clear_plots_click()
+
+        self.lines2.set_xdata(self.promp_demo_2d.t)
+        self.lines2.set_ydata(self.refined_prediction)
+
+        # self.ax.plot(self.promp_demo_2d.t, self.refined_prediction, 'go')
+        self.figure.canvas.draw()
+
+        print("Refinement plotted")
+
+    def on_add_to_model_click(self):
+        demonstration = ( list(self.refined_prediction), self.context )
+
+        if self.radioButton.isChecked():
+            self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ))
+        elif self.radioButton_2.isChecked():
+            self.promp_demo_2d.promp.add_demonstration(demonstration)
+    
     def on_enable_keyboard_click(self):
         self.promp_demo_2d.enable_keyboard()
 

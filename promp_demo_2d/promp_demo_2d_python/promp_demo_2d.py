@@ -8,6 +8,8 @@ from promp_context.promp_context import ProMPContext
 from os import listdir
 from os.path import isfile, join
 
+import time
+
 class PrompDemo2D():
     def __init__(self):
         self.a = 0
@@ -29,8 +31,18 @@ class PrompDemo2D():
         self.promp = ProMPContext(output_name=['y'], context_names=['y1', 'y2'], num_basis=20, num_samples=len(self.t))
         self.demonstrations = []
 
-        self.figure = plt.figure()
         self.mode = 1
+
+        ####### Set up plot #########
+        self.min_x = self.t0
+        self.max_x = self.T
+        self.figure, self.ax = plt.subplots()
+        self.lines, = self.ax.plot([],[], 'o')
+        #Autoscale on unknown axis and known lims on the other
+        self.ax.set_autoscaley_on(True)
+        self.ax.set_xlim(self.min_x, self.max_x)
+        #Other stuff
+        self.ax.grid()
 
     def on_press(self, key):
 
@@ -91,7 +103,23 @@ class PrompDemo2D():
     def ode_update_step(self, i):
         
         self.v[i+1] = float(self.v[i] + self.dt*self.a)
-        self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])
+        self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])        
+    
+    def refine_update_step(self, i):
+        
+        self.v[i+1] = float(self.v[i] + self.dt*self.a)
+        self.y[i] = float(self.y[i] + self.dt*self.v[i+1])        
+
+    def on_running(self, xdata, ydata):
+        #Update data (with the new _and_ the old points)
+        self.lines.set_xdata(xdata)
+        self.lines.set_ydata(ydata)
+        #Need both of these in order to rescale
+        self.ax.relim()
+        self.ax.autoscale_view()
+        #We need to draw *and* flush
+        self.figure.canvas.draw()
+        self.figure.canvas.flush_events()
 
     def demonstrate(self, context, fig, canvas, draw_obstacle=False):
         # context1 = [2.0, random.randint(self.a_min, self.a_max)]
@@ -103,39 +131,46 @@ class PrompDemo2D():
         y_plot = -0.5
 
         
-        plt.ion()
+        # plt.ion()
         # plt.figure(fig.number)
-        for i in range(len(self.t)):
-            plt.figure(fig.number)
+        # for i in range(len(self.t)):
+        #     # plt.figure(fig.number)
 
-            try:
+        #     try:
+        #         self.v[i+1] = float(self.v[i] + self.dt*self.a)
+        #         self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])
+        #         xdata = self.t[:i]
+        #         ydata = self.y[:i]
+        #         self.on_running(xdata, ydata)
 
-                circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
-                circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
-                obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
+        #         # circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+        #         # circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
+        #         # obstacle = plt.Rectangle((t_plot, y_plot), 1, 1, linewidth=1, fill=True)
 
-                plt.xlim( (self.t0, self.T) )
-                plt.ylim( (self.a_min, self.a_max) )
+        #         # # plt.xlim( (self.t0, self.T) )
+        #         # plt.ylim( (self.a_min, self.a_max) )
 
-                plt.plot(self.t[:i], self.y[:i])
-                plt.grid()
-                ax = plt.gca()
-                # ax = fig.add_subplot(111)
-                ax.plot(self.t[:i], self.y[:i])
-                
-                ax.set_aspect('equal')
-                
-                ax.add_artist(circle1)
-                ax.add_artist(circle2)
-                if draw_obstacle == 1:
-                    ax.add_artist(obstacle)
-                plt.draw()
+        #         # plt.plot(self.t[:i], self.y[:i])
         
-                plt.pause(self.dt)
-                plt.clf()
+        #         # plt.grid()
+        #         # ax = plt.gca()
+        #         # # ax = fig.add_subplot(111)
+        #         # ax.plot(self.t[:i], self.y[:i])
+                
+        #         # ax.set_aspect('equal')
+                
+        #         # ax.add_artist(circle1)
+        #         # ax.add_artist(circle2)
 
-            except IndexError:
-                plt.close()
+        #         # if draw_obstacle == 1:
+        #         #     ax.add_artist(obstacle)
+        #         # plt.draw()
+        
+        #         # plt.pause(self.dt)
+        #         # plt.clf()
+        #         time.sleep(self.dt)
+        #     except IndexError:
+        #         plt.close()
         
         demonstration = ( list(self.y), [context1[1], context2[1]] )
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
