@@ -145,6 +145,9 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_10 = QPushButton(self.groupBox_2)
         self.pushButton_10.setGeometry(QRect(170, 20, 161, 27))
         self.pushButton_10.setObjectName("pushButton_10")
+        self.pushButton_11 = QPushButton(self.groupBox_2)
+        self.pushButton_11.setGeometry(QRect(170, 50, 161, 27))
+        self.pushButton_11.setObjectName("pushButton_11")
         self.lineEdit_3.raise_()
         self.label_3.raise_()
         self.radioButton_6.raise_()
@@ -156,6 +159,7 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_4.raise_()
         self.pushButton_6.raise_()
         self.pushButton_10.raise_()
+        self.pushButton_11.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(10, 290, 361, 361))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -225,7 +229,6 @@ class Demo2dGUI(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
-
         self.retranslateUi(self)
         QMetaObject.connectSlotsByName(self)
 
@@ -252,12 +255,14 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_4.setText(_translate("MainWindow", "Demonstrate"))
         self.pushButton_6.setText(_translate("MainWindow", "Enable keyboard"))
         self.pushButton_10.setText(_translate("MainWindow", "Random context"))
+        self.pushButton_11.setText(_translate("MainWindow", "Initialize model"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Refinement"))
         self.pushButton_2.setText(_translate("MainWindow", "Refine"))
         self.pushButton.setText(_translate("MainWindow", "Add to model"))
         self.radioButton_4.setText(_translate("MainWindow", "No obstacle"))
         self.radioButton_5.setText(_translate("MainWindow", "Obstacle"))
         self.pushButton_7.setText(_translate("MainWindow", "Load trajectory"))
+        self.lineEdit.setText(_translate("MainWindow", "demonstration_1"))
         self.pushButton_8.setText(_translate("MainWindow", "Plot refinement"))
         self.groupBox_4.setTitle(_translate("MainWindow", "Model adding method"))
         self.radioButton_2.setText(_translate("MainWindow", "Normal"))
@@ -278,6 +283,7 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_7.clicked.connect(self.on_load_trajectory_click)
         self.pushButton_10.clicked.connect(self.on_set_random_context_click)
         self.lineEdit.setText(_translate("MainWindow", "obstacle_demonstration_3"))
+        self.pushButton_11.clicked.connect(self.on_initialize_model_click)
 
         self.radioButton_6.setChecked(1)
         self.radioButton_4.setChecked(1)
@@ -359,7 +365,9 @@ class Demo2dGUI(QMainWindow):
         elapsed = time.time() - t
 
         return elapsed
-
+    def on_initialize_model_click(self):
+        self.promp_demo_2d.build_model()
+        
     def on_load_trajectory_click(self):
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/obstacle/'
         file_name = str(self.lineEdit.text()) + '.txt'
