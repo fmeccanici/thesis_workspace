@@ -96,6 +96,7 @@ class Demo2dGUI(QMainWindow):
         self.use_multithread(self.on_enable_keyboard_click)
 
         self.geometries = []
+        self.refined_prediction = []
 
         # initialize Qt GUI
         self.initGUI()
@@ -205,6 +206,9 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_9 = QPushButton(self.groupBox_3)
         self.pushButton_9.setGeometry(QRect(190, 10, 161, 27))
         self.pushButton_9.setObjectName("pushButton_9")
+        self.pushButton_12 = QPushButton(self.groupBox_3)
+        self.pushButton_12.setGeometry(QRect(20, 280, 161, 27))
+        self.pushButton_12.setObjectName("pushButton_12")
         self.pushButton_2.raise_()
         self.pushButton.raise_()
         self.radioButton_4.raise_()
@@ -220,6 +224,8 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_8.raise_()
         self.groupBox_4.raise_()
         self.pushButton_9.raise_()
+        self.pushButton_12.raise_()
+
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1198, 25))
@@ -271,6 +277,7 @@ class Demo2dGUI(QMainWindow):
         self.lineEdit_5.setText(_translate("MainWindow", "1"))
         self.radioButton.setText(_translate("MainWindow", "Welford: no forgetting factor"))
         self.pushButton_9.setText(_translate("MainWindow", "Clear plots"))
+        self.pushButton_12.setText(_translate("MainWindow", "Done refining"))
 
         self.pushButton_2.clicked.connect(lambda: self.use_multithread(self.on_refine_click))
         self.pushButton_4.clicked.connect(self.on_demonstrate_click)
@@ -284,6 +291,7 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_10.clicked.connect(self.on_set_random_context_click)
         self.lineEdit.setText(_translate("MainWindow", "obstacle_demonstration_3"))
         self.pushButton_11.clicked.connect(self.on_initialize_model_click)
+        self.pushButton_12.clicked.connect(self.on_done_refining_click)
 
         self.radioButton_6.setChecked(1)
         self.radioButton_4.setChecked(1)
@@ -295,12 +303,17 @@ class Demo2dGUI(QMainWindow):
         worker = Worker(function)
         self.threadpool.start(worker)
     
+    def on_done_refining_click(self):
+        # set refined prediction to empty --> needed to reset the refinement plotting
+        self.refined_prediction = []
+    
     def on_set_context_click(self):
         y1 = float(self.lineEdit_4.text())
         y2 = float(self.lineEdit_3.text())
 
         self.context = [y1, y2]
     def on_set_random_context_click(self):
+
         y1 = random.randrange(self.min_y+1, self.max_y-1, 1)
         y2 = random.randrange(self.min_y+1, self.max_y-1, 1)
 
@@ -398,6 +411,7 @@ class Demo2dGUI(QMainWindow):
 
     def on_predict_click(self):
 
+
         self.on_set_context_click()
         self.prediction = np.asarray(self.promp_demo_2d.generalize(self.context))
         
@@ -419,28 +433,37 @@ class Demo2dGUI(QMainWindow):
         self.lines1.remove()
         self.lines2.remove()
 
-        self.lines1, = self.ax.plot([],[], 'ro-', zorder=10)
-        self.lines2, = self.ax.plot([],[], 'go', zorder=0)
+        self.lines1, = self.ax.plot([],[], 'ro-', zorder=0)
+        self.lines2, = self.ax.plot([],[], 'go', zorder=10)
         self.figure.canvas.draw()
         self.figure.canvas.flush_events()
 
     def on_refine_click(self):
-        self.promp_demo_2d.y = self.prediction
-        self.add_geometries()
+        if self.refined_prediction == []:
+            print("No refinement done yet")
+            self.promp_demo_2d.y = self.prediction   
+        else: 
+            print("Refine refinement")
+            self.promp_demo_2d.y = self.refined_prediction   
+        
+        self.on_clear_plots_click()
+
         xdata = self.promp_demo_2d.t
-        ydata = self.prediction
+        ydata = self.promp_demo_2d.y
+
+        self.add_geometries()
         self.on_running(xdata, ydata, self.geometries, 1)
 
         t0 = time.time()
         elapsed = 0
-        for i in range(len(self.promp_demo_2d.t)):
+        for i in range(len(self.promp_demo_2d.t)-1):
             try:    
 
                 self.promp_demo_2d.refine_update_step(i)
 
                 xdata = self.promp_demo_2d.t[:i]
                 ydata = self.promp_demo_2d.y[:i]
-
+                # print("y = " + str(ydata[-1]))
                 elapsed += self.on_running(xdata, ydata, self.geometries, 2)
 
                 time.sleep(self.promp_demo_2d.dt)
@@ -452,8 +475,14 @@ class Demo2dGUI(QMainWindow):
         alpha = 1
         elapsed = time.time() - t0
         print("Total elapsed time = " + str(elapsed))
-        self.prediction = np.add(np.asarray(self.prediction), alpha * np.subtract(np.asarray(self.prediction), refined_prediction))
 
+        if self.refined_prediction == []:
+            print("No refinement done yet")
+            self.refined_prediction = np.add(np.asarray(self.prediction), alpha * np.subtract(np.asarray(self.prediction), refined_prediction))
+        else:
+            print("Refine refinement")
+            self.refined_prediction = np.add(np.asarray(self.refined_prediction), alpha * np.subtract(np.asarray(self.refined_prediction), refined_prediction))
+            
 
     def on_plot_refinement_click(self):
         # self.on_clear_plots_click()
@@ -467,7 +496,7 @@ class Demo2dGUI(QMainWindow):
         print("Refinement plotted")
 
     def on_add_to_model_click(self):
-        demonstration = ( list(self.prediction), self.context )
+        demonstration = ( list(self.refined_prediction), self.context )
         alpha = float(self.lineEdit_5.text())
         if self.radioButton.isChecked():
             self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ))

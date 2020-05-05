@@ -106,10 +106,11 @@ class PrompDemo2D():
         self.y[i+1] = float(self.y[i] + self.dt*self.v[i+1])        
     
     def refine_update_step(self, i):
-        
+        # yold = self.y[i]
+        print(self.y[i])
         self.v[i+1] = float(self.v[i] + self.dt*self.a)
-        self.y[i] = float(self.y[i] + self.dt*self.v[i+1])        
-
+        self.y[i+1] = self.y[i+1] + self.dt*self.v[i+1]        
+        
     def on_running(self, xdata, ydata):
         #Update data (with the new _and_ the old points)
         self.lines.set_xdata(xdata)
