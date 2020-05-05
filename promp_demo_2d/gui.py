@@ -425,13 +425,11 @@ class Demo2dGUI(QMainWindow):
         self.figure.canvas.flush_events()
 
     def on_refine_click(self):
-        # self.on_clear_plots_click()
-
-        context1 = [2.0, self.context[0]]
-        context2 = [3.6, self.context[1]]
-
         self.promp_demo_2d.y = self.prediction
         self.add_geometries()
+        xdata = self.promp_demo_2d.t
+        ydata = self.prediction
+        self.on_running(xdata, ydata, self.geometries, 1)
 
         t0 = time.time()
         elapsed = 0
@@ -454,7 +452,7 @@ class Demo2dGUI(QMainWindow):
         alpha = 1
         elapsed = time.time() - t0
         print("Total elapsed time = " + str(elapsed))
-        self.refined_prediction = np.add(np.asarray(self.prediction), alpha * np.subtract(np.asarray(self.prediction), refined_prediction))
+        self.prediction = np.add(np.asarray(self.prediction), alpha * np.subtract(np.asarray(self.prediction), refined_prediction))
 
 
     def on_plot_refinement_click(self):
@@ -469,7 +467,7 @@ class Demo2dGUI(QMainWindow):
         print("Refinement plotted")
 
     def on_add_to_model_click(self):
-        demonstration = ( list(self.refined_prediction), self.context )
+        demonstration = ( list(self.prediction), self.context )
         alpha = float(self.lineEdit_5.text())
         if self.radioButton.isChecked():
             self.promp_demo_2d.promp.welford_update((np.asarray([demonstration[0]]).T, demonstration[1] ))
