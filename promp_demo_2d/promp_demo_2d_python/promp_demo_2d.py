@@ -199,6 +199,8 @@ class PrompDemo2D():
             self.load_demonstration_from_folder(path, demo)
     
     def build_model(self):
+        self.promp = ProMPContext(output_name=['y'], context_names=['y1', 'y2'], num_basis=20, num_samples=len(self.t))
+
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
         self.load_demonstrations_from_folder(path)
 

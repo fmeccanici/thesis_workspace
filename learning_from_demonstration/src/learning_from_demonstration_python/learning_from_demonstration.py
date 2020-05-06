@@ -218,7 +218,7 @@ class learningFromDemonstration():
         self.promps = [ProMPContext(output, self.contexts, num_samples=self.num_samples, num_basis=num_basis, sigma=sigma) for output in self.outputs]
         
         print('Adding trajectories to ProMP model...')
-
+        print('Amoung of demonstrations = ' + str(len(self.trajectories_for_learning)))
         for i,traj in enumerate(self.trajectories_for_learning):
             # print(traj[0])
             print("context = " + str(traj[0][7:10]))

@@ -523,7 +523,7 @@ class experimentGUI(QMainWindow):
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.6")
+        self.lineEdit_14.setText("0.8")
         self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
 
@@ -910,13 +910,13 @@ class experimentGUI(QMainWindow):
             self.lineEdit_13.setText(str(round(0.03, 3)))
 
         elif button.text() == '3' and button.isChecked():
-            self.lineEdit_9.setText(str(round(0.5087, 3)))
-            self.lineEdit_7.setText(str(round(-0.177, 3)))
-            self.lineEdit_8.setText(str(round(0.793, 3)))
+            self.lineEdit_9.setText(str(round(0.684, 3)))
+            self.lineEdit_7.setText(str(round(-0.23, 3)))
+            self.lineEdit_8.setText(str(round(0.788, 3)))
 
             self.lineEdit_12.setText(str(round(0.988, 3)))
             self.lineEdit_11.setText(str(round(-0.0, 3)))
-            self.lineEdit_10.setText(str(round(-0.151, 3)))
+            self.lineEdit_10.setText(str(round(-0.123, 3)))
             self.lineEdit_13.setText(str(round(0.03, 3)))
 
     def retranslateUi(self):
@@ -936,7 +936,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
         self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
-        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_new_model.txt"))
+        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_other_setup.txt"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
