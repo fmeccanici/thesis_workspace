@@ -2,12 +2,12 @@
 <LWPR nIn='2' nOut='1' kernel='Gaussian'>
 	<integer name='n_data'> 10000 </integer>
 	<vector name='mean_x' length='2'>
-	 2.410855e-03
-	 -6.195199e-03
+	 -1.709071e-03
+	 1.090099e-02
 	</vector>
 	<vector name='var_x' length='2'>
-	     0.329461
-	     0.332476
+	     0.331708
+	     0.332741
 	</vector>
 	<integer name='diag_only'> 1 </integer>
 	<integer name='update_D'> 1 </integer>
@@ -40,61 +40,61 @@
 	<scalar name='tau_lambda'>     0.999900 </scalar>
 	<scalar name='init_S2'> 1.000000e-10 </scalar>
 	<scalar name='add_threshold'>     0.500000 </scalar>
-	<SubModel out_dim='0' numRFS='42'>
+	<SubModel out_dim='0' numRFS='35'>
 		<integer name='n_pruned'> 0 </integer>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    49.973821     0.000000
-			     0.000000    46.885123
+			    45.242952     0.000000
+			     0.000000    46.661260
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.069216     0.000000
-			     0.000000     6.847271
+			     6.726288     0.000000
+			     0.000000     6.830905
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.016730 </scalar>
+			<scalar name='beta0'>    -0.206938 </scalar>
 			<vector name='beta' length='2'>
-			     0.180688
-			    -0.017454
+			     1.039592
+			    -0.038595
 			</vector>
 			<vector name='c' length='2'>
-			     0.748697
-			    -0.764718
+			    -0.202780
+			     0.602091
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.877737    -0.094722
-			     0.047805    -0.032295
+			     6.424252     0.056202
+			     0.034104     0.022236
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     2.826741
-			     0.455312
+			     3.188039
+			     0.990239
 			</vector>
 			<vector name='SSYres' length='2'>
-			     0.510759
-			    -0.007947
+			     3.314260
+			    -0.038218
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -2.746896    -0.078143
-			     0.230516    -0.799434
+			     3.188447    -0.009141
+			    -0.008009    -0.479640
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.998520    -0.946500
-			     0.054383    -0.322705
+			     0.999986     0.929869
+			     0.005309     0.367891
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.971754    -0.171626
-			     0.081548    -1.755794
+			     1.000128    -0.009231
+			    -0.002512    -0.484368
 			</matrix>
 			<vector name='H' length='2'>
-			     0.015223
-			     0.013051
+			     0.025905
+			     0.007836
 			</vector>
 			<vector name='r' length='2'>
-			     0.010375
-			     0.001171
+			 6.554044e-03
+			 2.320958e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -105,376 +105,186 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   164.668590
-			   164.668590
+			   153.843377
+			   153.843377
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.841475
-			     1.847275
+			     1.546780
+			     1.553451
 			</vector>
-			<scalar name='sum_e2'>     1.810502 </scalar>
-			<scalar name='SSp'>     2.188172 </scalar>
+			<scalar name='sum_e2'>     1.528661 </scalar>
+			<scalar name='SSp'>     1.088421 </scalar>
 			<vector name='n_data' length='2'>
-			   769.362241
-			   769.362241
+			   975.697966
+			   975.697966
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999123
-			     0.999123
+			     0.999189
+			     0.999189
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.741823
-			    -0.752008
+			    -0.203291
+			     0.601263
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.017132
-			     0.016994
+			     0.020753
+			     0.018762
 			</vector>
-			<scalar name='w'> 0.0 </scalar>
+			<scalar name='w'> 1.390516e-03 </scalar>
 			<vector name='s' length='2'>
-			    -0.219256
-			     0.004585
+			    -0.371721
+			     0.138742
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    59.116722     0.000000
-			     0.000000    75.484897
+			    44.652561     0.000000
+			     0.000000    44.556595
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.688740     0.000000
-			     0.000000     8.688204
+			     6.682257     0.000000
+			     0.000000     6.675073
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.347571 </scalar>
+			<scalar name='beta0'>    -0.194280 </scalar>
 			<vector name='beta' length='2'>
-			     1.656672
-			     0.114194
-			</vector>
-			<vector name='c' length='2'>
-			    -0.477197
-			     0.259929
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     4.204078    -0.173907
-			    -4.421617    -0.227482
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.968963
-			     1.382069
-			</vector>
-			<vector name='SSYres' length='2'>
-			     3.261927
-			     0.157824
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     1.439102    -0.519013
-			    -1.344423    -0.522661
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.689055    -0.607340
-			    -0.724709    -0.794442
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.730893    -0.375533
-			    -0.682807    -0.378173
-			</matrix>
-			<vector name='H' length='2'>
-			     0.016495
-			     0.166419
-			</vector>
-			<vector name='r' length='2'>
-			 7.570871e-03
-			 8.376733e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   131.261455
-			   131.261455
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     3.075492
-			     3.071866
-			</vector>
-			<scalar name='sum_e2'>     3.029876 </scalar>
-			<scalar name='SSp'>     1.187581 </scalar>
-			<vector name='n_data' length='2'>
-			   885.070835
-			   885.070835
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999157
-			     0.999157
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.483181
-			     0.254366
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.016033
-			     0.014342
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.339039
-			     0.118128
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    76.613911     0.000000
-			     0.000000    68.732463
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     8.752937     0.000000
-			     0.000000     8.290504
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     1.098486 </scalar>
-			<vector name='beta' length='2'>
-			     0.478348
-			     0.087116
-			</vector>
-			<vector name='c' length='2'>
-			     0.055378
-			    -0.000965
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -1.537213    -0.092478
-			    -0.184421     0.353379
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.707601
-			     2.107385
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.816828
-			     0.183586
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.652724    -0.418375
-			    -0.377556     2.061915
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.992880    -0.253171
-			    -0.119117     0.967422
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.967864    -0.198528
-			    -0.221103     0.978423
-			</matrix>
-			<vector name='H' length='2'>
-			 6.765841e-03
-			 2.947085e-02
-			</vector>
-			<vector name='r' length='2'>
-			 7.479228e-03
-			 7.269717e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   127.675518
-			   127.675518
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     3.069673
-			     3.060230
-			</vector>
-			<scalar name='sum_e2'>     3.028813 </scalar>
-			<scalar name='SSp'>     1.129861 </scalar>
-			<vector name='n_data' length='2'>
-			   858.390469
-			   858.390469
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999149
-			     0.999149
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.059009
-			     0.001694
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.013434
-			     0.013171
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.036147
-			     0.279427
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    87.051140     0.000000
-			     0.000000    54.769996
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     9.330120     0.000000
-			     0.000000     7.400675
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.922061 </scalar>
-			<vector name='beta' length='2'>
-			     0.528927
-			     0.024790
-			</vector>
-			<vector name='c' length='2'>
-			     0.021542
-			    -0.311868
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.788818    -0.182651
-			     1.923942    -0.001018
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.138896
-			     1.217728
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.131319
-			     0.030188
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.664630    -1.252528
-			     2.035456    -0.546145
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.379354    -0.999984
-			     0.925252    -0.005573
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.310735    -1.028578
-			     0.951639    -0.448495
-			</matrix>
-			<vector name='H' length='2'>
-			 5.776779e-04
-			 -7.969995e-02
-			</vector>
-			<vector name='r' length='2'>
-			 8.546995e-03
-			 6.485993e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   122.912720
-			   122.912720
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.798941
-			     2.813930
-			</vector>
-			<scalar name='sum_e2'>     2.756682 </scalar>
-			<scalar name='SSp'>     1.183037 </scalar>
-			<vector name='n_data' length='2'>
-			   876.865853
-			   876.865853
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
 			     0.999155
-			     0.999155
+			    -0.002237
+			</vector>
+			<vector name='c' length='2'>
+			    -0.188415
+			    -0.055871
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     6.595126     0.010477
+			     0.035651     0.065554
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.256443
+			     3.030442
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.253692
+			    -0.006778
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.257284    -0.001535
+			     0.033130     2.298793
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999985     0.157815
+			     0.005406     0.987469
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     1.000258    -0.000506
+			     0.010174     0.758567
+			</matrix>
+			<vector name='H' length='2'>
+			    -0.020178
+			     0.047260
+			</vector>
+			<vector name='r' length='2'>
+			 7.830731e-03
+			 7.362198e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   154.465144
+			   154.465144
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.453965
+			     1.458695
+			</vector>
+			<scalar name='sum_e2'>     1.445288 </scalar>
+			<scalar name='SSp'>     1.074961 </scalar>
+			<vector name='n_data' length='2'>
+			 1.011951e+03
+			 1.011951e+03
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999204
+			     0.999204
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.020180
-			    -0.320622
+			    -0.185865
+			    -0.049279
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.012942
-			     0.017860
+			     0.021104
+			     0.020740
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			    -0.256556
-			     0.000386
+			     0.319466
+			    -0.270527
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    50.427368     0.000000
-			     0.000000    69.922174
+			    44.615408     0.000000
+			     0.000000    44.482013
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.101223     0.000000
-			     0.000000     8.361948
+			     6.679477     0.000000
+			     0.000000     6.669484
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.095419 </scalar>
+			<scalar name='beta0'>     0.558632 </scalar>
 			<vector name='beta' length='2'>
-			     0.678740
-			    -0.041116
+			     0.980132
+			    -0.000328
 			</vector>
 			<vector name='c' length='2'>
-			     0.665121
-			     0.415993
+			     0.562548
+			    -0.303819
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -2.265866    -0.020304
-			    -1.794479    -0.029115
+			     6.165975     0.034420
+			     0.167446     0.093836
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     2.327449
-			     1.174113
+			     3.107655
+			     2.687650
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.579732
-			    -0.048275
+			     3.045911
+			    -0.000881
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.865043    -0.769625
-			    -1.386146     0.902753
+			     3.105304    -0.089252
+			     0.058041     2.842680
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.783933    -0.572024
-			    -0.620845    -0.820237
+			     0.999631     0.344375
+			     0.027146     0.938832
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.801325    -0.655495
-			    -0.595564     0.768881
+			     0.999243    -0.033208
+			     0.018677     1.057682
 			</matrix>
 			<vector name='H' length='2'>
-			    -0.024349
-			    -0.010338
+			    -0.053854
+			    -0.035570
 			</vector>
 			<vector name='r' length='2'>
-			 6.528812e-03
-			 3.293880e-03
+			 7.041456e-03
+			 5.929510e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -485,91 +295,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   140.387292
-			   140.387292
+			   153.915583
+			   153.915583
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.994278
-			     1.997173
+			     1.415999
+			     1.420193
 			</vector>
-			<scalar name='sum_e2'>     1.972988 </scalar>
-			<scalar name='SSp'>     1.066656 </scalar>
+			<scalar name='sum_e2'>     1.400163 </scalar>
+			<scalar name='SSp'>     1.013020 </scalar>
 			<vector name='n_data' length='2'>
-			   869.564403
-			   869.564403
+			   990.929022
+			   990.929022
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999152
-			     0.999152
+			     0.999195
+			     0.999195
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.653896
-			     0.416861
+			     0.558952
+			    -0.314322
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.017519
-			     0.015587
+			     0.020219
+			     0.020190
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.195043
-			    -0.108558
+			    -0.054233
+			    -0.211614
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    47.997302     0.000000
-			     0.000000    47.239404
+			    48.776727     0.000000
+			     0.000000    48.579593
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     6.928008     0.000000
-			     0.000000     6.873093
+			     6.984034     0.000000
+			     0.000000     6.969906
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'> -8.760577e-04 </scalar>
+			<scalar name='beta0'>    -0.885220 </scalar>
 			<vector name='beta' length='2'>
-			     0.107272
-			     0.010452
+			     1.048787
+			    -0.000051
 			</vector>
 			<vector name='c' length='2'>
-			    -0.962686
-			     0.845893
+			    -0.984138
+			     0.096292
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.139888     0.053742
-			    -0.208798    -0.044335
+			     1.324088     0.055448
+			     0.140257    -0.043115
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.401357
-			     0.185658
+			     0.827234
+			     1.185230
 			</vector>
 			<vector name='SSYres' length='2'>
-			     0.150327
-			     0.001941
+			     0.867593
+			    -0.000061
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     0.625365     0.181513
-			    -1.171061     0.059041
+			     0.811241     0.062542
+			     0.120488    -1.502478
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.556597     0.771388
-			    -0.830782    -0.636365
+			     0.994436     0.789429
+			     0.105338    -0.613842
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     0.446257     0.977677
-			    -0.835662     0.318013
+			     0.980666     0.052768
+			     0.145652    -1.267668
 			</matrix>
 			<vector name='H' length='2'>
-			     0.040944
-			     0.020080
+			     0.018710
+			    -0.078323
 			</vector>
 			<vector name='r' length='2'>
-			 3.976111e-03
-			 5.073927e-04
+			 2.608017e-03
+			 2.455621e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -580,91 +390,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   116.869239
-			   116.869239
+			   110.349023
+			   110.349023
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.222101
-			     1.225848
+			     1.133793
+			     1.144579
 			</vector>
-			<scalar name='sum_e2'>     1.195084 </scalar>
-			<scalar name='SSp'>     2.222436 </scalar>
+			<scalar name='sum_e2'>     1.108737 </scalar>
+			<scalar name='SSp'>     1.710854 </scalar>
 			<vector name='n_data' length='2'>
-			   561.579257
-			   561.579257
+			   697.326895
+			   697.326895
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999076
-			     0.999076
+			     0.999105
+			     0.999105
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.872394
-			     0.816450
+			    -0.877581
+			     0.109950
 			</vector>
 			<vector name='var_x' length='2'>
-			 7.926076e-03
-			 1.304128e-02
+			 7.403056e-03
+			 1.842091e-02
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.169775
-			     0.101156
+			 6.800788e-05
+			 -3.248611e-02
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    47.353798     0.000000
-			     0.000000    83.407411
+			    45.640408     0.000000
+			     0.000000    45.200540
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     6.881410     0.000000
-			     0.000000     9.132766
+			     6.755769     0.000000
+			     0.000000     6.723135
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.051228 </scalar>
+			<scalar name='beta0'>     0.345152 </scalar>
 			<vector name='beta' length='2'>
-			     0.695537
-			     0.068443
+			     1.012969
+			     0.054134
 			</vector>
 			<vector name='c' length='2'>
-			    -0.902458
-			     0.355419
+			     0.340219
+			    -0.698436
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.422950     0.159908
-			    -1.818541     0.016454
+			     6.116414     0.023601
+			    -0.080994     0.260790
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.678312
-			     1.135445
+			     3.292138
+			     2.948272
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.167328
-			     0.077714
+			     3.334832
+			     0.159600
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     0.254827     0.888164
-			    -1.656652     0.183155
+			     3.288828     0.122206
+			    -0.140370     2.980807
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.226531     0.994748
-			    -0.974004     0.102354
+			     0.999912     0.090130
+			    -0.013241     0.995930
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     0.151836     0.782217
-			    -0.987094     0.161307
+			     0.998995     0.041450
+			    -0.042638     1.011035
 			</matrix>
 			<vector name='H' length='2'>
-			    -0.044332
-			     0.098198
+			     0.018390
+			     0.038961
 			</vector>
 			<vector name='r' length='2'>
-			 6.547097e-03
-			 5.856897e-03
+			 6.444371e-03
+			 6.694101e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -675,1918 +485,18 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   116.126137
-			   116.126137
+			   154.606883
+			   154.606883
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     2.138400
-			     2.143404
+			     1.353517
+			     1.349679
 			</vector>
-			<scalar name='sum_e2'>     2.114029 </scalar>
-			<scalar name='SSp'>     2.163292 </scalar>
+			<scalar name='sum_e2'>     1.328432 </scalar>
+			<scalar name='SSp'>     1.245439 </scalar>
 			<vector name='n_data' length='2'>
-			   683.997640
-			   683.997640
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999102
-			     0.999102
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.844643
-			     0.354365
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.010985
-			     0.014433
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.373643
-			    -0.012004
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    58.890370     0.000000
-			     0.000000   132.242624
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.674006     0.000000
-			     0.000000    11.499679
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.675515 </scalar>
-			<vector name='beta' length='2'>
-			     1.618553
-			     0.405035
-			</vector>
-			<vector name='c' length='2'>
-			    -0.584713
-			    -0.061144
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.628163    -0.810941
-			     2.869860     0.366137
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.103467
-			     1.342557
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.786021
-			     0.543783
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     0.528563    -1.360669
-			     0.981246     0.401772
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.213821    -0.911411
-			     0.976873     0.411498
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.479002    -1.013491
-			     0.889238     0.299259
-			</matrix>
-			<vector name='H' length='2'>
-			     0.346902
-			     0.006950
-			</vector>
-			<vector name='r' length='2'>
-			     0.012633
-			     0.011737
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   110.804000
-			   110.804000
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     6.124098
-			     5.929919
-			</vector>
-			<scalar name='sum_e2'>     5.806674 </scalar>
-			<scalar name='SSp'>     1.576845 </scalar>
-			<vector name='n_data' length='2'>
-			   766.752507
-			   766.752507
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999122
-			     0.999122
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.586662
-			    -0.059012
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.015362
-			     0.009425
-			</vector>
-			<scalar name='w'> 1.189802e-03 </scalar>
-			<vector name='s' length='2'>
-			    -0.299660
-			    -0.204179
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    74.850925     0.000000
-			     0.000000    47.308925
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     8.651643     0.000000
-			     0.000000     6.878148
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.697051 </scalar>
-			<vector name='beta' length='2'>
-			     1.910229
-			     0.069470
-			</vector>
-			<vector name='c' length='2'>
-			     0.179439
-			     0.800144
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -6.320844    -0.037049
-			     0.120906     0.216052
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.972582
-			     1.822358
-			</vector>
-			<vector name='SSYres' length='2'>
-			     3.768083
-			     0.126599
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.974171    -0.047339
-			     0.010236     1.983115
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.999817    -0.169016
-			     0.019125     0.985613
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -1.000805    -0.025977
-			     0.005189     1.088214
-			</matrix>
-			<vector name='H' length='2'>
-			     0.097312
-			     0.029875
-			</vector>
-			<vector name='r' length='2'>
-			 6.289750e-03
-			 7.877240e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   136.611946
-			   136.611946
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.020947
-			     2.023648
-			</vector>
-			<scalar name='sum_e2'>     1.979070 </scalar>
-			<scalar name='SSp'>     1.599584 </scalar>
-			<vector name='n_data' length='2'>
-			   780.298900
-			   780.298900
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999126
-			     0.999126
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.177511
-			     0.775173
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.014490
-			     0.016674
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.134977
-			     0.070822
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    60.627739     0.000000
-			     0.000000    46.099376
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.786382     0.000000
-			     0.000000     6.789652
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.327700 </scalar>
-			<vector name='beta' length='2'>
-			     1.817481
-			     0.043989
-			</vector>
-			<vector name='c' length='2'>
-			    -0.353296
-			     0.741799
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     8.451694     0.039626
-			    -0.425087    -0.280516
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.614570
-			     2.450354
-			</vector>
-			<vector name='SSYres' length='2'>
-			     4.751932
-			     0.107788
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     2.608836    -0.023783
-			    -0.117077    -2.506799
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.998738     0.139873
-			    -0.050233    -0.990169
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.997807    -0.009706
-			    -0.044779    -1.023035
-			</matrix>
-			<vector name='H' length='2'>
-			     0.085561
-			    -0.098891
-			</vector>
-			<vector name='r' length='2'>
-			 9.953427e-03
-			 7.817207e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   156.706302
-			   156.706302
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.230381
-			     2.233535
-			</vector>
-			<scalar name='sum_e2'>     2.197361 </scalar>
-			<scalar name='SSp'>     1.287013 </scalar>
-			<vector name='n_data' length='2'>
-			   854.876284
-			   854.876284
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999148
-			     0.999148
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.359180
-			     0.729651
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.016661
-			     0.016442
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.171475
-			    -0.105671
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    49.933048     0.000000
-			     0.000000    49.470670
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.066332     0.000000
-			     0.000000     7.033539
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'> 8.165935e-05 </scalar>
-			<vector name='beta' length='2'>
-			     0.042630
-			     0.008828
-			</vector>
-			<vector name='c' length='2'>
-			    -0.995729
-			    -0.697098
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.098337     0.056860
-			     0.129946     0.046724
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.453124
-			     0.334939
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.061946
-			     0.002957
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     0.457329    -0.181348
-			     1.242539     0.476477
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.603440     0.772609
-			     0.797408     0.634882
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.314721    -0.541436
-			     0.855081     1.422578
-			</matrix>
-			<vector name='H' length='2'>
-			    -0.098217
-			     0.007300
-			</vector>
-			<vector name='r' length='2'>
-			 3.561448e-03
-			 6.570992e-04
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   101.216011
-			   101.216011
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.072571
-			     1.075566
-			</vector>
-			<scalar name='sum_e2'>     1.048403 </scalar>
-			<scalar name='SSp'>     1.991307 </scalar>
-			<vector name='n_data' length='2'>
-			   613.130133
-			   613.130133
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999086
-			     0.999086
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.890759
-			    -0.692958
-			</vector>
-			<vector name='var_x' length='2'>
-			 7.491239e-03
-			 1.855409e-02
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.152168
-			    -0.013077
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    57.576673     0.000000
-			     0.000000    69.679107
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.587929     0.000000
-			     0.000000     8.347401
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.305441 </scalar>
-			<vector name='beta' length='2'>
-			     1.438303
-			    -0.000954
-			</vector>
-			<vector name='c' length='2'>
-			     0.482203
-			    -0.319973
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -4.382421     0.034742
-			     3.576877     0.093651
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.068565
-			     1.930059
-			</vector>
-			<vector name='SSYres' length='2'>
-			     2.975224
-			    -0.001840
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.651334     1.356335
-			     1.253763     1.526143
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.774714     0.347815
-			     0.632312     0.937563
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.798300     0.702743
-			     0.606103     0.790724
-			</matrix>
-			<vector name='H' length='2'>
-			    -0.011051
-			    -0.082299
-			</vector>
-			<vector name='r' length='2'>
-			 5.912693e-03
-			 7.441356e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   125.046209
-			   125.046209
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.283337
-			     2.295562
-			</vector>
-			<scalar name='sum_e2'>     2.256157 </scalar>
-			<scalar name='SSp'>     1.005084 </scalar>
-			<vector name='n_data' length='2'>
-			   915.311756
-			   915.311756
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999167
-			     0.999167
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.480426
-			    -0.317036
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.018255
-			     0.015838
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.138066
-			    -0.405441
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    56.018393     0.000000
-			     0.000000   143.537131
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.484544     0.000000
-			     0.000000    11.980698
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.731503 </scalar>
-			<vector name='beta' length='2'>
-			     0.426927
-			     0.237086
-			</vector>
-			<vector name='c' length='2'>
-			    -0.882472
-			     0.011835
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.161491    -0.072565
-			    -0.761677    -0.351143
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     0.961411
-			     0.318940
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.410452
-			     0.075616
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.174365    -0.167786
-			    -0.737695    -0.051520
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.207410    -0.202376
-			    -0.978254    -0.979308
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.181364    -0.526075
-			    -0.767304    -0.161536
-			</matrix>
-			<vector name='H' length='2'>
-			     0.267774
-			     0.136000
-			</vector>
-			<vector name='r' length='2'>
-			     0.016946
-			     0.004786
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   105.595820
-			   105.595820
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     8.143241
-			     8.159069
-			</vector>
-			<scalar name='sum_e2'>     8.049773 </scalar>
-			<scalar name='SSp'>     1.574415 </scalar>
-			<vector name='n_data' length='2'>
-			   604.260048
-			   604.260048
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999085
-			     0.999085
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.833981
-			     0.013487
-			</vector>
-			<vector name='var_x' length='2'>
-			 9.854139e-03
-			 9.242661e-03
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.140442
-			     0.029587
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    59.668230     0.000000
-			     0.000000   104.950088
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.724521     0.000000
-			     0.000000    10.244515
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.737885 </scalar>
-			<vector name='beta' length='2'>
-			     1.257901
-			     0.308236
-			</vector>
-			<vector name='c' length='2'>
-			     0.420482
-			     0.064728
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -2.436741     0.620301
-			    -2.818230    -0.675658
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.650977
-			     1.519070
-			</vector>
-			<vector name='SSYres' length='2'>
-			     2.076767
-			     0.468232
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.363161     1.160805
-			    -0.989963    -1.052330
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.654053     0.676286
-			    -0.756449    -0.736639
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.825669     0.764155
-			    -0.599623    -0.692746
-			</matrix>
-			<vector name='H' length='2'>
-			     0.076115
-			    -0.048997
-			</vector>
-			<vector name='r' length='2'>
-			     0.012790
-			     0.014285
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   124.467011
-			   124.467011
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     5.139540
-			     5.024055
-			</vector>
-			<scalar name='sum_e2'>     4.927527 </scalar>
-			<scalar name='SSp'>     1.363696 </scalar>
-			<vector name='n_data' length='2'>
-			   849.691611
-			   849.691611
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999146
-			     0.999146
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.420441
-			     0.061394
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.016273
-			     0.010783
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.234377
-			     0.327586
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    57.547700     0.000000
-			     0.000000    56.535623
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.586020     0.000000
-			     0.000000     7.519017
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.383054 </scalar>
-			<vector name='beta' length='2'>
-			     1.667927
-			    -0.029271
-			</vector>
-			<vector name='c' length='2'>
-			    -0.357880
-			    -0.438058
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     7.119424     0.045330
-			     1.884961    -0.003784
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.324036
-			     1.231333
-			</vector>
-			<vector name='SSYres' length='2'>
-			     3.876321
-			    -0.036042
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     2.253891     0.422870
-			     0.567484    -1.555983
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.966692     0.996534
-			     0.255944    -0.083183
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.969818     0.343424
-			     0.244181    -1.263657
-			</matrix>
-			<vector name='H' length='2'>
-			     0.017395
-			    -0.012174
-			</vector>
-			<vector name='r' length='2'>
-			 6.595549e-03
-			 3.406566e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   129.263087
-			   129.263087
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.817215
-			     1.822641
-			</vector>
-			<scalar name='sum_e2'>     1.793560 </scalar>
-			<scalar name='SSp'>     1.063578 </scalar>
-			<vector name='n_data' length='2'>
-			   929.603267
-			   929.603267
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999172
-			     0.999172
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.360304
-			    -0.431871
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.018134
-			     0.017492
-			</vector>
-			<scalar name='w'>     0.385759 </scalar>
-			<vector name='s' length='2'>
-			    -0.150268
-			    -0.031365
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    60.567189     0.000000
-			     0.000000   132.334902
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.782492     0.000000
-			     0.000000    11.503691
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.680076 </scalar>
-			<vector name='beta' length='2'>
-			     1.666101
-			     0.677134
-			</vector>
-			<vector name='c' length='2'>
-			     0.940157
-			     0.051930
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.119122    -0.368736
-			    -2.063421    -0.279187
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     0.880873
-			     0.394732
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.467624
-			     0.267286
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     0.203016    -0.472638
-			    -0.810426    -0.103053
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.057635    -0.797256
-			    -0.998338    -0.603641
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.230472    -1.197365
-			    -0.920026    -0.261071
-			</matrix>
-			<vector name='H' length='2'>
-			     0.123974
-			    -0.045685
-			</vector>
-			<vector name='r' length='2'>
-			     0.010139
-			     0.005124
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			    96.164335
-			    96.164335
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     5.329731
-			     5.290571
-			</vector>
-			<scalar name='sum_e2'>     5.109984 </scalar>
-			<scalar name='SSp'>     2.354232 </scalar>
-			<vector name='n_data' length='2'>
-			   559.167251
-			   559.167251
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999076
-			     0.999076
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.863523
-			     0.047494
-			</vector>
-			<vector name='var_x' length='2'>
-			 7.493625e-03
-			 9.245479e-03
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.060187
-			     0.013194
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    59.653430     0.000000
-			     0.000000    49.125470
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.723563     0.000000
-			     0.000000     7.008956
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.409956 </scalar>
-			<vector name='beta' length='2'>
-			     1.899318
-			     0.041173
-			</vector>
-			<vector name='c' length='2'>
-			    -0.325270
-			    -0.978704
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     5.634454     0.004799
-			    -0.143722     0.068332
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.971181
-			     0.772851
-			</vector>
-			<vector name='SSYres' length='2'>
-			     3.743900
-			     0.031820
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     1.971838     0.007614
-			    -0.081844     0.774155
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.999675     0.070058
-			    -0.025499     0.997543
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     1.000333     0.009851
-			    -0.041520     1.001687
-			</matrix>
-			<vector name='H' length='2'>
-			     0.073861
-			    -0.029058
-			</vector>
-			<vector name='r' length='2'>
-			 6.349909e-03
-			 2.540379e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   113.799601
-			   113.799601
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.520396
-			     1.526624
-			</vector>
-			<scalar name='sum_e2'>     1.496030 </scalar>
-			<scalar name='SSp'>     1.900281 </scalar>
-			<vector name='n_data' length='2'>
-			   686.307154
-			   686.307154
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999102
-			     0.999102
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.316828
-			    -0.886833
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.017338
-			     0.006964
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.142938
-			     0.298525
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    87.571800     0.000000
-			     0.000000    48.758006
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     9.357981     0.000000
-			     0.000000     6.982693
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.871618 </scalar>
-			<vector name='beta' length='2'>
-			     0.735166
-			     0.018893
-			</vector>
-			<vector name='c' length='2'>
-			     0.059308
-			    -0.942080
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -1.791343    -0.041387
-			     0.065389    -0.087744
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.510761
-			     0.823657
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.110659
-			     0.015561
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.502962    -0.009627
-			     0.110671    -0.642251
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.999334    -0.426601
-			     0.036479    -0.904440
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.994838    -0.011688
-			     0.073255    -0.779756
-			</matrix>
-			<vector name='H' length='2'>
-			    -0.107582
-			    -0.009868
-			</vector>
-			<vector name='r' length='2'>
-			 7.238976e-03
-			 4.919876e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   116.844718
-			   116.844718
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.726029
-			     2.743508
-			</vector>
-			<scalar name='sum_e2'>     2.684057 </scalar>
-			<scalar name='SSp'>     2.220796 </scalar>
-			<vector name='n_data' length='2'>
-			   670.318103
-			   670.318103
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999099
-			     0.999099
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.053377
-			    -0.870005
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.012966
-			     0.008903
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.034999
-			    -0.282669
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    95.367757     0.000000
-			     0.000000    53.701901
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     9.765642     0.000000
-			     0.000000     7.328158
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.893945 </scalar>
-			<vector name='beta' length='2'>
-			     0.434965
-			     0.082565
-			</vector>
-			<vector name='c' length='2'>
-			    -0.034628
-			    -0.645311
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     1.095958     0.131918
-			    -0.074248    -0.109983
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.416694
-			     0.422633
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.616212
-			     0.034895
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     1.392916    -0.010305
-			     0.042285    -0.574116
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.997713     0.768074
-			    -0.067592    -0.640362
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.983216    -0.024382
-			     0.029847    -1.358427
-			</matrix>
-			<vector name='H' length='2'>
-			     0.138985
-			    -0.002450
-			</vector>
-			<vector name='r' length='2'>
-			 6.584383e-03
-			 1.441736e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   129.144608
-			   129.144608
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.730984
-			     2.740852
-			</vector>
-			<scalar name='sum_e2'>     2.684508 </scalar>
-			<scalar name='SSp'>     1.190093 </scalar>
-			<vector name='n_data' length='2'>
-			   820.822552
-			   820.822552
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999137
-			     0.999137
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.029331
-			    -0.647891
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.011015
-			     0.018416
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.122978
-			    -0.044394
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    48.302552     0.000000
-			     0.000000    46.404430
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     6.950004     0.000000
-			     0.000000     6.812080
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.016878 </scalar>
-			<vector name='beta' length='2'>
-			     0.171866
-			     0.022668
-			</vector>
-			<vector name='c' length='2'>
-			     0.793910
-			     0.786660
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.637340    -0.075245
-			    -0.004376    -0.086261
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.423886
-			     0.716084
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.416583
-			     0.016232
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -2.332680     0.027585
-			     0.283345    -0.662554
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.999976    -0.657346
-			    -0.006866    -0.753589
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.962372     0.038521
-			     0.116897    -0.925246
-			</matrix>
-			<vector name='H' length='2'>
-			     0.118380
-			     0.072241
-			</vector>
-			<vector name='r' length='2'>
-			 6.885156e-03
-			 1.652355e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   163.269676
-			   163.269676
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.443005
-			     1.446297
-			</vector>
-			<scalar name='sum_e2'>     1.424179 </scalar>
-			<scalar name='SSp'>     2.358937 </scalar>
-			<vector name='n_data' length='2'>
-			   717.597250
-			   717.597250
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999110
-			     0.999110
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.774077
-			     0.765274
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.015122
-			     0.016090
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.071964
-			    -0.131908
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    50.642360     0.000000
-			     0.000000    47.825949
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.116345     0.000000
-			     0.000000     6.915631
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.024983 </scalar>
-			<vector name='beta' length='2'>
-			     0.260094
-			    -0.111888
-			</vector>
-			<vector name='c' length='2'>
-			    -0.722387
-			    -0.916375
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     1.014046     0.054292
-			     0.110240     0.016991
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.449611
-			     0.252630
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.637130
-			    -0.028266
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     2.420564     0.014634
-			     0.220509    -0.186226
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.994143     0.954356
-			     0.108076     0.298670
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.988142     0.057926
-			     0.090018    -0.737148
-			</matrix>
-			<vector name='H' length='2'>
-			    -0.037080
-			     0.032292
-			</vector>
-			<vector name='r' length='2'>
-			 7.896431e-03
-			 7.010806e-04
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   140.715996
-			   140.715996
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.540094
-			     1.542275
-			</vector>
-			<scalar name='sum_e2'>     1.519093 </scalar>
-			<scalar name='SSp'>     2.618284 </scalar>
-			<vector name='n_data' length='2'>
-			   667.140722
-			   667.140722
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999098
-			     0.999098
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.708730
-			    -0.850582
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.017602
-			     0.009605
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.220566
-			     0.001544
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    86.924947     0.000000
-			     0.000000    54.056740
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     9.323355     0.000000
-			     0.000000     7.352329
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.854178 </scalar>
-			<vector name='beta' length='2'>
-			     1.070428
-			     0.106200
-			</vector>
-			<vector name='c' length='2'>
-			    -0.083341
-			     0.443172
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     3.045817     0.164482
-			    -0.492224     0.390463
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.596180
-			     1.967116
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.708596
-			     0.208907
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     1.528758     0.379871
-			    -0.439793     2.003464
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.987192     0.388210
-			    -0.159537     0.921571
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.957760     0.193111
-			    -0.275528     1.018478
-			</matrix>
-			<vector name='H' length='2'>
-			     0.095907
-			    -0.055514
-			</vector>
-			<vector name='r' length='2'>
-			 7.165814e-03
-			 7.917431e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   125.673359
-			   125.673359
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.696040
-			     2.684700
-			</vector>
-			<scalar name='sum_e2'>     2.635759 </scalar>
-			<scalar name='SSp'>     1.053199 </scalar>
-			<vector name='n_data' length='2'>
-			   864.543057
-			   864.543057
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999151
-			     0.999151
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.079591
-			     0.445515
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.012513
-			     0.018593
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.057702
-			     0.412041
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    64.932305     0.000000
-			     0.000000    49.099680
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     8.058058     0.000000
-			     0.000000     7.007116
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.215152 </scalar>
-			<vector name='beta' length='2'>
-			     1.380090
-			     0.047884
-			</vector>
-			<vector name='c' length='2'>
-			     0.433067
-			    -0.727630
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -5.575987    -0.031820
-			     0.237905     0.256677
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.236609
-			     2.433338
-			</vector>
-			<vector name='SSYres' length='2'>
-			     3.086723
-			     0.116517
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -2.232036    -0.032748
-			     0.085330     2.447960
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.999091    -0.123028
-			     0.042627     0.992403
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.997955    -0.013458
-			     0.038152     1.006009
-			</matrix>
-			<vector name='H' length='2'>
-			 -2.933808e-03
-			 -3.665721e-02
-			</vector>
-			<vector name='r' length='2'>
-			 7.400424e-03
-			 7.680110e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   145.300203
-			   145.300203
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.000956
-			     2.002367
-			</vector>
-			<scalar name='sum_e2'>     1.970520 </scalar>
-			<scalar name='SSp'>     1.319787 </scalar>
-			<vector name='n_data' length='2'>
-			   856.231061
-			   856.231061
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999148
-			     0.999148
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.428262
-			    -0.718691
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.015369
-			     0.017521
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.334979
-			     0.138785
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    50.823868     0.000000
-			     0.000000    48.548887
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.129086     0.000000
-			     0.000000     6.967703
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.035233 </scalar>
-			<vector name='beta' length='2'>
-			     0.267467
-			    -0.009597
-			</vector>
-			<vector name='c' length='2'>
-			    -0.723161
-			     0.619725
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     1.246966     0.055599
-			    -0.279112     0.042926
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.701490
-			     1.893596
-			</vector>
-			<vector name='SSYres' length='2'>
-			     0.722558
-			    -0.018172
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     2.607626     0.418643
-			    -0.642429     2.081672
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.975853     0.791543
-			    -0.218428     0.611114
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.965255     0.221084
-			    -0.237805     1.099322
-			</matrix>
-			<vector name='H' length='2'>
-			     0.035138
-			     0.031913
-			</vector>
-			<vector name='r' length='2'>
-			 8.047566e-03
-			 5.579677e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   154.166261
-			   154.166261
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.733541
-			     1.741047
-			</vector>
-			<scalar name='sum_e2'>     1.718352 </scalar>
-			<scalar name='SSp'>     1.686644 </scalar>
-			<vector name='n_data' length='2'>
-			   843.058425
-			   843.058425
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999144
-			     0.999144
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.714155
-			     0.622275
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.017645
-			     0.019515
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			     0.135907
-			     0.201551
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    46.992351     0.000000
-			     0.000000    72.533633
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     6.855097     0.000000
-			     0.000000     8.516668
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.041655 </scalar>
-			<vector name='beta' length='2'>
-			     0.507396
-			     0.108492
-			</vector>
-			<vector name='c' length='2'>
-			     0.792216
-			    -0.421575
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -1.264771    -0.256081
-			     1.409038    -0.130196
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.180685
-			     1.486203
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.106471
-			     0.161241
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.250552    -1.238782
-			     1.766952    -0.935673
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.667983    -0.891406
-			     0.744177    -0.453205
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.573467    -0.833522
-			     0.810274    -0.629573
-			</matrix>
-			<vector name='H' length='2'>
-			     0.029808
-			     0.047676
-			</vector>
-			<vector name='r' length='2'>
-			 6.400377e-03
-			 4.730802e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   147.394966
-			   147.394966
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.992418
-			     1.984791
-			</vector>
-			<scalar name='sum_e2'>     1.951609 </scalar>
-			<scalar name='SSp'>     1.893172 </scalar>
-			<vector name='n_data' length='2'>
-			   802.362263
-			   802.362263
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999132
-			     0.999132
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.779964
-			    -0.417268
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.014808
-			     0.014538
-			</vector>
-			<scalar name='w'> 0.0 </scalar>
-			<vector name='s' length='2'>
-			    -0.401557
-			     0.069936
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    67.872657     0.000000
-			     0.000000    72.279796
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     8.238486     0.000000
-			     0.000000     8.501753
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.845752 </scalar>
-			<vector name='beta' length='2'>
-			     1.573507
-			    -0.031980
-			</vector>
-			<vector name='c' length='2'>
-			    -0.256008
-			    -0.095451
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			     4.355443     0.088550
-			     2.580350     0.000534
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.791408
-			     1.000092
-			</vector>
-			<vector name='SSYres' length='2'>
-			     2.818793
-			    -0.031983
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			     1.540128     0.638272
-			     0.903988    -1.089730
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			     0.860348     0.999982
-			     0.509707     0.006034
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			     0.859730     0.638213
-			     0.504624    -1.089631
-			</matrix>
-			<vector name='H' length='2'>
-			     0.072633
-			    -0.077464
-			</vector>
-			<vector name='r' length='2'>
-			 7.213716e-03
-			 5.608425e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   127.487538
-			   127.487538
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     2.734590
-			     2.747969
-			</vector>
-			<scalar name='sum_e2'>     2.698582 </scalar>
-			<scalar name='SSp'>     1.185335 </scalar>
-			<vector name='n_data' length='2'>
-			   864.808707
-			   864.808707
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999151
-			     0.999151
-			</vector>
-			<vector name='mean_x' length='2'>
-			    -0.256886
-			    -0.094532
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.014164
-			     0.014039
-			</vector>
-			<scalar name='w'> 4.357253e-03 </scalar>
-			<vector name='s' length='2'>
-			    -0.379520
-			     0.052647
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    65.224059     0.000000
-			     0.000000    53.801468
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     8.076141     0.000000
-			     0.000000     7.334948
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.616428 </scalar>
-			<vector name='beta' length='2'>
-			     1.892654
-			     0.084441
-			</vector>
-			<vector name='c' length='2'>
-			     0.225431
-			     0.442332
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -7.569025    -0.111344
-			    -1.220063     0.325228
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     2.113396
-			     1.988759
-			</vector>
-			<vector name='SSYres' length='2'>
-			     3.999927
-			     0.167933
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -2.072994    -0.360417
-			    -0.419460     2.049580
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.987256    -0.323900
-			    -0.159137     0.946091
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.980883    -0.181227
-			    -0.198477     1.030582
-			</matrix>
-			<vector name='H' length='2'>
-			     0.051064
-			    -0.018025
-			</vector>
-			<vector name='r' length='2'>
-			 5.971947e-03
-			 6.709018e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   133.389615
-			   133.389615
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.989469
-			     1.989137
-			</vector>
-			<scalar name='sum_e2'>     1.945120 </scalar>
-			<scalar name='SSp'>     1.219365 </scalar>
-			<vector name='n_data' length='2'>
-			   919.810844
-			   919.810844
+			   919.575141
+			   919.575141
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
@@ -2594,72 +504,72 @@
 			     0.999169
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.226016
-			     0.451632
+			     0.347249
+			    -0.684198
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.015822
-			     0.017686
+			     0.021297
+			     0.019518
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.116720
-			     0.418805
+			     0.161777
+			     0.147686
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    51.288720     0.000000
-			     0.000000    55.730058
+			    45.087111     0.000000
+			     0.000000    46.867072
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.161614     0.000000
-			     0.000000     7.465257
+			     6.714694     0.000000
+			     0.000000     6.845953
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.036376 </scalar>
+			<scalar name='beta0'>     0.392885 </scalar>
 			<vector name='beta' length='2'>
-			     0.349959
-			    -0.001600
+			     1.004381
+			     0.081305
 			</vector>
 			<vector name='c' length='2'>
-			    -0.729521
-			    -0.519343
+			     0.400205
+			     0.156165
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     1.259183     0.075180
-			     0.807124    -0.055014
+			     6.385372     0.065657
+			     0.225429    -0.240910
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     2.472136
-			     1.299199
+			     3.192479
+			     1.551680
 			</vector>
 			<vector name='SSYres' length='2'>
-			     0.865147
-			    -0.002079
+			     3.206465
+			     0.126160
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     1.980774    -0.213851
-			     1.473405     0.139531
+			     3.183660     0.061908
+			     0.221397    -1.304700
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.841892     0.807010
-			     0.539645    -0.590537
+			     0.999377     0.262945
+			     0.035282    -0.964811
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     0.801240    -0.164602
-			     0.596005     0.107398
+			     0.997238     0.039897
+			     0.069350    -0.840830
 			</matrix>
 			<vector name='H' length='2'>
-			     0.045863
-			     0.163297
+			 -3.629975e-03
+			 6.541860e-02
 			</vector>
 			<vector name='r' length='2'>
-			 8.671115e-03
-			 3.806989e-03
+			 6.797504e-03
+			 2.969811e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -2670,186 +580,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   143.609052
-			   143.609052
+			   145.886796
+			   145.886796
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.713211
-			     1.719860
+			     1.398563
+			     1.397125
 			</vector>
-			<scalar name='sum_e2'>     1.711662 </scalar>
-			<scalar name='SSp'>     1.487639 </scalar>
+			<scalar name='sum_e2'>     1.374321 </scalar>
+			<scalar name='SSp'>     1.226107 </scalar>
 			<vector name='n_data' length='2'>
-			   838.301843
-			   838.301843
+			 1.004911e+03
+			 1.004911e+03
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999142
-			     0.999142
+			     0.999201
+			     0.999201
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.721406
-			    -0.511445
+			     0.396376
+			     0.155184
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.016708
-			     0.018471
-			</vector>
-			<scalar name='w'>     0.206948 </scalar>
-			<vector name='s' length='2'>
-			     0.233089
-			     0.007115
-			</vector>
-		</ReceptiveField>
-		<ReceptiveField nReg='2'>
-			<matrix name='D' rows='2' columns='2'>
-			    63.218370     0.000000
-			     0.000000    49.859776
-			</matrix>
-			<matrix name='M' rows='2' columns='2'>
-			     7.950998     0.000000
-			     0.000000     7.061146
-			</matrix>
-			<matrix name='alpha' rows='2' columns='2'>
-			   250.000000   250.000000
-			   250.000000   250.000000
-			</matrix>
-			<scalar name='beta0'>     0.128006 </scalar>
-			<vector name='beta' length='2'>
-			     0.911068
-			    -0.014321
-			</vector>
-			<vector name='c' length='2'>
-			     0.512399
-			     0.941724
-			</vector>
-			<matrix name='SXresYres' rows='2' columns='2'>
-			    -2.458815    -0.008722
-			    -0.070280    -0.019393
-			</matrix>
-			<vector name='SSs2' length='2'>
-			     1.784022
-			     0.947566
-			</vector>
-			<vector name='SSYres' length='2'>
-			     1.625365
-			    -0.013570
-			</vector>
-			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.783348     0.040282
-			    -0.041792    -0.897481
-			</matrix>
-			<matrix name='U' rows='2' columns='2'>
-			    -0.999592    -0.410158
-			    -0.028571    -0.912014
-			</matrix>
-			<matrix name='P' rows='2' columns='2'>
-			    -0.999622     0.042511
-			    -0.023426    -0.947144
-			</matrix>
-			<vector name='H' length='2'>
-			     0.068581
-			    -0.024451
-			</vector>
-			<vector name='r' length='2'>
-			 5.476673e-03
-			 2.693580e-03
-			</vector>
-			<matrix name='h' rows='2' columns='2'>
-			     0.000000     0.000000
-			     0.000000     0.000000
-			</matrix>
-			<matrix name='b' rows='2' columns='2'>
-			     5.521461     5.521461
-			     0.000000     5.521461
-			</matrix>
-			<vector name='sum_w' length='2'>
-			   105.272057
-			   105.272057
-			</vector>
-			<vector name='sum_e_cv2' length='2'>
-			     1.399958
-			     1.405403
-			</vector>
-			<scalar name='sum_e2'>     1.378167 </scalar>
-			<scalar name='SSp'>     2.157545 </scalar>
-			<vector name='n_data' length='2'>
-			   677.397895
-			   677.397895
-			</vector>
-			<integer name='trustworthy'> 1 </integer>
-			<vector name='lambda' length='2'>
-			     0.999100
-			     0.999100
-			</vector>
-			<vector name='mean_x' length='2'>
-			     0.508913
-			     0.860844
-			</vector>
-			<vector name='var_x' length='2'>
-			     0.016985
-			     0.009783
+			     0.021858
+			     0.018387
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			    -0.194447
-			    -0.078163
+			     0.083255
+			     0.477623
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    56.985127     0.000000
-			     0.000000    47.085648
+			    45.091508     0.000000
+			     0.000000    45.435736
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.548849     0.000000
-			     0.000000     6.861898
+			     6.715021     0.000000
+			     0.000000     6.740604
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.067143 </scalar>
+			<scalar name='beta0'>     0.864710 </scalar>
 			<vector name='beta' length='2'>
-			     0.551430
-			    -0.172322
+			     0.922932
+			     0.175102
 			</vector>
 			<vector name='c' length='2'>
-			    -0.590615
-			     0.971763
+			     0.959088
+			    -0.090011
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     1.526782     0.008403
-			     0.020000    -0.013777
+			     1.690606     0.124532
+			     0.121018    -0.429462
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.848238
-			     0.532021
+			     1.127514
+			     1.778794
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.019173
-			    -0.091679
+			     1.040619
+			     0.311471
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     1.850920    -0.024168
-			     0.029090     0.224311
+			     1.060737     0.212598
+			     0.397019    -1.061144
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.999914     0.520726
-			     0.013098    -0.853724
+			     0.997448     0.278500
+			     0.071400    -0.960436
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     1.001451    -0.045426
-			     0.015739     0.421621
+			     0.940775     0.119518
+			     0.352119    -0.596553
 			</matrix>
 			<vector name='H' length='2'>
-			    -0.121973
-			     0.197132
+			     0.012899
+			     0.091775
 			</vector>
 			<vector name='r' length='2'>
-			 4.986625e-03
-			 2.312437e-03
+			 2.990241e-03
+			 3.033797e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -2860,91 +675,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   112.354535
-			   112.354535
+			   112.596696
+			   112.596696
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.270760
-			     1.262374
+			     1.107917
+			     1.059274
 			</vector>
-			<scalar name='sum_e2'>     1.341038 </scalar>
-			<scalar name='SSp'>     2.244410 </scalar>
+			<scalar name='sum_e2'>     1.014349 </scalar>
+			<scalar name='SSp'>     1.752537 </scalar>
 			<vector name='n_data' length='2'>
-			   646.840176
-			   646.840176
+			   741.926256
+			   741.926256
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999093
-			     0.999093
+			     0.999116
+			     0.999116
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.583831
-			     0.875206
+			     0.869611
+			    -0.080722
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.016526
-			     0.008129
+			 9.525114e-03
+			 2.314999e-02
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.058347
-			     0.026922
+			    -0.389623
+			     0.105275
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    60.503360     0.000000
-			     0.000000   118.995223
+			    46.591086     0.000000
+			     0.000000    45.104012
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.778391     0.000000
-			     0.000000    10.908493
+			     6.825766     0.000000
+			     0.000000     6.715952
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.581006 </scalar>
+			<scalar name='beta0'>     0.094422 </scalar>
 			<vector name='beta' length='2'>
-			     2.320127
-			     0.482413
+			     0.979658
+			    -0.022466
 			</vector>
 			<vector name='c' length='2'>
-			     0.667993
-			    -0.096438
+			     0.088843
+			     0.716221
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.664132     1.021868
-			     4.529883     0.407630
+			     6.035585     0.008437
+			    -0.021036    -0.035355
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.227098
-			     1.456026
+			     3.364354
+			     2.559110
 			</vector>
 			<vector name='SSYres' length='2'>
-			     2.847024
-			     0.702406
+			     3.295915
+			    -0.057493
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.440312     1.253634
-			     1.134527     0.282803
+			     3.368131    -0.063707
+			     0.045555    -1.691306
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.145060     0.928827
-			     0.989423     0.370515
+			     0.999994     0.232134
+			    -0.003485    -0.972684
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.358824     0.860997
-			     0.924561     0.194229
+			     1.001122    -0.024894
+			     0.013540    -0.660896
 			</matrix>
 			<vector name='H' length='2'>
-			     0.308569
-			    -0.012637
+			     0.013129
+			     0.060631
 			</vector>
 			<vector name='r' length='2'>
-			     0.010520
-			     0.010661
+			 8.483452e-03
+			 6.658623e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -2955,91 +770,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   116.932675
-			   116.932675
+			   158.153320
+			   158.153320
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     5.026904
-			     4.722779
+			     1.485106
+			     1.489050
 			</vector>
-			<scalar name='sum_e2'>     4.609543 </scalar>
-			<scalar name='SSp'>     1.713158 </scalar>
+			<scalar name='sum_e2'>     1.479173 </scalar>
+			<scalar name='SSp'>     1.321174 </scalar>
 			<vector name='n_data' length='2'>
-			   722.272306
-			   722.272306
+			   917.685169
+			   917.685169
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999111
-			     0.999111
+			     0.999168
+			     0.999168
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.670304
-			    -0.095147
+			     0.093888
+			     0.706152
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.015774
-			     0.009998
+			     0.021341
+			     0.019224
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.053366
-			     0.210435
+			     0.143395
+			    -0.231304
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    48.177309     0.000000
-			     0.000000    60.073722
+			    46.596931     0.000000
+			     0.000000    46.598278
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     6.940988     0.000000
-			     0.000000     7.750724
+			     6.826194     0.000000
+			     0.000000     6.826293
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.014643 </scalar>
+			<scalar name='beta0'>    -0.801813 </scalar>
 			<vector name='beta' length='2'>
-			     0.127644
-			    -0.037857
+			     0.969681
+			     0.086715
 			</vector>
 			<vector name='c' length='2'>
-			     0.963795
-			     0.510470
+			    -0.833737
+			    -0.604590
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.111749    -0.039523
-			    -0.260965    -0.034985
+			     3.630365     0.108209
+			    -0.192888     0.448473
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.303867
-			     0.324506
+			     2.285318
+			     2.803841
 			</vector>
 			<vector name='SSYres' length='2'>
-			     0.166431
-			    -0.012285
+			     2.216029
+			     0.243134
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.411752    -0.372930
-			    -1.233559     0.300328
+			     2.254302     0.329015
+			    -0.330334     2.878981
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.393643    -0.748779
-			    -0.919263    -0.662820
+			     0.998591     0.234551
+			    -0.053057     0.972104
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.315793    -1.149222
-			    -0.946077     0.925492
+			     0.986428     0.117345
+			    -0.144546     1.026799
 			</matrix>
 			<vector name='H' length='2'>
-			     0.059813
-			     0.020135
+			    -0.022947
+			    -0.008905
 			</vector>
 			<vector name='r' length='2'>
-			 3.465622e-03
-			 9.129673e-04
+			 6.559739e-03
+			 6.463496e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3050,91 +865,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    91.037472
-			    91.037472
+			   155.752411
+			   155.752411
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     0.938544
-			     0.942869
+			     1.450715
+			     1.440521
 			</vector>
-			<scalar name='sum_e2'>     0.918802 </scalar>
-			<scalar name='SSp'>     2.100276 </scalar>
+			<scalar name='sum_e2'>     1.406958 </scalar>
+			<scalar name='SSp'>     2.533854 </scalar>
 			<vector name='n_data' length='2'>
-			   618.385397
-			   618.385397
+			   780.934558
+			   780.934558
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999087
-			     0.999087
+			     0.999126
+			     0.999126
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.869698
-			     0.515053
+			    -0.804256
+			    -0.606436
 			</vector>
 			<vector name='var_x' length='2'>
-			 9.005996e-03
-			 1.722146e-02
+			     0.014648
+			     0.019810
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.294998
-			     0.124275
+			    -0.138018
+			     0.032822
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    52.452022     0.000000
-			     0.000000    83.222400
+			    46.796598     0.000000
+			     0.000000    47.329445
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.242377     0.000000
-			     0.000000     9.122631
+			     6.840804     0.000000
+			     0.000000     6.879640
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.124462 </scalar>
+			<scalar name='beta0'>     0.432315 </scalar>
 			<vector name='beta' length='2'>
-			     1.472407
-			     0.094756
+			     0.999861
+			    -0.000136
 			</vector>
 			<vector name='c' length='2'>
-			    -0.994928
-			    -0.271954
+			     0.450670
+			     0.865756
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.174979     0.111656
-			     2.104019     0.015218
+			     5.254496     0.033077
+			    -0.108712    -0.077354
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.011438
-			     0.429586
+			     3.154825
+			     1.063039
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.489248
-			     0.040706
+			     3.154387
+			    -0.000145
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     0.033887     0.126650
-			     1.010973    -0.011745
+			     3.154960     0.002411
+			    -0.026258    -0.391389
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.082878     0.990840
-			     0.996560     0.135043
+			     0.999786     0.393171
+			    -0.020685    -0.919466
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     0.033504     0.294819
-			     0.999541    -0.027340
+			     1.000043     0.002268
+			    -0.008323    -0.368179
 			</matrix>
 			<vector name='H' length='2'>
-			    -0.128508
-			     0.064910
+			    -0.062288
+			     0.063208
 			</vector>
 			<vector name='r' length='2'>
-			 6.207825e-03
-			 3.724541e-03
+			 8.190772e-03
+			 2.987299e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3145,91 +960,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    81.760837
-			    81.760837
+			   150.983042
+			   150.983042
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     2.307612
-			     2.324363
+			     1.543837
+			     1.550342
 			</vector>
-			<scalar name='sum_e2'>     2.264228 </scalar>
-			<scalar name='SSp'>     1.722097 </scalar>
+			<scalar name='sum_e2'>     1.527474 </scalar>
+			<scalar name='SSp'>     1.860752 </scalar>
 			<vector name='n_data' length='2'>
-			   547.450858
-			   547.450858
+			   814.354713
+			   814.354713
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999074
-			     0.999074
+			     0.999135
+			     0.999135
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.891032
-			    -0.273859
+			     0.440509
+			     0.826789
 			</vector>
 			<vector name='var_x' length='2'>
-			 7.387827e-03
-			 1.239411e-02
+			     0.020943
+			     0.012708
 			</vector>
-			<scalar name='w'> 2.156896e-03 </scalar>
+			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			    -0.074034
-			     0.356121
+			    -0.204813
+			    -0.107138
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    81.171655     0.000000
-			     0.000000    51.184482
+			    48.399895     0.000000
+			     0.000000    48.628650
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     9.009531     0.000000
-			     0.000000     7.154333
+			     6.957003     0.000000
+			     0.000000     6.973425
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.783770 </scalar>
+			<scalar name='beta0'>     0.870545 </scalar>
 			<vector name='beta' length='2'>
-			     1.673769
-			     0.009846
+			     0.874336
+			     0.109122
 			</vector>
 			<vector name='c' length='2'>
-			    -0.128992
-			     0.981382
+			     0.970723
+			    -0.822595
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     2.718732     0.031269
-			    -0.031079     0.061479
+			     1.203698     0.148952
+			    -0.093880    -0.200941
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.166581
-			     0.191145
+			     0.992357
+			     1.137619
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.952588
-			     0.001882
+			     0.867653
+			     0.124139
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     1.167233     0.009207
-			    -0.025734     0.227914
+			     0.915828     0.088405
+			     0.036565    -1.296186
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.999935     0.453349
-			    -0.011431     0.891333
+			     0.996972     0.595504
+			    -0.077757    -0.803352
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     1.000559     0.048165
-			    -0.022059     1.192362
+			     0.922882     0.077711
+			     0.036846    -1.139385
 			</matrix>
 			<vector name='H' length='2'>
-			     0.073606
-			     0.085728
+			     0.014388
+			    -0.173953
 			</vector>
 			<vector name='r' length='2'>
-			 5.260318e-03
-			 1.396668e-03
+			 1.858164e-03
+			 2.412608e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3240,15 +1055,15 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    81.655217
-			    81.655217
+			   110.931094
+			   110.931094
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.605262
-			     1.619406
+			     0.857270
+			     0.874929
 			</vector>
-			<scalar name='sum_e2'>     1.591542 </scalar>
-			<scalar name='SSp'>     1.712640 </scalar>
+			<scalar name='sum_e2'>     0.844127 </scalar>
+			<scalar name='SSp'>     2.307912 </scalar>
 			<vector name='n_data' length='2'>
 			   576.316192
 			   576.316192
@@ -3259,72 +1074,72 @@
 			     0.999079
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.126457
-			     0.880395
+			     0.871801
+			    -0.796711
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.014443
-			     0.007712
+			 8.503300e-03
+			 1.371418e-02
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			    -0.398191
-			    -0.039667
+			    -0.310206
+			    -0.132817
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    63.437640     0.000000
-			     0.000000    49.143511
+			    46.144751     0.000000
+			     0.000000    46.599425
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.964775     0.000000
-			     0.000000     7.010243
+			     6.792993     0.000000
+			     0.000000     6.826377
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.184863 </scalar>
+			<scalar name='beta0'>    -0.614799 </scalar>
 			<vector name='beta' length='2'>
-			     1.173924
-			     0.018670
+			     0.981645
+			     0.019338
 			</vector>
 			<vector name='c' length='2'>
-			     0.467731
-			     0.636085
+			    -0.608334
+			     0.026958
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -4.017265    -0.041375
-			    -0.545591     0.110926
+			     6.051661     0.008333
+			    -0.021350     0.140526
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     2.107001
-			     1.417600
+			     3.130678
+			     2.988597
 			</vector>
 			<vector name='SSYres' length='2'>
-			     2.473459
-			     0.026466
+			     3.073216
+			     0.057795
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -2.079857    -0.187817
-			    -0.340786     1.332353
+			     3.132335    -0.031754
+			    -0.110871     2.884610
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.990903    -0.349474
-			    -0.134576     0.936946
+			     0.999994     0.059192
+			    -0.003528     0.998247
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.987117    -0.132490
-			    -0.161740     0.939865
+			     1.000529    -0.010625
+			    -0.035414     0.965205
 			</matrix>
 			<vector name='H' length='2'>
-			     0.015866
-			     0.142819
+			    -0.046637
+			     0.079560
 			</vector>
 			<vector name='r' length='2'>
-			 8.007199e-03
-			 4.783249e-03
+			 7.661279e-03
+			 6.178927e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3335,91 +1150,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   129.032195
-			   129.032195
+			   148.914965
+			   148.914965
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.905833
-			     1.913834
+			     1.362428
+			     1.365765
 			</vector>
-			<scalar name='sum_e2'>     1.898924 </scalar>
-			<scalar name='SSp'>     1.798192 </scalar>
+			<scalar name='sum_e2'>     1.349310 </scalar>
+			<scalar name='SSp'>     0.964054 </scalar>
 			<vector name='n_data' length='2'>
-			   782.520028
-			   782.520028
+			   969.806412
+			   969.806412
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999126
-			     0.999126
+			     0.999187
+			     0.999187
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.467462
-			     0.629768
+			    -0.609519
+			     0.030566
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.016345
-			     0.017927
+			     0.021061
+			     0.021159
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			    -0.274637
-			     0.273677
+			     0.282331
+			    -0.210314
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    79.248894     0.000000
-			     0.000000    63.664720
+			    44.244687     0.000000
+			     0.000000    43.552641
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     8.902185     0.000000
-			     0.000000     7.979017
+			     6.651668     0.000000
+			     0.000000     6.599442
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.883083 </scalar>
+			<scalar name='beta0'>     0.475255 </scalar>
 			<vector name='beta' length='2'>
-			     1.724479
-			     0.082112
+			     0.991107
+			     0.023881
 			</vector>
 			<vector name='c' length='2'>
-			    -0.176685
-			     0.172575
+			     0.481567
+			     0.538186
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     2.800589     0.148675
-			    -2.185991     0.157204
+			     6.171607     0.028275
+			    -0.348552     0.153050
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.333278
-			     1.359557
+			     3.095682
+			     1.823575
 			</vector>
 			<vector name='SSYres' length='2'>
-			     2.299210
-			     0.111636
+			     3.068151
+			     0.043550
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     0.995034     0.773460
-			    -0.894748     1.057507
+			     3.084271     0.063785
+			    -0.301320     1.232089
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.788293     0.687123
-			    -0.615300     0.726541
+			     0.998409     0.181671
+			    -0.056387     0.983359
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     0.746306     0.568906
-			    -0.671089     0.777832
+			     0.996314     0.034978
+			    -0.097336     0.675644
 			</matrix>
 			<vector name='H' length='2'>
-			     0.011848
-			    -0.047748
+			     0.024096
+			     0.238077
 			</vector>
 			<vector name='r' length='2'>
-			 4.570689e-03
-			 4.007616e-03
+			 9.507960e-03
+			 4.910915e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3430,18 +1245,1253 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   105.430652
-			   105.430652
+			   146.527666
+			   146.527666
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.663548
-			     1.663313
+			     1.557043
+			     1.560255
 			</vector>
-			<scalar name='sum_e2'>     1.622339 </scalar>
-			<scalar name='SSp'>     1.528544 </scalar>
+			<scalar name='sum_e2'>     1.560176 </scalar>
+			<scalar name='SSp'>     1.006467 </scalar>
 			<vector name='n_data' length='2'>
-			   713.607320
-			   713.607320
+			   996.168864
+			   996.168864
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999197
+			     0.999197
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.472838
+			     0.538647
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.021055
+			     0.021141
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.257317
+			     0.379933
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    47.421936     0.000000
+			     0.000000    46.638277
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.886359     0.000000
+			     0.000000     6.829222
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.522324 </scalar>
+			<vector name='beta' length='2'>
+			     1.010817
+			    -0.023016
+			</vector>
+			<vector name='c' length='2'>
+			    -0.513230
+			     0.716586
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     5.896675     0.017918
+			     0.044819    -0.016662
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.203868
+			     2.286215
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.238524
+			    -0.052619
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.205919    -0.072951
+			     0.010540     1.696419
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999971     0.732297
+			     0.007601    -0.680985
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     1.000640    -0.031909
+			     0.003290     0.742021
+			</matrix>
+			<vector name='H' length='2'>
+			    -0.064215
+			     0.003352
+			</vector>
+			<vector name='r' length='2'>
+			 7.594754e-03
+			 5.896854e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   161.179579
+			   161.179579
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.544643
+			     1.548440
+			</vector>
+			<scalar name='sum_e2'>     1.528982 </scalar>
+			<scalar name='SSp'>     1.332423 </scalar>
+			<vector name='n_data' length='2'>
+			   910.046798
+			   910.046798
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999166
+			     0.999166
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.515112
+			     0.706728
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.019936
+			     0.019079
+			</vector>
+			<scalar name='w'>     0.170460 </scalar>
+			<vector name='s' length='2'>
+			    -0.059827
+			    -0.190714
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    45.063787     0.000000
+			     0.000000    46.035780
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.712957     0.000000
+			     0.000000     6.784967
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.046079 </scalar>
+			<vector name='beta' length='2'>
+			     1.037143
+			     0.006216
+			</vector>
+			<vector name='c' length='2'>
+			     0.041087
+			    -0.271429
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     6.476687     0.036105
+			     0.092736    -0.100052
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.118908
+			     2.533703
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.234754
+			     0.015748
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.117954     0.078446
+			     0.043452    -2.755038
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999898     0.339435
+			     0.014317    -0.940629
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.999694     0.030961
+			     0.013932    -1.087356
+			</matrix>
+			<vector name='H' length='2'>
+			     0.022878
+			    -0.023698
+			</vector>
+			<vector name='r' length='2'>
+			 6.153974e-03
+			 5.189666e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   139.617886
+			   139.617886
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.273297
+			     1.277461
+			</vector>
+			<scalar name='sum_e2'>     1.258804 </scalar>
+			<scalar name='SSp'>     1.157230 </scalar>
+			<vector name='n_data' length='2'>
+			 1.002740e+03
+			 1.002740e+03
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999200
+			     0.999200
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.046291
+			    -0.264003
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.022379
+			     0.021815
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			     0.460576
+			     0.269881
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    48.130901     0.000000
+			     0.000000    48.190121
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.937644     0.000000
+			     0.000000     6.941910
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.855383 </scalar>
+			<vector name='beta' length='2'>
+			     0.913182
+			     0.048810
+			</vector>
+			<vector name='c' length='2'>
+			    -0.926809
+			     0.939502
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     1.356951     0.016525
+			    -0.039136    -0.080505
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     1.078073
+			     0.742347
+			</vector>
+			<vector name='SSYres' length='2'>
+			     0.984477
+			     0.036234
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     1.074668    -0.012705
+			     0.019457    -0.526555
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999584     0.201077
+			    -0.028829    -0.979576
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.996842    -0.017115
+			     0.018048    -0.709311
+			</matrix>
+			<vector name='H' length='2'>
+			    -0.081675
+			     0.024549
+			</vector>
+			<vector name='r' length='2'>
+			 2.321288e-03
+			 2.033837e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   106.879689
+			   106.879689
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     0.838957
+			     0.843581
+			</vector>
+			<scalar name='sum_e2'>     0.816937 </scalar>
+			<scalar name='SSp'>     2.941504 </scalar>
+			<vector name='n_data' length='2'>
+			   536.002835
+			   536.002835
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999071
+			     0.999071
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.855152
+			     0.858538
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.010083
+			     0.008662
+			</vector>
+			<scalar name='w'>     0.050137 </scalar>
+			<vector name='s' length='2'>
+			     0.274358
+			    -0.117472
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    46.017350     0.000000
+			     0.000000    47.612825
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.783609     0.000000
+			     0.000000     6.900205
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.785852 </scalar>
+			<vector name='beta' length='2'>
+			     0.965972
+			     0.014129
+			</vector>
+			<vector name='c' length='2'>
+			    -0.821588
+			     0.617087
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     3.869867     0.024604
+			    -0.080531     0.131609
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     2.346066
+			     2.897653
+			</vector>
+			<vector name='SSYres' length='2'>
+			     2.266233
+			     0.040941
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     2.343247     0.042214
+			    -0.104456     1.955155
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999784     0.183761
+			    -0.020805     0.982971
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.998799     0.014568
+			    -0.044524     0.674738
+			</matrix>
+			<vector name='H' length='2'>
+			 5.753216e-03
+			 7.714955e-04
+			</vector>
+			<vector name='r' length='2'>
+			 6.010278e-03
+			 6.831313e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   156.546704
+			   156.546704
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.455761
+			     1.459877
+			</vector>
+			<scalar name='sum_e2'>     1.434571 </scalar>
+			<scalar name='SSp'>     1.510389 </scalar>
+			<vector name='n_data' length='2'>
+			   817.305696
+			   817.305696
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999136
+			     0.999136
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.787585
+			     0.614841
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.015000
+			     0.020886
+			</vector>
+			<scalar name='w'>     0.010181 </scalar>
+			<vector name='s' length='2'>
+			     0.202801
+			     0.373566
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    46.195919     0.000000
+			     0.000000    45.957220
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.796758     0.000000
+			     0.000000     6.779175
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.764914 </scalar>
+			<vector name='beta' length='2'>
+			     0.976506
+			     0.109375
+			</vector>
+			<vector name='c' length='2'>
+			     0.805792
+			    -0.504724
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     4.074074     0.145218
+			    -0.076094     0.640623
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     2.472669
+			     3.063984
+			</vector>
+			<vector name='SSYres' length='2'>
+			     2.414575
+			     0.335124
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     2.432071     0.303860
+			    -0.306923     3.123706
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999826     0.221073
+			    -0.018674     0.975257
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.983581     0.099172
+			    -0.124126     1.019492
+			</matrix>
+			<vector name='H' length='2'>
+			     0.017178
+			    -0.130070
+			</vector>
+			<vector name='r' length='2'>
+			 7.206027e-03
+			 7.159929e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   157.482898
+			   157.482898
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.522580
+			     1.495469
+			</vector>
+			<scalar name='sum_e2'>     1.465398 </scalar>
+			<scalar name='SSp'>     1.758717 </scalar>
+			<vector name='n_data' length='2'>
+			   848.042198
+			   848.042198
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999145
+			     0.999145
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.770834
+			    -0.505258
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.015538
+			     0.020555
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.259175
+			    -0.069282
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    47.447790     0.000000
+			     0.000000    50.384729
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.888236     0.000000
+			     0.000000     7.098220
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.878177 </scalar>
+			<vector name='beta' length='2'>
+			     0.878153
+			     0.101751
+			</vector>
+			<vector name='c' length='2'>
+			     0.985140
+			     0.415057
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     1.038180     0.113702
+			    -0.044041     0.312306
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     0.806026
+			     1.883776
+			</vector>
+			<vector name='SSYres' length='2'>
+			     0.707814
+			     0.191675
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     0.768099     0.185539
+			    -0.199376     1.982666
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999101     0.342105
+			    -0.042384     0.939662
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.952946     0.098493
+			    -0.247356     1.052495
+			</matrix>
+			<vector name='H' length='2'>
+			     0.065917
+			    -0.083811
+			</vector>
+			<vector name='r' length='2'>
+			 2.169860e-03
+			 4.185453e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   102.130774
+			   102.130774
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.081092
+			     1.084076
+			</vector>
+			<scalar name='sum_e2'>     1.043633 </scalar>
+			<scalar name='SSp'>     1.393854 </scalar>
+			<vector name='n_data' length='2'>
+			   677.788431
+			   677.788431
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999100
+			     0.999100
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.882270
+			     0.407163
+			</vector>
+			<vector name='var_x' length='2'>
+			 7.621744e-03
+			 2.007926e-02
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.215111
+			    -0.271338
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    45.841414     0.000000
+			     0.000000    44.838663
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.770629     0.000000
+			     0.000000     6.696168
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.306122 </scalar>
+			<vector name='beta' length='2'>
+			     1.016726
+			     0.012659
+			</vector>
+			<vector name='c' length='2'>
+			    -0.295322
+			     0.291576
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     6.460497     0.031161
+			    -0.169025    -0.176723
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.079706
+			     3.052244
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.131217
+			     0.038637
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.077266     0.010917
+			    -0.111129    -3.116891
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999658     0.173651
+			    -0.026154    -0.984807
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.999208     0.003577
+			    -0.036084    -1.021180
+			</matrix>
+			<vector name='H' length='2'>
+			     0.018717
+			    -0.063225
+			</vector>
+			<vector name='r' length='2'>
+			 6.986546e-03
+			 7.297042e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   145.891828
+			   145.891828
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.453288
+			     1.458266
+			</vector>
+			<scalar name='sum_e2'>     1.438044 </scalar>
+			<scalar name='SSp'>     0.955689 </scalar>
+			<vector name='n_data' length='2'>
+			 1.022139e+03
+			 1.022139e+03
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999208
+			     0.999208
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.295057
+			     0.289467
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.021103
+			     0.021850
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.020355
+			     0.470784
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    44.573963     0.000000
+			     0.000000    43.844847
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.676374     0.000000
+			     0.000000     6.621544
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.517193 </scalar>
+			<vector name='beta' length='2'>
+			     1.005508
+			     0.025473
+			</vector>
+			<vector name='c' length='2'>
+			    -0.510748
+			    -0.325630
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     6.103637     0.029099
+			     0.105708    -0.136458
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.112415
+			     2.665675
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.129558
+			     0.067903
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.110014     0.064917
+			     0.121033    -2.816038
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999850     0.208555
+			     0.017316    -0.978011
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.999229     0.024353
+			     0.038887    -1.056407
+			</matrix>
+			<vector name='H' length='2'>
+			 -5.591876e-03
+			 3.094964e-02
+			</vector>
+			<vector name='r' length='2'>
+			 6.846837e-03
+			 5.187537e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   144.602002
+			   144.602002
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.311439
+			     1.313641
+			</vector>
+			<scalar name='sum_e2'>     1.293889 </scalar>
+			<scalar name='SSp'>     1.162462 </scalar>
+			<vector name='n_data' length='2'>
+			   984.196129
+			   984.196129
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999193
+			     0.999193
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.512335
+			    -0.321656
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.021526
+			     0.021691
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.431230
+			     0.210521
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    47.846042     0.000000
+			     0.000000    47.235409
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.917083     0.000000
+			     0.000000     6.872802
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.723534 </scalar>
+			<vector name='beta' length='2'>
+			     1.042671
+			     0.010720
+			</vector>
+			<vector name='c' length='2'>
+			     0.735106
+			     0.977881
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     3.186963     0.012852
+			     0.013310    -0.044963
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     2.144194
+			     0.810148
+			</vector>
+			<vector name='SSYres' length='2'>
+			     2.235689
+			     0.008684
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     2.142910    -0.017031
+			     0.039972    -0.768375
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999991     0.274834
+			     0.004176    -0.961492
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.999401    -0.021022
+			     0.018642    -0.948437
+			</matrix>
+			<vector name='H' length='2'>
+			     0.012426
+			    -0.028368
+			</vector>
+			<vector name='r' length='2'>
+			 6.624023e-03
+			 3.078275e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   121.395017
+			   121.395017
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.356643
+			     1.364187
+			</vector>
+			<scalar name='sum_e2'>     1.331295 </scalar>
+			<scalar name='SSp'>     1.997680 </scalar>
+			<vector name='n_data' length='2'>
+			   618.385397
+			   618.385397
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999087
+			     0.999087
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.731282
+			     0.885735
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.017697
+			     0.007355
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.492907
+			    -0.066984
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    45.770561     0.000000
+			     0.000000    44.470604
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.765394     0.000000
+			     0.000000     6.668628
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.360758 </scalar>
+			<vector name='beta' length='2'>
+			     1.005292
+			    -0.000256
+			</vector>
+			<vector name='c' length='2'>
+			    -0.346879
+			    -0.594742
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     5.756186     0.019149
+			    -0.100508    -0.119848
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.018018
+			     2.769037
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.033989
+			    -0.000709
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.017280    -0.061923
+			    -0.018407    -2.635127
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999848     0.157774
+			    -0.017458    -0.987475
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.999755    -0.022363
+			    -0.006099    -0.951640
+			</matrix>
+			<vector name='H' length='2'>
+			    -0.042813
+			    -0.041222
+			</vector>
+			<vector name='r' length='2'>
+			 6.725345e-03
+			 5.532138e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   147.022334
+			   147.022334
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.390314
+			     1.394397
+			</vector>
+			<scalar name='sum_e2'>     1.375211 </scalar>
+			<scalar name='SSp'>     1.671766 </scalar>
+			<vector name='n_data' length='2'>
+			   949.473632
+			   949.473632
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999180
+			     0.999180
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.349657
+			    -0.602470
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.020561
+			     0.021438
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			     0.014489
+			    -0.406193
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    45.993045     0.000000
+			     0.000000    45.982670
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.781817     0.000000
+			     0.000000     6.781052
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.034746 </scalar>
+			<vector name='beta' length='2'>
+			     0.991331
+			     0.089945
+			</vector>
+			<vector name='c' length='2'>
+			     0.034339
+			    -0.867302
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     4.808171     0.025136
+			    -0.175818    -0.253784
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     2.911121
+			     1.541742
+			</vector>
+			<vector name='SSYres' length='2'>
+			     2.885885
+			     0.138672
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     2.907308     0.007206
+			    -0.015435    -1.485690
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999332     0.098561
+			    -0.036542    -0.995131
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.998690     0.004674
+			    -0.005302    -0.963643
+			</matrix>
+			<vector name='H' length='2'>
+			 -9.344034e-03
+			 3.474538e-02
+			</vector>
+			<vector name='r' length='2'>
+			 7.479530e-03
+			 4.911261e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   143.283486
+			   143.283486
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.366699
+			     1.361592
+			</vector>
+			<scalar name='sum_e2'>     1.336532 </scalar>
+			<scalar name='SSp'>     1.695737 </scalar>
+			<vector name='n_data' length='2'>
+			   798.704358
+			   798.704358
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999131
+			     0.999131
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.031774
+			    -0.817584
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.020300
+			     0.011945
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.148034
+			    -0.200975
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    44.199211     0.000000
+			     0.000000    45.905589
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.648249     0.000000
+			     0.000000     6.775366
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.100028 </scalar>
+			<vector name='beta' length='2'>
+			     1.015987
+			     0.002543
+			</vector>
+			<vector name='c' length='2'>
+			     0.106065
+			     0.057948
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     6.484122     0.054469
+			    -0.144061     0.142651
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     3.235011
+			     2.640891
+			</vector>
+			<vector name='SSYres' length='2'>
+			     3.286729
+			     0.006715
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     3.232122     0.086421
+			    -0.077218     2.810928
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999753     0.356715
+			    -0.022212     0.934213
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.999107     0.032724
+			    -0.023869     1.064386
+			</matrix>
+			<vector name='H' length='2'>
+			     0.050779
+			    -0.100825
+			</vector>
+			<vector name='r' length='2'>
+			 7.219590e-03
+			 6.100702e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   157.250218
+			   157.250218
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.463717
+			     1.471609
+			</vector>
+			<scalar name='sum_e2'>     1.446512 </scalar>
+			<scalar name='SSp'>     1.486488 </scalar>
+			<vector name='n_data' length='2'>
+			 1.010979e+03
+			 1.010979e+03
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999203
+			     0.999203
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.103988
+			     0.060094
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.020592
+			     0.019222
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			     0.401354
+			    -0.357794
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    47.582174     0.000000
+			     0.000000    47.117232
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.897983     0.000000
+			     0.000000     6.864199
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.282332 </scalar>
+			<vector name='beta' length='2'>
+			     1.001238
+			     0.033798
+			</vector>
+			<vector name='c' length='2'>
+			    -0.283573
+			    -0.947251
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     3.846003     0.009111
+			    -0.053587    -0.079399
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     2.467907
+			     0.884469
+			</vector>
+			<vector name='SSYres' length='2'>
+			     2.470963
+			     0.029894
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     2.470932    -0.010776
+			     0.032704    -0.570556
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999903     0.113997
+			    -0.013932    -0.993481
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     1.001226    -0.012184
+			     0.013252    -0.645083
+			</matrix>
+			<vector name='H' length='2'>
+			     0.017049
+			     0.066822
+			</vector>
+			<vector name='r' length='2'>
+			 5.570356e-03
+			 2.418728e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   120.319750
+			   120.319750
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.095348
+			     1.100172
+			</vector>
+			<scalar name='sum_e2'>     1.083721 </scalar>
+			<scalar name='SSp'>     2.539115 </scalar>
+			<vector name='n_data' length='2'>
+			   716.512207
+			   716.512207
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
@@ -3449,72 +2499,72 @@
 			     0.999109
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.174882
-			     0.168698
+			    -0.289266
+			    -0.860987
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.012178
-			     0.015192
+			     0.020580
+			     0.009339
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.111279
-			     0.247186
+			     0.176890
+			    -0.242547
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    49.174029     0.000000
-			     0.000000    53.277921
+			    45.590406     0.000000
+			     0.000000    45.348265
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.012420     0.000000
-			     0.000000     7.299173
+			     6.752067     0.000000
+			     0.000000     6.734112
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'> 9.217088e-03 </scalar>
+			<scalar name='beta0'>    -0.211539 </scalar>
 			<vector name='beta' length='2'>
-			    -0.052075
-			    -0.001796
+			     1.003921
+			     0.020531
 			</vector>
 			<vector name='c' length='2'>
-			     0.988950
-			    -0.974864
+			    -0.213925
+			     0.924294
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.022155    -0.040439
-			    -0.008293    -0.002196
+			     4.306955     0.011967
+			     0.100606     0.081863
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     0.428262
-			     0.076413
+			     2.696066
+			     1.282160
 			</vector>
 			<vector name='SSYres' length='2'>
-			    -0.022302
-			    -0.000137
+			     2.706636
+			     0.026323
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.321463    -0.028958
-			     0.073985     0.020999
+			     2.696592    -0.019399
+			     0.027772     1.258977
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.936535    -0.998529
-			    -0.350573    -0.054229
+			     0.999727     0.144645
+			     0.023353     0.989484
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.750622    -0.378971
-			     0.172756     0.274807
+			     1.000195    -0.015130
+			     0.010301     0.981918
 			</matrix>
 			<vector name='H' length='2'>
-			     0.013716
-			     0.000689
+			     0.107477
+			     0.014067
 			</vector>
 			<vector name='r' length='2'>
-			 1.122525e-03
-			 7.527374e-05
+			 6.217765e-03
+			 3.611568e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3525,91 +2575,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    56.971477
-			    56.971477
+			   126.169858
+			   126.169858
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     0.576686
-			     0.578374
+			     1.199532
+			     1.206691
 			</vector>
-			<scalar name='sum_e2'>     0.565407 </scalar>
-			<scalar name='SSp'>     2.362594 </scalar>
+			<scalar name='sum_e2'>     1.180364 </scalar>
+			<scalar name='SSp'>     1.957413 </scalar>
 			<vector name='n_data' length='2'>
-			   352.942845
-			   352.942845
+			   777.427983
+			   777.427983
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999042
-			     0.999042
+			     0.999125
+			     0.999125
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.878934
-			    -0.873986
+			    -0.212582
+			     0.851502
 			</vector>
 			<vector name='var_x' length='2'>
-			 7.088642e-03
-			 7.083424e-03
+			     0.021426
+			     0.011000
 			</vector>
-			<scalar name='w'> 0.0 </scalar>
+			<scalar name='w'>     0.045580 </scalar>
 			<vector name='s' length='2'>
-			    -0.102267
-			    -0.008475
+			    -0.361267
+			     0.134687
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    65.693500     0.000000
-			     0.000000   123.347125
+			    46.404178     0.000000
+			     0.000000    46.081817
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     8.105153     0.000000
-			     0.000000    11.106175
+			     6.812061     0.000000
+			     0.000000     6.788359
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.376604 </scalar>
+			<scalar name='beta0'>     0.693628 </scalar>
 			<vector name='beta' length='2'>
-			     3.230752
-			     0.378096
+			     0.984056
+			    -0.022515
 			</vector>
 			<vector name='c' length='2'>
-			     0.948759
-			    -0.165147
+			     0.701974
+			     0.072909
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     0.030771    -0.159119
-			     2.419951     0.073588
+			     5.272055     0.043364
+			     0.023168     0.029890
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     0.589639
-			     0.318772
+			     2.870812
+			     1.359947
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.904979
-			     0.120526
+			     2.825039
+			    -0.030619
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     0.037621    -0.368636
-			     0.586451     0.035453
+			     2.871412     0.008722
+			     0.034606     1.567140
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.012714    -0.907638
-			     0.999919     0.419754
+			     0.999990     0.823363
+			     0.004394     0.567515
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     0.063803    -1.156427
-			     0.994593     0.111219
+			     1.000209     0.006414
+			     0.012054     1.152354
 			</matrix>
 			<vector name='H' length='2'>
-			    -0.022493
-			    -0.096132
+			    -0.077665
+			     0.022988
 			</vector>
 			<vector name='r' length='2'>
-			 1.941381e-03
-			 1.430654e-03
+			 7.113085e-03
+			 2.856122e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3620,91 +2670,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    67.902262
-			    67.902262
+			   154.613233
+			   154.613233
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.322898
-			     1.348805
+			     1.451506
+			     1.458560
 			</vector>
-			<scalar name='sum_e2'>     1.281247 </scalar>
-			<scalar name='SSp'>     2.267585 </scalar>
+			<scalar name='sum_e2'>     1.435749 </scalar>
+			<scalar name='SSp'>     1.302363 </scalar>
 			<vector name='n_data' length='2'>
-			   417.472134
-			   417.472134
+			   907.633582
+			   907.633582
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999051
-			     0.999051
+			     0.999165
+			     0.999165
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.880100
-			    -0.163048
+			     0.696509
+			     0.082331
 			</vector>
 			<vector name='var_x' length='2'>
-			 6.727499e-03
-			 8.783460e-03
+			     0.018608
+			     0.019223
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.150102
-			     0.023260
+			    -0.201528
+			    -0.230732
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    66.000803     0.000000
-			     0.000000    62.770758
+			    45.795662     0.000000
+			     0.000000    45.436883
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     8.124088     0.000000
-			     0.000000     7.922800
+			     6.767249     0.000000
+			     0.000000     6.740689
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.583228 </scalar>
+			<scalar name='beta0'>    -0.601878 </scalar>
 			<vector name='beta' length='2'>
-			     1.976920
-			     0.024530
+			     0.935033
+			     0.011509
 			</vector>
 			<vector name='c' length='2'>
-			     0.240789
-			    -0.472848
+			    -0.597367
+			     0.353930
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -5.236024    -0.021003
-			     0.538248     0.088548
+			     5.904435     0.041932
+			     0.166275     0.195329
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.686985
-			     0.884658
+			     3.211105
+			     3.009437
 			</vector>
 			<vector name='SSYres' length='2'>
-			     3.335034
-			     0.021701
+			     3.002490
+			     0.034636
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -1.681046    -0.042694
-			     0.147737    -0.602314
+			     3.203977     0.047363
+			     0.139155     3.072217
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.994758    -0.230792
-			     0.102258     0.973003
+			     0.999604     0.209894
+			     0.028150     0.977724
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.996480    -0.048261
-			     0.087575    -0.680844
+			     0.997780     0.015738
+			     0.043336     1.020861
 			</matrix>
 			<vector name='H' length='2'>
-			     0.013140
-			     0.048164
+			    -0.085793
+			    -0.107030
 			</vector>
 			<vector name='r' length='2'>
-			 5.064772e-03
-			 2.565189e-03
+			 8.191867e-03
+			 7.790198e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3715,91 +2765,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			   116.267239
-			   116.267239
+			   157.172132
+			   157.172132
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.544036
-			     1.551427
+			     1.593491
+			     1.598107
 			</vector>
-			<scalar name='sum_e2'>     1.521071 </scalar>
-			<scalar name='SSp'>     1.592325 </scalar>
+			<scalar name='sum_e2'>     1.573725 </scalar>
+			<scalar name='SSp'>     1.049745 </scalar>
 			<vector name='n_data' length='2'>
-			   717.958413
-			   717.958413
+			   974.231885
+			   974.231885
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999110
-			     0.999110
+			     0.999189
+			     0.999189
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.237920
-			    -0.476895
+			    -0.598933
+			     0.356015
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.014515
-			     0.013701
+			     0.020398
+			     0.020006
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.128628
-			    -0.094692
+			    -0.289018
+			    -0.181767
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    67.118497     0.000000
-			     0.000000    54.388718
+			    48.218003     0.000000
+			     0.000000    47.467196
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     8.192588     0.000000
-			     0.000000     7.374871
+			     6.943918     0.000000
+			     0.000000     6.889644
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.148870 </scalar>
+			<scalar name='beta0'>    -0.645207 </scalar>
 			<vector name='beta' length='2'>
-			     1.142617
-			     0.006654
+			     1.029350
+			    -0.063527
 			</vector>
 			<vector name='c' length='2'>
-			    -0.480390
-			    -0.708434
+			    -0.660704
+			    -0.974150
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			     2.250225     0.011939
-			     0.030135    -0.068628
+			     3.281336     0.015323
+			    -0.034778     0.028217
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     1.409618
-			     1.268943
+			     2.199474
+			     0.605751
 			</vector>
 			<vector name='SSYres' length='2'>
-			     1.610654
-			     0.008444
+			     2.264028
+			    -0.038482
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			     1.411026    -0.024024
-			     0.060429    -0.781781
+			     2.199260    -0.010194
+			    -0.046774     0.584200
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			     0.999910     0.171393
-			     0.013391    -0.985203
+			     0.999944     0.477231
+			    -0.010598     0.878778
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			     1.000999    -0.018933
-			     0.042869    -0.616088
+			     0.999903    -0.016828
+			    -0.021266     0.964423
 			</matrix>
 			<vector name='H' length='2'>
-			    -0.047816
-			     0.092825
+			     0.038448
+			     0.022298
 			</vector>
 			<vector name='r' length='2'>
-			 5.458250e-03
-			 3.830792e-03
+			 5.331865e-03
+			 1.862509e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3810,91 +2860,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    94.716690
-			    94.716690
+			   116.278137
+			   116.278137
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     1.373211
-			     1.381714
+			     1.024935
+			     1.026896
 			</vector>
-			<scalar name='sum_e2'>     1.355444 </scalar>
-			<scalar name='SSp'>     2.021716 </scalar>
+			<scalar name='sum_e2'>     1.012668 </scalar>
+			<scalar name='SSp'>     2.018271 </scalar>
 			<vector name='n_data' length='2'>
-			   577.254282
-			   577.254282
+			   645.182446
+			   645.182446
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999079
-			     0.999079
+			     0.999093
+			     0.999093
 			</vector>
 			<vector name='mean_x' length='2'>
-			    -0.486512
-			    -0.711527
+			    -0.654467
+			    -0.879618
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.015022
-			     0.016683
+			     0.018945
+			     0.008173
 			</vector>
-			<scalar name='w'>     0.047617 </scalar>
+			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			    -0.038986
-			    -0.330824
+			    -0.288604
+			     0.283342
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    65.806048     0.000000
-			     0.000000   131.005934
+			    46.909385     0.000000
+			     0.000000    46.375113
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     8.112093     0.000000
-			     0.000000    11.445782
+			     6.849043     0.000000
+			     0.000000     6.809928
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.454058 </scalar>
+			<scalar name='beta0'>     0.630581 </scalar>
 			<vector name='beta' length='2'>
-			     3.017868
-			     0.071013
+			     1.012041
+			    -0.028224
 			</vector>
 			<vector name='c' length='2'>
-			     0.701876
-			     0.146239
+			     0.633997
+			    -0.877927
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.072699     0.031643
-			    -1.117056    -0.060559
+			     4.579583     0.008723
+			     0.037777    -0.021474
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     0.316910
-			     0.303805
+			     2.844852
+			     1.532691
 			</vector>
 			<vector name='SSYres' length='2'>
-			     0.956392
-			     0.021574
+			     2.879106
+			    -0.043258
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.030609     0.340966
-			    -0.309422    -0.014872
+			     2.847457    -0.012350
+			     0.043267    -1.160697
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.064944     0.463101
-			    -0.997889    -0.886305
+			     0.999966     0.376334
+			     0.008249    -0.926484
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.096587     1.122316
-			    -0.976371    -0.048952
+			     1.000916    -0.008058
+			     0.015209    -0.757293
 			</matrix>
 			<vector name='H' length='2'>
-			 -2.528154e-03
-			 -5.441447e-02
+			    -0.022960
+			     0.051542
 			</vector>
 			<vector name='r' length='2'>
-			 6.718650e-04
-			 5.111804e-04
+			 5.430901e-03
+			 3.593069e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -3905,91 +2955,91 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    43.572675
-			    43.572675
+			   152.315249
+			   152.315249
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     0.530372
-			     0.565032
+			     1.200168
+			     1.204874
 			</vector>
-			<scalar name='sum_e2'>     0.534093 </scalar>
-			<scalar name='SSp'>     2.632383 </scalar>
+			<scalar name='sum_e2'>     1.185595 </scalar>
+			<scalar name='SSp'>     1.958230 </scalar>
 			<vector name='n_data' length='2'>
-			   249.483611
-			   249.483611
+			   738.819485
+			   738.819485
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999028
-			     0.999028
+			     0.999115
+			     0.999115
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.717698
-			     0.139902
+			     0.632425
+			    -0.822327
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.013449
-			     0.007320
+			     0.018725
+			     0.011943
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			     0.142780
-			     0.086108
+			    -0.119207
+			    -0.261307
 			</vector>
 		</ReceptiveField>
 		<ReceptiveField nReg='2'>
 			<matrix name='D' rows='2' columns='2'>
-			    60.043449     0.000000
-			     0.000000   103.126357
+			    45.545332     0.000000
+			     0.000000    43.980679
 			</matrix>
 			<matrix name='M' rows='2' columns='2'>
-			     7.748771     0.000000
-			     0.000000    10.155115
+			     6.748728     0.000000
+			     0.000000     6.631793
 			</matrix>
 			<matrix name='alpha' rows='2' columns='2'>
 			   250.000000   250.000000
 			   250.000000   250.000000
 			</matrix>
-			<scalar name='beta0'>     0.735626 </scalar>
+			<scalar name='beta0'>     0.166372 </scalar>
 			<vector name='beta' length='2'>
-			     1.893490
-			     0.930546
+			     1.016977
+			     0.036080
 			</vector>
 			<vector name='c' length='2'>
-			     0.290878
-			    -0.124189
+			     0.171871
+			     0.379102
 			</vector>
 			<matrix name='SXresYres' rows='2' columns='2'>
-			    -0.190796    -0.018121
-			     0.128602     0.034632
+			     6.034829     0.023934
+			     0.148031     0.246358
 			</matrix>
 			<vector name='SSs2' length='2'>
-			     0.111035
-			     0.030057
+			     2.956137
+			     3.150419
 			</vector>
 			<vector name='SSYres' length='2'>
-			     0.210243
-			     0.027970
+			     3.006325
+			     0.113666
 			</vector>
 			<matrix name='SSXres' rows='2' columns='2'>
-			    -0.094837    -0.035398
-			     0.049366    -0.006100
+			     2.953546     0.006157
+			     0.019059     3.183458
 			</matrix>
 			<matrix name='U' rows='2' columns='2'>
-			    -0.829221    -0.463603
-			     0.558921     0.886043
+			     0.999699     0.096695
+			     0.024522     0.995314
 			</matrix>
 			<matrix name='P' rows='2' columns='2'>
-			    -0.854118    -1.177702
-			     0.444602    -0.202936
+			     0.999123     0.001954
+			     0.006447     1.010487
 			</matrix>
 			<vector name='H' length='2'>
-			     0.000000
-			     0.000000
+			     0.024988
+			     0.006626
 			</vector>
 			<vector name='r' length='2'>
-			     0.000000
-			     0.000000
+			 6.573782e-03
+			 6.992252e-03
 			</vector>
 			<matrix name='h' rows='2' columns='2'>
 			     0.000000     0.000000
@@ -4000,36 +3050,321 @@
 			     0.000000     5.521461
 			</matrix>
 			<vector name='sum_w' length='2'>
-			    12.045782
-			    12.045782
+			   144.086734
+			   144.086734
 			</vector>
 			<vector name='sum_e_cv2' length='2'>
-			     0.000000
-			     0.000000
+			     1.418121
+			     1.418161
 			</vector>
-			<scalar name='sum_e2'> 0.0 </scalar>
-			<scalar name='SSp'>     1.728804 </scalar>
+			<scalar name='sum_e2'>     1.397672 </scalar>
+			<scalar name='SSp'>     1.114885 </scalar>
 			<vector name='n_data' length='2'>
-			    56.383482
-			    56.383482
+			 1.000361e+03
+			 1.000361e+03
 			</vector>
 			<integer name='trustworthy'> 1 </integer>
 			<vector name='lambda' length='2'>
-			     0.999006
-			     0.999006
+			     0.999199
+			     0.999199
 			</vector>
 			<vector name='mean_x' length='2'>
-			     0.337720
-			    -0.113524
+			     0.167478
+			     0.378205
 			</vector>
 			<vector name='var_x' length='2'>
-			     0.010517
-			     0.005463
+			     0.020517
+			     0.022847
 			</vector>
 			<scalar name='w'> 0.0 </scalar>
 			<vector name='s' length='2'>
-			 7.860203e-03
-			 3.533161e-02
+			    -0.064745
+			    -0.412705
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    47.138261     0.000000
+			     0.000000    48.616096
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.865731     0.000000
+			     0.000000     6.972524
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.838516 </scalar>
+			<vector name='beta' length='2'>
+			     0.976524
+			     0.093678
+			</vector>
+			<vector name='c' length='2'>
+			    -0.900355
+			    -0.246025
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     2.230503     0.106410
+			    -0.035706    -0.251158
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     1.430284
+			     1.567977
+			</vector>
+			<vector name='SSYres' length='2'>
+			     1.396707
+			     0.146884
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     1.393970     0.012005
+			     0.138205    -0.632652
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999872     0.390107
+			    -0.016006    -0.920769
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.974610     0.007656
+			     0.096627    -0.403483
+			</matrix>
+			<vector name='H' length='2'>
+			     0.050843
+			    -0.003169
+			</vector>
+			<vector name='r' length='2'>
+			 3.826908e-03
+			 3.388362e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   127.079800
+			   127.079800
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.224628
+			     1.216391
+			</vector>
+			<scalar name='sum_e2'>     1.183669 </scalar>
+			<scalar name='SSp'>     2.269950 </scalar>
+			<vector name='n_data' length='2'>
+			   758.172676
+			   758.172676
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999120
+			     0.999120
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.836174
+			    -0.246339
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.011017
+			     0.020235
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.098531
+			     0.270619
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    47.100312     0.000000
+			     0.000000    48.005451
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     6.862967     0.000000
+			     0.000000     6.928597
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>    -0.861783 </scalar>
+			<vector name='beta' length='2'>
+			     1.023722
+			    -0.039887
+			</vector>
+			<vector name='c' length='2'>
+			    -0.952079
+			    -0.885075
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     1.282811     0.025593
+			    -0.007664     0.034792
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     0.930722
+			     0.579371
+			</vector>
+			<vector name='SSYres' length='2'>
+			     0.952800
+			    -0.023109
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     0.929302    -0.046573
+			    -0.033995     0.530127
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999982     0.592554
+			    -0.005974     0.805531
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.998475    -0.080385
+			    -0.036526     0.915004
+			</matrix>
+			<vector name='H' length='2'>
+			     0.036073
+			     0.022115
+			</vector>
+			<vector name='r' length='2'>
+			 2.473284e-03
+			 1.688615e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   107.339610
+			   107.339610
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.067241
+			     1.072974
+			</vector>
+			<scalar name='sum_e2'>     1.033824 </scalar>
+			<scalar name='SSp'>     2.756463 </scalar>
+			<vector name='n_data' length='2'>
+			   524.333889
+			   524.333889
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999069
+			     0.999069
+			</vector>
+			<vector name='mean_x' length='2'>
+			    -0.865909
+			    -0.828082
+			</vector>
+			<vector name='var_x' length='2'>
+			 8.729189e-03
+			 1.119251e-02
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.075359
+			     0.220347
+			</vector>
+		</ReceptiveField>
+		<ReceptiveField nReg='2'>
+			<matrix name='D' rows='2' columns='2'>
+			    49.187568     0.000000
+			     0.000000    51.160685
+			</matrix>
+			<matrix name='M' rows='2' columns='2'>
+			     7.013385     0.000000
+			     0.000000     7.152670
+			</matrix>
+			<matrix name='alpha' rows='2' columns='2'>
+			   250.000000   250.000000
+			   250.000000   250.000000
+			</matrix>
+			<scalar name='beta0'>     0.772358 </scalar>
+			<vector name='beta' length='2'>
+			     0.984694
+			     0.102359
+			</vector>
+			<vector name='c' length='2'>
+			     0.786433
+			     0.658090
+			</vector>
+			<matrix name='SXresYres' rows='2' columns='2'>
+			     3.167089     0.075645
+			    -0.016384    -0.431616
+			</matrix>
+			<vector name='SSs2' length='2'>
+			     2.107406
+			     2.556037
+			</vector>
+			<vector name='SSYres' length='2'>
+			     2.075151
+			     0.261633
+			</vector>
+			<matrix name='SSXres' rows='2' columns='2'>
+			     2.089418     0.190661
+			     0.195726    -2.610969
+			</matrix>
+			<matrix name='U' rows='2' columns='2'>
+			     0.999987     0.172629
+			    -0.005173    -0.984987
+			</matrix>
+			<matrix name='P' rows='2' columns='2'>
+			     0.991464     0.074592
+			     0.092875    -1.021491
+			</matrix>
+			<vector name='H' length='2'>
+			    -0.024713
+			    -0.051042
+			</vector>
+			<vector name='r' length='2'>
+			 6.279695e-03
+			 6.084351e-03
+			</vector>
+			<matrix name='h' rows='2' columns='2'>
+			     0.000000     0.000000
+			     0.000000     0.000000
+			</matrix>
+			<matrix name='b' rows='2' columns='2'>
+			     5.521461     5.521461
+			     0.000000     5.521461
+			</matrix>
+			<vector name='sum_w' length='2'>
+			   132.531225
+			   132.531225
+			</vector>
+			<vector name='sum_e_cv2' length='2'>
+			     1.478018
+			     1.460667
+			</vector>
+			<scalar name='sum_e2'>     1.429863 </scalar>
+			<scalar name='SSp'>     1.717244 </scalar>
+			<vector name='n_data' length='2'>
+			   713.243034
+			   713.243034
+			</vector>
+			<integer name='trustworthy'> 1 </integer>
+			<vector name='lambda' length='2'>
+			     0.999109
+			     0.999109
+			</vector>
+			<vector name='mean_x' length='2'>
+			     0.772339
+			     0.657851
+			</vector>
+			<vector name='var_x' length='2'>
+			     0.015869
+			     0.020098
+			</vector>
+			<scalar name='w'> 0.0 </scalar>
+			<vector name='s' length='2'>
+			    -0.112578
+			     0.460875
 			</vector>
 		</ReceptiveField>
 	</SubModel>

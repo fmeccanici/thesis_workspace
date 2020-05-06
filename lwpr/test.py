@@ -1,34 +1,52 @@
-from lwpr import *
 from numpy import *
-from random import *
-from math import *
+from matplotlib import pyplot as plt
+from lwpr import LWPR
 
-def cross_2D(x1,x2): 
-   return max(exp(-10.0*x1*x1), exp(-50.0*x2*x2), 
-               1.25*exp(-5.0*(x1*x1 + x2*x2)))
+##### adopted from http://www.rueckstiess.net/research/snippets/show/9bd4b418 ######
 
-model = LWPR(2,1)
-
-R = Random()
-x = zeros(2)
-y = zeros(1)
-
-model.init_D = 50*eye(2)
-model.init_alpha = 250*ones([2,2])
-
-for i in range(10000):
-   x[0] = R.uniform(-1,1)
-   x[1] = R.uniform(-1,1)
-   y[0] = cross_2D(x[0],x[1]) + R.gauss(0,0.1)
-   model.update(x,y)   
-   
-for x[0] in arange(-1,1,0.04):
-   for x[1] in arange(-1,1,0.04):
-      y = model.predict(x)
-      print "%6.2f %6.2f %8.4f"%(x[0],x[1],y[0])
+def testfunc(x):
+    return 10*sin(7.8*log(1+x)) / (1 + 0.1*x**2)
+ 
 
 
-print model
-print model.kernel
-
-model.write_XML("cross2d.xml")
+Ntr = 500
+Xtr = 10 * random.random((Ntr, 1))
+Ytr = 5 + testfunc(Xtr) + 0.1 * random.normal(0, 1, (Ntr, 1)) * Xtr
+ 
+# initialize the LWPR model
+model = LWPR(1, 1)     
+model.init_D = 20 * eye(1)
+model.update_D = True
+model.init_alpha = 40 * eye(1)
+model.meta = False
+ 
+# train the model
+for k in range(20):
+    ind = random.permutation(Ntr)
+    mse = 0
+     
+    for i in range(Ntr):
+        yp = model.update(Xtr[ind[i]], Ytr[ind[i]])
+        mse = mse + (Ytr[ind[i], :] - yp)**2
+ 
+    nMSE = mse/Ntr/var(Ytr)
+    print "#Data: %5i  #RFs: %3i  nMSE=%5.3f"%(model.n_data, model.num_rfs, nMSE)
+             
+             
+# test the model with unseen data   
+Ntest = 500
+Xtest = linspace(0, 10, Ntest)
+ 
+Ytest = zeros((Ntest,1))
+Conf = zeros((Ntest,1))
+ 
+for k in range(500):
+    Ytest[k,:], Conf[k,:] = model.predict_conf(array([Xtest[k]]))
+ 
+plt.plot(Xtr, Ytr, 'r.')
+     
+plt.plot(Xtest,Ytest,'b-')
+plt.plot(Xtest,Ytest+Conf,'c-', linewidth=2)
+plt.plot(Xtest,Ytest-Conf,'c-', linewidth=2)
+ 
+plt.show()
