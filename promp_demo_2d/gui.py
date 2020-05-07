@@ -271,11 +271,13 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_7.clicked.connect(self.on_load_trajectory_click)
         self.pushButton_10.clicked.connect(self.on_set_random_context_click)
         self.lineEdit.setText(_translate("MainWindow", "/good/demonstration_2"))
+        self.lineEdit_2.setText(_translate("MainWindow", "/debug/demonstration_1"))
+
         self.pushButton_11.clicked.connect(self.on_initialize_model_click)
         self.pushButton_12.clicked.connect(self.on_done_refining_click)
+        self.pushButton_13.clicked.connect(self.on_save_trajectory_click)
 
-        # self.radioButton_6.setChecked(1)
-        # self.radioButton_4.setChecked(1)
+        self.radioButton_6.setChecked(1)
         self.radioButton.setChecked(1)
 
     # multithread for executing trajectories
@@ -361,7 +363,13 @@ class Demo2dGUI(QMainWindow):
         return elapsed
     def on_initialize_model_click(self):
         self.promp_demo_2d.build_model()
-        
+    
+    def on_save_trajectory_click(self):
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
+        file_name = str(self.lineEdit_2.text()) + '.txt'
+        demonstration = (list(self.refined_prediction), self.context)
+        self.promp_demo_2d.save_data(path, file_name, demonstration)
+
     def on_load_trajectory_click(self):
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
         file_name = str(self.lineEdit.text()) + '.txt'
@@ -371,8 +379,9 @@ class Demo2dGUI(QMainWindow):
             self.refined_prediction = read_demo[0]
             self.context = read_demo[1]
         
-        y1 = self.lineEdit_4.setText(str(int(self.context[0])))
-        y2 = self.lineEdit_3.setText(str(int(self.context[1])))
+        self.lineEdit_4.setText(str(int(self.context[0])))
+        self.lineEdit_3.setText(str(int(self.context[1])))
+        print("Loaded trajectory: " + str(file_name))
         
     def on_demonstrate_click(self):
         self.promp_demo_2d.mode = 1
