@@ -60,8 +60,8 @@ class Demo2dGUI(QMainWindow):
         self.max_y = 2
 
         self.figure, self.ax = plt.subplots()
-        self.lines1, = self.ax.plot([],[], 'ro-', zorder=0, linewidth=1)
-        self.lines2, = self.ax.plot([],[], 'go-', zorder=10, linewidth=1)
+        self.lines1, = self.ax.plot([],[], 'r', zorder=0, linewidth=5)
+        self.lines2, = self.ax.plot([],[], 'g', zorder=10, linewidth=5)
         
         #Autoscale on unknown axis and known lims on the other
         self.ax.set_autoscaley_on(True)
@@ -149,38 +149,20 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_11 = QPushButton(self.groupBox_2)
         self.pushButton_11.setGeometry(QRect(170, 50, 161, 27))
         self.pushButton_11.setObjectName("pushButton_11")
-        self.lineEdit_3.raise_()
-        self.label_3.raise_()
-        self.radioButton_6.raise_()
-        self.label_4.raise_()
-        self.lineEdit_4.raise_()
-        self.radioButton_7.raise_()
-        self.pushButton_3.raise_()
-        self.pushButton_5.raise_()
-        self.pushButton_4.raise_()
-        self.pushButton_6.raise_()
-        self.pushButton_10.raise_()
-        self.pushButton_11.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(10, 290, 361, 361))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton_2 = QPushButton(self.groupBox_3)
-        self.pushButton_2.setGeometry(QRect(20, 40, 161, 27))
+        self.pushButton_2.setGeometry(QRect(20, 90, 161, 27))
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton = QPushButton(self.groupBox_3)
         self.pushButton.setGeometry(QRect(20, 120, 161, 27))
         self.pushButton.setObjectName("pushButton")
-        self.radioButton_4 = QRadioButton(self.groupBox_3)
-        self.radioButton_4.setGeometry(QRect(40, 70, 117, 22))
-        self.radioButton_4.setObjectName("radioButton_4")
-        self.radioButton_5 = QRadioButton(self.groupBox_3)
-        self.radioButton_5.setGeometry(QRect(40, 90, 117, 22))
-        self.radioButton_5.setObjectName("radioButton_5")
         self.pushButton_7 = QPushButton(self.groupBox_3)
-        self.pushButton_7.setGeometry(QRect(190, 40, 161, 27))
+        self.pushButton_7.setGeometry(QRect(190, 30, 161, 27))
         self.pushButton_7.setObjectName("pushButton_7")
         self.lineEdit = QLineEdit(self.groupBox_3)
-        self.lineEdit.setGeometry(QRect(190, 70, 161, 27))
+        self.lineEdit.setGeometry(QRect(190, 60, 161, 27))
         self.lineEdit.setObjectName("lineEdit")
         self.pushButton_8 = QPushButton(self.groupBox_3)
         self.pushButton_8.setGeometry(QRect(190, 120, 161, 27))
@@ -204,28 +186,27 @@ class Demo2dGUI(QMainWindow):
         self.radioButton.setGeometry(QRect(0, 20, 231, 22))
         self.radioButton.setObjectName("radioButton")
         self.pushButton_9 = QPushButton(self.groupBox_3)
-        self.pushButton_9.setGeometry(QRect(190, 10, 161, 27))
+        self.pushButton_9.setGeometry(QRect(190, 90, 161, 27))
         self.pushButton_9.setObjectName("pushButton_9")
         self.pushButton_12 = QPushButton(self.groupBox_3)
         self.pushButton_12.setGeometry(QRect(20, 280, 161, 27))
         self.pushButton_12.setObjectName("pushButton_12")
-        self.pushButton_2.raise_()
+        self.pushButton_13 = QPushButton(self.groupBox_3)
+        self.pushButton_13.setGeometry(QRect(20, 30, 161, 27))
+        self.pushButton_13.setObjectName("pushButton_13")
+        self.lineEdit_2 = QLineEdit(self.groupBox_3)
+        self.lineEdit_2.setGeometry(QRect(20, 60, 161, 27))
+        self.lineEdit_2.setObjectName("lineEdit_2")
         self.pushButton.raise_()
-        self.radioButton_4.raise_()
-        self.radioButton_5.raise_()
         self.pushButton_2.raise_()
-        self.radioButton_4.raise_()
-        self.radioButton_5.raise_()
-        self.pushButton_2.raise_()
-        self.radioButton_4.raise_()
-        self.radioButton_5.raise_()
         self.pushButton_7.raise_()
         self.lineEdit.raise_()
         self.pushButton_8.raise_()
         self.groupBox_4.raise_()
         self.pushButton_9.raise_()
         self.pushButton_12.raise_()
-
+        self.pushButton_13.raise_()
+        self.lineEdit_2.raise_()
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1198, 25))
@@ -265,8 +246,6 @@ class Demo2dGUI(QMainWindow):
         self.groupBox_3.setTitle(_translate("MainWindow", "Refinement"))
         self.pushButton_2.setText(_translate("MainWindow", "Refine"))
         self.pushButton.setText(_translate("MainWindow", "Add to model"))
-        self.radioButton_4.setText(_translate("MainWindow", "No obstacle"))
-        self.radioButton_5.setText(_translate("MainWindow", "Obstacle"))
         self.pushButton_7.setText(_translate("MainWindow", "Load trajectory"))
         self.lineEdit.setText(_translate("MainWindow", "demonstration_1"))
         self.pushButton_8.setText(_translate("MainWindow", "Plot refinement"))
@@ -278,6 +257,8 @@ class Demo2dGUI(QMainWindow):
         self.radioButton.setText(_translate("MainWindow", "Welford: no forgetting factor"))
         self.pushButton_9.setText(_translate("MainWindow", "Clear plots"))
         self.pushButton_12.setText(_translate("MainWindow", "Done refining"))
+        self.pushButton_13.setText(_translate("MainWindow", "Save trajectory"))
+        self.lineEdit_2.setText(_translate("MainWindow", "demonstration_1"))
 
         self.pushButton_2.clicked.connect(lambda: self.use_multithread(self.on_refine_click))
         self.pushButton_4.clicked.connect(self.on_demonstrate_click)
@@ -289,12 +270,12 @@ class Demo2dGUI(QMainWindow):
         self.pushButton_9.clicked.connect(self.on_clear_plots_click)
         self.pushButton_7.clicked.connect(self.on_load_trajectory_click)
         self.pushButton_10.clicked.connect(self.on_set_random_context_click)
-        self.lineEdit.setText(_translate("MainWindow", "obstacle_demonstration_3"))
+        self.lineEdit.setText(_translate("MainWindow", "/good/demonstration_2"))
         self.pushButton_11.clicked.connect(self.on_initialize_model_click)
         self.pushButton_12.clicked.connect(self.on_done_refining_click)
 
-        self.radioButton_6.setChecked(1)
-        self.radioButton_4.setChecked(1)
+        # self.radioButton_6.setChecked(1)
+        # self.radioButton_4.setChecked(1)
         self.radioButton.setChecked(1)
 
     # multithread for executing trajectories
@@ -382,7 +363,7 @@ class Demo2dGUI(QMainWindow):
         self.promp_demo_2d.build_model()
         
     def on_load_trajectory_click(self):
-        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/obstacle/'
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
         file_name = str(self.lineEdit.text()) + '.txt'
         with open(path+file_name, "r") as demo:
             read_demo = ast.literal_eval(demo.read())
@@ -394,6 +375,8 @@ class Demo2dGUI(QMainWindow):
         y2 = self.lineEdit_3.setText(str(int(self.context[1])))
         
     def on_demonstrate_click(self):
+        self.promp_demo_2d.mode = 1
+
         self.on_set_context_click()
         self.add_geometries()
         for i in range(len(self.promp_demo_2d.t)):
@@ -433,12 +416,14 @@ class Demo2dGUI(QMainWindow):
         self.lines1.remove()
         self.lines2.remove()
 
-        self.lines1, = self.ax.plot([],[], 'ro-', zorder=0)
-        self.lines2, = self.ax.plot([],[], 'go', zorder=10)
+        self.lines1, = self.ax.plot([],[], 'r', zorder=0, linewidth=5)
+        self.lines2, = self.ax.plot([],[], 'g', zorder=10, linewidth=5)
+
         self.figure.canvas.draw()
         self.figure.canvas.flush_events()
 
     def on_refine_click(self):
+        self.promp_demo_2d.mode = 0
         if self.refined_prediction == []:
             print("No refinement done yet")
             self.promp_demo_2d.y = self.prediction   

@@ -51,13 +51,13 @@ class PrompDemo2D():
             if self.mode == 1:
                 self.a = 15
             elif self.mode == 0:
-                self.a = 100
+                self.a = 30
         elif key == Key.down:
             print("Pressed down")
             if self.mode == 1:
                 self.a = -15
             elif self.mode == 0:
-                self.a = -100
+                self.a = -30
 
     def on_release(self, key):
         if key == Key.up:
@@ -199,9 +199,12 @@ class PrompDemo2D():
             self.load_demonstration_from_folder(path, demo)
     
     def build_model(self):
-        self.promp = ProMPContext(output_name=['y'], context_names=['y1', 'y2'], num_basis=20, num_samples=len(self.t))
+        self.promp = ProMPContext(output_name=['y'], context_names=['y1', 'y2'], num_basis=15, num_samples=len(self.t))
 
-        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
+        # path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/good/'
+        # path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
+
         self.load_demonstrations_from_folder(path)
 
         for demo in self.demonstrations:
@@ -209,7 +212,56 @@ class PrompDemo2D():
 
     def generalize(self, context):
         return self.promp.generate_trajectory(context) 
+    
+    def plot_demonstrations(self):
+        for demonstration in self.demonstrations:
+            plt.plot(self.t, demonstration[0], 'o-')
+            context = np.asarray(demonstration[1])
 
+            plt.title("Demonstrated trajectory")
+            plt.ylim([self.a_min, self.a_max])
+            context1 = [2.0, context[0]]
+            context2 = [3.6, context[1]]
+
+            circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+            circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
+            ax = plt.gca()
+            ax.add_artist(circle1)
+            ax.add_artist(circle2)
+            plt.grid()
+            # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/promp_demo' + str(context) + '.png' )
+            plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/debug/promp_demo' + str(context) + '.png' )
+
+            plt.clf()
+
+    def plot_generalizations(self):
+        # generalize
+        y = [-1.0, 0.0, 1.0]
+        # y = [-1.5, -1.0, 0.5, 1.0, 1.5]
+
+        for y1 in y:
+            plt.figure()
+            for y2 in y: 
+                context = [y1, y2]
+                output = self.generalize(context)
+                plt.title("Predicted trajectory")
+                plt.ylim([self.a_min, self.a_max])
+                plt.plot(self.t, output, 'ro-')
+                context1 = [2.0, context[0]]
+                context2 = [3.6, context[1]]
+
+                circle1 = plt.Circle((context1[0], context1[1]), 0.1, color='b', fill=False)
+                circle2 = plt.Circle((context2[0], context2[1]), 0.1, color='b', fill=False)
+                ax = plt.gca()
+                ax.add_artist(circle1)
+                ax.add_artist(circle2)
+                plt.grid()
+                # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/promp_prediction_' + str((y1)) + str((y2)) + '.png' )
+                plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/debug/promp_prediction' + str(context) + '.png' )
+
+                circle1.remove()
+                circle2.remove()
+                plt.clf()
     def refine(self):
 
         continue_prediction = 1
@@ -332,7 +384,7 @@ class PrompDemo2D():
         # except:
         #     self.mode = 1
 
-        # self.build_model()
+        self.build_model()
 
         # if self.mode == 0:
         #     refine_thread = threading.Thread(target=self.refine, args=())
@@ -341,10 +393,10 @@ class PrompDemo2D():
         #     teaching_thread = threading.Thread(target=self.demonstrate, args=())
         #     teaching_thread.start()
         
-        with Listener(
-            on_press=self.on_press,
-            on_release=self.on_release) as listener:
-                listener.join()
+        # with Listener(
+        #     on_press=self.on_press,
+        #     on_release=self.on_release) as listener:
+        #         listener.join()
 
         ###### GENERALIZE #######
         # context1 = [2.0, random.randrange(self.a_min, self.a_max, 2)]
@@ -371,8 +423,8 @@ class PrompDemo2D():
         # ax.add_artist(circle2)
         # plt.grid()
         # plt.show()
-
-
+        self.plot_generalizations()
+        self.plot_demonstrations()
 if __name__ == "__main__":
     promp_demo_2d = PrompDemo2D()
     promp_demo_2d.run()

@@ -38,9 +38,9 @@ class Welford():
         for i in range(len(x)):
             for j in range(len(x)):
                 if (self.alpha) == 0.0:
-                    newS[i,j] = self.S[i,j] + (self.N - 1) / self.N * (x[i] - newMean[i]) * (x[j] - self.Mean[j])
+                    newS[i,j] = self.S[i,j] + (self.N - 1) / self.N * (x[i] - self.Mean[i]) * (x[j] - self.Mean[j])
                 elif (self.alpha) > 0.0:
-                    newS[i,j] = (1-self.alpha)*self.S[i,j] + self.alpha*(self.N - 1) / self.N * (x[i] - newMean[i]) * (x[j] - self.Mean[j])
+                    newS[i,j] = (1-self.alpha)*self.S[i,j] + self.alpha*(self.N - 1) / self.N * (x[i] - self.Mean[i]) * (x[j] - self.Mean[j])
                 else:
                     print("Invalid alpha")
                 newSigma[i,j] = newS[i,j] / (self.N - 1)
