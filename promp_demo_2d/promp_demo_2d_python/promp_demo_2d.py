@@ -203,7 +203,7 @@ class PrompDemo2D():
 
         # path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/good/'
-        # path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/'
+        # path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/debug/'
 
         self.load_demonstrations_from_folder(path)
 
@@ -229,8 +229,8 @@ class PrompDemo2D():
             ax.add_artist(circle1)
             ax.add_artist(circle2)
             plt.grid()
-            # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/promp_demo' + str(context) + '.png' )
-            plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/debug/promp_demo' + str(context) + '.png' )
+            plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/promp_demo' + str(context) + '.png' )
+            # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/debug/promp_demo' + str(context) + '.png' )
 
             plt.clf()
 
@@ -256,8 +256,8 @@ class PrompDemo2D():
                 ax.add_artist(circle1)
                 ax.add_artist(circle2)
                 plt.grid()
-                # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/promp_prediction_' + str((y1)) + str((y2)) + '.png' )
-                plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/debug/promp_prediction' + str(context) + '.png' )
+                plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/promp_prediction_' + str((y1)) + str((y2)) + '.png' )
+                # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/promp/debug/promp_prediction' + str(context) + '.png' )
 
                 circle1.remove()
                 circle2.remove()

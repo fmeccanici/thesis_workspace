@@ -30,7 +30,9 @@ def load_demonstrations_from_folder(path):
     for demo in files:
         load_demonstration_from_folder(path, demo)
 
-path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/good/'
+# path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/good/'
+path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/data/lwpr/'
+
 load_demonstrations_from_folder(path)
 
 # dimension of outputs
@@ -70,8 +72,8 @@ plt.clf()
 
 # initialize lwpr model
 model = LWPR(n_in, n_out)
-model.init_D = 100*eye(n_in)
-model.init_alpha = 10 * eye(n_in)
+model.init_D = 10*eye(n_in)
+model.init_alpha = 1 * eye(n_in)
 # model.kernel = 'BiSquare'
 
 for i in range(10):
@@ -85,7 +87,8 @@ for i in range(10):
         model.update(context, output)
 
 # generalize
-y = [-1.0, 0.0, 1.0]
+# y = [-1.0, 0.0, 1.0]
+y = [-1.0, -0.5, 0.0, 0.5, 1.0]
 
 for y1 in y:
     plt.figure()
@@ -107,7 +110,7 @@ for y1 in y:
         ax.add_artist(circle1)
         ax.add_artist(circle2)
         plt.grid()
-        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/lwpr/lwpr_prediction_' + str(int(y1)) + str(int(y2)) + '.png' )
+        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/promp_demo_2d/figures/lwpr/lwpr_prediction_' + str((y1)) + str((y2)) + '.png' )
         circle1.remove()
         circle2.remove()
         plt.clf()
