@@ -14,7 +14,7 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
                                             BuildInitialModel, BuildInitialModelResponse, 
-                                            GetEEPose, GetEEPoseResponse)
+                                            GetEEPose, GetEEPoseResponse, SetPath, SetPathResponse)
 
 from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
@@ -89,7 +89,8 @@ class lfdNode():
         self._teaching_mode_service = rospy.Service('set_teaching_mode', SetTeachingMode, self._set_teaching_mode)
         self._build_initial_model_service = rospy.Service('build_initial_model', BuildInitialModel, self._build_initial_model)
         self._get_ee_pose_service = rospy.Service('get_ee_pose', GetEEPose, self._get_ee_pose)
-        
+        self._set_path_service = rospy.Service('set_path', SetPath, self._set_path)
+
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -210,6 +211,8 @@ class lfdNode():
         self.button_source = rospy.get_param('~button_source')
         print("Button source set to: " + str(self.button_source))
     
+
+
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")
         slave_goal = PoseStamped()
@@ -451,6 +454,12 @@ class lfdNode():
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
     
+    def _set_path(self, req):
+        self.raw_path = req.path.data
+
+        response = SetPathResponse()
+        
+        return response
     def _get_object_position(self, req):
         if req.reference_frame.data == 'base':
             marker_pos = self.get_marker_wrt_base()

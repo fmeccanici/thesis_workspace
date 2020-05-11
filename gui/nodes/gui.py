@@ -17,7 +17,7 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
                                             BuildInitialModel, BuildInitialModelResponse, 
-                                            GetEEPose, GetEEPoseResponse)
+                                            GetEEPose, GetEEPoseResponse, SetPath)
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
@@ -89,11 +89,11 @@ class experimentGUI(QMainWindow):
 
     def initGUI(self):
         self.setObjectName("Online teaching GUI")
-        self.resize(1680, 1050)
+        self.resize(1920, 1080)
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(350, 690, 351, 301))
+        self.groupBox_2.setGeometry(QRect(310, 690, 351, 301))
         self.groupBox_2.setObjectName("groupBox_2")
         self.pushButton_6 = QPushButton(self.groupBox_2)
         self.pushButton_6.setGeometry(QRect(0, 120, 150, 27))
@@ -137,8 +137,25 @@ class experimentGUI(QMainWindow):
         self.lineEdit_18 = QLineEdit(self.groupBox_2)
         self.lineEdit_18.setGeometry(QRect(0, 240, 171, 27))
         self.lineEdit_18.setObjectName("lineEdit_18")
+        self.frame_2 = QFrame(self.groupBox_2)
+        self.frame_2.setGeometry(QRect(0, 0, 331, 271))
+        self.frame_2.setFrameShape(QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.frame_2.raise_()
+        self.pushButton_6.raise_()
+        self.pushButton_21.raise_()
+        self.pushButton_22.raise_()
+        self.pushButton_23.raise_()
+        self.pushButton_10.raise_()
+        self.radioButton_2.raise_()
+        self.radioButton_3.raise_()
+        self.pushButton_24.raise_()
+        self.groupBox_7.raise_()
+        self.pushButton_26.raise_()
+        self.lineEdit_18.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(630, 690, 511, 291))
+        self.groupBox_3.setGeometry(QRect(570, 690, 511, 291))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton_7 = QPushButton(self.groupBox_3)
         self.pushButton_7.setGeometry(QRect(150, 20, 99, 27))
@@ -185,6 +202,12 @@ class experimentGUI(QMainWindow):
         self.pushButton_14 = QPushButton(self.groupBox_3)
         self.pushButton_14.setGeometry(QRect(150, 250, 90, 27))
         self.pushButton_14.setObjectName("pushButton_14")
+        self.frame_3 = QFrame(self.groupBox_3)
+        self.frame_3.setGeometry(QRect(100, 0, 401, 281))
+        self.frame_3.setFrameShape(QFrame.StyledPanel)
+        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setObjectName("frame_3")
+        self.frame_3.raise_()
         self.pushButton_5.raise_()
         self.pushButton_8.raise_()
         self.pushButton_9.raise_()
@@ -201,7 +224,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_11.raise_()
         self.pushButton_14.raise_()
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(0, 690, 331, 181))
+        self.groupBox.setGeometry(QRect(20, 690, 271, 181))
         self.groupBox.setObjectName("groupBox")
         self.label = QLabel(self.groupBox)
         self.label.setGeometry(QRect(0, 50, 16, 17))
@@ -243,8 +266,27 @@ class experimentGUI(QMainWindow):
         self.lineEdit_16 = QLineEdit(self.groupBox)
         self.lineEdit_16.setGeometry(QRect(101, 115, 39, 25))
         self.lineEdit_16.setObjectName("lineEdit_16")
+        self.frame = QFrame(self.groupBox)
+        self.frame.setGeometry(QRect(0, 0, 271, 181))
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.frame.raise_()
+        self.label.raise_()
+        self.lineEdit.raise_()
+        self.label_2.raise_()
+        self.buttonBox.raise_()
+        self.lineEdit_2.raise_()
+        self.lineEdit_3.raise_()
+        self.label_3.raise_()
+        self.pushButton_15.raise_()
+        self.label_16.raise_()
+        self.label_21.raise_()
+        self.lineEdit_14.raise_()
+        self.lineEdit_15.raise_()
+        self.lineEdit_16.raise_()
         self.groupBox_6 = QGroupBox(self.centralwidget)
-        self.groupBox_6.setGeometry(QRect(1210, 690, 431, 301))
+        self.groupBox_6.setGeometry(QRect(1120, 690, 431, 301))
         self.groupBox_6.setObjectName("groupBox_6")
         self.label_7 = QLabel(self.groupBox_6)
         self.label_7.setGeometry(QRect(11, 102, 16, 17))
@@ -267,10 +309,6 @@ class experimentGUI(QMainWindow):
         self.label_13 = QLabel(self.groupBox_6)
         self.label_13.setGeometry(QRect(0, 230, 28, 21))
         self.label_13.setObjectName("label_13")
-        self.buttonBox_2 = QDialogButtonBox(self.groupBox_6)
-        self.buttonBox_2.setGeometry(QRect(0, 270, 176, 27))
-        self.buttonBox_2.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
-        self.buttonBox_2.setObjectName("buttonBox_2")
         self.layoutWidget = QWidget(self.groupBox_6)
         self.layoutWidget.setGeometry(QRect(31, 35, 148, 227))
         self.layoutWidget.setObjectName("layoutWidget")
@@ -298,10 +336,10 @@ class experimentGUI(QMainWindow):
         self.lineEdit_13.setObjectName("lineEdit_13")
         self.verticalLayout.addWidget(self.lineEdit_13)
         self.pushButton_16 = QPushButton(self.groupBox_6)
-        self.pushButton_16.setGeometry(QRect(180, 270, 85, 27))
+        self.pushButton_16.setGeometry(QRect(10, 270, 85, 27))
         self.pushButton_16.setObjectName("pushButton_16")
         self.pushButton_17 = QPushButton(self.groupBox_6)
-        self.pushButton_17.setGeometry(QRect(270, 270, 85, 27))
+        self.pushButton_17.setGeometry(QRect(100, 270, 85, 27))
         self.pushButton_17.setObjectName("pushButton_17")
         self.label_14 = QLabel(self.groupBox_6)
         self.label_14.setGeometry(QRect(190, 160, 67, 17))
@@ -339,8 +377,40 @@ class experimentGUI(QMainWindow):
         self.radioButton_7 = QRadioButton(self.groupBox_6)
         self.radioButton_7.setGeometry(QRect(271, 209, 171, 22))
         self.radioButton_7.setObjectName("radioButton_7")
+        self.radioButton_10 = QRadioButton(self.groupBox_6)
+        self.radioButton_10.setGeometry(QRect(200, 270, 117, 22))
+        self.radioButton_10.setObjectName("radioButton_10")
+        self.frame_4 = QFrame(self.groupBox_6)
+        self.frame_4.setGeometry(QRect(0, 0, 431, 301))
+        self.frame_4.setFrameShape(QFrame.StyledPanel)
+        self.frame_4.setFrameShadow(QFrame.Raised)
+        self.frame_4.setObjectName("frame_4")
+        self.frame_4.raise_()
+        self.label_7.raise_()
+        self.label_8.raise_()
+        self.label_9.raise_()
+        self.label_10.raise_()
+        self.label_11.raise_()
+        self.label_12.raise_()
+        self.label_13.raise_()
+        self.layoutWidget.raise_()
+        self.pushButton_16.raise_()
+        self.pushButton_17.raise_()
+        self.label_14.raise_()
+        self.label_15.raise_()
+        self.pushButton_18.raise_()
+        self.pushButton_19.raise_()
+        self.label_19.raise_()
+        self.pushButton_20.raise_()
+        self.radioButton.raise_()
+        self.radioButton_4.raise_()
+        self.radioButton_5.raise_()
+        self.pushButton_25.raise_()
+        self.radioButton_6.raise_()
+        self.radioButton_7.raise_()
+        self.radioButton_10.raise_()
         self.groupBox_5 = QGroupBox(self.centralwidget)
-        self.groupBox_5.setGeometry(QRect(0, 880, 271, 121))
+        self.groupBox_5.setGeometry(QRect(20, 880, 271, 121))
         self.groupBox_5.setObjectName("groupBox_5")
         self.label_17 = QLabel(self.groupBox_5)
         self.label_17.setGeometry(QRect(40, 37, 31, 17))
@@ -360,12 +430,67 @@ class experimentGUI(QMainWindow):
         self.pushButton_2 = QPushButton(self.groupBox_5)
         self.pushButton_2.setGeometry(QRect(170, 90, 88, 27))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.groupBox_8 = QGroupBox(self.centralwidget)
+        self.groupBox_8.setGeometry(QRect(1580, 690, 331, 301))
+        self.groupBox_8.setObjectName("groupBox_8")
+        self.groupBox_9 = QGroupBox(self.groupBox_8)
+        self.groupBox_9.setGeometry(QRect(0, 30, 91, 241))
+        self.groupBox_9.setObjectName("groupBox_9")
+        self.radioButton_11 = QRadioButton(self.groupBox_9)
+        self.radioButton_11.setGeometry(QRect(10, 30, 117, 22))
+        self.radioButton_11.setObjectName("radioButton_11")
+        self.radioButton_12 = QRadioButton(self.groupBox_9)
+        self.radioButton_12.setGeometry(QRect(10, 60, 117, 22))
+        self.radioButton_12.setObjectName("radioButton_12")
+        self.radioButton_13 = QRadioButton(self.groupBox_9)
+        self.radioButton_13.setGeometry(QRect(10, 90, 117, 22))
+        self.radioButton_13.setObjectName("radioButton_13")
+        self.pushButton_27 = QPushButton(self.groupBox_9)
+        self.pushButton_27.setGeometry(QRect(0, 120, 91, 27))
+        self.pushButton_27.setObjectName("pushButton_27")
+        self.pushButton_28 = QPushButton(self.groupBox_9)
+        self.pushButton_28.setGeometry(QRect(0, 150, 91, 27))
+        self.pushButton_28.setObjectName("pushButton_28")
+        self.radioButton_11.raise_()
+        self.radioButton_12.raise_()
+        self.radioButton_13.raise_()
+        self.pushButton_27.raise_()
+        self.pushButton_28.raise_()
+        self.groupBox_10 = QGroupBox(self.groupBox_8)
+        self.groupBox_10.setGeometry(QRect(110, 30, 91, 261))
+        self.groupBox_10.setObjectName("groupBox_10")
+        self.radioButton_14 = QRadioButton(self.groupBox_10)
+        self.radioButton_14.setGeometry(QRect(10, 30, 117, 22))
+        self.radioButton_14.setObjectName("radioButton_14")
+        self.radioButton_15 = QRadioButton(self.groupBox_10)
+        self.radioButton_15.setGeometry(QRect(10, 60, 117, 22))
+        self.radioButton_15.setObjectName("radioButton_15")
+        self.radioButton_16 = QRadioButton(self.groupBox_10)
+        self.radioButton_16.setGeometry(QRect(10, 90, 117, 22))
+        self.radioButton_16.setObjectName("radioButton_16")
+        self.radioButton_17 = QRadioButton(self.groupBox_10)
+        self.radioButton_17.setGeometry(QRect(10, 120, 117, 22))
+        self.radioButton_17.setObjectName("radioButton_17")
+        self.radioButton_18 = QRadioButton(self.groupBox_10)
+        self.radioButton_18.setGeometry(QRect(10, 150, 117, 22))
+        self.radioButton_18.setObjectName("radioButton_18")
+        self.radioButton_19 = QRadioButton(self.groupBox_10)
+        self.radioButton_19.setGeometry(QRect(10, 180, 117, 22))
+        self.radioButton_19.setObjectName("radioButton_19")
+        self.frame_5 = QFrame(self.groupBox_8)
+        self.frame_5.setGeometry(QRect(0, 0, 251, 301))
+        self.frame_5.setFrameShape(QFrame.StyledPanel)
+        self.frame_5.setFrameShadow(QFrame.Raised)
+        self.frame_5.setObjectName("frame_5")
+        self.frame_5.raise_()
+        self.groupBox_9.raise_()
+        self.groupBox_10.raise_()
         self.groupBox_4 = QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QRect(10, 10, 1641, 671))
+        self.groupBox_4.setGeometry(QRect(10, 10, 1821, 661))
         self.groupBox_4.setObjectName("groupBox_4")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 1650, 25))
+        self.menubar.setGeometry(QRect(0, 0, 1920, 25))
         self.menubar.setObjectName("menubar")
         self.menuOnline_teaching_GUI = QMenu(self.menubar)
         self.menuOnline_teaching_GUI.setObjectName("menuOnline_teaching_GUI")
@@ -374,7 +499,6 @@ class experimentGUI(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
         self.menubar.addAction(self.menuOnline_teaching_GUI.menuAction())
-
 
         # initialize default radio buttons
         self.radioButton_8.setChecked(True)
@@ -838,6 +962,23 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)
     
     def on_build_model_click(self):
+        if self.radioButton_11.isChecked():
+            self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/complete_model_situation1/"
+        elif self.radioButton_12.isChecked():
+            self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/complete_model_situation2/"
+        elif self.radioButton_13.isChecked():
+            self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/complete_model_situation3/"
+
+        path = String()
+        path.data = self.raw_path
+
+        try:
+            rospy.wait_for_service('set_path', timeout=2.0)
+            set_path = rospy.ServiceProxy('set_path', SetPath)
+            resp = set_path(path)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
         try:
             rospy.wait_for_service('build_initial_model', timeout=2.0)
             build_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
@@ -886,38 +1027,169 @@ class experimentGUI(QMainWindow):
         self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
         self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
 
-    def check_button_state(self, button):
-        # if preset 1 and checked
-        if button.text() == '1' and button.isChecked():
+    def check_button_state(self, button, group_box):
+        print(group_box.title())
+        if group_box.title() == "Movement":
+            # if preset 1 and checked
+            if button.text() == '1' and button.isChecked():
 
-            self.lineEdit_9.setText(str(round(0.401946359213, 3)))
-            self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
-            self.lineEdit_8.setText(str(round(0.840896642238, 3)))
+                self.lineEdit_9.setText(str(round(0.401946359213, 3)))
+                self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
+                self.lineEdit_8.setText(str(round(0.840896642238, 3)))
 
-            self.lineEdit_12.setText(str(round(0.980837824843, 3)))
-            self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
-            self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
-            self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
+                self.lineEdit_12.setText(str(round(0.980837824843, 3)))
+                self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
+                self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
+                self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
 
-        elif button.text() == '2' and button.isChecked():
-            self.lineEdit_9.setText(str(round(0.371, 3)))
-            self.lineEdit_7.setText(str(round(-0.14, 3)))
-            self.lineEdit_8.setText(str(round(0.879, 3)))
+            elif button.text() == '2' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.371, 3)))
+                self.lineEdit_7.setText(str(round(-0.14, 3)))
+                self.lineEdit_8.setText(str(round(0.879, 3)))
 
-            self.lineEdit_12.setText(str(round(0.988, 3)))
-            self.lineEdit_11.setText(str(round(-0.0, 3)))
-            self.lineEdit_10.setText(str(round(-0.151, 3)))
-            self.lineEdit_13.setText(str(round(0.03, 3)))
+                self.lineEdit_12.setText(str(round(0.988, 3)))
+                self.lineEdit_11.setText(str(round(-0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.151, 3)))
+                self.lineEdit_13.setText(str(round(0.03, 3)))
+            
+            elif button.text() == '3' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
 
-        elif button.text() == '3' and button.isChecked():
-            self.lineEdit_9.setText(str(round(0.684, 3)))
-            self.lineEdit_7.setText(str(round(-0.23, 3)))
-            self.lineEdit_8.setText(str(round(0.788, 3)))
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+            # elif button.text() == '3' and button.isChecked():
+            #     self.lineEdit_9.setText(str(round(0.684, 3)))
+            #     self.lineEdit_7.setText(str(round(-0.23, 3)))
+            #     self.lineEdit_8.setText(str(round(0.788, 3)))
 
-            self.lineEdit_12.setText(str(round(0.988, 3)))
-            self.lineEdit_11.setText(str(round(-0.0, 3)))
-            self.lineEdit_10.setText(str(round(-0.123, 3)))
-            self.lineEdit_13.setText(str(round(0.03, 3)))
+            #     self.lineEdit_12.setText(str(round(0.988, 3)))
+            #     self.lineEdit_11.setText(str(round(-0.0, 3)))
+            #     self.lineEdit_10.setText(str(round(-0.123, 3)))
+            #     self.lineEdit_13.setText(str(round(0.03, 3)))
+        elif group_box.title == "Environment":
+            if button.text() == '1' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '2' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("0.0")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_16.setText("0.7")
+            
+            elif button.text() == '3' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("-0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_16.setText("0.7")
+            elif button.text() == '4' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '5' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("0.0")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_16.setText("0.7")
+            
+            elif button.text() == '6' and button.isChecked():
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("-0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_16.setText("0.7")
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
@@ -936,7 +1208,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
         self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
-        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_situation1_2.txt"))
+        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_fast"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -979,6 +1251,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_25.setText(_translate("MainWindow", "Copy pose"))
         self.radioButton_6.setText(_translate("MainWindow", "Reverse prediction"))
         self.radioButton_7.setText(_translate("MainWindow", "Reverse refinement"))
+        self.radioButton_10.setText(_translate("MainWindow", "4"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Nodes"))
         self.label_17.setText(_translate("MainWindow", "LfD"))
         self.pushButton_3.setText(_translate("MainWindow", "Start"))
@@ -986,11 +1259,25 @@ class experimentGUI(QMainWindow):
         self.label_18.setText(_translate("MainWindow", "Refinement"))
         self.pushButton.setText(_translate("MainWindow", "Start"))
         self.pushButton_2.setText(_translate("MainWindow", "Stop"))
+        self.groupBox_8.setTitle(_translate("MainWindow", "Experiment"))
+        self.groupBox_9.setTitle(_translate("MainWindow", "Model"))
+        self.radioButton_11.setText(_translate("MainWindow", "1"))
+        self.radioButton_12.setText(_translate("MainWindow", "2"))
+        self.radioButton_13.setText(_translate("MainWindow", "3"))
+        self.pushButton_27.setText(_translate("MainWindow", "Start logger"))
+        self.pushButton_28.setText(_translate("MainWindow", "Stop logger"))
+        self.groupBox_10.setTitle(_translate("MainWindow", "Environment"))
+        self.radioButton_14.setText(_translate("MainWindow", "1"))
+        self.radioButton_15.setText(_translate("MainWindow", "2"))
+        self.radioButton_16.setText(_translate("MainWindow", "3"))
+        self.radioButton_17.setText(_translate("MainWindow", "4"))
+        self.radioButton_18.setText(_translate("MainWindow", "5"))
+        self.radioButton_19.setText(_translate("MainWindow", "6"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
 
 
- 
+
         # set object and obstacle when OK is pressed
         self.buttonBox.accepted.connect(self.on_set_object_position_click)
         self.buttonBox.accepted.connect(self.on_set_obstacle_position_click)
@@ -1030,14 +1317,19 @@ class experimentGUI(QMainWindow):
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
 
-
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
         self.pushButton_23.clicked.connect(lambda: self.use_multithread(self.on_refine_refinement_click))
 
 
-        self.radioButton.toggled.connect(lambda:self.check_button_state(self.radioButton))
-        self.radioButton_4.toggled.connect(lambda:self.check_button_state(self.radioButton_4))
-        self.radioButton_5.toggled.connect(lambda:self.check_button_state(self.radioButton_5))
+        self.radioButton.toggled.connect(lambda:self.check_button_state(self.radioButton, self.groupBox_6))
+        self.radioButton_4.toggled.connect(lambda:self.check_button_state(self.radioButton_4, self.groupBox_6))
+        self.radioButton_5.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_6))
+        self.radioButton_14.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
+        self.radioButton_15.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
+        self.radioButton_16.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
+        self.radioButton_17.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
+        self.radioButton_18.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
+        self.radioButton_19.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
 
 
 

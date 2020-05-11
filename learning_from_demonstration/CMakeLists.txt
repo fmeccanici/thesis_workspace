@@ -22,6 +22,7 @@
     SetTeachingMode.srv
     BuildInitialModel.srv
     GetEEPose.srv
+    SetPath.srv
   )
 catkin_python_setup()
 
