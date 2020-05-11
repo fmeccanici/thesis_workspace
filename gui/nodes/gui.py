@@ -382,11 +382,11 @@ class experimentGUI(QMainWindow):
 
         # object position
         self.lineEdit.setText("0.8")
-        self.lineEdit_2.setText("0.3")
+        self.lineEdit_2.setText("0.2")
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.6")
+        self.lineEdit_14.setText("0.7")
         self.lineEdit_15.setText("0")
         self.lineEdit_16.setText("0.7")
 
@@ -936,7 +936,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
         self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
-        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_other_setup.txt"))
+        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_situation1_2.txt"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))

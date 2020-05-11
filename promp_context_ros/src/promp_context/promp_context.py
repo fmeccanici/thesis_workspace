@@ -145,6 +145,54 @@ class ProMPContext(object):
             self.mean_w = self.mean_total[:self.num_basis] 
             self.mean_c = self.mean_total[self.num_basis:] 
 
+    def recursive_update(self):
+        trajectory = demonstration[0]
+        context = demonstration[1]
+        trajectory = np.array(trajectory).T
+        if len(trajectory) != self.num_outputs:
+            raise ValueError("The given demonstration has {} outputs while num_outputs={}".format(len(trajectory), self.num_outputs))
+
+        self.nr_traj += 1
+        # loop over variables
+        for variable_idx, variable in enumerate(trajectory):
+
+            # interpolate to fit the Phi matrix
+            interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
+            
+            # name convention from Ewerton et al.
+            tau = interpolate(self.x)
+            # w_M = 
+            # calculate weights of Mth demonstration: refinement
+            # (size N, N=num_basis, M=num_demonstrations)
+            w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T
+            c_M = context
+
+            x = np.append(w_M, c_M)
+
+            # do a welford update step and update the mean and variance
+            print("Number of trajectories = " + str(self.nr_traj))
+            N = self.nr_traj
+            # N = 2
+
+            welford = Welford(N=N, Mean=self.mean_total, Sigma=self.sigma_total, alpha=alpha)
+
+            if amount > 1:
+                for i in range(amount):
+                    mean_total, sigma_total = welford.update(x)
+            else: 
+                mean_total, sigma_total = welford.update(x)
+
+            self.mean_total = mean_total
+            self.sigma_total = sigma_total
+
+            self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
+            self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
+            self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
+            self.sigma_cc = self.sigma_total[self.num_basis:, self.num_basis:] 
+
+            self.mean_w = self.mean_total[:self.num_basis] 
+            self.mean_c = self.mean_total[self.num_basis:] 
+            
     # welford update where x = [w_M, c_M]
     # thus containing the weights and context of the refined trajectory
     def welford_update(self, demonstration, amount=1, alpha=0.0):
@@ -203,7 +251,7 @@ class ProMPContext(object):
 
             self.mean_total = mean_total
             self.sigma_total = sigma_total
-
+            print(self.sigma_total.shape)
             self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
             self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
             self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
