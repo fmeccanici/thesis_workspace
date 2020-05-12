@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 # other packages
-import rospy, sys, roslaunch, rospkg, os, random
+import rospy, sys, roslaunch, rospkg, os, random, time
 
 from rviz_python.rviz_python import rvizPython
 
@@ -93,7 +93,7 @@ class experimentGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(310, 690, 351, 301))
+        self.groupBox_2.setGeometry(QRect(310, 690, 351, 341))
         self.groupBox_2.setObjectName("groupBox_2")
         self.pushButton_6 = QPushButton(self.groupBox_2)
         self.pushButton_6.setGeometry(QRect(0, 120, 150, 27))
@@ -132,16 +132,19 @@ class experimentGUI(QMainWindow):
         self.lineEdit_17.setGeometry(QRect(40, 90, 41, 27))
         self.lineEdit_17.setObjectName("lineEdit_17")
         self.pushButton_26 = QPushButton(self.groupBox_2)
-        self.pushButton_26.setGeometry(QRect(0, 210, 150, 27))
+        self.pushButton_26.setGeometry(QRect(0, 280, 150, 27))
         self.pushButton_26.setObjectName("pushButton_26")
         self.lineEdit_18 = QLineEdit(self.groupBox_2)
-        self.lineEdit_18.setGeometry(QRect(0, 240, 171, 27))
+        self.lineEdit_18.setGeometry(QRect(0, 310, 171, 27))
         self.lineEdit_18.setObjectName("lineEdit_18")
         self.frame_2 = QFrame(self.groupBox_2)
-        self.frame_2.setGeometry(QRect(0, 0, 331, 271))
+        self.frame_2.setGeometry(QRect(0, 0, 331, 341))
         self.frame_2.setFrameShape(QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
+        self.lineEdit_19 = QLineEdit(self.frame_2)
+        self.lineEdit_19.setGeometry(QRect(40, 210, 41, 27))
+        self.lineEdit_19.setObjectName("lineEdit_19")
         self.frame_2.raise_()
         self.pushButton_6.raise_()
         self.pushButton_21.raise_()
@@ -434,7 +437,7 @@ class experimentGUI(QMainWindow):
         self.groupBox_8.setGeometry(QRect(1580, 690, 331, 301))
         self.groupBox_8.setObjectName("groupBox_8")
         self.groupBox_9 = QGroupBox(self.groupBox_8)
-        self.groupBox_9.setGeometry(QRect(0, 30, 91, 241))
+        self.groupBox_9.setGeometry(QRect(0, 30, 91, 261))
         self.groupBox_9.setObjectName("groupBox_9")
         self.radioButton_11 = QRadioButton(self.groupBox_9)
         self.radioButton_11.setGeometry(QRect(10, 30, 117, 22))
@@ -446,16 +449,17 @@ class experimentGUI(QMainWindow):
         self.radioButton_13.setGeometry(QRect(10, 90, 117, 22))
         self.radioButton_13.setObjectName("radioButton_13")
         self.pushButton_27 = QPushButton(self.groupBox_9)
-        self.pushButton_27.setGeometry(QRect(0, 120, 91, 27))
+        self.pushButton_27.setGeometry(QRect(0, 200, 91, 27))
         self.pushButton_27.setObjectName("pushButton_27")
         self.pushButton_28 = QPushButton(self.groupBox_9)
-        self.pushButton_28.setGeometry(QRect(0, 150, 91, 27))
+        self.pushButton_28.setGeometry(QRect(0, 230, 91, 27))
         self.pushButton_28.setObjectName("pushButton_28")
-        self.radioButton_11.raise_()
-        self.radioButton_12.raise_()
-        self.radioButton_13.raise_()
-        self.pushButton_27.raise_()
-        self.pushButton_28.raise_()
+        self.pushButton_29 = QPushButton(self.groupBox_9)
+        self.pushButton_29.setGeometry(QRect(0, 130, 91, 27))
+        self.pushButton_29.setObjectName("pushButton_29")
+        self.pushButton_30 = QPushButton(self.groupBox_9)
+        self.pushButton_30.setGeometry(QRect(0, 160, 91, 27))
+        self.pushButton_30.setObjectName("pushButton_30")
         self.groupBox_10 = QGroupBox(self.groupBox_8)
         self.groupBox_10.setGeometry(QRect(110, 30, 91, 261))
         self.groupBox_10.setObjectName("groupBox_10")
@@ -528,8 +532,6 @@ class experimentGUI(QMainWindow):
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/' 
         try:
             ref_traj = self.parser.openTrajectoryFile(traj_file, path)
-            print(ref_traj)
-            print(type(ref_traj))
             self.refined_trajectory = self.parser.predicted_trajectory_to_prompTraj_message(ref_traj, self.parser.point_to_list(self.context))
         except Exception as e:
             rospy.loginfo(e)
@@ -824,8 +826,40 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)   
             
     def on_go_to_click(self):
-        
-        if self.radioButton or self.radioButton_4 or self.radioButton_5:
+            
+        # reverse predicted trajectory
+        if self.radioButton_6.isChecked():
+            pred = self.parser.promptraj_msg_to_execution_format(self.prediction)
+            pred_rev = self.parser.reverse_trajectory(pred)
+            pred_rev_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.parser.point_to_list(self.context))
+            try:
+                rospy.wait_for_service('execute_trajectory', timeout=2.0)
+
+                execute_reverse_prediction = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+                try:
+                    resp = execute_reverse_prediction(pred_rev_msg)
+                except AttributeError:
+                    rospy.loginfo("No refined trajectory available yet!")
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)   
+
+        # reverse refined trajectory
+        elif self.radioButton_7.isChecked():  
+            pred = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+            pred_rev = self.parser.reverse_trajectory(pred)
+            pred_rev_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.parser.point_to_list(self.context))
+            try:
+                rospy.wait_for_service('execute_trajectory', timeout=2.0)
+
+                execute_reverse_refined = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+                try:
+                    resp = execute_reverse_refined(pred_rev_msg)
+                    
+                except AttributeError:
+                    rospy.loginfo("No refined trajectory available yet!")
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)  
+        else:
             # get pose from text fields
             pose = Pose()
             try:
@@ -847,39 +881,6 @@ class experimentGUI(QMainWindow):
 
             except (rospy.ServiceException, rospy.ROSException) as e:
                 print("Service call failed: %s" %e)
-        
-        # reverse predicted trajectory
-        elif self.radioButton_6:
-            pred = self.parser.promptraj_msg_to_execution_format(self.prediction)
-            pred_rev = self.parser.reverse_trajectory(pred)
-            pred_rev_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.parser.point_to_list(self.context))
-            try:
-                rospy.wait_for_service('execute_trajectory', timeout=2.0)
-
-                execute_reverse_prediction = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-                try:
-                    resp = execute_reverse_prediction(pred_rev_msg)
-                except AttributeError:
-                    rospy.loginfo("No refined trajectory available yet!")
-            except (rospy.ServiceException, rospy.ROSException) as e:
-                print("Service call failed: %s" %e)   
-
-        # reverse refined trajectory
-        elif self.radioButton_7:  
-            pred = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
-            pred_rev = self.parser.reverse_trajectory(pred)
-            pred_rev_msg = self.parser.predicted_trajectory_to_prompTraj_message(self.parser.point_to_list(self.context))
-            try:
-                rospy.wait_for_service('execute_trajectory', timeout=2.0)
-
-                execute_reverse_refined = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-                try:
-                    resp = execute_reverse_refined(pred_rev_msg)
-                    
-                except AttributeError:
-                    rospy.loginfo("No refined trajectory available yet!")
-            except (rospy.ServiceException, rospy.ROSException) as e:
-                print("Service call failed: %s" %e)  
 
     def on_add_to_model_click(self):
 
@@ -1028,11 +1029,12 @@ class experimentGUI(QMainWindow):
         self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
 
     def check_button_state(self, button, group_box):
-        print(group_box.title())
+
+
         if group_box.title() == "Movement":
+
             # if preset 1 and checked
             if button.text() == '1' and button.isChecked():
-
                 self.lineEdit_9.setText(str(round(0.401946359213, 3)))
                 self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
                 self.lineEdit_8.setText(str(round(0.840896642238, 3)))
@@ -1070,7 +1072,8 @@ class experimentGUI(QMainWindow):
             #     self.lineEdit_11.setText(str(round(-0.0, 3)))
             #     self.lineEdit_10.setText(str(round(-0.123, 3)))
             #     self.lineEdit_13.setText(str(round(0.03, 3)))
-        elif group_box.title == "Environment":
+        elif group_box.title() == "Environment" and self.radioButton_11.isChecked():
+
             if button.text() == '1' and button.isChecked():
 
                 self.lineEdit_9.setText(str(round(0.609, 3)))
@@ -1089,7 +1092,7 @@ class experimentGUI(QMainWindow):
 
                 # obstacle position
                 self.lineEdit_14.setText("0.7")
-                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_15.setText("-0.15")
                 self.lineEdit_16.setText("0.7")
 
             elif button.text() == '2' and button.isChecked():
@@ -1109,29 +1112,10 @@ class experimentGUI(QMainWindow):
 
                 # obstacle position
                 self.lineEdit_14.setText("0.7")
-                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_15.setText("-0.15")
                 self.lineEdit_16.setText("0.7")
             
             elif button.text() == '3' and button.isChecked():
-                self.lineEdit_9.setText(str(round(0.609, 3)))
-                self.lineEdit_7.setText(str(round(-0.306, 3)))
-                self.lineEdit_8.setText(str(round(0.816, 3)))
-
-                self.lineEdit_12.setText(str(round(0.985, 3)))
-                self.lineEdit_11.setText(str(round(-0.103, 3)))
-                self.lineEdit_10.setText(str(round(-0.124, 3)))
-                self.lineEdit_13.setText(str(round(0.064, 3)))
-                
-                # object position
-                self.lineEdit.setText("0.85")
-                self.lineEdit_2.setText("-0.3")
-                self.lineEdit_3.setText("0.9")
-
-                # obstacle position
-                self.lineEdit_14.setText("0.7")
-                self.lineEdit_15.setText("-10.15")
-                self.lineEdit_16.setText("0.7")
-            elif button.text() == '4' and button.isChecked():
                 self.lineEdit_9.setText(str(round(0.609, 3)))
                 self.lineEdit_7.setText(str(round(-0.306, 3)))
                 self.lineEdit_8.setText(str(round(0.816, 3)))
@@ -1148,10 +1132,10 @@ class experimentGUI(QMainWindow):
 
                 # obstacle position
                 self.lineEdit_14.setText("0.7")
-                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_15.setText("-0.15")
                 self.lineEdit_16.setText("0.7")
 
-            elif button.text() == '5' and button.isChecked():
+            elif button.text() == '4' and button.isChecked():
                 self.lineEdit_9.setText(str(round(0.609, 3)))
                 self.lineEdit_7.setText(str(round(-0.306, 3)))
                 self.lineEdit_8.setText(str(round(0.816, 3)))
@@ -1168,10 +1152,191 @@ class experimentGUI(QMainWindow):
 
                 # obstacle position
                 self.lineEdit_14.setText("0.7")
-                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_15.setText("-0.15")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '5' and button.isChecked():
+                print("Not needed for this condition!")
+
+            
+            elif button.text() == '6' and button.isChecked():
+                print("Not needed for this condition!")
+
+        # condition 2
+        elif group_box.title() == "Environment" and self.radioButton_12.isChecked():
+            if button.text() == '1' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.387, 3)))
+                self.lineEdit_7.setText(str(round(-0.15, 3)))
+                self.lineEdit_8.setText(str(round(0.870, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.152, 3)))
+                self.lineEdit_13.setText(str(round(0.030, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("10")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '2' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.387, 3)))
+                self.lineEdit_7.setText(str(round(-0.15, 3)))
+                self.lineEdit_8.setText(str(round(0.870, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.152, 3)))
+                self.lineEdit_13.setText(str(round(0.030, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("0.0")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("10")
+                self.lineEdit_16.setText("0.7")
+            
+            elif button.text() == '3' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.387, 3)))
+                self.lineEdit_7.setText(str(round(-0.15, 3)))
+                self.lineEdit_8.setText(str(round(0.870, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.152, 3)))
+                self.lineEdit_13.setText(str(round(0.030, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("-0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("10")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '4' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.387, 3)))
+                self.lineEdit_7.setText(str(round(-0.15, 3)))
+                self.lineEdit_8.setText(str(round(0.870, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.152, 3)))
+                self.lineEdit_13.setText(str(round(0.030, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("10")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '5' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.387, 3)))
+                self.lineEdit_7.setText(str(round(-0.15, 3)))
+                self.lineEdit_8.setText(str(round(0.870, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.152, 3)))
+                self.lineEdit_13.setText(str(round(0.030, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("0.0")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("10")
                 self.lineEdit_16.setText("0.7")
             
             elif button.text() == '6' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.387, 3)))
+                self.lineEdit_7.setText(str(round(-0.15, 3)))
+                self.lineEdit_8.setText(str(round(0.870, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(0.0, 3)))
+                self.lineEdit_10.setText(str(round(-0.152, 3)))
+                self.lineEdit_13.setText(str(round(0.030, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("-0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("10")
+                self.lineEdit_16.setText("0.7")
+
+        # condition 3
+        elif group_box.title() == "Environment" and self.radioButton_13.isChecked():
+
+            if button.text() == '1' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("0.3")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-0.15")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '2' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.85")
+                self.lineEdit_2.setText("0.0")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-0.15")
+                self.lineEdit_16.setText("0.7")
+            
+            elif button.text() == '3' and button.isChecked():
+
                 self.lineEdit_9.setText(str(round(0.609, 3)))
                 self.lineEdit_7.setText(str(round(-0.306, 3)))
                 self.lineEdit_8.setText(str(round(0.816, 3)))
@@ -1183,13 +1348,84 @@ class experimentGUI(QMainWindow):
                 
                 # object position
                 self.lineEdit.setText("0.65")
-                self.lineEdit_2.setText("-0.3")
+                self.lineEdit_2.setText("0.3")
                 self.lineEdit_3.setText("0.9")
 
                 # obstacle position
                 self.lineEdit_14.setText("0.7")
-                self.lineEdit_15.setText("-10.15")
+                self.lineEdit_15.setText("-0.15")
                 self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '4' and button.isChecked():
+
+                self.lineEdit_9.setText(str(round(0.609, 3)))
+                self.lineEdit_7.setText(str(round(-0.306, 3)))
+                self.lineEdit_8.setText(str(round(0.816, 3)))
+
+                self.lineEdit_12.setText(str(round(0.985, 3)))
+                self.lineEdit_11.setText(str(round(-0.103, 3)))
+                self.lineEdit_10.setText(str(round(-0.124, 3)))
+                self.lineEdit_13.setText(str(round(0.064, 3)))
+                
+                # object position
+                self.lineEdit.setText("0.65")
+                self.lineEdit_2.setText("0.0")
+                self.lineEdit_3.setText("0.9")
+
+                # obstacle position
+                self.lineEdit_14.setText("0.7")
+                self.lineEdit_15.setText("-0.15")
+                self.lineEdit_16.setText("0.7")
+
+            elif button.text() == '5' and button.isChecked():
+
+                print("Not needed for this condition!")
+            
+            elif button.text() == '6' and button.isChecked():
+
+                print("Not needed for this condition!")
+
+    
+    def on_initialize_experiment_click(self):
+        
+        if 'learning_from_demonstration' not in self.nodes:
+            self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch')
+        else: 
+            self.stop_node('learning_from_demonstration')
+            self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch')
+        if 'trajectory_refinement' not in self.nodes:
+            self.start_node('trajectory_refinement', 'trajectory_refinement.launch')        
+        
+        time.sleep(5)
+        self.on_clear_trajectories_click()
+        self.on_build_model_click()
+        self.on_go_to_click()
+        self.on_set_object_position_click()
+        self.on_set_obstacle_position_click()
+        time.sleep(2)
+
+        self.on_get_context_click()
+        
+        time.sleep(2)
+        self.on_predict_click()
+        
+        time.sleep(1)
+        self.on_visualize_prediction_click()
+        
+    def on_next_trial_click(self):
+        self.on_clear_trajectories_click()
+        self.on_add_to_model_click()
+        self.on_go_to_click()
+        self.on_set_object_position_click()
+        self.on_set_obstacle_position_click()
+        time.sleep(2)
+
+        self.on_get_context_click()
+        time.sleep(2)
+        self.on_predict_click()
+        time.sleep(1)
+
+        self.on_visualize_prediction_click()
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
@@ -1206,9 +1442,12 @@ class experimentGUI(QMainWindow):
         self.groupBox_7.setTitle(_translate("MainWindow", "Execution time"))
         self.radioButton_8.setText(_translate("MainWindow", "Predicted"))
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
+        self.lineEdit_17.setText(_translate("MainWindow", "10"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
         self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
         self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_fast"))
+        self.lineEdit_19.setText(_translate("MainWindow", "10"))
+        self.lineEdit_19.setPlaceholderText(_translate("MainWindow", "10"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -1266,6 +1505,8 @@ class experimentGUI(QMainWindow):
         self.radioButton_13.setText(_translate("MainWindow", "3"))
         self.pushButton_27.setText(_translate("MainWindow", "Start logger"))
         self.pushButton_28.setText(_translate("MainWindow", "Stop logger"))
+        self.pushButton_29.setText(_translate("MainWindow", "Initialize"))
+        self.pushButton_30.setText(_translate("MainWindow", "Next trial"))
         self.groupBox_10.setTitle(_translate("MainWindow", "Environment"))
         self.radioButton_14.setText(_translate("MainWindow", "1"))
         self.radioButton_15.setText(_translate("MainWindow", "2"))
@@ -1275,6 +1516,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_19.setText(_translate("MainWindow", "6"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
+
 
 
 
@@ -1288,6 +1530,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_22.clicked.connect(self.on_visualize_refinement_click)
         self.pushButton_10.clicked.connect(self.on_calibrate_click)
         self.pushButton_14.clicked.connect(self.on_build_model_click)
+        self.pushButton_30.clicked.connect(self.on_next_trial_click)
 
         self.pushButton_7.clicked.connect(self.on_get_context_click)
         self.pushButton_5.clicked.connect(self.on_predict_click)
@@ -1316,6 +1559,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_24.clicked.connect(lambda: self.use_multithread(self.on_execute_refinement_click))
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
+        self.pushButton_29.clicked.connect(self.on_initialize_experiment_click)
 
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
         self.pushButton_23.clicked.connect(lambda: self.use_multithread(self.on_refine_refinement_click))
@@ -1324,12 +1568,12 @@ class experimentGUI(QMainWindow):
         self.radioButton.toggled.connect(lambda:self.check_button_state(self.radioButton, self.groupBox_6))
         self.radioButton_4.toggled.connect(lambda:self.check_button_state(self.radioButton_4, self.groupBox_6))
         self.radioButton_5.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_6))
-        self.radioButton_14.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
-        self.radioButton_15.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
-        self.radioButton_16.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
-        self.radioButton_17.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
-        self.radioButton_18.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
-        self.radioButton_19.toggled.connect(lambda:self.check_button_state(self.radioButton_5, self.groupBox_10))
+        self.radioButton_14.toggled.connect(lambda:self.check_button_state(self.radioButton_14, self.groupBox_10))
+        self.radioButton_15.toggled.connect(lambda:self.check_button_state(self.radioButton_15, self.groupBox_10))
+        self.radioButton_16.toggled.connect(lambda:self.check_button_state(self.radioButton_16, self.groupBox_10))
+        self.radioButton_17.toggled.connect(lambda:self.check_button_state(self.radioButton_17, self.groupBox_10))
+        self.radioButton_18.toggled.connect(lambda:self.check_button_state(self.radioButton_18, self.groupBox_10))
+        self.radioButton_19.toggled.connect(lambda:self.check_button_state(self.radioButton_19, self.groupBox_10))
 
 
 

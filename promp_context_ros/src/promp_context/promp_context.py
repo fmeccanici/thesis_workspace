@@ -218,7 +218,7 @@ class ProMPContext(object):
             if self.output_name[0] == 'ee_x':
 
                 fig = plt.figure(self.figs[3])
-                print("stretched = " + str(tau))
+                # print("stretched = " + str(tau))
                 plt.title("Demonstrations used for Welford update: No demo's = " + str(self.nr_traj))
                 plt.plot(self.x, tau, label = 'context = ' + str(context))
                 plt.xlabel("datapoint [-]")
@@ -251,7 +251,7 @@ class ProMPContext(object):
 
             self.mean_total = mean_total
             self.sigma_total = sigma_total
-            print(self.sigma_total.shape)
+            # print(self.sigma_total.shape)
             self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
             self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
             self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
@@ -282,7 +282,7 @@ class ProMPContext(object):
             if self.output_name[0] == 'ee_x':
 
                 fig = plt.figure(self.figs[0])
-                print("stretched = " + str(stretched_demo))
+                # print("stretched = " + str(stretched_demo))
                 plt.title("Demonstrations used for Phi matrix: No demo's = " + str(self.nr_traj))
                 plt.plot(self.x, stretched_demo, label = 'context = ' + str(context))
                 plt.xlabel("datapoint [-]")
@@ -335,6 +335,8 @@ class ProMPContext(object):
             self.mean_c = self.C[0]
 
             self.mean_total = np.append(self.mean_w, self.mean_c)
+        
+        print("Number of trajectories = " + str(self.nr_traj))
 
     def generate_trajectory(self, context):
         # print("mean_w_after = " + str((self.mean_w)))

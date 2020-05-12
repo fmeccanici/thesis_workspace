@@ -218,10 +218,10 @@ class learningFromDemonstration():
         self.promps = [ProMPContext(output, self.contexts, num_samples=self.num_samples, num_basis=num_basis, sigma=sigma) for output in self.outputs]
         
         print('Adding trajectories to ProMP model...')
-        print('Amoung of demonstrations = ' + str(len(self.trajectories_for_learning)))
+        print('Amount of demonstrations = ' + str(len(self.trajectories_for_learning)))
         for i,traj in enumerate(self.trajectories_for_learning):
             # print(traj[0])
-            print("context = " + str(traj[0][7:10]))
+            # print("context = " + str(traj[0][7:10]))
 
             context = [round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)]
             # context = [round(traj[0][8], 2)]
@@ -255,7 +255,7 @@ class learningFromDemonstration():
                 # if this produces negative results probably the marker is not detected properly
                 # this also produces a weird trajectory
                 T = np.abs(pred[0])
-                print("T = " + str(T))
+                # print("T = " + str(T))
                 t = np.linspace(0, T, n)
                 pred_traj = np.vstack((pred_traj, t))
             else:

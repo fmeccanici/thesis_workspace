@@ -480,7 +480,7 @@ class lfdNode():
         traj, dt = self.lfd.parser.promptraj_msg_to_execution_format(req.trajectory)
         ndesired = 75
 
-        print("T_desired = " + str(req.T_desired))
+        # print("T_desired = " + str(req.T_desired))
         if req.T_desired != 0.0:
             dt = req.T_desired / ndesired
 
@@ -488,8 +488,8 @@ class lfdNode():
         if len(traj) < ndesired:
             traj = self.resampler.interpolate_learned_keypoints(traj, ndesired)
 
-        print("executed trajectory = " + str(traj))
-        print("dt = " + str(dt))
+        # print("executed trajectory = " + str(traj))
+        # print("dt = " + str(dt))
         
         self.executeTrajectory(traj, dt)
 
@@ -545,7 +545,7 @@ class lfdNode():
         object_wrt_base = self.get_marker_wrt_base()
         prediction = self.lfd.generalize(goal)
 
-        print("prediction = " + str(prediction))
+        # print("prediction = " + str(prediction))
         ndesired = 75
         n = len(prediction)
         
@@ -601,7 +601,7 @@ class lfdNode():
     def predict(self):
         
         object_wrt_base = self.get_context()
-        print("goal = " + str(object_wrt_base))
+        # print("goal = " + str(object_wrt_base))
         ee_wrt_base = self.get_current_slave_position()
         object_wrt_ee = self.lfd.parser.object_wrt_ee(ee_wrt_base, object_wrt_base)
 
