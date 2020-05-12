@@ -30,6 +30,7 @@ from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryRe
 from trajectory_visualizer.msg import TrajectoryVisualization
 
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from data_logger.data_logger import ParticipantData
 
 # class that enables multithreading with Qt
 class Worker(QRunnable):
@@ -507,6 +508,8 @@ class experimentGUI(QMainWindow):
         # initialize default radio buttons
         self.radioButton_8.setChecked(True)
         self.radioButton_3.setChecked(True)
+        self.radioButton_11.setChecked(True)
+        self.radioButton_14.setChecked(True)
 
         # object position
         self.lineEdit.setText("0.8")
@@ -527,6 +530,9 @@ class experimentGUI(QMainWindow):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
+    def store_data(self, participant_number):
+        data_path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/experiment/participant_" + str(participant_number)
+        
     def on_load_trajectory_click(self):
         traj_file = str(self.lineEdit_18.text())
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/' 
@@ -1412,6 +1418,7 @@ class experimentGUI(QMainWindow):
         time.sleep(1)
         self.on_visualize_prediction_click()
         
+        self.store_data()
     def on_next_trial_click(self):
         self.on_clear_trajectories_click()
         self.on_add_to_model_click()
@@ -1427,6 +1434,24 @@ class experimentGUI(QMainWindow):
 
         self.on_visualize_prediction_click()
 
+    def store_data(self):
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
+        
+        file_name = 'predicted_trajectory.csv'
+        data = 'x, y, z, qx, qy, qz, qw, t, \n'
+
+        with open(path+file_name, 'w+') as f:
+            for i,pose in enumerate(self.prediction.poses):
+                data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                            pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                            pose.orientation.w, self.prediction.times[i])
+            f.write(data)
+
+        # file_name = 'refined_trajectory.csv'
+        # with open(path+file_name, 'w+') as f:
+        #     f.write(self.refined_trajectory)
+        
+        
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -1516,8 +1541,6 @@ class experimentGUI(QMainWindow):
         self.radioButton_19.setText(_translate("MainWindow", "6"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
-
-
 
 
         # set object and obstacle when OK is pressed
