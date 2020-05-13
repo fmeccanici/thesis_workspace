@@ -1514,6 +1514,46 @@ class experimentGUI(QMainWindow):
                                                                 pose.orientation.x, pose.orientation.y, pose.orientation.z,
                                                                 pose.orientation.w, self.prediction.times[i])
                 f.write(data)     
+    def get_condition(self):
+        if self.radioButton_11.isChecked():
+            return 1
+        elif self.radioButton_12.isChecked():
+            return 2
+        elif self.radioButton_12.isChecked():
+            return 3
+        else: 
+            print("No condition selected")
+            
+    def on_obstacle_hit_click(self):
+        number_msg = Byte()
+        number_msg.data = int(self.lineEdit_20.text())
+        condition_msg = Byte()
+        condition_msg.data = self.get_condition()
+        try:
+            rospy.wait_for_service('increment_obstacles_hit', timeout=2.0)
+            increment_obstacle_hit = rospy.ServiceProxy('to_csv', IncrementObstaclesHit)
+            
+            resp = increment_obstacle_hit(number_msg, condition_msg)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+    
+    def on_object_missed_click(self):
+        number_msg = Byte()
+        number_msg.data = int(self.lineEdit_20.text())
+        condition_msg = Byte()
+        condition_msg.data = self.get_condition()
+
+        try:
+            rospy.wait_for_service('increment_object_missed', timeout=2.0)
+            increment_object_missed = rospy.ServiceProxy('increment_object_missed', IncrementObjectMissed)
+            
+            resp = increment_object_missed(number_msg, condition_msg)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def on_store_data_click(self):
+        number_msg = Byte()
+        number_msg.data = int(self.lineEdit_20.text())
 
     def on_to_csv_click(self):
         try: 
@@ -1669,6 +1709,9 @@ class experimentGUI(QMainWindow):
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
         self.pushButton_29.clicked.connect(self.on_initialize_experiment_click)
+        self.pushButton_33.clicked.connect(self.on_object_missed_click)
+        self.pushButton_32.clicked.connect(self.on_obstacle_hit_click)
+
 
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))
         self.pushButton_23.clicked.connect(lambda: self.use_multithread(self.on_refine_refinement_click))
