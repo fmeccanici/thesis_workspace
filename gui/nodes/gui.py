@@ -21,7 +21,7 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
-from std_msgs.msg import String, Bool
+from std_msgs.msg import String, Bool, Byte
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
 
@@ -30,7 +30,10 @@ from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryRe
 from trajectory_visualizer.msg import TrajectoryVisualization
 
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
-from data_logger.data_logger import ParticipantData
+from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
+                                SetPrediction, SetPredictionResponse, IncrementObjectMissed, IncrementObjectMissedResponse,
+                                IncrementObstaclesHit, IncrementObstaclesHitResponse, IncrementNumberOfUpdates, IncrementNumberOfUpdatesResponse,
+                                SetNumberOfUpdates, SetNumberOfUpdatesResponse, ToCsv, ToCsvResponse)
 
 # class that enables multithreading with Qt
 class Worker(QRunnable):
@@ -462,10 +465,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_30.setGeometry(QRect(0, 160, 91, 27))
         self.pushButton_30.setObjectName("pushButton_30")
         self.groupBox_10 = QGroupBox(self.groupBox_8)
-        self.groupBox_10.setGeometry(QRect(110, 30, 91, 261))
+        self.groupBox_10.setGeometry(QRect(90, 30, 111, 121))
         self.groupBox_10.setObjectName("groupBox_10")
         self.radioButton_14 = QRadioButton(self.groupBox_10)
-        self.radioButton_14.setGeometry(QRect(10, 30, 117, 22))
+        self.radioButton_14.setGeometry(QRect(10, 30, 41, 22))
         self.radioButton_14.setObjectName("radioButton_14")
         self.radioButton_15 = QRadioButton(self.groupBox_10)
         self.radioButton_15.setGeometry(QRect(10, 60, 117, 22))
@@ -474,19 +477,52 @@ class experimentGUI(QMainWindow):
         self.radioButton_16.setGeometry(QRect(10, 90, 117, 22))
         self.radioButton_16.setObjectName("radioButton_16")
         self.radioButton_17 = QRadioButton(self.groupBox_10)
-        self.radioButton_17.setGeometry(QRect(10, 120, 117, 22))
+        self.radioButton_17.setGeometry(QRect(60, 30, 117, 22))
         self.radioButton_17.setObjectName("radioButton_17")
         self.radioButton_18 = QRadioButton(self.groupBox_10)
-        self.radioButton_18.setGeometry(QRect(10, 150, 117, 22))
+        self.radioButton_18.setGeometry(QRect(60, 60, 117, 22))
         self.radioButton_18.setObjectName("radioButton_18")
         self.radioButton_19 = QRadioButton(self.groupBox_10)
-        self.radioButton_19.setGeometry(QRect(10, 180, 117, 22))
+        self.radioButton_19.setGeometry(QRect(60, 90, 117, 22))
         self.radioButton_19.setObjectName("radioButton_19")
         self.frame_5 = QFrame(self.groupBox_8)
-        self.frame_5.setGeometry(QRect(0, 0, 251, 301))
+        self.frame_5.setGeometry(QRect(0, 0, 331, 301))
         self.frame_5.setFrameShape(QFrame.StyledPanel)
         self.frame_5.setFrameShadow(QFrame.Raised)
         self.frame_5.setObjectName("frame_5")
+        self.pushButton_31 = QPushButton(self.frame_5)
+        self.pushButton_31.setGeometry(QRect(100, 160, 91, 27))
+        self.pushButton_31.setObjectName("pushButton_31")
+        self.lineEdit_20 = QLineEdit(self.frame_5)
+        self.lineEdit_20.setGeometry(QRect(180, 190, 31, 27))
+        self.lineEdit_20.setObjectName("lineEdit_20")
+        self.label_22 = QLabel(self.frame_5)
+        self.label_22.setGeometry(QRect(100, 190, 91, 20))
+        self.label_22.setObjectName("label_22")
+        self.radioButton_20 = QRadioButton(self.frame_5)
+        self.radioButton_20.setGeometry(QRect(100, 220, 91, 22))
+        self.radioButton_20.setObjectName("radioButton_20")
+        self.radioButton_21 = QRadioButton(self.frame_5)
+        self.radioButton_21.setGeometry(QRect(100, 250, 101, 22))
+        self.radioButton_21.setObjectName("radioButton_21")
+        self.pushButton_32 = QPushButton(self.frame_5)
+        self.pushButton_32.setGeometry(QRect(230, 160, 91, 27))
+        self.pushButton_32.setObjectName("pushButton_32")
+        self.pushButton_33 = QPushButton(self.frame_5)
+        self.pushButton_33.setGeometry(QRect(230, 190, 101, 27))
+        self.pushButton_33.setObjectName("pushButton_33")
+        self.pushButton_34 = QPushButton(self.frame_5)
+        self.pushButton_34.setGeometry(QRect(230, 220, 101, 27))
+        self.pushButton_34.setObjectName("pushButton_34")
+        self.groupBox_10.raise_()
+        self.pushButton_31.raise_()
+        self.lineEdit_20.raise_()
+        self.label_22.raise_()
+        self.radioButton_20.raise_()
+        self.radioButton_21.raise_()
+        self.pushButton_32.raise_()
+        self.pushButton_33.raise_()
+        self.pushButton_34.raise_()
         self.frame_5.raise_()
         self.groupBox_9.raise_()
         self.groupBox_10.raise_()
@@ -1479,6 +1515,18 @@ class experimentGUI(QMainWindow):
                                                                 pose.orientation.w, self.prediction.times[i])
                 f.write(data)     
 
+    def on_to_csv_click(self):
+        try: 
+            rospy.wait_for_service('to_csv')
+            to_csv = rospy.ServiceProxy('to_csv', ToCsv)
+            number_msg = Byte()
+            number_msg.data = int(self.lineEdit_20.text())
+
+            resp = to_csv(number_msg)     
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -1566,6 +1614,13 @@ class experimentGUI(QMainWindow):
         self.radioButton_17.setText(_translate("MainWindow", "4"))
         self.radioButton_18.setText(_translate("MainWindow", "5"))
         self.radioButton_19.setText(_translate("MainWindow", "6"))
+        self.pushButton_31.setText(_translate("MainWindow", "Store data"))
+        self.label_22.setText(_translate("MainWindow", "Participant"))
+        self.radioButton_20.setText(_translate("MainWindow", "Refined"))
+        self.radioButton_21.setText(_translate("MainWindow", "Predicted"))
+        self.pushButton_32.setText(_translate("MainWindow", "Obstacle hit"))
+        self.pushButton_33.setText(_translate("MainWindow", "Object missed"))
+        self.pushButton_34.setText(_translate("MainWindow", "To csv"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
 
@@ -1591,10 +1646,11 @@ class experimentGUI(QMainWindow):
         self.pushButton_18.clicked.connect(lambda:self.start_node('teleop_control', 'teleop_control.launch'))
         self.pushButton_25.clicked.connect(self.on_copy_pose_click)
 
-        self.pushButton_27.clicked.connect(lambda:self.stop_node('data_logger.launch'))
-        self.pushButton_28.clicked.connect(lambda:self.start_node('operator_info', 'data_logger.launch'))
+        self.pushButton_27.clicked.connect(lambda:self.stop_node('data_logging.launch'))
+        self.pushButton_28.clicked.connect(lambda:self.start_node('data_logger', 'data_logging.launch'))
 
         self.pushButton_26.clicked.connect(self.on_load_trajectory_click)
+        self.pushButton_34.clicked.connect(self.on_to_csv_click)
 
 
         # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))

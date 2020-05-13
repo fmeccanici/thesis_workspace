@@ -4,7 +4,7 @@ import os, csv
 import pandas as pd
 
 class ParticipantData(object):
-    def __init__(self, number, gender, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logging/data/'):
+    def __init__(self, number, gender, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
         self.number = number
         self.gender = gender
@@ -135,7 +135,7 @@ class ParticipantData(object):
         self.conditions[condition]['number_of_updates'] = value
     
     def toCSV(self):
-        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'condition': self.conditions}
+        data = {'number': self.number, 'age': self.age, 'sex': self.gender, 'condition': self.conditions}
         df = pd.DataFrame.from_dict(data)
         df.to_csv(self.path + 'data.csv')
 
