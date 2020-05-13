@@ -1,4 +1,6 @@
-import rospy, os, csv
+#!/usr/bin/env python3.5
+
+import os, csv
 import pandas as pd
 
 class ParticipantData(object):
@@ -12,7 +14,7 @@ class ParticipantData(object):
         for i in range(3):
             self.conditions[i+1] = { 
                             'predicted_trajectory': {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }, 'context': []}, 
-                            'refined_trajectories': {'trajectories': {}, 'contexts': {}, 'forces': {}}, 'number_of_refinement': 0,
+                            'refined_trajectories': {'trajectories': {}, 'contexts': {}, 'forces': {}}, 'number_of_refinements': 0, 'number_of_updates': 0,
                             'object_missed': 0, 'obstacles_hit': 0}
         
         self.refined_trajectories = {}
@@ -46,7 +48,10 @@ class ParticipantData(object):
         return self.age
 
     def setStoragePath(self, path):
-        self.path = path
+        # check if path exists, create if not
+        self.path = path + 'participant_' + str(self.number) + '/'
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
 
     def getStoragePath(self):
         return self.path
@@ -119,7 +124,16 @@ class ParticipantData(object):
 
     def incrementObjectMissed(self, condition):
         self.conditions[condition]['object_missed'] += 1
+    
+    def incrementNumberOfRefinement(self, condition):
+        self.conditions[condition]['number_of_refinements'] += 1
 
+    def incrementNumberOfUpdates(self, condition):
+        self.conditions[condition]['number_of_updates'] += 1
+
+    def setNumberOfUpdates(self, condition, value):
+        self.conditions[condition]['number_of_updates'] = value
+    
     def toCSV(self):
         data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'condition': self.conditions}
         df = pd.DataFrame.from_dict(data)

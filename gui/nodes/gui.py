@@ -522,17 +522,16 @@ class experimentGUI(QMainWindow):
         self.lineEdit_16.setText("0.7")
 
         self.lineEdit_17.setText("10")
+        config_file = self._rospack.get_path('gui') + "/gui.rviz"
 
-        self.rviz_widget = rvizPython()
+        self.rviz_widget = rvizPython(config_file)
         self.horizontalLayout_6 = QHBoxLayout()
         self.groupBox_4.setLayout(self.horizontalLayout_6)
         self.horizontalLayout_6.addWidget(self.rviz_widget)
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
-    def store_data(self, participant_number):
-        data_path = "/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/experiment/participant_" + str(participant_number)
-        
+
     def on_load_trajectory_click(self):
         traj_file = str(self.lineEdit_18.text())
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/' 
@@ -610,9 +609,9 @@ class experimentGUI(QMainWindow):
             try:
                 resp = refine_trajectory(self.prediction, self.T_desired)
                 self.refined_trajectory = resp.refined_trajectory
-                f = open("/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/refined_trajectory.txt", 'w+')
-                f.write(str(self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)[0]))
-                f.close()
+                # f = open("/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/refined_trajectory.txt", 'w+')
+                # f.write(str(self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)[0]))
+                # f.close()
 
 
                 # print(self.refined_trajectory.times)
@@ -1418,7 +1417,6 @@ class experimentGUI(QMainWindow):
         time.sleep(1)
         self.on_visualize_prediction_click()
         
-        self.store_data()
     def on_next_trial_click(self):
         self.on_clear_trajectories_click()
         self.on_add_to_model_click()
@@ -1434,24 +1432,53 @@ class experimentGUI(QMainWindow):
 
         self.on_visualize_prediction_click()
 
-    def store_data(self):
+    def store_data(self, *args, **kwargs):
+
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
         
-        file_name = 'predicted_trajectory.csv'
-        data = 'x, y, z, qx, qy, qz, qw, t, \n'
+        if "prediction" in kwargs and "refined" in kwargs:
+            file_name = 'predicted_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
 
-        with open(path+file_name, 'w+') as f:
-            for i,pose in enumerate(self.prediction.poses):
-                data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
-                                                            pose.orientation.x, pose.orientation.y, pose.orientation.z,
-                                                            pose.orientation.w, self.prediction.times[i])
-            f.write(data)
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.prediction.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)
+            
+            file_name = 'refined_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
 
-        # file_name = 'refined_trajectory.csv'
-        # with open(path+file_name, 'w+') as f:
-        #     f.write(self.refined_trajectory)
-        
-        
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.refined_trajectory.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)
+
+        elif "prediction" in kwargs and "refined" not in kwargs:
+            file_name = 'predicted_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.prediction.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)
+
+        elif "prediction" not in kwargs and "refined" in kwargs:
+            file_name = 'refined_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+            
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.refined_trajectory.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)     
+
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -1563,6 +1590,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_19.clicked.connect(lambda:self.stop_node('teleop_control.launch'))
         self.pushButton_18.clicked.connect(lambda:self.start_node('teleop_control', 'teleop_control.launch'))
         self.pushButton_25.clicked.connect(self.on_copy_pose_click)
+
+        self.pushButton_27.clicked.connect(lambda:self.stop_node('data_logger.launch'))
+        self.pushButton_28.clicked.connect(lambda:self.start_node('operator_info', 'data_logger.launch'))
 
         self.pushButton_26.clicked.connect(self.on_load_trajectory_click)
 

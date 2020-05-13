@@ -1,0 +1,9 @@
+
+<launch>
+
+    <node pkg="data_logger" name="data_logger" 
+    type="data_logger_node.py" output="screen">
+ 
+    </node>
+
+</launch>

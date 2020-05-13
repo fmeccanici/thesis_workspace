@@ -1,5 +1,5 @@
 <package>
-    <name>learning_from_demonstration</name>
+    <name>data_logger</name>
     <version>1.0.0</version>
     <description>
         ROS package for learning from demonstration applied to Marco. Used for my thesis.

@@ -1,8 +1,8 @@
 <package>
-    <name>data_logging</name>
+    <name>multithread</name>
     <version>1.0.0</version>
     <description>
-        ROS package for logging experimental data.
+        ROS package for learning from demonstration applied to Marco. Used for my thesis.
     </description>
     <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
     <author>Floris Meccanici</author>

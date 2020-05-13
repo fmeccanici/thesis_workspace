@@ -12,7 +12,7 @@ class rvizPython( QWidget ):
     ## Its constructor creates and configures all the component widgets:
     ## frame, thickness_slider, top_button, and side_button, and adds them
     ## to layouts.
-    def __init__(self):
+    def __init__(self, config_file):
         QWidget.__init__(self)
 
         ## rviz.VisualizationFrame is the main container widget of the
@@ -40,7 +40,8 @@ class rvizPython( QWidget ):
         config = rviz.Config()
         # config_file = os.path.abspath("gui.rviz")
         _rospack = rospkg.RosPack()
-        config_file = _rospack.get_path('gui') + "/gui.rviz"
+
+
         reader.readFile( config, config_file )
         self.frame.load( config )
 

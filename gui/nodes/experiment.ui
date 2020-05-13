@@ -1263,10 +1263,10 @@
     <widget class="QGroupBox" name="groupBox_10">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>90</x>
        <y>30</y>
-       <width>91</width>
-       <height>261</height>
+       <width>111</width>
+       <height>121</height>
       </rect>
      </property>
      <property name="title">
@@ -1277,7 +1277,7 @@
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>117</width>
+        <width>41</width>
         <height>22</height>
        </rect>
       </property>
@@ -1314,8 +1314,8 @@
      <widget class="QRadioButton" name="radioButton_17">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>120</y>
+        <x>60</x>
+        <y>30</y>
         <width>117</width>
         <height>22</height>
        </rect>
@@ -1327,8 +1327,8 @@
      <widget class="QRadioButton" name="radioButton_18">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>150</y>
+        <x>60</x>
+        <y>60</y>
         <width>117</width>
         <height>22</height>
        </rect>
@@ -1340,8 +1340,8 @@
      <widget class="QRadioButton" name="radioButton_19">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>180</y>
+        <x>60</x>
+        <y>90</y>
         <width>117</width>
         <height>22</height>
        </rect>
@@ -1356,7 +1356,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>251</width>
+       <width>331</width>
        <height>301</height>
       </rect>
      </property>
@@ -1366,6 +1366,116 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
+     <widget class="QPushButton" name="pushButton_31">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>160</y>
+        <width>91</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Store data</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_20">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>190</y>
+        <width>31</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_22">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>190</y>
+        <width>91</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Participant</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_20">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>220</y>
+        <width>91</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Refined</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton_21">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>250</y>
+        <width>101</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Predicted</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_32">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>160</y>
+        <width>91</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Obstacle hit</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_33">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>190</y>
+        <width>101</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Object missed</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_34">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>220</y>
+        <width>101</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>To csv</string>
+      </property>
+     </widget>
+     <zorder>groupBox_10</zorder>
+     <zorder>pushButton_31</zorder>
+     <zorder>lineEdit_20</zorder>
+     <zorder>label_22</zorder>
+     <zorder>radioButton_20</zorder>
+     <zorder>radioButton_21</zorder>
+     <zorder>pushButton_32</zorder>
+     <zorder>pushButton_33</zorder>
+     <zorder>pushButton_34</zorder>
     </widget>
     <zorder>frame_5</zorder>
     <zorder>groupBox_9</zorder>
