@@ -21,7 +21,7 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
-from std_msgs.msg import String, Bool, Byte
+from std_msgs.msg import String, Bool, Byte, UInt32
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
 
@@ -438,7 +438,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_2.setGeometry(QRect(170, 90, 88, 27))
         self.pushButton_2.setObjectName("pushButton_2")
         self.groupBox_8 = QGroupBox(self.centralwidget)
-        self.groupBox_8.setGeometry(QRect(1580, 690, 331, 301))
+        self.groupBox_8.setGeometry(QRect(1580, 690, 331, 331))
         self.groupBox_8.setObjectName("groupBox_8")
         self.groupBox_9 = QGroupBox(self.groupBox_8)
         self.groupBox_9.setGeometry(QRect(0, 30, 91, 261))
@@ -486,7 +486,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_19.setGeometry(QRect(60, 90, 117, 22))
         self.radioButton_19.setObjectName("radioButton_19")
         self.frame_5 = QFrame(self.groupBox_8)
-        self.frame_5.setGeometry(QRect(0, 0, 331, 301))
+        self.frame_5.setGeometry(QRect(0, 0, 331, 311))
         self.frame_5.setFrameShape(QFrame.StyledPanel)
         self.frame_5.setFrameShadow(QFrame.Raised)
         self.frame_5.setObjectName("frame_5")
@@ -503,26 +503,28 @@ class experimentGUI(QMainWindow):
         self.radioButton_20.setGeometry(QRect(100, 220, 91, 22))
         self.radioButton_20.setObjectName("radioButton_20")
         self.radioButton_21 = QRadioButton(self.frame_5)
-        self.radioButton_21.setGeometry(QRect(100, 250, 101, 22))
+        self.radioButton_21.setGeometry(QRect(100, 240, 101, 22))
         self.radioButton_21.setObjectName("radioButton_21")
         self.pushButton_32 = QPushButton(self.frame_5)
-        self.pushButton_32.setGeometry(QRect(230, 160, 91, 27))
+        self.pushButton_32.setGeometry(QRect(220, 160, 91, 27))
         self.pushButton_32.setObjectName("pushButton_32")
         self.pushButton_33 = QPushButton(self.frame_5)
-        self.pushButton_33.setGeometry(QRect(230, 190, 101, 27))
+        self.pushButton_33.setGeometry(QRect(220, 190, 101, 27))
         self.pushButton_33.setObjectName("pushButton_33")
         self.pushButton_34 = QPushButton(self.frame_5)
-        self.pushButton_34.setGeometry(QRect(230, 220, 101, 27))
+        self.pushButton_34.setGeometry(QRect(220, 220, 101, 27))
         self.pushButton_34.setObjectName("pushButton_34")
-        self.groupBox_10.raise_()
-        self.pushButton_31.raise_()
-        self.lineEdit_20.raise_()
-        self.label_22.raise_()
-        self.radioButton_20.raise_()
-        self.radioButton_21.raise_()
-        self.pushButton_32.raise_()
-        self.pushButton_33.raise_()
-        self.pushButton_34.raise_()
+        self.frame_6 = QFrame(self.frame_5)
+        self.frame_6.setGeometry(QRect(100, 260, 120, 41))
+        self.frame_6.setFrameShape(QFrame.StyledPanel)
+        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.frame_6.setObjectName("frame_6")
+        self.radioButton_22 = QRadioButton(self.frame_6)
+        self.radioButton_22.setGeometry(QRect(20, 0, 117, 22))
+        self.radioButton_22.setObjectName("radioButton_22")
+        self.radioButton_23 = QRadioButton(self.frame_6)
+        self.radioButton_23.setGeometry(QRect(20, 20, 117, 22))
+        self.radioButton_23.setObjectName("radioButton_23")
         self.frame_5.raise_()
         self.groupBox_9.raise_()
         self.groupBox_10.raise_()
@@ -955,12 +957,15 @@ class experimentGUI(QMainWindow):
                 refined_trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(refined_trajectory_wrt_object, self.parser.point_to_list(self.context))
                 
                 if self.radioButton_2.isChecked():
-                    resp = welford_update(refined_trajectory_wrt_object_msg)
-                    rospy.loginfo("Added trajectory to model using Welford")
+                    for i in range(int(self.lineEdit_19.text())):
+                        resp = welford_update(refined_trajectory_wrt_object_msg)
+                    
+                    rospy.loginfo("Added " + str(int(self.lineEdit_19.text())) + " trajectories to model using Welford")
 
                 elif self.radioButton_3.isChecked():
-                    resp = add_demonstration(refined_trajectory_wrt_object_msg)
-                    rospy.loginfo("Added trajectory to model using normal computation")
+                    for i in range(int(self.lineEdit_19.text())):
+                        resp = add_demonstration(refined_trajectory_wrt_object_msg)
+                    rospy.loginfo("Added " + str(int(self.lineEdit_19.text())) + " trajectories to model using normal computation")
                 else:
                     rospy.loginfo("No adding method selected!")
 
@@ -1443,11 +1448,11 @@ class experimentGUI(QMainWindow):
         self.on_go_to_click()
         self.on_set_object_position_click()
         self.on_set_obstacle_position_click()
-        time.sleep(2)
+        time.sleep(4)
 
         self.on_get_context_click()
         
-        time.sleep(2)
+        time.sleep(3)
         self.on_predict_click()
         
         time.sleep(1)
@@ -1531,7 +1536,7 @@ class experimentGUI(QMainWindow):
         condition_msg.data = self.get_condition()
         try:
             rospy.wait_for_service('increment_obstacles_hit', timeout=2.0)
-            increment_obstacle_hit = rospy.ServiceProxy('to_csv', IncrementObstaclesHit)
+            increment_obstacle_hit = rospy.ServiceProxy('increment_obstacles_hit', IncrementObstaclesHit)
             
             resp = increment_obstacle_hit(number_msg, condition_msg)
         except (rospy.ServiceException, rospy.ROSException) as e:
@@ -1554,6 +1559,44 @@ class experimentGUI(QMainWindow):
     def on_store_data_click(self):
         number_msg = Byte()
         number_msg.data = int(self.lineEdit_20.text())
+        condition_msg = Byte()
+        condition_msg.data = self.get_condition()
+        context_msg = Point()
+        context_msg = self.context
+
+        if self.radioButton_21.isChecked():
+            self.store_data(predicted=1)
+            num_updates_msg = UInt32()
+            num_updates_msg.data = int(self.lineEdit_19.text())
+            before_after_msg = Bool()
+
+            # 1 = before, 0 = after
+            if self.radioButton_22.isChecked():
+                before_after_msg.data = 1
+            elif self.radioButton_23.isChecked():
+                before_after_msg.data = 0
+            
+            print("msg = " + str(before_after_msg.data))
+            try:
+                rospy.wait_for_service('set_prediction', timeout=2.0)
+                set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
+                print(before_after_msg)
+                resp = set_prediction(number_msg, condition_msg, context_msg, before_after_msg, num_updates_msg)
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+                
+        elif self.radioButton_20.isChecked():
+            self.store_data(refined=1)
+            try:
+                rospy.wait_for_service('add_refinement', timeout=2.0)
+                add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
+                
+                resp = add_refinement(number_msg, condition_msg, context_msg)
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+                
+
+
 
     def on_to_csv_click(self):
         try: 
@@ -1655,14 +1698,18 @@ class experimentGUI(QMainWindow):
         self.radioButton_18.setText(_translate("MainWindow", "5"))
         self.radioButton_19.setText(_translate("MainWindow", "6"))
         self.pushButton_31.setText(_translate("MainWindow", "Store data"))
+        self.lineEdit_20.setText(_translate("MainWindow", "1"))
         self.label_22.setText(_translate("MainWindow", "Participant"))
         self.radioButton_20.setText(_translate("MainWindow", "Refined"))
         self.radioButton_21.setText(_translate("MainWindow", "Predicted"))
         self.pushButton_32.setText(_translate("MainWindow", "Obstacle hit"))
         self.pushButton_33.setText(_translate("MainWindow", "Object missed"))
         self.pushButton_34.setText(_translate("MainWindow", "To csv"))
+        self.radioButton_22.setText(_translate("MainWindow", "Before"))
+        self.radioButton_23.setText(_translate("MainWindow", "After"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
+
 
 
         # set object and obstacle when OK is pressed
@@ -1691,6 +1738,8 @@ class experimentGUI(QMainWindow):
 
         self.pushButton_26.clicked.connect(self.on_load_trajectory_click)
         self.pushButton_34.clicked.connect(self.on_to_csv_click)
+        self.pushButton_31.clicked.connect(self.on_store_data_click)
+
 
 
         # self.pushButton_12.clicked.connect(lambda:self.start_node('learning_from_demonstration', 'trajectory_teaching.launch'))

@@ -1,4 +1,7 @@
 std_msgs/UInt32 number
 std_msgs/UInt32 condition
+geometry_msgs/Point context
+std_msgs/Bool before_after
+std_msgs/UInt32 number_of_updates
 
 ---

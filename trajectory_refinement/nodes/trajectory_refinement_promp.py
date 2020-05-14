@@ -73,8 +73,8 @@ class trajectoryRefinement():
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
-        self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
-        # self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
+        # self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
+        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
 
 
         # services
@@ -100,11 +100,11 @@ class trajectoryRefinement():
 
     def _keyboard_callback(self, data):
 
-        added_value = 0.01
-        
+        added_value = 0.02
         # move pose upwards
         if data.key.data == 'up':
             self.master_pose.position.x += added_value
+
         elif data.key.data == 'down':
             self.master_pose.position.x -= added_value
         elif data.key.data == 'left':
@@ -112,7 +112,29 @@ class trajectoryRefinement():
         elif data.key.data == 'right':
             self.master_pose.position.y -= added_value
 
-        print(self.master_pose)
+        elif data.key.data == '':
+            # print('check')
+            if self.master_pose.position.y > 0.0:
+                self.master_pose.position.y -= added_value/2
+            elif self.master_pose.position.y < 0.0:
+                self.master_pose.position.y += added_value/2
+
+
+            if self.master_pose.position.x > 0.0:
+                self.master_pose.position.x -= added_value/2
+            elif self.master_pose.position.x < 0.0:
+                self.master_pose.position.x += added_value/2
+                
+        elif data.key.data == 'space':
+            if self.white_button_toggle == 0:
+                self.white_button_toggle = 1
+            else: self.white_button_toggle = 0
+
+        #     print(self.white_button_toggle)
+        
+        # print(self.master_pose.position.x)
+        # print(self.master_pose.position.y)
+   
     def _marker_detection_callback(self, data):
         self.object_marker_pose = data.pose
 

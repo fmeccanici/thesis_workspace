@@ -37,17 +37,28 @@ class DataLoggerNode(object):
         return resp
 
     def _addRefinement(self, req):
+        rospy.loginfo("Adding refinement using service")
         number = req.number.data
         condition = req.condition.data
-        self.data[number].addRefinedTrajectory(from_file=1, condition=condition)
+        context = req.context
+        self.data[number].addRefinedTrajectory(from_file=1, condition=condition, 
+                                                context=context)
     
         resp = AddRefinementResponse()
         return resp
 
     def _setPredicted(self, req):
+        rospy.loginfo("Set predicted trajectory using service")
         number = req.number.data
         condition = req.condition.data
-        self.data[number].setPredictedTrajectory(from_file=1, condition=condition)
+        context = req.context
+        num_updates = req.number_of_updates.data
+        before_after = req.before_after.data
+        print('bef = ' + str(req.before_after.data))
+        
+        self.data[number].setPredictedTrajectory(from_file=1, condition=condition, 
+                                                context=context, num_updates=num_updates,
+                                                before_after=before_after)
 
         resp = SetPredictionResponse()
         return resp

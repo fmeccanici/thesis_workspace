@@ -1150,7 +1150,7 @@
       <x>1580</x>
       <y>690</y>
       <width>331</width>
-      <height>301</height>
+      <height>331</height>
      </rect>
     </property>
     <property name="title">
@@ -1357,7 +1357,7 @@
        <x>0</x>
        <y>0</y>
        <width>331</width>
-       <height>301</height>
+       <height>311</height>
       </rect>
      </property>
      <property name="frameShape">
@@ -1387,6 +1387,9 @@
         <width>31</width>
         <height>27</height>
        </rect>
+      </property>
+      <property name="text">
+       <string>1</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_22">
@@ -1419,7 +1422,7 @@
       <property name="geometry">
        <rect>
         <x>100</x>
-        <y>250</y>
+        <y>240</y>
         <width>101</width>
         <height>22</height>
        </rect>
@@ -1431,7 +1434,7 @@
      <widget class="QPushButton" name="pushButton_32">
       <property name="geometry">
        <rect>
-        <x>230</x>
+        <x>220</x>
         <y>160</y>
         <width>91</width>
         <height>27</height>
@@ -1444,7 +1447,7 @@
      <widget class="QPushButton" name="pushButton_33">
       <property name="geometry">
        <rect>
-        <x>230</x>
+        <x>220</x>
         <y>190</y>
         <width>101</width>
         <height>27</height>
@@ -1457,7 +1460,7 @@
      <widget class="QPushButton" name="pushButton_34">
       <property name="geometry">
        <rect>
-        <x>230</x>
+        <x>220</x>
         <y>220</y>
         <width>101</width>
         <height>27</height>
@@ -1467,15 +1470,48 @@
        <string>To csv</string>
       </property>
      </widget>
-     <zorder>groupBox_10</zorder>
-     <zorder>pushButton_31</zorder>
-     <zorder>lineEdit_20</zorder>
-     <zorder>label_22</zorder>
-     <zorder>radioButton_20</zorder>
-     <zorder>radioButton_21</zorder>
-     <zorder>pushButton_32</zorder>
-     <zorder>pushButton_33</zorder>
-     <zorder>pushButton_34</zorder>
+     <widget class="QFrame" name="frame_6">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>260</y>
+        <width>120</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QRadioButton" name="radioButton_22">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>0</y>
+         <width>117</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Before</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_23">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>117</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>After</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
     <zorder>frame_5</zorder>
     <zorder>groupBox_9</zorder>

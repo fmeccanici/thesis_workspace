@@ -38,6 +38,8 @@ class KeyboardControl():
         elif key == Key.left:
             self.keyboard.key.data = 'left'
 
+        elif key == Key.space:
+            self.keyboard.key.data = 'space'
     def on_release(self, key):
         if key == Key.up:
             self.keyboard.key.data = ''
@@ -50,7 +52,10 @@ class KeyboardControl():
 
         elif key == Key.left:
             self.keyboard.key.data = ''
-            
+        
+        elif key == Key.space:
+            self.keyboard.key.data = ''
+        
         elif key == Key.esc:
             # kill node when esc is pressed
             os.system('kill %d' % os.getpid())
