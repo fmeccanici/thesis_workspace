@@ -1528,7 +1528,23 @@ class experimentGUI(QMainWindow):
             return 3
         else: 
             print("No condition selected")
-            
+
+    def get_environment(self):
+        if self.radioButton_14.isChecked():
+            return 1
+        elif self.radioButton_15.isChecked():
+            return 2
+        elif self.radioButton_16.isChecked():
+            return 3
+        elif self.radioButton_17.isChecked():
+            return 4
+        elif self.radioButton_18.isChecked():
+            return 5
+        elif self.radioButton_19.isChecked():
+            return 6
+        else: 
+            print("No environment selected")
+
     def on_obstacle_hit_click(self):
         number_msg = Byte()
         number_msg.data = int(self.lineEdit_20.text())
@@ -1563,6 +1579,8 @@ class experimentGUI(QMainWindow):
         condition_msg.data = self.get_condition()
         context_msg = Point()
         context_msg = self.context
+        environment_msg = Byte()
+        environment_msg.data = self.get_environment()
 
         if self.radioButton_21.isChecked():
             self.store_data(predicted=1)
@@ -1576,12 +1594,13 @@ class experimentGUI(QMainWindow):
             elif self.radioButton_23.isChecked():
                 before_after_msg.data = 0
             
-            print("msg = " + str(before_after_msg.data))
             try:
                 rospy.wait_for_service('set_prediction', timeout=2.0)
                 set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
                 print(before_after_msg)
-                resp = set_prediction(number_msg, condition_msg, context_msg, before_after_msg, num_updates_msg)
+                resp = set_prediction(number_msg, condition_msg,
+                                        environment_msg, context_msg, 
+                                        before_after_msg, num_updates_msg)
             except (rospy.ServiceException, rospy.ROSException) as e:
                 print("Service call failed: %s" %e)
                 
@@ -1591,7 +1610,7 @@ class experimentGUI(QMainWindow):
                 rospy.wait_for_service('add_refinement', timeout=2.0)
                 add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
                 
-                resp = add_refinement(number_msg, condition_msg, context_msg)
+                resp = add_refinement(number_msg, condition_msg, context_msg, environment_msg)
             except (rospy.ServiceException, rospy.ROSException) as e:
                 print("Service call failed: %s" %e)
                 

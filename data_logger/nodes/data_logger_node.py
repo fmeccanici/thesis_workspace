@@ -54,11 +54,11 @@ class DataLoggerNode(object):
         context = req.context
         num_updates = req.number_of_updates.data
         before_after = req.before_after.data
-        print('bef = ' + str(req.before_after.data))
-        
+        environment = req.environment.data
+
         self.data[number].setPredictedTrajectory(from_file=1, condition=condition, 
                                                 context=context, num_updates=num_updates,
-                                                before_after=before_after)
+                                                before_after=before_after, environment=environment)
 
         resp = SetPredictionResponse()
         return resp

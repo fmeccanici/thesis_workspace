@@ -10,12 +10,17 @@ class ParticipantData(object):
         self.gender = gender
         self.age = age
         self.conditions = {}
+        self.environments = {}
+
+        for j in range(6):
+            # number of predictions is the amount of after predictions stored
+            self.environments[j+1] = {
+                        'predicted_trajectory': {'before': {}, 'after': {}, 'number_of_updates': {}}, 
+                        'refined_trajectories': {}, 'number_of_refinements': 0,
+                        'object_missed': 0, 'obstacles_hit': 0}
         
         for i in range(3):
-            self.conditions[i+1] = { 
-                            'predicted_trajectory': {'before': {}, 'after': {}, 'number_of_updates': 0}, 
-                            'refined_trajectories': {}, 'number_of_refinements': 0,
-                            'object_missed': 0, 'obstacles_hit': 0}
+            self.conditions[i+1] = self.environments
 
         self.predicted_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }, 'context': [], 'forces': []}        
         self.refined_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }, 'context': [], 'forces': []}
@@ -57,9 +62,10 @@ class ParticipantData(object):
         return self.path
 
     def addRefinedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "condition" in kwargs:
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "condition" in kwargs and "environment" in kwargs:
             condition = kwargs["condition"]
             context = kwargs["context"]
+            environment = kwargs["environment"]
 
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'refined_trajectory.csv'
@@ -97,12 +103,12 @@ class ParticipantData(object):
 
             # append dictionary
             # we start with 0 refinement --> n + 1
-            n = self.conditions[condition]['number_of_refinements'] + 1
+            n = self.conditions[condition][environment]['number_of_refinements'] + 1
             print(n)
-            self.conditions[condition]['refined_trajectories'][n] = self.refined_trajectory          
+            self.conditions[condition][environment]['refined_trajectories'][n] = self.refined_trajectory          
             
             # increment number of refined trajectories
-            self.conditions[condition]['number_of_refinements'] += 1
+            self.conditions[condition][environment]['number_of_refinements'] += 1
 
             return 0
 
@@ -110,7 +116,7 @@ class ParticipantData(object):
         return self.refined_trajectories[condition]['trajectories']
                 
     def setPredictedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "condition" in kwargs and "context" in kwargs and "before_after" in kwargs and "num_updates" in kwargs:
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "condition" in kwargs and "context" in kwargs and "before_after" in kwargs and "num_updates" in kwargs and "environment" in kwargs:
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'predicted_trajectory.csv'
             
@@ -118,7 +124,7 @@ class ParticipantData(object):
             context = kwargs["context"]
             before_after = kwargs["before_after"]
             num_updates = kwargs["num_updates"]
-
+            environment = kwargs["environment"]
 
             with open(path+file_name, 'r') as f:
                 reader = csv.reader(f)
@@ -153,14 +159,19 @@ class ParticipantData(object):
             self.predicted_trajectory['context'] = [context.x, context.y, context.z]
 
             if before_after == 1:
-                
-                self.conditions[condition]['predicted_trajectory']['before'] = self.predicted_trajectory
-   
+                print('condition = ' + str(condition))
+                print('environment = ' + str(environment))
+
+
+                self.conditions[condition][environment]['predicted_trajectory']['before'] = self.predicted_trajectory
+                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test1.txt', 'w+') as f:
+                    f.write(str(self.conditions))
+
                 print("Set prediction before updating")
 
             else:
-                self.conditions[condition]['predicted_trajectory']['after'] = self.predicted_trajectory
-                self.conditions[condition]['predicted_trajectory']['number_of_updates'] = num_updates
+                self.conditions[condition][environment]['predicted_trajectory']['after'] = self.predicted_trajectory
+                self.conditions[condition][environment]['predicted_trajectory']['number_of_updates'] = num_updates
                 
                 print("Set prediction after updating")
 
@@ -184,7 +195,11 @@ class ParticipantData(object):
         self.conditions[condition]['number_of_updates'] = value
     
     def toCSV(self):
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
+            f.write(str(self.conditions))
+
         data = {'number': self.number, 'age': self.age, 'sex': self.gender, 'condition': self.conditions}
+
         df = pd.DataFrame.from_dict(data)
         df.to_csv(self.path + 'data.csv')
 

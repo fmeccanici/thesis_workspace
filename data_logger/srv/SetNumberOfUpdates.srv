@@ -1,5 +1,6 @@
-std_msgs/UInt32 number
-std_msgs/UInt32 condition
-std_msgs/UInt32 number_of_updates
+std_msgs/Byte number
+std_msgs/Byte condition
+std_msgs/Byte number_of_updates
+std_msgs/Byte environment
 
 ---

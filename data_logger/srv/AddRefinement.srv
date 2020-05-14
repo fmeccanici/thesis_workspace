@@ -1,5 +1,7 @@
 std_msgs/Byte number
 std_msgs/Byte condition
+std_msgs/Byte environment
+
 geometry_msgs/Point context
 
 ---
