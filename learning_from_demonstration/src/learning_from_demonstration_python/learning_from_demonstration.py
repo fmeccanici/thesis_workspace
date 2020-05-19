@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
-
+from mpl_toolkits.mplot3d import Axes3D
 class learningFromDemonstration():
     def __init__(self):
         # raw trajectory layout: 
@@ -98,12 +98,108 @@ class learningFromDemonstration():
         
         print("Preparing raw trajectories for learning...")
         
+        plt.figure(figsize=[20,5])
+        plt.title("Demonstrations")
+        # ax = fig.gca(projection='3d')
+        # plt.subplot(1,3,1)
+        # plt.grid()
+        # plt.subplot(1,3,2)
+        # plt.grid()
+        # plt.subplot(1,3,3)
+        # plt.grid()
+        
+        
         # normalize time
         print("Normalizing trajectories wrt time...")
         for traj in self.raw_trajectories:
+        
+            x = []
+            y = []
+            z = []
+            qx = []
+            qy = []
+            qz = []
+            qw = []
+
             # due to pointers, this changes the raw trajectories
             traj = self.parser.normalize_trajectory_time_float(traj)
+            
+            for data in traj:
+                x.append(data[0])
+                y.append(data[1])
+                z.append(data[2])
+                qx.append(data[3])
+                qy.append(data[4])
+                qz.append(data[5])
+                qw.append(data[6])
 
+            plt.subplot(1,7,1)
+            plt.plot(x) 
+
+            plt.subplot(1,7,2)
+            plt.plot(y) 
+            
+            plt.subplot(1,7,3)
+            plt.plot(z) 
+            
+            plt.subplot(1,7,4)
+            plt.plot(qx)        
+
+            plt.subplot(1,7,5)
+            plt.plot(qy) 
+
+            plt.subplot(1,7,6)
+            plt.plot(qz) 
+
+            plt.subplot(1,7,7)
+            plt.plot(qw) 
+
+        plt.subplot(1,7,1)
+        plt.title("Cartesian x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        
+        plt.subplot(1,7,2)
+        plt.title("Cartesian y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,3)
+        plt.title("Cartesian z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,4)
+        plt.title("Quaternion x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,5)
+        plt.title("Quaternion y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,6)
+        plt.title("Quaternion z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,7)
+        plt.title("Quaternion w")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.tight_layout()
+        plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/raw_demonstrations.png')
+
+               
         # resample trajectories
         print("Resample trajectories to all have " + str(desired_datapoints) + " datapoints...")
         resampled_trajectories = []
