@@ -98,7 +98,7 @@ class lfdNode():
         self.resampler = trajectoryResampler()
 
         # initialize model 
-        # self.initialize_lfd_model()
+        self.initialize_lfd_model()
 
     # get pose service used for GUI
     def _get_ee_pose(self, req):

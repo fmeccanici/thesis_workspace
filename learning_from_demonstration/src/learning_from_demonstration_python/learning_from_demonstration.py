@@ -198,22 +198,97 @@ class learningFromDemonstration():
 
         plt.tight_layout()
         plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/raw_demonstrations.png')
-
+        plt.clf()
                
         # resample trajectories
         print("Resample trajectories to all have " + str(desired_datapoints) + " datapoints...")
         resampled_trajectories = []
         for traj in self.raw_trajectories:
             resampled_trajectories.append(self.resampler.interpolate_raw_trajectory(traj, desired_datapoints))
-        plt.figure()
+        
+        plt.figure(figsize=[20,5])
 
         for traj in resampled_trajectories:
-            plt.plot([x[0:3] for x in traj])
-            # plt.plot([x[7:10] for x in traj])
-            plt.xlabel("datapoints [-]")
-            plt.ylabel("position [m]")
-            plt.title("Resampled trajectories")
+            x = []
+            y = []
+            z = []
+            qx = []
+            qy = []
+            qz = []
+            qw = []
+
+            for data in traj:
+                x.append(data[0])
+                y.append(data[1])
+                z.append(data[2])
+                qx.append(data[3])
+                qy.append(data[4])
+                qz.append(data[5])
+                qw.append(data[6])
+            plt.subplot(1,7,1)
+            plt.plot(x) 
+
+            plt.subplot(1,7,2)
+            plt.plot(y) 
+            
+            plt.subplot(1,7,3)
+            plt.plot(z) 
+            
+            plt.subplot(1,7,4)
+            plt.plot(qx)        
+
+            plt.subplot(1,7,5)
+            plt.plot(qy) 
+
+            plt.subplot(1,7,6)
+            plt.plot(qz) 
+
+            plt.subplot(1,7,7)
+            plt.plot(qw) 
+
+        plt.subplot(1,7,1)
+        plt.title("Cartesian x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
         plt.grid()
+        
+        plt.subplot(1,7,2)
+        plt.title("Cartesian y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,3)
+        plt.title("Cartesian z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,4)
+        plt.title("Quaternion x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,5)
+        plt.title("Quaternion y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,6)
+        plt.title("Quaternion z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,7)
+        plt.title("Quaternion w")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.tight_layout()
         plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/resampled_trajectories.png')
 
         plt.close()
@@ -252,19 +327,87 @@ class learningFromDemonstration():
             relative_trajectories.append(traj_wrt_object)
             # self.trajectories_for_learning.append(traj)
 
-        plt.figure()
+        plt.figure(figsize=[20,5])
         for traj in relative_trajectories:
-            plt.plot([x[0:3] for x in traj])
-            # plt.plot([x[0] for x in traj], label="context=" + str([round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)] ))
-            # plt.plot([x[1] for x in traj], label='y')
-            # plt.plot([x[2] for x in traj], label='z')
+            x = []
+            y = []
+            z = []
+            qx = []
+            qy = []
+            qz = []
+            qw = []
 
-            # plt.plot([x[7:10] for x in traj])
-            plt.xlabel("datapoints [-]")
-            plt.ylabel("position [m]")
-            plt.title("Relative trajectories")
-            plt.legend()
+            for data in traj:
+                x.append(data[0])
+                y.append(data[1])
+                z.append(data[2])
+                qx.append(data[3])
+                qy.append(data[4])
+                qz.append(data[5])
+                qw.append(data[6])
+            plt.subplot(1,7,1)
+            plt.plot(x) 
+
+            plt.subplot(1,7,2)
+            plt.plot(y) 
+            
+            plt.subplot(1,7,3)
+            plt.plot(z) 
+            
+            plt.subplot(1,7,4)
+            plt.plot(qx)        
+
+            plt.subplot(1,7,5)
+            plt.plot(qy) 
+
+            plt.subplot(1,7,6)
+            plt.plot(qz) 
+
+            plt.subplot(1,7,7)
+            plt.plot(qw) 
+
+        plt.subplot(1,7,1)
+        plt.title("Cartesian x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
         plt.grid()
+        
+        plt.subplot(1,7,2)
+        plt.title("Cartesian y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,3)
+        plt.title("Cartesian z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,4)
+        plt.title("Quaternion x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,5)
+        plt.title("Quaternion y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,6)
+        plt.title("Quaternion z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,7)
+        plt.title("Quaternion w")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+        plt.tight_layout()
         plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/relative_trajectories.png')
         plt.close()
 
@@ -273,18 +416,86 @@ class learningFromDemonstration():
         self.trajectories_for_learning = self.dtw.align_necessary_trajectories(relative_trajectories)
 
         # print(len(traj_aligned_for_learning))
-        plt.figure()
+        plt.figure(figsize=[20,5])
         for traj in self.trajectories_for_learning:
-            plt.plot([x[0:3] for x in traj])
-            # plt.plot([x[0] for x in traj], label="context=" + str([round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)] ))
-            # plt.plot([x[1] for x in traj], label='y')
-            # plt.plot([x[2] for x in traj], label='z')
+            x = []
+            y = []
+            z = []
+            qx = []
+            qy = []
+            qz = []
+            qw = []
 
-            # plt.plot([x[7:10] for x in traj])
-            plt.xlabel("datapoints [-]")
-            plt.ylabel("position [m]")
-            plt.title("Aligned trajectories")
-            plt.legend()
+            for data in traj:
+                x.append(data[0])
+                y.append(data[1])
+                z.append(data[2])
+                qx.append(data[3])
+                qy.append(data[4])
+                qz.append(data[5])
+                qw.append(data[6])
+            plt.subplot(1,7,1)
+            plt.plot(x) 
+
+            plt.subplot(1,7,2)
+            plt.plot(y) 
+            
+            plt.subplot(1,7,3)
+            plt.plot(z) 
+            
+            plt.subplot(1,7,4)
+            plt.plot(qx)        
+
+            plt.subplot(1,7,5)
+            plt.plot(qy) 
+
+            plt.subplot(1,7,6)
+            plt.plot(qz) 
+
+            plt.subplot(1,7,7)
+            plt.plot(qw) 
+
+        plt.subplot(1,7,1)
+        plt.title("Cartesian x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+        
+        plt.subplot(1,7,2)
+        plt.title("Cartesian y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,3)
+        plt.title("Cartesian z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("position [m]")
+        plt.grid()
+
+        plt.subplot(1,7,4)
+        plt.title("Quaternion x")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,5)
+        plt.title("Quaternion y")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,6)
+        plt.title("Quaternion z")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.grid()
+
+        plt.subplot(1,7,7)
+        plt.title("Quaternion w")
+        plt.xlabel("datapoint [-]")
+        plt.ylabel("orientation [-]")
+        plt.tight_layout()
         plt.grid()
         plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/figures/trajectories_for_learning.png')
         plt.close()

@@ -360,15 +360,15 @@ class ProMPContext(object):
     
         p_traj_given_c = np.random.multivariate_normal(mu_traj_given_c, sigma_traj_given_c)
 
-        try:
-            if self.output_name[0][3] != 'q':
-                plt.figure(self.figs[2])
-                plt.plot(mu_traj_given_c)
-                plt.title('Generated trajectory after Welford')
-                plt.xlabel("datapoint [-]")
-                plt.ylabel("position [m]")
-                plt.grid()
-        except: pass
+        # try:
+        #     if self.output_name[0][3] != 'q':
+        #         plt.figure(self.figs[2])
+        #         plt.plot(mu_traj_given_c)
+        #         plt.title('Generated trajectory after Welford')
+        #         plt.xlabel("datapoint [-]")
+        #         plt.ylabel("position [m]")
+        #         plt.grid()
+        # except: pass
 
         return mu_traj_given_c
 
