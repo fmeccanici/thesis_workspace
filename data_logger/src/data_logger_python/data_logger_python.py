@@ -4,35 +4,34 @@ import os, csv
 import pandas as pd
 
 class ParticipantData(object):
-    def __init__(self, number, gender, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
+    def __init__(self, number, sex, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
         self.number = number
-        self.gender = gender
+        self.sex = sex
         self.age = age
+        self.object_positions = {}
         self.conditions = {}
-        self.environments = {}
 
-        for j in range(6):
-            # number of predictions is the amount of after predictions stored
-            self.environments[j+1] = {
-                        'predicted_trajectory': {'before': {}, 'after': {}, 'number_of_updates': {}}, 
-                        'refined_trajectories': {}, 'number_of_refinements': 0,
-                        'object_missed': 0, 'obstacles_hit': 0}
+        self.num_conditions = 3
+        self.num_object_positions = 6
         
-        for i in range(3):
-            self.conditions[i+1] = self.environments
+        for j in range(self.num_object_positions):
+            self.object_positions[j+1] = {
+            'predicted_trajectory': {}, 'context': []}, 
+            'refined_trajectory': {},
+            'number_of_refinements' : 0, 
+            'object_missed' : 0, 'obstacles_hit' : 0
+            }
+        self.predicted_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
+        self.refined_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
 
-        self.predicted_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }, 'context': [], 'forces': []}        
-        self.refined_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }, 'context': [], 'forces': []}
-
+        for i in range(self.num_conditions):
+            self.conditions[i+1] = self.object_positions
+        
         # check if path exists, create if not
         self.path = path + 'participant_' + str(number) + '/'
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        
-            # for i in range(3):
-            #     os.makedirs(self.path + 'condition_' + str(i+1) + '/')
-
 
     def setName(self, name):
         self.name = name
@@ -61,7 +60,7 @@ class ParticipantData(object):
     def getStoragePath(self):
         return self.path
 
-    def addRefinedTrajectory(self, *args, **kwargs):
+    def setRefinedTrajectory(self, *args, **kwargs):
         if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "condition" in kwargs and "environment" in kwargs:
             condition = kwargs["condition"]
             context = kwargs["context"]
@@ -105,7 +104,7 @@ class ParticipantData(object):
             # we start with 0 refinement --> n + 1
             n = self.conditions[condition][environment]['number_of_refinements'] + 1
             print(n)
-            self.conditions[condition][environment]['refined_trajectories'][n] = self.refined_trajectory          
+            self.conditions[condition][environment]['refined_trajectory'] = self.refined_trajectory          
             
             # increment number of refined trajectories
             self.conditions[condition][environment]['number_of_refinements'] += 1

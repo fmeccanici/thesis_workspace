@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="dishwasher">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.255474849380407 -0.516725742832681 0.405314206227562"
+        rpy="0 0 0" />
+      <mass
+        value="580.455252152826" />
+      <inertia
+        ixx="48.9719838451361"
+        ixy="0.0155072561979573"
+        ixz="-0.0368901569463642"
+        iyy="62.7973850119386"
+        iyz="-0.752361452768082"
+        izz="52.023508001152" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="upper_basket_link">
+    <inertial>
+      <origin
+        xyz="-0.249935267736522 0.0237687775834096 0.251944712873635"
+        rpy="0 0 0" />
+      <mass
+        value="1.66002747122945" />
+      <inertia
+        ixx="0.0515702417344983"
+        ixy="-6.65630453351722E-06"
+        ixz="-5.94221456929558E-09"
+        iyy="0.0984568998084896"
+        iyz="5.33785149566783E-06"
+        izz="0.0515702398565267" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/upper_basket_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/upper_basket_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="upper_basket_joint"
+    type="prismatic">
+    <origin
+      xyz="0.50566 -0.67943 0.42505"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="upper_basket_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="lower_basket_link">
+    <inertial>
+      <origin
+        xyz="-0.249935267736607 0.0237687775834435 0.251944712873615"
+        rpy="0 0 0" />
+      <mass
+        value="1.6600274712308" />
+      <inertia
+        ixx="0.0515702417345346"
+        ixy="-6.65630452916947E-06"
+        ixz="-5.94221630989678E-09"
+        iyy="0.0984568998085663"
+        iyz="5.33785150418513E-06"
+        izz="0.0515702398565736" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/lower_basket_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/lower_basket_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lower_basket_joint"
+    type="prismatic">
+    <origin
+      xyz="0.50566 -0.45086 0.13505"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lower_basket_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="door_link">
+    <inertial>
+      <origin
+        xyz="0.0216147974306557 0.357443962311077 0.255715541294207"
+        rpy="0 0 0" />
+      <mass
+        value="126.317119956247" />
+      <inertia
+        ixx="7.49698325225473"
+        ixy="-0.0125731727957203"
+        ixz="0.000282137210825862"
+        iyy="3.12593696719849"
+        iyz="-0.00237021415730334"
+        izz="4.41323347425016" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/door_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher/meshes/door_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="door_joint"
+    type="continuous">
+    <origin
+      xyz="0 -0.8323 0.027045"
+      rpy="-1.5708 -1.5245 -1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="door_link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>

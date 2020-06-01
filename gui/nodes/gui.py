@@ -663,15 +663,17 @@ class experimentGUI(QMainWindow):
     
     def on_set_obstacle_position_click(self):
         try:
+
+
             obstacle_position = ModelState()
-            obstacle_position.model_name = 'coke_can'
+            obstacle_position.model_name = 'kitchen_pan1_1'
             obstacle_position.pose.position.x = float(self.lineEdit_14.text())
             obstacle_position.pose.position.y = float(self.lineEdit_15.text())
             obstacle_position.pose.position.z = float(self.lineEdit_16.text())
-            obstacle_position.pose.orientation.x = 0
-            obstacle_position.pose.orientation.y = 0
-            obstacle_position.pose.orientation.z = 0
-            obstacle_position.pose.orientation.w = 1
+            obstacle_position.pose.orientation.x = -0.0108309560957
+            obstacle_position.pose.orientation.y = 0.883916795398
+            obstacle_position.pose.orientation.z = -0.00677012891552
+            obstacle_position.pose.orientation.w = 0.92327934557
         except ValueError:
             rospy.loginfo("Invalid value for position!")
         try:
