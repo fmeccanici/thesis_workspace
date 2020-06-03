@@ -1,0 +1,25 @@
+<launch>
+  <include
+    file="$(find gazebo_ros)/launch/empty_world.launch" />
+  <node
+    name="tf_footprint_base"
+    pkg="tf"
+    type="static_transform_publisher"
+    args="0 0 0 0 0 0 base_link base_footprint 40" />
+    
+    <!-- send fake joint values -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+      <param name="use_gui" value="TRUE"/>
+    </node>
+
+  <param name="robot_description" textfile="$(find dishwasher_description)/urdf/dishwasher.urdf" />
+  <param name="robot_description_sdf" textfile="$(find dishwasher_description)/model.sdf" />
+
+  <node
+    name="spawn_model"
+    pkg="gazebo_ros"
+    type="spawn_model"
+    args="-sdf -param robot_description_sdf -model dishwasher"
+    output="screen" />
+
+</launch>

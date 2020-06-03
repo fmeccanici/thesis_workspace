@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="dishwasher">
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control">
+      <robotNamespace>/dishwasher</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.255474849380407 -0.516725742832681 0.405314206227562"
+        rpy="0 0 0" />
+      <mass
+        value="580.455252152827" />
+      <inertia
+        ixx="48.9719838451361"
+        ixy="0.0155072561979578"
+        ixz="-0.0368901569463637"
+        iyy="62.7973850119386"
+        iyz="-0.752361452768081"
+        izz="52.023508001152" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="upper_basket_link">
+    <inertial>
+      <origin
+        xyz="-0.25 0.0426017191977061 -0.00246555613310229"
+        rpy="0 0 0" />
+      <mass
+        value="3.48999999999999" />
+      <inertia
+        ixx="0.0955076530563513"
+        ixy="8.56507945383977E-17"
+        ixz="-1.56763868813109E-16"
+        iyy="0.185033166666666"
+        iyz="2.13460236284993E-18"
+        izz="0.0955076530563512" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/upper_basket_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/upper_basket_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="upper_basket_joint"
+    type="prismatic">
+    <origin
+      xyz="0.505658183663766 -0.679426106100725 0.42504527543562"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="upper_basket_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="lower_basket_link">
+    <inertial>
+      <origin
+        xyz="-0.250000000000001 0.0426017191977076 0.193372941669176"
+        rpy="0 0 0" />
+      <mass
+        value="3.48999999999999" />
+      <inertia
+        ixx="0.0955076530563513"
+        ixy="8.56463779937313E-17"
+        ixz="-1.56763868813109E-16"
+        iyy="0.185033166666666"
+        iyz="8.11053831202952E-18"
+        izz="0.0955076530563512" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/lower_basket_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/lower_basket_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lower_basket_joint"
+    type="prismatic">
+    <origin
+      xyz="0.505658183663766 -0.450855821094001 0.13504527543562"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lower_basket_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="door_link">
+    <inertial>
+      <origin
+        xyz="0.0216147974306557 0.357443962311077 0.255715541294207"
+        rpy="0 0 0" />
+      <mass
+        value="126.317119956247" />
+      <inertia
+        ixx="7.49698325225473"
+        ixy="-0.0125731727957203"
+        ixz="0.000282137210825862"
+        iyy="3.12593696719849"
+        iyz="-0.00237021415730334"
+        izz="4.41323347425016" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/door_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://dishwasher_control/meshes/door_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="door_joint"
+    type="continuous">
+    <origin
+      xyz="0 -0.832301649460803 0.0270452754356205"
+      rpy="-1.5707963267949 -1.52452727227241 -1.5707963267949" />
+    <parent
+      link="base_link" />
+    <child
+      link="door_link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <!-- <transmission name="upper_basket_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$upper_basket_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="upper_basket_joint">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+  </transmission> -->
+
+</robot>
