@@ -1,6 +1,6 @@
 <launch>
     
-    <include file="$(find dishwasher_description)/launch/gazebo.launch" />
+    <include file="$(find dishwasher_gazebo)/launch/gazebo.launch" />
     <include file="$(find dishwasher_control)/launch/dishwasher_control.launch" />
 
 </launch>
