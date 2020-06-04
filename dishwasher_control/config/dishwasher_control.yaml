@@ -16,14 +16,14 @@
     upper_basket_position_controller:
       type: effort_controllers/JointPositionController
       joint: upper_basket_joint
-      pid: {p: 100.0, i: 0.01, d: 10.0}
+      pid: {p: 10.0, i: 0.01, d: 10.0}
 
     lower_basket_position_controller:
       type: effort_controllers/JointPositionController
       joint: lower_basket_joint
-      pid: {p: 100.0, i: 0.01, d: 10.0}
+      pid: {p: 10.0, i: 0.01, d: 10.0}
 
     door_position_controller:
       type: effort_controllers/JointPositionController
       joint: door_joint
-      pid: {p: 100.0, i: 0.01, d: 10.0}
+      pid: {p: 10.0, i: 0.01, d: 10.0}

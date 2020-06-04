@@ -16,19 +16,19 @@
   <param name="robot_description_sdf" textfile="$(find dishwasher_description)/model.sdf" />
 
 
-  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-urdf -model dishwasher -param robot_description"/>
+  <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model dishwasher -param robot_description"/> -->
 
     <!-- send fake joint values -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="TRUE"/>
   </node>
-<!-- 
+
   <node
     name="spawn_model"
     pkg="gazebo_ros"
     type="spawn_model"
     args="-sdf -param robot_description_sdf -model dishwasher"
-    output="screen" /> -->
+    output="screen" />
 
 </launch>
