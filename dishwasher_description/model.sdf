@@ -31,6 +31,12 @@
             <uri>model://dishwasher4/meshes/base_link.STL</uri>
           </mesh>
         </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/White</name>
+          </script>
+        </material>
       </visual>
     </link>
     <link name='door_link'>
@@ -64,6 +70,12 @@
             <uri>model://dishwasher4/meshes/door_link.STL</uri>
           </mesh>
         </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/GreyTransparent</name>
+          </script>
+        </material>
       </visual>
     </link>
     <joint name='door_joint' type='revolute'>
