@@ -3,12 +3,27 @@
       type: joint_state_controller/JointStateController
       publish_rate: 50  
 
-    upper_basket_controller:
-      type: "position_controllers/JointPositionController"
+    # upper_basket_position_controller:
+    #   type: "position_controllers/JointPositionController"
+    #   joint: upper_basket_joint
+    # lower_basket_position_controller:
+    #   type: "position_controllers/JointPositionController"
+    #   joint: lower_basket_joint
+    # door_position_controller:
+    #   type: "position_controllers/JointPositionController"
+    #   joint: door_joint
+
+    upper_basket_position_controller:
+      type: effort_controllers/JointPositionController
       joint: upper_basket_joint
-    lower_basket_controller:
-      type: "position_controllers/JointPositionController"
+      pid: {p: 100.0, i: 0.01, d: 10.0}
+
+    lower_basket_position_controller:
+      type: effort_controllers/JointPositionController
       joint: lower_basket_joint
-    door_controller:
-      type: "position_controllers/JointPositionController"
+      pid: {p: 100.0, i: 0.01, d: 10.0}
+
+    door_position_controller:
+      type: effort_controllers/JointPositionController
       joint: door_joint
+      pid: {p: 100.0, i: 0.01, d: 10.0}

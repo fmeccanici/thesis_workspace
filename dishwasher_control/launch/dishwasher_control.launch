@@ -4,9 +4,13 @@
             file="$(find dishwasher_control)/config/dishwasher_control.yaml"/>
  
  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/dishwasher" args="joint_state_controller
-                                            upper_basket_controller 
-                                            lower_basket_controller" />
+    output="screen" args="/dishwasher/joint_state_controller
+                                            /dishwasher/upper_basket_position_controller 
+                                            /dishwasher/lower_basket_position_controller
+                                            /dishwasher/door_position_controller"/>
+ 
+ <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="/dishwasher/joint_state_controller" /> -->
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"

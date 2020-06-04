@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- <include filename="$(find dishwasher_description)/urdf/dishwasher.gazebo" /> -->
 <!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
-  name="dishwasher">
+  name="dishwasher">  
   <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control">
-      <robotNamespace>/dishwasher</robotNamespace>
-      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <legacyModeNS>true</legacyModeNS>
     </plugin>
   </gazebo>
   <link
@@ -32,7 +32,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/base_link.STL" />
+          filename="package://dishwasher_description/meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -46,7 +46,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/base_link.STL" />
+          filename="package://dishwasher_description/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -72,7 +72,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/upper_basket_link.STL" />
+          filename="package://dishwasher_description/meshes/upper_basket_link.STL" />
       </geometry>
       <material
         name="">
@@ -86,7 +86,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/upper_basket_link.STL" />
+          filename="package://dishwasher_description/meshes/upper_basket_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -103,10 +103,10 @@
     <axis
       xyz="0 0 1" />
     <limit
-      lower="0"
-      upper="0"
-      effort="0"
-      velocity="0" />
+      lower="-0.1"
+      upper="0.1"
+      effort="10"
+      velocity="10" />
   </joint>
   <link
     name="lower_basket_link">
@@ -130,7 +130,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/lower_basket_link.STL" />
+          filename="package://dishwasher_description/meshes/lower_basket_link.STL" />
       </geometry>
       <material
         name="">
@@ -144,7 +144,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/lower_basket_link.STL" />
+          filename="package://dishwasher_description/meshes/lower_basket_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -188,7 +188,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/door_link.STL" />
+          filename="package://dishwasher_description/meshes/door_link.STL" />
       </geometry>
       <material
         name="">
@@ -202,7 +202,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://dishwasher_control/meshes/door_link.STL" />
+          filename="package://dishwasher_description/meshes/door_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -225,8 +225,54 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
     <joint name="upper_basket_joint">
-      <hardwareInterface>PositionJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  <transmission name="lower_basket_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$lower_basket_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="lower_basket_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  <transmission name="door_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$door_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="door_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
   </transmission> -->
+
+  <transmission name="upper_basket_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$upper_basket_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="upper_basket_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  <transmission name="lower_basket_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$lower_basket_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="lower_basket_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  <transmission name="door_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$door_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="door_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
 
 </robot>
