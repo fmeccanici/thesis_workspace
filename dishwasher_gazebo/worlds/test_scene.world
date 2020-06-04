@@ -1,0 +1,544 @@
+<sdf version='1.6'>
+  <world name='default'>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose frame=''>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.5 -1</direction>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <model name='dishwasher4'>
+      <link name='base_link'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>0.255475 -0.516726 0.405314 0 -0 0</pose>
+          <mass>580.455</mass>
+          <inertia>
+            <ixx>48.972</ixx>
+            <ixy>0.0155073</ixy>
+            <ixz>-0.0368902</ixz>
+            <iyy>62.7974</iyy>
+            <iyz>-0.752361</iyz>
+            <izz>52.0235</izz>
+          </inertia>
+        </inertial>
+        <collision name='base_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/base_link.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='base_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/base_link.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <link name='door_link'>
+        <pose frame=''>0 -0.832302 0.027045 -1.5708 -1.52453 -1.5708</pose>
+        <inertial>
+          <pose frame=''>0.021615 0.357444 0.255716 0 -0 0</pose>
+          <mass>126.317</mass>
+          <inertia>
+            <ixx>7.49698</ixx>
+            <ixy>-0.0125732</ixy>
+            <ixz>0.000282137</ixz>
+            <iyy>3.12594</iyy>
+            <iyz>-0.00237021</iyz>
+            <izz>4.41323</izz>
+          </inertia>
+        </inertial>
+        <collision name='door_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/door_link.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='door_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/door_link.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='door_joint' type='revolute'>
+        <child>door_link</child>
+        <parent>base_link</parent>
+        <axis>
+          <xyz>1 0 0</xyz>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='lower_basket_link'>
+        <pose frame=''>0.505658 -0.550856 0.135045 1.5708 -0 0</pose>
+        <inertial>
+          <pose frame=''>-0.25 0.042602 0.193373 0 -0 0</pose>
+          <mass>3.49</mass>
+          <inertia>
+            <ixx>0.0955077</ixx>
+            <ixy>8.56464e-17</ixy>
+            <ixz>-1.56764e-16</ixz>
+            <iyy>0.185033</iyy>
+            <iyz>8.11054e-18</iyz>
+            <izz>0.0955077</izz>
+          </inertia>
+        </inertial>
+        <collision name='lower_basket_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/lower_basket_link.dae</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='lower_basket_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/lower_basket_link.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://dishwasher4/materials/scripts</uri>
+              <uri>model://dishwasher4/materials/textures</uri>
+              <name>MetalBasket</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='lower_basket_joint' type='prismatic'>
+        <child>lower_basket_link</child>
+        <parent>base_link</parent>
+        <axis>
+          <xyz>0 -1 -0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0</upper>
+            <effort>0</effort>
+            <velocity>0</velocity>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='upper_basket_link'>
+        <pose frame=''>0.505658 -1.05 0.425045 1.5708 -0 0</pose>
+        <inertial>
+          <pose frame=''>-0.25 0.042602 -0.002466 0 -0 0</pose>
+          <mass>3.49</mass>
+          <inertia>
+            <ixx>0.0955077</ixx>
+            <ixy>8.56508e-17</ixy>
+            <ixz>-1.56764e-16</ixz>
+            <iyy>0.185033</iyy>
+            <iyz>2.1346e-18</iyz>
+            <izz>0.0955077</izz>
+          </inertia>
+        </inertial>
+        <collision name='upper_basket_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/upper_basket_link.dae</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='upper_basket_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://dishwasher4/meshes/upper_basket_link.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://dishwasher4/materials/scripts</uri>
+              <uri>model://dishwasher4/materials/textures</uri>
+              <name>MetalBasket</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='upper_basket_joint' type='prismatic'>
+        <child>upper_basket_link</child>
+        <parent>base_link</parent>
+        <axis>
+          <xyz>0 -1 -0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0</upper>
+            <effort>0</effort>
+            <velocity>0</velocity>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <pose frame=''>-0.087737 0.429638 0 0 -0 0</pose>
+    </model>
+    <model name='LODGE L5SK3 CAST IRON SKILLET'>
+      <link name='kitchen_pan'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>-0.017666 5e-06 0.01925 0 -0 0</pose>
+          <mass>1.5988</mass>
+          <inertia>
+            <ixx>0.0050428</ixx>
+            <ixy>3.5946e-07</ixy>
+            <ixz>0.00066323</ixz>
+            <iyy>0.0089832</iyy>
+            <iyz>2.526e-07</iyz>
+            <izz>0.013092</izz>
+          </inertia>
+        </inertial>
+        <collision name='kitchen_pan_collision'>
+          <pose frame=''>0 0 0 1.5708 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://kitchen_pan/meshes/kitchen_pan.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='kitchen_pan_visual'>
+          <pose frame=''>0 0 0 1.5708 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://kitchen_pan/meshes/kitchen_pan.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Black</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose frame=''>1.20025 -0.08027 0 0 -0 0</pose>
+    </model>
+    <model name='aruco_cube'>
+      <static>0</static>
+      <link name='link'>
+        <inertial>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>5.2083e-05</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>5.2083e-05</iyy>
+            <iyz>0</iyz>
+            <izz>2.0833e-05</izz>
+          </inertia>
+        </inertial>
+        <collision name='colision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 0.1</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>30</mu>
+                <mu2>30</mu2>
+                <fdir1>0 0 0</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+                <min_depth>0.0025</min_depth>
+                <max_vel>1</max_vel>
+              </ode>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual1'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>model://aruco_cube/meshes/aruco_cube_5cm.dae</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose frame=''>1.11729 -0.292915 0 0 -0 0</pose>
+    </model>
+    <state world_name='default'>
+      <sim_time>40 224000000</sim_time>
+      <real_time>40 380862207</real_time>
+      <wall_time>1591275883 185824077</wall_time>
+      <iterations>40224</iterations>
+      <model name='LODGE L5SK3 CAST IRON SKILLET'>
+        <pose frame=''>1.19932 -0.079945 0 -4e-06 0 -0.015516</pose>
+        <scale>1 1 1</scale>
+        <link name='kitchen_pan'>
+          <pose frame=''>1.19932 -0.079945 0 -4e-06 0 -0.015516</pose>
+          <velocity>-3.5e-05 7.6e-05 4.4e-05 0.023063 0.003335 -0.001174</velocity>
+          <acceleration>-1.26598 -1.02042 -4.56419 2.26308 -1.53731 -1.24771</acceleration>
+          <wrench>-2.02405 -1.63145 -7.29722 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='aruco_cube'>
+        <pose frame=''>1.11729 -0.292912 0.049868 -5.9e-05 5.8e-05 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.11729 -0.292912 0.049868 -5.9e-05 5.8e-05 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='dishwasher4'>
+        <pose frame=''>-0.091103 0.43117 0.097957 8e-06 -0 0.002308</pose>
+        <scale>1 1 1</scale>
+        <link name='base_link'>
+          <pose frame=''>-0.091103 0.43117 0.097957 8e-06 -0 0.002308</pose>
+          <velocity>9e-06 -0.000837 0.002202 0.008597 6e-05 -1.5e-05</velocity>
+          <acceleration>-0.009307 -2.79626 -3.50844 -0.727029 -0.005286 -0.017044</acceleration>
+          <wrench>-5.40207 -1623.1 -2036.49 0 -0 0</wrench>
+        </link>
+        <link name='door_link'>
+          <pose frame=''>-0.089183 -0.401129 0.124996 -1.57081 -1.38864 -1.56848</pose>
+          <velocity>0.000272 -0.001305 -0.005208 -0.00961 -0.000193 -0.000436</velocity>
+          <acceleration>0.036538 -1.50575 -6.93992 2.13136 -0.105628 -0.088814</acceleration>
+          <wrench>4.61542 -190.202 -876.629 0 -0 0</wrench>
+        </link>
+        <link name='lower_basket_link'>
+          <pose frame=''>0.415594 -0.018519 0.232998 1.57081 -0 0.002308</pose>
+          <velocity>6e-06 -0.002079 -0.001707 0.008455 7.6e-05 -4.3e-05</velocity>
+          <acceleration>-0.038701 -1.79297 -4.13384 -1.3672 0.01301 -0.099348</acceleration>
+          <wrench>-0.135065 -6.25747 -14.4271 0 -0 0</wrench>
+        </link>
+        <link name='upper_basket_link'>
+          <pose frame=''>0.416122 -0.247091 0.522996 1.57081 -0 0.002308</pose>
+          <velocity>1.8e-05 -0.004527 -0.003638 0.008464 7.2e-05 -4.3e-05</velocity>
+          <acceleration>-0.045399 -3.21174 -4.29373 -1.33523 -0.000275 -0.100114</acceleration>
+          <wrench>-0.158444 -11.209 -14.9851 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>5 -5 2 0 0.275643 2.35619</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>
