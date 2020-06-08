@@ -1,0 +1,13 @@
+<launch>
+        <node name="rear_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+                <param name="video_device" value="/dev/rear_cam" />
+                <param name="image_width" value="640" />
+                <param name="image_height" value="480" />
+                <param name="pixel_format" value="yuyv" />
+                <param name="autofocus" value="true" />
+                <param name="framerate" value="30" />
+                <param name="/image_raw/compressed/jpeg_quality" value="40" />
+                <param name="/image_raw/theora/quality" value="31" />
+                <param name="/image_raw/theora/keyframe_frequency" value="64" />
+        </node>
+</launch>

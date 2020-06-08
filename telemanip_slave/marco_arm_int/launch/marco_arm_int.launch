@@ -1,0 +1,7 @@
+<launch>
+
+    <!-- Start Marco Slave Interface  Node -->
+    <node name="marco_arm_int" pkg="marco_arm_int" type="marco_arm_int" output="screen">
+    </node>
+
+</launch>

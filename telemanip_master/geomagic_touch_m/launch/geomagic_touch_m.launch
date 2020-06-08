@@ -1,0 +1,7 @@
+<launch>
+
+<!-- Start Geomagic Touch Control Node -->
+<node name="geomagic_touch_m" pkg="geomagic_touch_m" type="geomagic_touch_m" output="screen">
+</node>
+
+</launch>

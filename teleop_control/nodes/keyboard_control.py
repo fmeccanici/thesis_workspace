@@ -40,6 +40,7 @@ class KeyboardControl():
 
         elif key == Key.space:
             self.keyboard.key.data = 'space'
+            
     def on_release(self, key):
         if key == Key.up:
             self.keyboard.key.data = ''

@@ -1,0 +1,16 @@
+<package>
+  <name>marco_launcher</name>
+  <version>1.0.0</version>
+  <description>
+     ROS Launching package for all HiT related software on the Marco robot
+  </description>
+  <maintainer email="g.vanderhart@heemskerk-innovative.nl">Guido van der Hart</maintainer>
+  <author> Guido van der Hart </author>
+  <license>new BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+</package>
+
+

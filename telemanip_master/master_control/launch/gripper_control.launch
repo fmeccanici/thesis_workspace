@@ -1,0 +1,7 @@
+<launch>
+
+<!-- Start gripper controller -->
+<node name="gripper_control" pkg="master_control" type="gripper_control" output="screen">
+</node>
+
+</launch>

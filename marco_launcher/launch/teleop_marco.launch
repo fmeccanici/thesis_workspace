@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<launch>
+    <arg name="full_sim" default="false"/>
+    <!-- Launch marco xtion driver -->
+    <!--<include file="$(find marco_bringup)/launch/head_xtion.launch"/>-->
+    <!--<include file="$(find jsk_pcl_ros)/launch/xtion.launch"/>-->
+
+    <!-- Launch marco wbc -->
+    <include file="$(find marco_wbc)/launch/marco_wbc.launch">
+        <arg name="source_data" value="topic" />
+        <arg name="stack" value="marco_extra_wbc" />
+    </include>
+
+    <!-- Launch marco wrist_ft sensor controller -->
+    <!-- <include file="$(find marco_launcher)/launch/wrist_ft.launch"/> -->
+
+    <!-- Launch marco wifi controller -->
+    <!-- <include file="$(find marco_launcher)/launch/wifi_roaming.launch"/> -->
+
+    <!-- Launch marco camera nodes -->
+    <!-- <include file="$(find marco_launcher)/launch/end_effector_cam.launch"/> -->
+    <!-- <include file="$(find marco_launcher)/launch/rear_cam.launch"/> -->
+
+    <!-- Launch marco dynamixel controllers -->
+    <!-- <include file="$(find marco_launcher)/launch/gripper_dynamixel.launch"/> -->
+
+    <!-- Launch marco slave telemanipulation controller -->
+    <include file="$(find slave_control)/launch/slave_control.launch"/>
+    <include file="$(find marco_arm_int)/launch/marco_arm_int.launch"/>
+    
+    <!-- Launch platform collision avoidance -->
+    <!--<include file="$(find nav2d_operator)/launch/collision_nav.launch"/>-->
+    
+</launch>
+

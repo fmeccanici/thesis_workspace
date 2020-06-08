@@ -1,0 +1,11 @@
+<launch>
+
+<!-- Start haptic parameter server -->
+<node name="haptic_parameters_s" pkg="slave_control" type="slave_parameters" output="screen">
+</node>
+
+<!-- Start Slave Controller Node -->
+<node name="slave_control" pkg="slave_control" type="slave_control" output="screen">
+</node>
+
+</launch>

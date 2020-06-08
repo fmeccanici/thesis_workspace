@@ -24,6 +24,7 @@ from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from std_msgs.msg import String, Bool, Byte, UInt32
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
+from sensor_msgs.msg import JointState
 
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
@@ -85,6 +86,10 @@ class experimentGUI(QMainWindow):
         self.launch_files = {'learning_from_demonstration':'learning_from_demonstration.launch', 
                             'trajectory_refinement':'trajectory_refinement.launch',
                             'learning_from_demonstration':'trajectory_teaching.launch'}
+
+        self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
+        self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
+        
         self.nodes = {}
 
         # initialize Qt GUI
@@ -555,9 +560,9 @@ class experimentGUI(QMainWindow):
         self.lineEdit_3.setText("0.9")
 
         # obstacle position
-        self.lineEdit_14.setText("0.7")
-        self.lineEdit_15.setText("0")
-        self.lineEdit_16.setText("0.7")
+        self.lineEdit_14.setText("0.64")
+        self.lineEdit_15.setText("0.05")
+        self.lineEdit_16.setText("0.65")
 
         self.lineEdit_17.setText("10")
         config_file = self._rospack.get_path('gui') + "/gui.rviz"
@@ -661,19 +666,41 @@ class experimentGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
     
+    def init_head_lift_joint(self):
+        lift_goal = JointState()
+        head_goal = JointState()
+
+        lift_goal.name = ["torso_lift_joint"]
+        head_goal.name = ["head_2_joint", "head_1_joint"]
+
+        lift_goal.position = [0.19432052791416207]
+        head_goal.position = [-0.6499237225775083, 0.0]
+
+        head_goal.effort = [0.0, 0.0]
+        lift_goal.effort = [0.0]
+
+        head_goal.velocity = [0.0, 0.0]
+        lift_goal.velocity = [0.0]
+
+        rospy.loginfo(lift_goal)
+
+        self.lift_goal_pub.publish(lift_goal)
+        self.head_goal_pub.publish(head_goal)
+
     def on_set_obstacle_position_click(self):
         try:
 
 
             obstacle_position = ModelState()
-            obstacle_position.model_name = 'kitchen_pan1_1'
+            obstacle_position.model_name = 'kitchen_pan'
             obstacle_position.pose.position.x = float(self.lineEdit_14.text())
             obstacle_position.pose.position.y = float(self.lineEdit_15.text())
             obstacle_position.pose.position.z = float(self.lineEdit_16.text())
-            obstacle_position.pose.orientation.x = -0.0108309560957
-            obstacle_position.pose.orientation.y = 0.883916795398
-            obstacle_position.pose.orientation.z = -0.00677012891552
-            obstacle_position.pose.orientation.w = 0.92327934557
+            obstacle_position.pose.orientation.x = 0.380574241843
+            obstacle_position.pose.orientation.y = 0.523855465669
+            obstacle_position.pose.orientation.z = 0.47013564454
+            obstacle_position.pose.orientation.w = 0.599759262761
+        
         except ValueError:
             rospy.loginfo("Invalid value for position!")
         try:
@@ -871,7 +898,9 @@ class experimentGUI(QMainWindow):
             print("Service call failed: %s" %e)   
             
     def on_go_to_click(self):
-            
+        # init head and lift joint
+        self.init_head_lift_joint()
+
         # reverse predicted trajectory
         if self.radioButton_6.isChecked():
             pred = self.parser.promptraj_msg_to_execution_format(self.prediction)

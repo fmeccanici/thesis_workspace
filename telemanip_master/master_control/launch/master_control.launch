@@ -1,0 +1,7 @@
+<launch>
+
+<!-- Start master controller -->
+<node name="master_control" pkg="master_control" type="master_control" output="screen">
+</node>
+
+</launch>
