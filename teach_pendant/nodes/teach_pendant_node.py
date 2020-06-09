@@ -11,21 +11,31 @@ from pyquaternion import Quaternion
 import numpy as np
 import time
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
+from learning_from_demonstration.srv import GetEEPose
 
 class KeyboardControl():
     def __init__(self):
         rospy.init_node('teach_pendant')
-        # self.up_pub_ = rospy.Publisher('keyboard/up', Bool, queue_size=10)
-        # self.down_pub_ = rospy.Publisher('keyboard/down', Bool, queue_size=10)
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-        self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
         self.keyboard_pub_ = rospy.Publisher('teach_pendant', Keyboard, queue_size=10)
         self.keyboard = Keyboard()
         
+        self.trajectory = []
+    
         # [x_n y_n z_n qx_n qy_n qz_n qw_n] 
         self.waypoints = []
         self.ee_pose = Pose()
+
+        # get current ee pose
+        try:
+            rospy.wait_for_service('get_ee_pose', timeout=2.0)
+            get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+            resp = get_ee_pose()
+            self.ee_pose = resp.pose
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
 
     def quaternion_rotation(self, axis, angle):
         w = np.cos(angle/2)
@@ -41,64 +51,6 @@ class KeyboardControl():
             z = np.sin(angle/2)
               
         return Quaternion(w, x, y, z).normalised
-
-    def _end_effector_pose_callback(self, data):
-
-        self.ee_pose = data.pose
-            
-        q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
-                        self.ee_pose.orientation.y, self.ee_pose.orientation.z)
-        
-        q_rotation = self.quaternion_rotation('', 0)
-        
-        translation = 0.05
-        rotation = 5
-        
-        if self.keyboard.key.data == 'q':
-            self.ee_pose.position.x += translation
-        elif self.keyboard.key.data == 'a':
-            self.ee_pose.position.x -= translation
-         
-        elif self.keyboard.key.data == 'w':
-            self.ee_pose.position.y += translation
-        elif self.keyboard.key.data == 's':
-            self.ee_pose.position.y -= translation
-
-        elif self.keyboard.key.data == 'e':
-            self.ee_pose.position.z += translation
-            print(self.ee_pose.position.z)
-
-        elif self.keyboard.key.data == 'd':
-            self.ee_pose.position.z -= translation
-
-        elif self.keyboard.key.data == 'r':
-            q_rotation = self.quaternion_rotation('x', rotation)
-        elif self.keyboard.key.data == 'f':
-            q_rotation = self.quaternion_rotation('x', -rotation)
-        elif self.keyboard.key.data == 't':
-            q_rotation = self.quaternion_rotation('y', rotation)
-        elif self.keyboard.key.data == 'g':
-            q_rotation = self.quaternion_rotation('y', -rotation)
-        elif self.keyboard.key.data == 'y':
-            q_rotation = self.quaternion_rotation('z', rotation)
-        elif self.keyboard.key.data == 'h':
-            q_rotation = self.quaternion_rotation('z', -rotation)
-
-        q_rotated = q_current * q_rotation
-        
-
-        self.ee_pose.orientation.w = q_rotated[0]
-        self.ee_pose.orientation.x = q_rotated[1]
-        self.ee_pose.orientation.y = q_rotated[2]
-        self.ee_pose.orientation.z = q_rotated[3]
-
-
-
-        pose_publish = PoseStamped()
-        pose_publish.pose = self.ee_pose
-        pose_publish.header.stamp = rospy.Time.now()
-
-        self.end_effector_goal_pub.publish(pose_publish)
     
     def interpolate_quaternions(self, qstart, qend, n, include_endpoints=True):
         q1 = Quaternion(a=qstart[3], b=qstart[0], c=qstart[1], d=qstart[2])
@@ -136,12 +88,78 @@ class KeyboardControl():
             
             ynew = pose + [x_desired[i]]
 
-        self.trajectory = ynew
+            self.trajectory.append(ynew)
 
-    def pub_keys(self):
+        print(self.trajectory)
+    
+    def teach_loop(self):
+        q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
+                        self.ee_pose.orientation.y, self.ee_pose.orientation.z)
+        
+        q_rotation = self.quaternion_rotation('', 0)
+        
+        translation = 0.01
+        rotation = 0.1
+        
+        if self.keyboard.key.data == 'q':
+            self.ee_pose.position.x += translation
+        elif self.keyboard.key.data == 'a':
+            self.ee_pose.position.x -= translation
+         
+        elif self.keyboard.key.data == 'w':
+            self.ee_pose.position.y += translation
+        elif self.keyboard.key.data == 's':
+            self.ee_pose.position.y -= translation
+
+        elif self.keyboard.key.data == 'e':
+            self.ee_pose.position.z += translation
+
+        elif self.keyboard.key.data == 'd':
+            self.ee_pose.position.z -= translation
+
+        elif self.keyboard.key.data == 'r':
+            # q_rotation = Quaternion(axis=np.array([1.0, 0.0, 0.0]), angle=rotation)
+            q_rotation = self.quaternion_rotation('x', rotation)
+        elif self.keyboard.key.data == 'f':
+            # q_rotation = Quaternion(axis=np.array([1.0, 0.0, 0.0]), angle=-rotation)
+            q_rotation = self.quaternion_rotation('x', -rotation)
+        elif self.keyboard.key.data == 't':
+            # q_rotation = Quaternion(axis=np.array([0.0, 1.0, 0.0]), angle=rotation)
+            q_rotation = self.quaternion_rotation('y', rotation)
+        elif self.keyboard.key.data == 'g':
+            q_rotation = self.quaternion_rotation('y', -rotation)
+            # q_rotation = Quaternion(axis=np.array([0.0, 1.0, 0.0]), angle=-rotation)
+
+        elif self.keyboard.key.data == 'y':
+            # q_rotation = Quaternion(axis=np.array([0.0, 0.0, 1.0]), angle=rotation)
+
+            q_rotation = self.quaternion_rotation('z', rotation)
+        elif self.keyboard.key.data == 'h':
+            # q_rotation = Quaternion(axis=np.array([0.0, 0.0, 1.0]), angle=-rotation)
+
+            q_rotation = self.quaternion_rotation('z', -rotation)
+
+        q_rotated = q_current * q_rotation
+        
+
+        self.ee_pose.orientation.w = q_rotated[0]
+        self.ee_pose.orientation.x = q_rotated[1]
+        self.ee_pose.orientation.y = q_rotated[2]
+        self.ee_pose.orientation.z = q_rotated[3]
+
+
+        pose_publish = PoseStamped()
+        pose_publish.pose = self.ee_pose
+        pose_publish.header.stamp = rospy.Time.now()
+
+        self.end_effector_goal_pub.publish(pose_publish)
+
+    def ros_loop(self):
         r = rospy.Rate(30)
         while not rospy.is_shutdown():
             self.keyboard_pub_.publish(self.keyboard)
+            self.teach_loop()
+
             if self.keyboard.key.data == 'space':
                 self.waypoints.append(self.ee_pose)
             if self.keyboard.key.data == 'enter':
@@ -187,7 +205,7 @@ class KeyboardControl():
             self.keyboard.key.data = ''
         elif key == KeyCode(char = 'a'):
             self.keyboard.key.data = ''
-        elif key == KeyCode(char = 'w'):
+        elif key == KeyCode(char = 'd'):
             self.keyboard.key.data = ''
         elif key == KeyCode(char = 's'):
             self.keyboard.key.data = ''
@@ -218,7 +236,7 @@ class KeyboardControl():
             raise pynput.keyboard.Listener.StopException
 
     def run(self):
-        ros_thread = threading.Thread(target=self.pub_keys, args = ())
+        ros_thread = threading.Thread(target=self.ros_loop, args = ())
         ros_thread.start()
 
         # Collect events until release

@@ -1112,9 +1112,17 @@ class experimentGUI(QMainWindow):
 
             # if preset 1 and checked
             if button.text() == '1' and button.isChecked():
-                self.lineEdit_9.setText(str(round(0.401946359213, 3)))
-                self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
-                self.lineEdit_8.setText(str(round(0.840896642238, 3)))
+                # self.lineEdit_9.setText(str(round(0.401946359213, 3)))
+                # self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
+                # self.lineEdit_8.setText(str(round(0.840896642238, 3)))
+
+                # self.lineEdit_12.setText(str(round(0.980837824843, 3)))
+                # self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
+                # self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
+                # self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
+                self.lineEdit_9.setText(str(round(0.602, 3)))
+                self.lineEdit_7.setText(str(round(0.05, 3)))
+                self.lineEdit_8.setText(str(round(0.441, 3)))
 
                 self.lineEdit_12.setText(str(round(0.980837824843, 3)))
                 self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
