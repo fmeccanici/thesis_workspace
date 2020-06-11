@@ -126,7 +126,6 @@ class lfdNode():
 
         return resp
 
-
     # button callback
     def _buttonCallback(self, data):
         self.grey_button_previous = self.grey_button 

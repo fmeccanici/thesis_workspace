@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.5
 
-import rospy, keyboard, os
+import rospy, keyboard, os, rospkg
 from std_msgs.msg import Bool
 from pynput.keyboard import Key, Listener, KeyCode
 import threading, pynput
@@ -9,9 +9,13 @@ from teleop_control.msg import Keyboard
 from geometry_msgs.msg import PoseStamped, Pose
 from pyquaternion import Quaternion
 import numpy as np
-import time
+import time, stat
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
-from learning_from_demonstration.srv import GetEEPose
+from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from std_msgs.msg import String
+from os import listdir
+from os.path import isfile, join
 
 class KeyboardControl():
     def __init__(self):
@@ -21,11 +25,13 @@ class KeyboardControl():
         self.keyboard_pub_ = rospy.Publisher('teach_pendant', Keyboard, queue_size=10)
         self.keyboard = Keyboard()
         
+        self.parser = trajectoryParser()
         self.trajectory = []
     
         # [x_n y_n z_n qx_n qy_n qz_n qw_n] 
         self.waypoints = []
         self.ee_pose = Pose()
+        self._rospack = rospkg.RosPack()
 
         # get current ee pose
         try:
@@ -151,8 +157,35 @@ class KeyboardControl():
         pose_publish = PoseStamped()
         pose_publish.pose = self.ee_pose
         pose_publish.header.stamp = rospy.Time.now()
-
+        pose_publish.header.frame_id = '/base_link'
         self.end_effector_goal_pub.publish(pose_publish)
+
+    # saving data in folder
+    def _save_data(self, path, file_name):
+        with open(path+file_name, 'w+') as f:
+            f.write(str(self.trajectory))
+        os.chmod(path+file_name,stat.S_IRWXO)
+        os.chmod(path+file_name,stat.S_IRWXU)
+
+    def _get_trajectory_file_name(self, path):
+        # get existing files from folder
+        files = [f for f in listdir(path) if isfile(join(path, f))]
+        
+        # get numbers from these files
+        numbers = [int(os.path.splitext(f)[0].split('_')[-1]) for f in files]
+        
+        # sort them in ascending order
+        numbers.sort()
+
+        # make list of these files
+        files = ["raw_trajectory_" + str(number) + ".txt" for number in numbers]
+        
+        try:
+            # add 1 to the last trajectory number and create new name
+            return "raw_trajectory_" + str(int(os.path.splitext(files[-1])[0].split('_')[-1]) + 1) + ".txt"
+        except IndexError:
+            # no files in folder yet --> create first file
+            return "raw_trajectory_1.txt"
 
     def ros_loop(self):
         r = rospy.Rate(30)
@@ -164,6 +197,45 @@ class KeyboardControl():
                 self.waypoints.append(self.ee_pose)
             if self.keyboard.key.data == 'enter':
                 self.interpolate()
+                
+                rospy.wait_for_service('get_object_position', timeout=2.0)
+
+                reference_frame = String()
+                reference_frame.data = 'base'
+                get_object = rospy.ServiceProxy('get_object_position', GetObjectPosition)
+
+                resp = get_object(reference_frame)
+                object_wrt_base = resp.object_position
+
+                try:
+                    rospy.wait_for_service('get_context', timeout=2.0)
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)   
+
+                get_context = rospy.ServiceProxy('get_context', GetContext)
+                resp = get_context()
+                self.context = resp.context
+
+                try:
+                    rospy.wait_for_service('add_demonstration', timeout=2.0)
+                
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+                
+                trajectory_wrt_object = self.parser.get_trajectory_wrt_context(self.trajectory, self.parser.point_to_list(object_wrt_base))
+
+                rospy.loginfo(trajectory_wrt_object)
+
+                add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+                trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(trajectory_wrt_object, self.parser.point_to_list(self.context))
+
+                resp = add_demonstration(trajectory_wrt_object_msg)
+            
+                raw_path = self._rospack.get_path('teach_pendant') + "/data/"
+                file_name = self._get_trajectory_file_name(raw_path)
+                self._save_data(raw_path, file_name)
+
+                self.EEtrajectory = []
 
             r.sleep()
     

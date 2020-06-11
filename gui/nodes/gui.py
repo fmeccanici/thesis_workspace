@@ -965,7 +965,6 @@ class experimentGUI(QMainWindow):
             elif self.radioButton_3.isChecked():
                 rospy.wait_for_service('add_demonstration', timeout=2.0)
 
-
             rospy.wait_for_service('get_object_position', timeout=2.0)
 
             reference_frame = String()
