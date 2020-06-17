@@ -16,7 +16,7 @@ type="teleop_control_node.py" output="screen">
 <node pkg="teleop_control" name="gripper_opener" type="gripper_opener.sh" output="screen" args="$(arg gripper_joint_value)">
 </node>
 
-<node pkg="teleop_control" name="keyboard_control" type="keyboard_control.py" output="screen">
-</node>
+<!-- <node pkg="teleop_control" name="keyboard_control" type="keyboard_control.py" output="screen">
+</node> -->
 
 </launch>

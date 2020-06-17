@@ -95,8 +95,6 @@ class KeyboardControl():
             ynew = pose + [x_desired[i]]
 
             self.trajectory.append(ynew)
-
-        print(self.trajectory)
     
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
@@ -109,11 +107,13 @@ class KeyboardControl():
         
         if self.keyboard.key.data == 'q':
             self.ee_pose.position.x += translation
+        
         elif self.keyboard.key.data == 'a':
             self.ee_pose.position.x -= translation
          
         elif self.keyboard.key.data == 'w':
             self.ee_pose.position.y += translation
+        
         elif self.keyboard.key.data == 's':
             self.ee_pose.position.y -= translation
 
@@ -126,20 +126,23 @@ class KeyboardControl():
         elif self.keyboard.key.data == 'r':
             # q_rotation = Quaternion(axis=np.array([1.0, 0.0, 0.0]), angle=rotation)
             q_rotation = self.quaternion_rotation('x', rotation)
+        
         elif self.keyboard.key.data == 'f':
             # q_rotation = Quaternion(axis=np.array([1.0, 0.0, 0.0]), angle=-rotation)
             q_rotation = self.quaternion_rotation('x', -rotation)
+        
         elif self.keyboard.key.data == 't':
             # q_rotation = Quaternion(axis=np.array([0.0, 1.0, 0.0]), angle=rotation)
             q_rotation = self.quaternion_rotation('y', rotation)
+
         elif self.keyboard.key.data == 'g':
             q_rotation = self.quaternion_rotation('y', -rotation)
             # q_rotation = Quaternion(axis=np.array([0.0, 1.0, 0.0]), angle=-rotation)
 
         elif self.keyboard.key.data == 'y':
             # q_rotation = Quaternion(axis=np.array([0.0, 0.0, 1.0]), angle=rotation)
-
             q_rotation = self.quaternion_rotation('z', rotation)
+        
         elif self.keyboard.key.data == 'h':
             # q_rotation = Quaternion(axis=np.array([0.0, 0.0, 1.0]), angle=-rotation)
 
@@ -147,17 +150,15 @@ class KeyboardControl():
 
         q_rotated = q_current * q_rotation
         
-
         self.ee_pose.orientation.w = q_rotated[0]
         self.ee_pose.orientation.x = q_rotated[1]
         self.ee_pose.orientation.y = q_rotated[2]
         self.ee_pose.orientation.z = q_rotated[3]
 
-
         pose_publish = PoseStamped()
         pose_publish.pose = self.ee_pose
         pose_publish.header.stamp = rospy.Time.now()
-        pose_publish.header.frame_id = '/base_link'
+        pose_publish.header.frame_id = 'base_footprint'
         self.end_effector_goal_pub.publish(pose_publish)
 
     # saving data in folder

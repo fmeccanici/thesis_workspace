@@ -2,7 +2,7 @@
 
 import rospy, keyboard, os
 from std_msgs.msg import Bool
-from pynput.keyboard import Key, Listener
+from pynput.keyboard import Key, Listener, KeyCode
 import threading, pynput
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from teleop_control.msg import Keyboard
@@ -26,37 +26,68 @@ class KeyboardControl():
             r.sleep()
 
     def on_press(self, key):
-        if key == Key.up:
-            self.keyboard.key.data = 'up'
+        if key == KeyCode(char = 'q'):
+            self.keyboard.key.data = 'q'
+        elif key == KeyCode(char = 'a'):
+            self.keyboard.key.data = 'a' 
 
-        elif key == Key.down:            
-            self.keyboard.key.data = 'down'
-        
-        elif key == Key.right:
-            self.keyboard.key.data = 'right'
+        elif key == KeyCode(char = 'w'):
+            self.keyboard.key.data = 'w'     
+        elif key == KeyCode(char = 's'):
+            self.keyboard.key.data = 's'  
 
-        elif key == Key.left:
-            self.keyboard.key.data = 'left'
-
+        elif key == KeyCode(char = 'e'):
+            self.keyboard.key.data = 'e'     
+        elif key == KeyCode(char = 'd'):
+            self.keyboard.key.data = 'd'     
+        elif key == KeyCode(char = 'r'):
+            self.keyboard.key.data = 'r'     
+        elif key == KeyCode(char = 'f'):
+            self.keyboard.key.data = 'f'     
+        elif key == KeyCode(char = 't'):
+            self.keyboard.key.data = 't'     
+        elif key == KeyCode(char = 'g'):
+            self.keyboard.key.data = 'g'     
+        elif key == KeyCode(char = 'y'):
+            self.keyboard.key.data = 'y'     
+        elif key == KeyCode(char = 'h'):
+            self.keyboard.key.data = 'h'   
         elif key == Key.space:
             self.keyboard.key.data = 'space'
-            
+        elif key == Key.enter:
+            self.keyboard.key.data = 'enter'
+
     def on_release(self, key):
-        if key == Key.up:
-            self.keyboard.key.data = ''
 
-        elif key == Key.down:            
+        if key == KeyCode(char = 'q'):
             self.keyboard.key.data = ''
-        
-        elif key == Key.right:
+        elif key == KeyCode(char = 'a'):
             self.keyboard.key.data = ''
-
-        elif key == Key.left:
+        elif key == KeyCode(char = 'd'):
             self.keyboard.key.data = ''
-        
+        elif key == KeyCode(char = 's'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'w'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'e'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'r'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'f'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 't'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'g'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'y'):
+            self.keyboard.key.data = ''
+        elif key == KeyCode(char = 'h'):
+            self.keyboard.key.data = ''
         elif key == Key.space:
             self.keyboard.key.data = ''
-        
+        elif key == Key.enter:
+            self.keyboard.key.data = ''
+
         elif key == Key.esc:
             # kill node when esc is pressed
             os.system('kill %d' % os.getpid())

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.5
 
 # import ros related packages
-import rospy, rospkg
+import rospy, rospkg, roslaunch
 from trajectory_visualizer.msg import TrajectoryVisualization
 from geometry_msgs.msg import PoseStamped, Pose
 from aruco_msgs.msg import MarkerArray
@@ -99,6 +99,8 @@ class lfdNode():
 
         # initialize model 
         self.initialize_lfd_model()
+        
+        self.nodes = {}
 
     # get pose service used for GUI
     def _get_ee_pose(self, req):
@@ -109,10 +111,25 @@ class lfdNode():
 
     ## for teaching
     def _set_teaching_mode(self, req):
+        # 0 = offline + teleoperation
+        # 1 = online + teleoperation
+        # 2 = offline + teach pendant
+        # 3 = online + teach pendant
         self.teaching_mode = req.teaching_mode.data
 
         if self.teaching_mode == 0:
             self.EEtrajectory = []
+        # elif self.teaching_mode == 1:
+        #     self.stop_node('trajectory_refinement.launch')
+        #     self.start_node('trajectory_refinement', 'trajectory_refinement.launch')
+        # elif self.teaching_mode == 2:
+        #     # to be implemented
+        #     pass
+        # elif self.teaching_mode == 3:
+        #     self.stop_node('trajectory_refinement_keyboard.launch')
+        #     self.start_node('trajectory_refinement', 'trajectory_refinement_keyboard.launch')
+        #     self.stop_node('teach_pendant.launch')
+        #     self.start_node('teach_pendant', 'teach_pendant.launch')
 
         # reset white buttons to prevent the append code to run when 
         # we switch to teaching mode when we forgot to press the button
@@ -210,7 +227,6 @@ class lfdNode():
         self.button_source = rospy.get_param('~button_source')
         print("Button source set to: " + str(self.button_source))
     
-
 
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")

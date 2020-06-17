@@ -9,6 +9,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 from pyquaternion import Quaternion
+from pynput.keyboard import Key, Listener, KeyCode
 
 # import ros messages
 from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
@@ -68,13 +69,14 @@ class trajectoryRefinement():
         if self.button_source == "omni":
             self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
         elif self.button_source == "keyboard":
-            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+            # self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+            self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
 
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         # self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
-        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
+        # self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
 
 
         # services
@@ -101,19 +103,23 @@ class trajectoryRefinement():
     def _keyboard_callback(self, data):
 
         added_value = 0.02
-        # move pose upwards
-        if data.key.data == 'up':
+        if data.key.data == 'q':
             self.master_pose.position.x += added_value
-
-        elif data.key.data == 'down':
+        elif data.key.data == 'a':
             self.master_pose.position.x -= added_value
-        elif data.key.data == 'left':
+
+        elif data.key.data == 'w':
             self.master_pose.position.y += added_value
-        elif data.key.data == 'right':
+        elif data.key.data == 's':
             self.master_pose.position.y -= added_value
 
+        elif data.key.data == 'e':
+            self.master_pose.position.z += added_value
+        elif data.key.data == 'd':
+            self.master_pose.position.z -= added_value
+
+
         elif data.key.data == '':
-            # print('check')
             if self.master_pose.position.y > 0.0:
                 self.master_pose.position.y -= added_value/2
             elif self.master_pose.position.y < 0.0:
@@ -124,17 +130,18 @@ class trajectoryRefinement():
                 self.master_pose.position.x -= added_value/2
             elif self.master_pose.position.x < 0.0:
                 self.master_pose.position.x += added_value/2
-                
+            
+            if self.master_pose.position.z > 0.0:
+                self.master_pose.position.z -= added_value/2
+            elif self.master_pose.position.z < 0.0:
+                self.master_pose.position.z += added_value/2        
+
         elif data.key.data == 'space':
             if self.white_button_toggle == 0:
                 self.white_button_toggle = 1
-            else: self.white_button_toggle = 0
-
-        #     print(self.white_button_toggle)
-        
-        # print(self.master_pose.position.x)
-        # print(self.master_pose.position.y)
-   
+                print("set button to " + str(self.white_button_toggle))
+            # else: self.white_button_toggle = 0
+        print(self.white_button_toggle)
     def _marker_detection_callback(self, data):
         self.object_marker_pose = data.pose
 
@@ -158,17 +165,17 @@ class trajectoryRefinement():
     def _masterPoseCallback(self, data):
         self.master_pose = data.master_pose.pose        
 
-    def _buttonCallback(self, data):
-        self.grey_button_prev = self.grey_button
-        self.grey_button = data.grey_button
-        self.white_button_prev = self.white_button
-        self.white_button = data.white_button
+    # def _buttonCallback(self, data):
+    #     self.grey_button_prev = self.grey_button
+    #     self.grey_button = data.grey_button
+    #     self.white_button_prev = self.white_button
+    #     self.white_button = data.white_button
 
-        if (self.grey_button != self.grey_button_prev) and (self.grey_button == 1):
-            self.grey_button_toggle = not self.grey_button_toggle
+    #     if (self.grey_button != self.grey_button_prev) and (self.grey_button == 1):
+    #         self.grey_button_toggle = not self.grey_button_toggle
 
-        if (self.white_button != self.white_button_prev) and (self.white_button == 1):
-            self.white_button_toggle = not self.white_button_toggle
+    #     if (self.white_button != self.white_button_prev) and (self.white_button == 1):
+    #         self.white_button_toggle = not self.white_button_toggle
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
@@ -402,7 +409,7 @@ class trajectoryRefinement():
             new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
         
         dt_new = t_refined[1]
-        print( "new_traj time = " + str([ x[-1] for x in new_trajectory]))
+        # print( "new_traj time = " + str([ x[-1] for x in new_trajectory]))
         return new_trajectory, dt_new
 
     # ROS service for refining trajectory
@@ -428,7 +435,7 @@ class trajectoryRefinement():
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
         new_traj = self.resampler.resample_time(new_traj, self.parser.get_total_time(prediction))
-        print("new_traj good T = " + str(new_traj))
+        # print("new_traj good T = " + str(new_traj))
         n_pred = len(prediction)
 
         plt.figure()

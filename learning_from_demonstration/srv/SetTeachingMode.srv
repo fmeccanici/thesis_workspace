@@ -1,4 +1,4 @@
-std_msgs/Bool teaching_mode
+std_msgs/Byte teaching_mode
 
 ---
 

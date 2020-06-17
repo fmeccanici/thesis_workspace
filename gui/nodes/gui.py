@@ -167,7 +167,7 @@ class experimentGUI(QMainWindow):
         self.pushButton_26.raise_()
         self.lineEdit_18.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(570, 690, 511, 291))
+        self.groupBox_3.setGeometry(QRect(570, 690, 511, 341))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton_7 = QPushButton(self.groupBox_3)
         self.pushButton_7.setGeometry(QRect(150, 20, 99, 27))
@@ -203,19 +203,37 @@ class experimentGUI(QMainWindow):
         self.pushButton_13.setGeometry(QRect(340, 130, 151, 27))
         self.pushButton_13.setObjectName("pushButton_13")
         self.label_20 = QLabel(self.groupBox_3)
-        self.label_20.setGeometry(QRect(140, 170, 111, 16))
+        self.label_20.setGeometry(QRect(110, 170, 111, 16))
         self.label_20.setObjectName("label_20")
         self.pushButton_12 = QPushButton(self.groupBox_3)
-        self.pushButton_12.setGeometry(QRect(150, 190, 90, 27))
+        self.pushButton_12.setGeometry(QRect(120, 190, 90, 27))
         self.pushButton_12.setObjectName("pushButton_12")
         self.pushButton_11 = QPushButton(self.groupBox_3)
-        self.pushButton_11.setGeometry(QRect(150, 220, 88, 27))
+        self.pushButton_11.setGeometry(QRect(120, 220, 88, 27))
         self.pushButton_11.setObjectName("pushButton_11")
         self.pushButton_14 = QPushButton(self.groupBox_3)
-        self.pushButton_14.setGeometry(QRect(150, 250, 90, 27))
+        self.pushButton_14.setGeometry(QRect(120, 250, 90, 27))
         self.pushButton_14.setObjectName("pushButton_14")
+        self.pushButton_35 = QPushButton(self.groupBox_3)
+        self.pushButton_35.setGeometry(QRect(320, 300, 90, 27))
+        self.pushButton_35.setObjectName("pushButton_35")
+        self.radioButton_27 = QRadioButton(self.groupBox_3)
+        self.radioButton_27.setGeometry(QRect(300, 260, 161, 22))
+        self.radioButton_27.setObjectName("radioButton_27")
+        self.radioButton_24 = QRadioButton(self.groupBox_3)
+        self.radioButton_24.setGeometry(QRect(300, 200, 141, 22))
+        self.radioButton_24.setObjectName("radioButton_24")
+        self.radioButton_25 = QRadioButton(self.groupBox_3)
+        self.radioButton_25.setGeometry(QRect(300, 220, 141, 22))
+        self.radioButton_25.setObjectName("radioButton_25")
+        self.radioButton_26 = QRadioButton(self.groupBox_3)
+        self.radioButton_26.setGeometry(QRect(300, 240, 141, 22))
+        self.radioButton_26.setObjectName("radioButton_26")
+        self.label_23 = QLabel(self.groupBox_3)
+        self.label_23.setGeometry(QRect(290, 170, 121, 16))
+        self.label_23.setObjectName("label_23")
         self.frame_3 = QFrame(self.groupBox_3)
-        self.frame_3.setGeometry(QRect(100, 0, 401, 281))
+        self.frame_3.setGeometry(QRect(100, 0, 411, 341))
         self.frame_3.setFrameShape(QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
@@ -235,6 +253,12 @@ class experimentGUI(QMainWindow):
         self.pushButton_12.raise_()
         self.pushButton_11.raise_()
         self.pushButton_14.raise_()
+        self.pushButton_35.raise_()
+        self.radioButton_27.raise_()
+        self.radioButton_24.raise_()
+        self.radioButton_25.raise_()
+        self.radioButton_26.raise_()
+        self.label_23.raise_()
         self.groupBox = QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QRect(20, 690, 271, 181))
         self.groupBox.setObjectName("groupBox")
@@ -534,7 +558,7 @@ class experimentGUI(QMainWindow):
         self.groupBox_9.raise_()
         self.groupBox_10.raise_()
         self.groupBox_4 = QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QRect(10, 10, 1821, 661))
+        self.groupBox_4.setGeometry(QRect(10, 10, 1901, 671))
         self.groupBox_4.setObjectName("groupBox_4")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
@@ -618,7 +642,7 @@ class experimentGUI(QMainWindow):
         # look through dictionary to find corresponding launch object
         try:
             self.nodes[launch_file].shutdown()
-        except AttributeError, KeyError:
+        except (AttributeError, KeyError):
             rospy.loginfo( ("Node not launched yet") )
     
     def on_refine_refinement_click(self):
@@ -716,9 +740,9 @@ class experimentGUI(QMainWindow):
 
     def on_cancel_position_click(self):
         # object position
-        self.lineEdit.setText("0.8")
-        self.lineEdit_2.setText("0.3")
-        self.lineEdit_3.setText("0.9")
+        self.lineEdit.setText("0.95")
+        self.lineEdit_2.setText("0.2")
+        self.lineEdit_3.setText("0.7")
 
         # obstacle position
         self.lineEdit_14.setText("0.8")
@@ -1111,22 +1135,22 @@ class experimentGUI(QMainWindow):
 
             # if preset 1 and checked
             if button.text() == '1' and button.isChecked():
-                # self.lineEdit_9.setText(str(round(0.401946359213, 3)))
-                # self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
-                # self.lineEdit_8.setText(str(round(0.840896642238, 3)))
-
-                # self.lineEdit_12.setText(str(round(0.980837824843, 3)))
-                # self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
-                # self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
-                # self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
-                self.lineEdit_9.setText(str(round(0.602, 3)))
-                self.lineEdit_7.setText(str(round(0.05, 3)))
-                self.lineEdit_8.setText(str(round(0.441, 3)))
+                self.lineEdit_9.setText(str(round(0.401946359213, 3)))
+                self.lineEdit_7.setText(str(round(-0.0230769199229, 3)))
+                self.lineEdit_8.setText(str(round(0.840896642238, 3)))
 
                 self.lineEdit_12.setText(str(round(0.980837824843, 3)))
                 self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
                 self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
                 self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
+                # self.lineEdit_9.setText(str(round(0.602, 3)))
+                # self.lineEdit_7.setText(str(round(0.05, 3)))
+                # self.lineEdit_8.setText(str(round(0.441, 3)))
+
+                # self.lineEdit_12.setText(str(round(0.980837824843, 3)))
+                # self.lineEdit_11.setText(str(round(-0.00365989846539, 3)))
+                # self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
+                # self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
 
             elif button.text() == '2' and button.isChecked():
                 self.lineEdit_9.setText(str(round(0.371, 3)))
@@ -1609,7 +1633,26 @@ class experimentGUI(QMainWindow):
             resp = increment_object_missed(number_msg, condition_msg)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
+    
+    def on_start_teach_mode_click(self):
+        
+        if self.radioButton_24.isChecked():
+            self.stop_node('trajectory_refinement.launch')
+            self.start_node('trajectory_refinement', 'trajectory_refinement.launch')
+        
+        elif self.radioButton_25.isChecked():
+            self.stop_node('trajectory_refinement.launch')
+            self.start_node('teleop_control', 'teleop_control.launch')
+        
+        elif self.radioButton_26.isChecked():
+            self.stop_node('trajectory_refinement.launch')
+            self.start_node('teleop_control', 'keyboard_control.launch')
+            self.start_node('trajectory_refinement', 'trajectory_refinement_keyboard.launch')
 
+        elif self.radioButton_27.isChecked():
+            self.stop_node('trajectory_refinement.launch')
+            self.start_node('teach_pendant', 'teach_pendant.launch')
+                                 
     def on_store_data_click(self):
         number_msg = Byte()
         number_msg.data = int(self.lineEdit_20.text())
@@ -1701,6 +1744,12 @@ class experimentGUI(QMainWindow):
         self.pushButton_12.setText(_translate("MainWindow", "Start"))
         self.pushButton_11.setText(_translate("MainWindow", "Stop"))
         self.pushButton_14.setText(_translate("MainWindow", "Build model"))
+        self.pushButton_35.setText(_translate("MainWindow", "Start"))
+        self.radioButton_27.setText(_translate("MainWindow", "Offline + Pendant"))
+        self.radioButton_24.setText(_translate("MainWindow", "Online + Teleop"))
+        self.radioButton_25.setText(_translate("MainWindow", "Offline + Teleop"))
+        self.radioButton_26.setText(_translate("MainWindow", "Online + Pendant"))
+        self.label_23.setText(_translate("MainWindow", "Teaching Modes"))
         self.groupBox.setTitle(_translate("MainWindow", "Simulation environment"))
         self.label.setText(_translate("MainWindow", "x: "))
         self.label_2.setText(_translate("MainWindow", "y: "))
@@ -1769,6 +1818,7 @@ class experimentGUI(QMainWindow):
 
 
 
+
         # set object and obstacle when OK is pressed
         self.buttonBox.accepted.connect(self.on_set_object_position_click)
         self.buttonBox.accepted.connect(self.on_set_obstacle_position_click)
@@ -1809,14 +1859,16 @@ class experimentGUI(QMainWindow):
         self.pushButton_17.clicked.connect(lambda: self.use_multithread(self.on_go_to_click))
         self.pushButton_13.clicked.connect(lambda: self.use_multithread(self.on_execute_prediction_click))
         self.pushButton_20.clicked.connect(self.on_initialize_head_joints_click)
-        self.pushButton.clicked.connect(lambda:self.start_node('trajectory_refinement', 'trajectory_refinement.launch'))
-        self.pushButton_2.clicked.connect(lambda:self.stop_node('trajectory_refinement.launch'))
+        self.pushButton.clicked.connect(lambda:self.start_node('trajectory_refinement', 'trajectory_refinement_keyboard.launch'))
+        self.pushButton_2.clicked.connect(lambda:self.stop_node('trajectory_refinement_keyboard.launch'))
         self.pushButton_24.clicked.connect(lambda: self.use_multithread(self.on_execute_refinement_click))
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
         self.pushButton_29.clicked.connect(self.on_initialize_experiment_click)
         self.pushButton_33.clicked.connect(self.on_object_missed_click)
         self.pushButton_32.clicked.connect(self.on_obstacle_hit_click)
+
+        self.pushButton_35.clicked.connect(self.on_start_teach_mode_click)
 
 
         self.pushButton_21.clicked.connect(lambda: self.use_multithread(self.on_refine_prediction_click))

@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="teach_pendant" name="teach_pendant"
+    type="teach_pendant_node.py" output="screen" >
+    </node>
+</launch>

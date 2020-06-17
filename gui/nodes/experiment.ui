@@ -262,7 +262,7 @@
       <x>570</x>
       <y>690</y>
       <width>511</width>
-      <height>291</height>
+      <height>341</height>
      </rect>
     </property>
     <property name="title">
@@ -405,7 +405,7 @@
     <widget class="QLabel" name="label_20">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>110</x>
        <y>170</y>
        <width>111</width>
        <height>16</height>
@@ -418,7 +418,7 @@
     <widget class="QPushButton" name="pushButton_12">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>120</x>
        <y>190</y>
        <width>90</width>
        <height>27</height>
@@ -431,7 +431,7 @@
     <widget class="QPushButton" name="pushButton_11">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>120</x>
        <y>220</y>
        <width>88</width>
        <height>27</height>
@@ -444,7 +444,7 @@
     <widget class="QPushButton" name="pushButton_14">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>120</x>
        <y>250</y>
        <width>90</width>
        <height>27</height>
@@ -454,13 +454,91 @@
       <string>Build model</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_35">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>300</y>
+       <width>90</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_27">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>260</y>
+       <width>161</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Offline + Pendant</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_24">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>200</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Online + Teleop</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_25">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>220</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Offline + Teleop</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_26">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>240</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Online + Pendant</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_23">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>170</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Teaching Modes</string>
+     </property>
+    </widget>
     <widget class="QFrame" name="frame_3">
      <property name="geometry">
       <rect>
        <x>100</x>
        <y>0</y>
-       <width>401</width>
-       <height>281</height>
+       <width>411</width>
+       <height>341</height>
       </rect>
      </property>
      <property name="frameShape">
@@ -486,6 +564,12 @@
     <zorder>pushButton_12</zorder>
     <zorder>pushButton_11</zorder>
     <zorder>pushButton_14</zorder>
+    <zorder>pushButton_35</zorder>
+    <zorder>radioButton_27</zorder>
+    <zorder>radioButton_24</zorder>
+    <zorder>radioButton_25</zorder>
+    <zorder>radioButton_26</zorder>
+    <zorder>label_23</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
@@ -1522,8 +1606,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1821</width>
-      <height>661</height>
+      <width>1901</width>
+      <height>671</height>
      </rect>
     </property>
     <property name="title">
