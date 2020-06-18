@@ -93,7 +93,19 @@ class learningFromDemonstration():
                     print("No secs/nsecs value detected")
             except IndexError:
                 print("Raw trajectory has incorrect length, check if it contains essential paramaters")
+    
+    def prepare_single_raw(self, raw_traj, desired_datapoints):
+        traj = self.convert_raw_to_correct_format(raw_traj)
+        traj = self.parser.normalize_trajectory_time_float(traj)
 
+        traj = self.resampler.interpolate_raw_trajectory(traj, desired_datapoints)
+        
+        traj = self.parse_relevant_learning_data(traj)
+        traj = self.parser.get_trajectory_wrt_object(traj)
+        traj = self.dtw.align_necessary_trajectories(traj)
+    
+        return traj
+        
     def prepare_for_learning(self, desired_datapoints):
         
         print("Preparing raw trajectories for learning...")

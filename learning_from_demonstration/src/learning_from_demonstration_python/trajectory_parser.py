@@ -39,6 +39,15 @@ class trajectoryParser():
             trajectory.append(pos + ori + t)
 
         return trajectory, dt
+    
+    def traj_to_demonstration_format(self, traj):
+        context = [round(traj[0][7]*10, 2), round(traj[0][8]*10, 2), round(traj[0][9]*10, 2)]
+        demo = []
+
+        for data in traj:
+            demo.append(data[0:7] + data[-1])
+
+        return demo, context
 
     def prompTrajMessage_to_demonstration_format(self, traj_msg):
         trajectory = []
@@ -66,6 +75,7 @@ class trajectoryParser():
             trajectory.append(pos + ori + dt)
         
         return trajectory, context
+
     def predicted_trajectory_to_prompTraj_message(self, traj, context):
         t_list = []
         message = prompTraj()

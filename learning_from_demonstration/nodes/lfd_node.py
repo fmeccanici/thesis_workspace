@@ -111,8 +111,8 @@ class lfdNode():
 
     ## for teaching
     def _set_teaching_mode(self, req):
-        # 0 = offline + teleoperation
-        # 1 = online + teleoperation
+        # 1 = offline + teleoperation
+        # 0 = online + teleoperation
         # 2 = offline + teach pendant
         # 3 = online + teach pendant
         self.teaching_mode = req.teaching_mode.data
@@ -190,7 +190,7 @@ class lfdNode():
         self.current_slave_pose = data.pose
 
         # only do this when teaching mode is on
-        if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1 and self.teaching_mode:
+        if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1 and self.teaching_mode == 1:
             print("Appending trajectory")
 
             data.header.stamp = rospy.Time.now()
@@ -665,6 +665,14 @@ class lfdNode():
 
         return resp 
 
+    def _offline_demonstration(self, req):
+
+        traj = self.lfd.prepare_single_raw(self.EEtrajectory)
+        (traj, context) = self.parser.traj_to_demonstration_format(traj)
+        
+        resp = GetDemonstrationResponse()
+        resp.demonstration = self.parser.predicted_trajectory_to_prompTraj_message(traj, context)
+
     def run(self):
 
         # only do this when teaching mode is on
@@ -679,7 +687,6 @@ class lfdNode():
 
             # set to 0 to prevent multiple savings
             self.white_button_toggle_previous = 0
-            
         
 
             

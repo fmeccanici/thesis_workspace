@@ -3,7 +3,7 @@
 
     <arg name="raw_folder" default="complete_model"/>
     <arg name="gripper_joint_value" default="1.0"/>
-    <arg name="button_source" default="omni"/>
+    <arg name="button_source" default="keyboard"/>
 
     <include file="$(find trajectory_visualizer)/launch/trajectory_visualizer.launch"/> 
     <include file="$(find aruco_ros)/launch/marker_publisher.launch">
