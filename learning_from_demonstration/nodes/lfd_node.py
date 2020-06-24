@@ -14,7 +14,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             GetObjectPosition, GetObjectPositionResponse, WelfordUpdate, 
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
                                             BuildInitialModel, BuildInitialModelResponse, 
-                                            GetEEPose, GetEEPoseResponse, SetPath, SetPathResponse)
+                                            GetEEPose, GetEEPoseResponse, SetPath, SetPathResponse,
+                                            GetDemonstration, GetDemonstrationResponse)
 
 from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
@@ -475,6 +476,7 @@ class lfdNode():
         response = SetPathResponse()
         
         return response
+
     def _get_object_position(self, req):
         if req.reference_frame.data == 'base':
             marker_pos = self.get_marker_wrt_base()
@@ -665,13 +667,15 @@ class lfdNode():
 
         return resp 
 
-    def _offline_demonstration(self, req):
+    def _get_offline_demonstration(self, req):
 
         traj = self.lfd.prepare_single_raw(self.EEtrajectory)
         (traj, context) = self.parser.traj_to_demonstration_format(traj)
         
         resp = GetDemonstrationResponse()
         resp.demonstration = self.parser.predicted_trajectory_to_prompTraj_message(traj, context)
+
+        return resp
 
     def run(self):
 

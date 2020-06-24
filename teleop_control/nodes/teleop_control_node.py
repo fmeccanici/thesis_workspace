@@ -20,7 +20,13 @@ class teleopControl():
         self.geo_effort_sub = rospy.Subscriber("/geo_control_effort_m_dummy", WrenchStamped, self._effort_callback)
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-
+    #     self.set_part_to_publish_service = rospy.Service('/set_part_to_publish', SetPartToPublish, self._setPartToPublish)
+    
+    # def _setPartToPublish(self, req):
+    #     if req.data.part_to_publish = 'position':
+    #         self.part_to_publish = 'position'
+        
+    
     def _end_effector_pose_callback(self, data):
         self.current_slave_pose = data.pose
 

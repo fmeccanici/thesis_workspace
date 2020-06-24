@@ -10,9 +10,10 @@ from geometry_msgs.msg import PoseStamped, Pose
 from pyquaternion import Quaternion
 import numpy as np
 import time, stat
-from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
+from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSpline
 from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse
 from std_msgs.msg import String
 from os import listdir
 from os.path import isfile, join
@@ -21,12 +22,13 @@ class KeyboardControl():
     def __init__(self):
         rospy.init_node('teach_pendant')
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
+        self._get_demonstration = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
 
         self.keyboard_pub_ = rospy.Publisher('teach_pendant', Keyboard, queue_size=10)
         self.keyboard = Keyboard()
         
         self.parser = trajectoryParser()
-        self.trajectory = []
+        self.EEtrajectory = []
     
         # [x_n y_n z_n qx_n qy_n qz_n qw_n] 
         self.waypoints = []
@@ -64,9 +66,17 @@ class KeyboardControl():
 
         return Quaternion.intermediates(q1, q2, n, include_endpoints=include_endpoints)
     
+    def _get_demonstration(self, req):
+
+        resp = GetDemonstrationPendantResponse()
+        resp.demo = self.parser.predicted_trajectory_to_prompTraj_message(self.EEtrajectory, self.parser.point_to_list(self.context))
+
+        return resp
+ 
     def interpolate(self):
         n = 100
         T = 10
+        print(self.waypoints)
         x = np.linspace(0, T, len(self.waypoints))
         x_desired = np.linspace(0, T, n)
 
@@ -80,22 +90,32 @@ class KeyboardControl():
         qend = [self.waypoints[-1].orientation.w, self.waypoints[-1].orientation.x, self.waypoints[-1].orientation.y, 
                 self.waypoints[-1].orientation.z]
 
-        splinex = InterpolatedUnivariateSpline(x, cartx)
-        spliney = InterpolatedUnivariateSpline(x, carty)
-        splinez = InterpolatedUnivariateSpline(x, cartz)
-        
+        # splinex = InterpolatedUnivariateSpline(x, cartx)
+        # spliney = InterpolatedUnivariateSpline(x, carty)
+        # splinez = InterpolatedUnivariateSpline(x, cartz)
+
+        # splinex = CubicSpline(x, cartx)
+        # spliney = CubicSpline(x, carty)
+        # splinez = CubicSpline(x, cartz)
+
+        splinex = interp1d(x, cartx, kind='cubic')
+        spliney = interp1d(x, carty, kind='cubic')
+        splinez = interp1d(x, cartz, kind='cubic')
+
         cartx_new = splinex(x_desired)
-        carty_new = spliney(x_desired)
+        carty_new = spliney(x_desired) 
         cartz_new = splinez(x_desired)
 
         interpol_pred_traj = []
+        self.EEtrajectory = []
+
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
             pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
             
             ynew = pose + [x_desired[i]]
 
-            self.trajectory.append(ynew)
-    
+            self.EEtrajectory.append(ynew)
+        
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
                         self.ee_pose.orientation.y, self.ee_pose.orientation.z)
@@ -164,7 +184,7 @@ class KeyboardControl():
     # saving data in folder
     def _save_data(self, path, file_name):
         with open(path+file_name, 'w+') as f:
-            f.write(str(self.trajectory))
+            f.write(str(self.EEtrajectory))
         os.chmod(path+file_name,stat.S_IRWXO)
         os.chmod(path+file_name,stat.S_IRWXU)
 
@@ -195,7 +215,18 @@ class KeyboardControl():
             self.teach_loop()
 
             if self.keyboard.key.data == 'space':
-                self.waypoints.append(self.ee_pose)
+                
+                try:
+                    rospy.wait_for_service('get_ee_pose', timeout=2.0)
+                    get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+                    resp = get_ee_pose()
+                    self.ee_pose = resp.pose
+                
+                    self.waypoints.append(self.ee_pose)
+            
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+            
             if self.keyboard.key.data == 'enter':
                 self.interpolate()
                 
@@ -223,7 +254,7 @@ class KeyboardControl():
                 except (rospy.ServiceException, rospy.ROSException) as e:
                     print("Service call failed: %s" %e)
                 
-                trajectory_wrt_object = self.parser.get_trajectory_wrt_context(self.trajectory, self.parser.point_to_list(object_wrt_base))
+                trajectory_wrt_object = self.parser.get_trajectory_wrt_context(self.EEtrajectory, self.parser.point_to_list(object_wrt_base))
 
                 rospy.loginfo(trajectory_wrt_object)
 
@@ -236,7 +267,7 @@ class KeyboardControl():
                 file_name = self._get_trajectory_file_name(raw_path)
                 self._save_data(raw_path, file_name)
 
-                self.EEtrajectory = []
+                # self.EEtrajectory = []
 
             r.sleep()
     

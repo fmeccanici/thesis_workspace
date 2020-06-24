@@ -23,6 +23,7 @@
     BuildInitialModel.srv
     GetEEPose.srv
     SetPath.srv
+    GetDemonstration.srv
   )
 catkin_python_setup()
 

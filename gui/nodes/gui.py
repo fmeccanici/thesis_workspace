@@ -18,7 +18,7 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
                                             BuildInitialModel, BuildInitialModelResponse, 
                                             GetEEPose, GetEEPoseResponse, SetPath)
-                                            
+from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from std_msgs.msg import String, Bool, Byte, UInt32
@@ -607,7 +607,19 @@ class experimentGUI(QMainWindow):
             self.refined_trajectory = self.parser.predicted_trajectory_to_prompTraj_message(ref_traj, self.parser.point_to_list(self.context))
         except Exception as e:
             rospy.loginfo(e)
+        try:
+            rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
 
+            get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
+
+            resp = get_demo_pendant()
+            self.refined_trajectory = resp.demo
+            rospy.loginfo(self.refined_trajectory)
+            rospy.loginfo("Got an offline taught trajectory using the Keyboard")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+    
     def start_node(self, package, launch_file):
         
         if launch_file not in self.nodes: 
