@@ -21,6 +21,7 @@ from promp_context_ros.msg import prompTraj
 from std_msgs.msg import Bool
 from geometry_msgs.msg import Point
 from geomagic_touch_m.msg import GeomagicButtonEvent
+from std_srvs.srv import Empty, EmptyResponse
 
 # import my own classes
 from learning_from_demonstration_python.learning_from_demonstration import learningFromDemonstration
@@ -60,6 +61,7 @@ class lfdNode():
         # for initial teaching
         self.teaching_mode = 0
         self.EEtrajectory = []
+        self.stop_execution = False
 
         ## initialize ros related
         rospy.init_node('lfd_node')
@@ -91,7 +93,8 @@ class lfdNode():
         self._build_initial_model_service = rospy.Service('build_initial_model', BuildInitialModel, self._build_initial_model)
         self._get_ee_pose_service = rospy.Service('get_ee_pose', GetEEPose, self._get_ee_pose)
         self._set_path_service = rospy.Service('set_path', SetPath, self._set_path)
-
+        self._stop_execution_service = rospy.Service('stop_execution', Empty, self._stopExecution)
+        
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -102,7 +105,7 @@ class lfdNode():
         self.initialize_lfd_model()
         
         self.nodes = {}
-
+        
     # get pose service used for GUI
     def _get_ee_pose(self, req):
         resp = GetEEPoseResponse()
@@ -228,6 +231,13 @@ class lfdNode():
         self.button_source = rospy.get_param('~button_source')
         print("Button source set to: " + str(self.button_source))
     
+    def _stopExecution(self, req):
+        resp = EmptyResponse()
+        self.stopExecution()
+
+        return resp
+    def stopExecution(self):
+        self.stop_execution = True
 
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")
@@ -246,8 +256,14 @@ class lfdNode():
             slave_goal.header.frame_id = "/base_footprint"
 
             slave_goal.header.stamp = (rospy.Time.now())
+
+            # stop execution and set parameter back to false
+            # so we can execute a trajectory again
+            if self.stop_execution:
+                self.stop_execution = False
+                break
             self._end_effector_goal_pub.publish(slave_goal)
-            
+
             time.sleep(dt)
 
     def context_to_msg(self, context):

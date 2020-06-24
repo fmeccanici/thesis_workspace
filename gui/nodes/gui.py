@@ -18,6 +18,8 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
                                             BuildInitialModel, BuildInitialModelResponse, 
                                             GetEEPose, GetEEPoseResponse, SetPath)
+from teleop_control.msg import Keyboard
+from std_srvs.srv import Empty
 from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
@@ -91,6 +93,7 @@ class experimentGUI(QMainWindow):
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
         
         self.nodes = {}
+        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
 
         # initialize Qt GUI
         self.initGUI()
@@ -102,7 +105,7 @@ class experimentGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(310, 690, 351, 341))
+        self.groupBox_2.setGeometry(QRect(310, 690, 351, 271))
         self.groupBox_2.setObjectName("groupBox_2")
         self.pushButton_6 = QPushButton(self.groupBox_2)
         self.pushButton_6.setGeometry(QRect(0, 120, 150, 27))
@@ -140,20 +143,20 @@ class experimentGUI(QMainWindow):
         self.lineEdit_17 = QLineEdit(self.groupBox_7)
         self.lineEdit_17.setGeometry(QRect(40, 90, 41, 27))
         self.lineEdit_17.setObjectName("lineEdit_17")
-        self.pushButton_26 = QPushButton(self.groupBox_2)
-        self.pushButton_26.setGeometry(QRect(0, 280, 150, 27))
-        self.pushButton_26.setObjectName("pushButton_26")
-        self.lineEdit_18 = QLineEdit(self.groupBox_2)
-        self.lineEdit_18.setGeometry(QRect(0, 310, 171, 27))
-        self.lineEdit_18.setObjectName("lineEdit_18")
         self.frame_2 = QFrame(self.groupBox_2)
-        self.frame_2.setGeometry(QRect(0, 0, 331, 341))
+        self.frame_2.setGeometry(QRect(0, 0, 331, 271))
         self.frame_2.setFrameShape(QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
         self.lineEdit_19 = QLineEdit(self.frame_2)
         self.lineEdit_19.setGeometry(QRect(40, 210, 41, 27))
         self.lineEdit_19.setObjectName("lineEdit_19")
+        self.pushButton_26 = QPushButton(self.frame_2)
+        self.pushButton_26.setGeometry(QRect(0, 240, 150, 27))
+        self.pushButton_26.setObjectName("pushButton_26")
+        self.lineEdit_18 = QLineEdit(self.frame_2)
+        self.lineEdit_18.setGeometry(QRect(150, 240, 171, 27))
+        self.lineEdit_18.setObjectName("lineEdit_18")
         self.frame_2.raise_()
         self.pushButton_6.raise_()
         self.pushButton_21.raise_()
@@ -164,8 +167,6 @@ class experimentGUI(QMainWindow):
         self.radioButton_3.raise_()
         self.pushButton_24.raise_()
         self.groupBox_7.raise_()
-        self.pushButton_26.raise_()
-        self.lineEdit_18.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QRect(570, 690, 511, 341))
         self.groupBox_3.setObjectName("groupBox_3")
@@ -446,26 +447,44 @@ class experimentGUI(QMainWindow):
         self.radioButton_7.raise_()
         self.radioButton_10.raise_()
         self.groupBox_5 = QGroupBox(self.centralwidget)
-        self.groupBox_5.setGeometry(QRect(20, 880, 271, 121))
+        self.groupBox_5.setGeometry(QRect(0, 910, 511, 121))
         self.groupBox_5.setObjectName("groupBox_5")
         self.label_17 = QLabel(self.groupBox_5)
-        self.label_17.setGeometry(QRect(40, 37, 31, 17))
+        self.label_17.setGeometry(QRect(40, 30, 31, 17))
         self.label_17.setObjectName("label_17")
         self.pushButton_3 = QPushButton(self.groupBox_5)
-        self.pushButton_3.setGeometry(QRect(10, 57, 90, 27))
+        self.pushButton_3.setGeometry(QRect(10, 50, 90, 27))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_4 = QPushButton(self.groupBox_5)
-        self.pushButton_4.setGeometry(QRect(10, 87, 88, 27))
+        self.pushButton_4.setGeometry(QRect(10, 80, 88, 27))
         self.pushButton_4.setObjectName("pushButton_4")
         self.label_18 = QLabel(self.groupBox_5)
-        self.label_18.setGeometry(QRect(170, 37, 91, 17))
+        self.label_18.setGeometry(QRect(110, 30, 91, 17))
         self.label_18.setObjectName("label_18")
         self.pushButton = QPushButton(self.groupBox_5)
-        self.pushButton.setGeometry(QRect(170, 57, 90, 27))
+        self.pushButton.setGeometry(QRect(110, 50, 90, 27))
         self.pushButton.setObjectName("pushButton")
         self.pushButton_2 = QPushButton(self.groupBox_5)
-        self.pushButton_2.setGeometry(QRect(170, 90, 88, 27))
+        self.pushButton_2.setGeometry(QRect(110, 83, 88, 27))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.label_24 = QLabel(self.groupBox_5)
+        self.label_24.setGeometry(QRect(230, 30, 91, 17))
+        self.label_24.setObjectName("label_24")
+        self.pushButton_36 = QPushButton(self.groupBox_5)
+        self.pushButton_36.setGeometry(QRect(210, 50, 90, 27))
+        self.pushButton_36.setObjectName("pushButton_36")
+        self.pushButton_37 = QPushButton(self.groupBox_5)
+        self.pushButton_37.setGeometry(QRect(210, 83, 88, 27))
+        self.pushButton_37.setObjectName("pushButton_37")
+        self.pushButton_38 = QPushButton(self.groupBox_5)
+        self.pushButton_38.setGeometry(QRect(320, 93, 88, 27))
+        self.pushButton_38.setObjectName("pushButton_38")
+        self.pushButton_39 = QPushButton(self.groupBox_5)
+        self.pushButton_39.setGeometry(QRect(320, 60, 90, 27))
+        self.pushButton_39.setObjectName("pushButton_39")
+        self.label_25 = QLabel(self.groupBox_5)
+        self.label_25.setGeometry(QRect(320, 50, 91, 17))
+        self.label_25.setObjectName("label_25")
         self.groupBox_8 = QGroupBox(self.centralwidget)
         self.groupBox_8.setGeometry(QRect(1580, 690, 331, 331))
         self.groupBox_8.setObjectName("groupBox_8")
@@ -560,6 +579,15 @@ class experimentGUI(QMainWindow):
         self.groupBox_4 = QGroupBox(self.centralwidget)
         self.groupBox_4.setGeometry(QRect(10, 10, 1901, 671))
         self.groupBox_4.setObjectName("groupBox_4")
+        self.frame.raise_()
+        self.groupBox_5.raise_()
+        self.groupBox_2.raise_()
+        self.groupBox_3.raise_()
+        self.groupBox.raise_()
+        self.groupBox_6.raise_()
+        self.groupBox_8.raise_()
+        self.groupBox_4.raise_()
+        self.frame.raise_()
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1920, 25))
@@ -598,7 +626,17 @@ class experimentGUI(QMainWindow):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
+    def _keyboard_callback(self, data):
 
+        # stop execution
+        if data.key.data == 'space':
+            try:
+                rospy.wait_for_service('stop_execution', timeout=2.0)
+                stop_execution = rospy.ServiceProxy('stop_execution', Empty)
+                resp = stop_execution()
+                    
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
     def on_load_trajectory_click(self):
         traj_file = str(self.lineEdit_18.text())
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/' 
@@ -1739,10 +1777,10 @@ class experimentGUI(QMainWindow):
         self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.lineEdit_17.setText(_translate("MainWindow", "10"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
-        self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
-        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_fast"))
         self.lineEdit_19.setText(_translate("MainWindow", "10"))
         self.lineEdit_19.setPlaceholderText(_translate("MainWindow", "10"))
+        self.pushButton_26.setText(_translate("MainWindow", "Load trajectory"))
+        self.lineEdit_18.setText(_translate("MainWindow", "refined_trajectory_fast"))
         self.groupBox_3.setTitle(_translate("MainWindow", "                                                            Learning from Demonstration"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
@@ -1799,6 +1837,12 @@ class experimentGUI(QMainWindow):
         self.label_18.setText(_translate("MainWindow", "Refinement"))
         self.pushButton.setText(_translate("MainWindow", "Start"))
         self.pushButton_2.setText(_translate("MainWindow", "Stop"))
+        self.label_24.setText(_translate("MainWindow", "Pendant"))
+        self.pushButton_36.setText(_translate("MainWindow", "Start"))
+        self.pushButton_37.setText(_translate("MainWindow", "Stop"))
+        self.pushButton_38.setText(_translate("MainWindow", "Stop"))
+        self.pushButton_39.setText(_translate("MainWindow", "Start"))
+        self.label_25.setText(_translate("MainWindow", "keyboard"))
         self.groupBox_8.setTitle(_translate("MainWindow", "Experiment"))
         self.groupBox_9.setTitle(_translate("MainWindow", "Model"))
         self.radioButton_11.setText(_translate("MainWindow", "1"))
@@ -1827,6 +1871,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_23.setText(_translate("MainWindow", "After"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
+
 
 
 
@@ -1874,6 +1919,12 @@ class experimentGUI(QMainWindow):
         self.pushButton.clicked.connect(lambda:self.start_node('trajectory_refinement', 'trajectory_refinement_keyboard.launch'))
         self.pushButton_2.clicked.connect(lambda:self.stop_node('trajectory_refinement_keyboard.launch'))
         self.pushButton_24.clicked.connect(lambda: self.use_multithread(self.on_execute_refinement_click))
+        
+        self.pushButton_36.clicked.connect(lambda:self.start_node('teach_pendant', 'teach_pendant.launch'))
+        self.pushButton_39.clicked.connect(lambda:self.start_node('teleop_control', 'keyboard_control.launch'))
+
+        self.pushButton_37.clicked.connect(lambda:self.stop_node('teach_pendant.launch'))
+        self.pushButton_38.clicked.connect(lambda:self.stop_node('keyboard_control.launch'))
 
         self.pushButton_6.clicked.connect(self.on_add_to_model_click)
         self.pushButton_29.clicked.connect(self.on_initialize_experiment_click)

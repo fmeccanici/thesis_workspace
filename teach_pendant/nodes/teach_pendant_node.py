@@ -10,7 +10,7 @@ from geometry_msgs.msg import PoseStamped, Pose
 from pyquaternion import Quaternion
 import numpy as np
 import time, stat
-from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSpline
+from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSpline, UnivariateSpline
 from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse
@@ -44,7 +44,7 @@ class KeyboardControl():
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
-
+        rospy.loginfo("You can start the teach pendant")
     def quaternion_rotation(self, axis, angle):
         w = np.cos(angle/2)
         x = 0
@@ -98,9 +98,13 @@ class KeyboardControl():
         # spliney = CubicSpline(x, carty)
         # splinez = CubicSpline(x, cartz)
 
-        splinex = interp1d(x, cartx, kind='cubic')
-        spliney = interp1d(x, carty, kind='cubic')
-        splinez = interp1d(x, cartz, kind='cubic')
+        # splinex = interp1d(x, cartx, kind='quadratic')
+        # spliney = interp1d(x, carty, kind='quadratic')
+        # splinez = interp1d(x, cartz, kind='quadratic')
+
+        splinex = UnivariateSpline(x, cartx)
+        spliney = UnivariateSpline(x, carty)
+        splinez = UnivariateSpline(x, cartz)
 
         cartx_new = splinex(x_desired)
         carty_new = spliney(x_desired) 
@@ -215,7 +219,8 @@ class KeyboardControl():
             self.teach_loop()
 
             if self.keyboard.key.data == 'space':
-                
+
+
                 try:
                     rospy.wait_for_service('get_ee_pose', timeout=2.0)
                     get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
@@ -230,14 +235,14 @@ class KeyboardControl():
             if self.keyboard.key.data == 'enter':
                 self.interpolate()
                 
-                rospy.wait_for_service('get_object_position', timeout=2.0)
+                # rospy.wait_for_service('get_object_position', timeout=2.0)
 
-                reference_frame = String()
-                reference_frame.data = 'base'
-                get_object = rospy.ServiceProxy('get_object_position', GetObjectPosition)
+                # reference_frame = String()
+                # reference_frame.data = 'base'
+                # get_object = rospy.ServiceProxy('get_object_position', GetObjectPosition)
 
-                resp = get_object(reference_frame)
-                object_wrt_base = resp.object_position
+                # resp = get_object(reference_frame)
+                # object_wrt_base = resp.object_position
 
                 try:
                     rospy.wait_for_service('get_context', timeout=2.0)
@@ -248,24 +253,24 @@ class KeyboardControl():
                 resp = get_context()
                 self.context = resp.context
 
-                try:
-                    rospy.wait_for_service('add_demonstration', timeout=2.0)
+                # try:
+                #     rospy.wait_for_service('add_demonstration', timeout=2.0)
                 
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e)
+                # except (rospy.ServiceException, rospy.ROSException) as e:
+                #     print("Service call failed: %s" %e)
                 
-                trajectory_wrt_object = self.parser.get_trajectory_wrt_context(self.EEtrajectory, self.parser.point_to_list(object_wrt_base))
+                # trajectory_wrt_object = self.parser.get_trajectory_wrt_context(self.EEtrajectory, self.parser.point_to_list(object_wrt_base))
 
-                rospy.loginfo(trajectory_wrt_object)
+                # rospy.loginfo(trajectory_wrt_object)
 
-                add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
-                trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(trajectory_wrt_object, self.parser.point_to_list(self.context))
+                # add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+                # trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(trajectory_wrt_object, self.parser.point_to_list(self.context))
 
-                resp = add_demonstration(trajectory_wrt_object_msg)
+                # resp = add_demonstration(trajectory_wrt_object_msg)
             
-                raw_path = self._rospack.get_path('teach_pendant') + "/data/"
-                file_name = self._get_trajectory_file_name(raw_path)
-                self._save_data(raw_path, file_name)
+                # raw_path = self._rospack.get_path('teach_pendant') + "/data/"
+                # file_name = self._get_trajectory_file_name(raw_path)
+                # self._save_data(raw_path, file_name)
 
                 # self.EEtrajectory = []
 

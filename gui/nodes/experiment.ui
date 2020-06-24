@@ -20,7 +20,7 @@
       <x>310</x>
       <y>690</y>
       <width>351</width>
-      <height>341</height>
+      <height>271</height>
      </rect>
     </property>
     <property name="title">
@@ -185,39 +185,13 @@
       </property>
      </widget>
     </widget>
-    <widget class="QPushButton" name="pushButton_26">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>280</y>
-       <width>150</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Load trajectory</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEdit_18">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>310</y>
-       <width>171</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>refined_trajectory_fast</string>
-     </property>
-    </widget>
     <widget class="QFrame" name="frame_2">
      <property name="geometry">
       <rect>
        <x>0</x>
        <y>0</y>
        <width>331</width>
-       <height>341</height>
+       <height>271</height>
       </rect>
      </property>
      <property name="frameShape">
@@ -242,6 +216,32 @@
        <string>10</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="pushButton_26">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>240</y>
+        <width>150</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Load trajectory</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_18">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>240</y>
+        <width>171</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>refined_trajectory_fast</string>
+      </property>
+     </widget>
     </widget>
     <zorder>frame_2</zorder>
     <zorder>pushButton_6</zorder>
@@ -253,8 +253,6 @@
     <zorder>radioButton_3</zorder>
     <zorder>pushButton_24</zorder>
     <zorder>groupBox_7</zorder>
-    <zorder>pushButton_26</zorder>
-    <zorder>lineEdit_18</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
@@ -1140,9 +1138,9 @@
    <widget class="QGroupBox" name="groupBox_5">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>880</y>
-      <width>271</width>
+      <x>0</x>
+      <y>910</y>
+      <width>511</width>
       <height>121</height>
      </rect>
     </property>
@@ -1153,7 +1151,7 @@
      <property name="geometry">
       <rect>
        <x>40</x>
-       <y>37</y>
+       <y>30</y>
        <width>31</width>
        <height>17</height>
       </rect>
@@ -1166,7 +1164,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>57</y>
+       <y>50</y>
        <width>90</width>
        <height>27</height>
       </rect>
@@ -1179,7 +1177,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>87</y>
+       <y>80</y>
        <width>88</width>
        <height>27</height>
       </rect>
@@ -1191,8 +1189,8 @@
     <widget class="QLabel" name="label_18">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>37</y>
+       <x>110</x>
+       <y>30</y>
        <width>91</width>
        <height>17</height>
       </rect>
@@ -1204,8 +1202,8 @@
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>57</y>
+       <x>110</x>
+       <y>50</y>
        <width>90</width>
        <height>27</height>
       </rect>
@@ -1217,14 +1215,92 @@
     <widget class="QPushButton" name="pushButton_2">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>90</y>
+       <x>110</x>
+       <y>83</y>
        <width>88</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
       <string>Stop</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_24">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>30</y>
+       <width>91</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pendant</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_36">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>50</y>
+       <width>90</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_37">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>83</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_38">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>93</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_39">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>60</y>
+       <width>90</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_25">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>50</y>
+       <width>91</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>keyboard</string>
      </property>
     </widget>
    </widget>
@@ -1613,7 +1689,16 @@
     <property name="title">
      <string>RViz</string>
     </property>
+    <zorder>frame</zorder>
    </widget>
+   <zorder>groupBox_5</zorder>
+   <zorder>groupBox_2</zorder>
+   <zorder>groupBox_3</zorder>
+   <zorder>groupBox</zorder>
+   <zorder>groupBox_6</zorder>
+   <zorder>groupBox_8</zorder>
+   <zorder>groupBox_4</zorder>
+   <zorder>frame</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
