@@ -15,10 +15,11 @@ from learning_from_demonstration.srv import (AddDemonstration, AddDemonstrationR
                                             WelfordUpdateResponse, SetTeachingMode, SetTeachingModeResponse, 
                                             BuildInitialModel, BuildInitialModelResponse, 
                                             GetEEPose, GetEEPoseResponse, SetPath, SetPathResponse,
-                                            GetDemonstration, GetDemonstrationResponse)
+                                            GetDemonstration, GetDemonstrationResponse, GetTimer,
+                                            GetTimerResponse)
 
 from promp_context_ros.msg import prompTraj
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float32
 from geometry_msgs.msg import Point
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from std_srvs.srv import Empty, EmptyResponse
@@ -37,6 +38,7 @@ import matplotlib
 from os import listdir
 from os.path import isfile, join
 import os, stat, time
+from _thread import start_new_thread
 
 # use agg to avoid gui from over his nek gaan 
 matplotlib.use('Agg')
@@ -62,6 +64,7 @@ class lfdNode():
         self.teaching_mode = 0
         self.EEtrajectory = []
         self.stop_execution = False
+        self.elapsed_time = 0
 
         ## initialize ros related
         rospy.init_node('lfd_node')
@@ -94,7 +97,10 @@ class lfdNode():
         self._get_ee_pose_service = rospy.Service('get_ee_pose', GetEEPose, self._get_ee_pose)
         self._set_path_service = rospy.Service('set_path', SetPath, self._set_path)
         self._stop_execution_service = rospy.Service('stop_execution', Empty, self._stopExecution)
-        
+        self._start_timer_service = rospy.Service('start_timer', Empty, self._startTimer)
+        self._stop_timer_service = rospy.Service('stop_timer', Empty, self._stopTimer)
+        self._get_timer_service = rospy.Service('get_timer', GetTimer, self._getTimer)
+
         # initialize other classes
         self.lfd = learningFromDemonstration()
         self.visualizer = trajectoryVisualizer()
@@ -105,7 +111,44 @@ class lfdNode():
         self.initialize_lfd_model()
         
         self.nodes = {}
-        
+    
+    def startTimer(self):
+        t = time.time()
+        self.stop_timer = False
+        rospy.loginfo("Started timer")
+        self.elapsed_time = 0
+
+        while True:
+            if self.stop_timer == True:
+                break
+            else:
+                self.elapsed_time = time.time() - t
+                print(self.elapsed_time)
+        rospy.loginfo("Stopped timer")
+
+    def stopTimer(self):
+        self.stop_timer = True
+
+    def _startTimer(self, req):
+        resp = EmptyResponse()
+        self.startTimer()
+        return resp
+
+    def _stopTimer(self, req):
+        resp = EmptyResponse()
+        self.stopTimer()
+        return resp
+    
+    def _getTimer(self, req):
+        rospy.loginfo("Get timer service")
+        resp = GetTimerResponse()
+        elapsed_time_msg = Float32()
+                
+        elapsed_time_msg.data = self.elapsed_time 
+        resp.elapsed_time = elapsed_time_msg
+
+        return resp
+
     # get pose service used for GUI
     def _get_ee_pose(self, req):
         resp = GetEEPoseResponse()
@@ -139,7 +182,6 @@ class lfdNode():
         # we switch to teaching mode when we forgot to press the button
         self.white_button_toggle_previous = 0
         self.white_button_toggle = 0
-
 
         rospy.loginfo(("Set teaching mode to {}").format(self.teaching_mode) )
 

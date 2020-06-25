@@ -24,6 +24,7 @@
     GetEEPose.srv
     SetPath.srv
     GetDemonstration.srv
+    GetTimer.srv
   )
 catkin_python_setup()
 
