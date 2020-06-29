@@ -1708,6 +1708,9 @@
       </property>
      </widget>
     </widget>
+    <zorder>frame_5</zorder>
+    <zorder>groupBox_9</zorder>
+    <zorder>groupBox_10</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_4">
     <property name="geometry">

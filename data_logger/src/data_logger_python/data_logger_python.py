@@ -11,33 +11,68 @@ class ParticipantData(object):
         self.age = age
         
         self.object_positions = {}
+
+        # set initial object position
+        self.object_position = 1
+
         self.methods = {}
+        
+        # set initial method
+        self.method = 1
+
         self.variations = {}
+        # set initial variation
+        self.variation = 1
+
+        self.trials = {}
+        # set initial trial
+        self.trial = 1
 
         self.num_methods = 4
         self.num_variations = 2
         self.num_object_positions = 6
-        
+        self.num_trials = 10
+
+        for i in range(self.num_trials):
+            self.trials[i+1] = {
+                'predicted_trajectory': {}, 'context': [],
+                'refined_trajectory': {},
+                'number_of_refinements': 0,
+                'object_missed': False,
+                'obstacle_hit': False,
+                'success': False,
+                'time': 0
+            }
+
         for j in range(self.num_object_positions):
             self.object_positions[j+1] = {
-            'predicted_trajectory': {}, 'context': [], 
-            'refined_trajectory': {},
-            'number_of_refinements' : 0, 
-            'object_missed' : 0, 'obstacles_hit' : 0,
+            'trial': self.trials,
             'adaptation_time': 0
             }
-        self.predicted_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }}
-        self.refined_trajectory = {'trajectory': {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }}
-
+        
         for i in range(self.num_variations):
-            self.variations[i+1] = self.object_positions
+            self.variations[i+1] = {
+                'object_position': self.object_positions,
+                'total_adaptation_time': 0
+            }
+        
+        for i in range(self.num_methods):
+            self.methods[i+1] = {
+                'variation': self.variations,
+            }
+
+        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
+        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
+
+        # for i in range(self.num_variations):
+        #     self.variations[i+1] = self.object_positions
 
         # 1 = Online + Teleop
         # 2 = Ofline + Teleop
         # 3 = Online + Pendant
         # 4 = Offline + Pendant
-        for i in range(self.num_methods):
-            self.methods[i+1] = self.variations
+        # for i in range(self.num_methods):
+        #     self.methods[i+1] = self.variations
         
         # check if path exists, create if not
         self.path = path + 'participant_' + str(number) + '/'
@@ -71,11 +106,23 @@ class ParticipantData(object):
     def getStoragePath(self):
         return self.path
 
+    def setTrial(self, trial):
+        self.trial = trial
+    
+    def getTrial(self):
+        return self.trial
+
+    def setVariation(self, variation):
+        self.variation = variation
+
+    def setObjectPosition(self, object_position):
+        self.object_position = object_position
+
+    def setMethod(self, method):
+        self.method = method
+
     def setRefinedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "method" in kwargs and "environment" in kwargs:
-            method = kwargs["method"]
-            context = kwargs["context"]
-            environment = kwargs["environment"]
+        if "from_file" in kwargs and kwargs["from_file"] == 1:
 
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'refined_trajectory.csv'
@@ -109,32 +156,23 @@ class ParticipantData(object):
             self.refined_trajectory['trajectory']['qz'] = qz
             self.refined_trajectory['trajectory']['qw'] = qw
             self.refined_trajectory['trajectory']['t'] = t
-            self.refined_trajectory['context'] = [context.x, context.y, context.z]
+            # self.trials[trial]['context'] = [context.x, context.y, context.z]
 
             # append dictionary
             # we start with 0 refinement --> n + 1
-            n = self.methods[method][environment]['number_of_refinements'] + 1
+            n = self.methods[self.method][self.variation][self.object_position][self.trial]['number_of_refinements'] + 1
             print(n)
-            self.methods[method][environment]['refined_trajectory'] = self.refined_trajectory          
+            self.methods[self.method][self.variation][self.object_position][self.trial]['refined_trajectory'] = self.refined_trajectory          
             
             # increment number of refined trajectories
-            self.methods[method][environment]['number_of_refinements'] += 1
+            self.methods[self.method][self.variation][self.object_position][self.trial]['number_of_refinements'] += 1
 
             return 0
-
-    def getRefinedTrajectories(self, method):
-        return self.refined_trajectories[method]['trajectories']
                 
     def setPredictedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "method" in kwargs and "context" in kwargs and "before_after" in kwargs and "num_updates" in kwargs and "environment" in kwargs:
+        if "from_file" in kwargs and kwargs["from_file"] == 1:
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'predicted_trajectory.csv'
-            
-            method = kwargs["method"]
-            context = kwargs["context"]
-            before_after = kwargs["before_after"]
-            num_updates = kwargs["num_updates"]
-            environment = kwargs["environment"]
 
             with open(path+file_name, 'r') as f:
                 reader = csv.reader(f)
@@ -158,37 +196,36 @@ class ParticipantData(object):
                     qw.append(float(datapoint[6]))
                     t.append(float(datapoint[7]))
 
-            self.predicted_trajectory['trajectory']['x'] = x
-            self.predicted_trajectory['trajectory']['y'] = y
-            self.predicted_trajectory['trajectory']['z'] = x
-            self.predicted_trajectory['trajectory']['qx'] = qx
-            self.predicted_trajectory['trajectory']['qy'] = qy
-            self.predicted_trajectory['trajectory']['qz'] = qz
-            self.predicted_trajectory['trajectory']['qw'] = qw
-            self.predicted_trajectory['trajectory']['t'] = t
-            self.predicted_trajectory['context'] = [context.x, context.y, context.z]
+            self.predicted_trajectory['x'] = x
+            self.predicted_trajectory['y'] = y
+            self.predicted_trajectory['z'] = x
+            self.predicted_trajectory['qx'] = qx
+            self.predicted_trajectory['qy'] = qy
+            self.predicted_trajectory['qz'] = qz
+            self.predicted_trajectory['qw'] = qw
+            self.predicted_trajectory['t'] = t
+            # self.predicted_trajectory['context'] = [context.x, context.y, context.z]
 
-            if before_after == 1:
-                print('method = ' + str(method))
-                print('environment = ' + str(environment))
+            # if before_after == 1:
+            #     print('method = ' + str(method))
+            #     print('object_position = ' + str(object_position))
 
 
-                self.methods[method][environment]['predicted_trajectory']['before'] = self.predicted_trajectory
-                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test1.txt', 'w+') as f:
-                    f.write(str(self.methods))
+            #     self.methods[method][object_position]['predicted_trajectory']['before'] = self.predicted_trajectory
+            #     with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test1.txt', 'w+') as f:
+            #         f.write(str(self.methods))
 
-                print("Set prediction before updating")
+            #     print("Set prediction before updating")
 
-            else:
-                self.methods[method][environment]['predicted_trajectory']['after'] = self.predicted_trajectory
-                self.methods[method][environment]['predicted_trajectory']['number_of_updates'] = num_updates
+            # else:
+            #     self.methods[method][object_position]['predicted_trajectory']['after'] = self.predicted_trajectory
+            #     self.methods[method][object_position]['predicted_trajectory']['number_of_updates'] = num_updates
                 
-                print("Set prediction after updating")
+            #     print("Set prediction after updating")
 
+            # self.methods[self.method][self.variation][self.object_position]['predicted'][self.trial] = self.predicted_trajectory
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = self.predicted_trajectory
     
-    def getPredictedTrajectory(self, method):
-        return self.methods[method]['predicted_trajectory']['trajectory']
-
     def incrementObstaclesHit(self, method):
         self.methods[method]['obstacles_hit'] += 1
 
@@ -208,7 +245,7 @@ class ParticipantData(object):
         with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
             f.write(str(self.methods))
 
-        data = {'number': self.number, 'age': self.age, 'sex': self.gender, 'method': self.methods}
+        data = {'number': self.number, 'age': self.age, 'sex': self.sex, 'method': self.methods}
 
         df = pd.DataFrame.from_dict(data)
         df.to_csv(self.path + 'data.csv')

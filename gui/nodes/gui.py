@@ -571,6 +571,9 @@ class experimentGUI(QMainWindow):
         self.pushButton_42 = QPushButton(self.frame_5)
         self.pushButton_42.setGeometry(QRect(230, 150, 90, 27))
         self.pushButton_42.setObjectName("pushButton_42")
+        self.frame_5.raise_()
+        self.groupBox_9.raise_()
+        self.groupBox_10.raise_()
         self.groupBox_4 = QGroupBox(self.centralwidget)
         self.groupBox_4.setGeometry(QRect(0, 10, 1881, 641))
         self.groupBox_4.setObjectName("groupBox_4")
@@ -1968,8 +1971,8 @@ class experimentGUI(QMainWindow):
         self.pushButton_18.clicked.connect(lambda:self.start_node('teleop_control', 'teleop_control.launch'))
         self.pushButton_25.clicked.connect(self.on_copy_pose_click)
 
-        self.pushButton_27.clicked.connect(lambda:self.stop_node('data_logging.launch'))
-        self.pushButton_28.clicked.connect(lambda:self.start_node('data_logger', 'data_logging.launch'))
+        self.pushButton_28.clicked.connect(lambda:self.stop_node('data_logging.launch'))
+        self.pushButton_27.clicked.connect(lambda:self.start_node('data_logger', 'data_logging.launch'))
 
         self.pushButton_26.clicked.connect(self.on_load_trajectory_click)
         self.pushButton_34.clicked.connect(self.on_to_csv_click)
