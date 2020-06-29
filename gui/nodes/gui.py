@@ -571,6 +571,12 @@ class experimentGUI(QMainWindow):
         self.pushButton_42 = QPushButton(self.frame_5)
         self.pushButton_42.setGeometry(QRect(230, 150, 90, 27))
         self.pushButton_42.setObjectName("pushButton_42")
+        self.lineEdit_22 = QLineEdit(self.frame_5)
+        self.lineEdit_22.setGeometry(QRect(250, 30, 61, 27))
+        self.lineEdit_22.setObjectName("lineEdit_22")
+        self.label_27 = QLabel(self.frame_5)
+        self.label_27.setGeometry(QRect(210, 30, 67, 17))
+        self.label_27.setObjectName("label_27")
         self.frame_5.raise_()
         self.groupBox_9.raise_()
         self.groupBox_10.raise_()
@@ -1941,9 +1947,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_40.setText(_translate("MainWindow", "Start"))
         self.pushButton_41.setText(_translate("MainWindow", "Stop"))
         self.pushButton_42.setText(_translate("MainWindow", "Get"))
+        self.lineEdit_22.setText(_translate("MainWindow", "1"))
+        self.label_27.setText(_translate("MainWindow", "Trial"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
-
 
 
 
