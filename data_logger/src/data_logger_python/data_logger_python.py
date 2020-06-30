@@ -1,32 +1,53 @@
 #!/usr/bin/env python3.5
 
-import os, csv
+import os, csv, ast
 import pandas as pd
 
 class ParticipantData(object):
     def __init__(self, number, sex, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
         self.number = number
-        self.sex = sex
-        self.age = age
-        
-        self.object_positions = {}
-
-        # set initial object position
-        self.object_position = 1
-
+        self.num_methods = 4
         self.methods = {}
-        
-        # set initial method
+
+        # check if path exists, create if not
+        self.path = path + 'participant_' + str(number) + '/'
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+            self.sex = sex
+            self.age = age
+
+            self.initData()
+
+        # if it exists --> load data 
+        else:
+            self.loadData()
+
+        # parameters used to fill the methods dictionary
+        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
+        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
+        self.variation = 1
+        self.trial = 1
+        self.object_position = 1
+        self.context = []
         self.method = 1
 
-        self.variations = {}
-        # set initial variation
-        self.variation = 1
+        # for i in range(self.num_variations):
+        #     self.variations[i+1] = self.object_positions
 
+        # 1 = Online + Teleop
+        # 2 = Ofline + Teleop
+        # 3 = Online + Pendant
+        # 4 = Offline + Pendant
+        # for i in range(self.num_methods):
+        #     self.methods[i+1] = self.variations
+    
+    # create large empty dictionary containing the data
+    def initData(self):
+        self.object_positions = {}
+        self.methods = {}
+        self.variations = {}
         self.trials = {}
-        # set initial trial
-        self.trial = 1
 
         self.num_methods = 4
         self.num_variations = 2
@@ -40,7 +61,7 @@ class ParticipantData(object):
                 'number_of_refinements': 0,
                 'object_missed': False,
                 'obstacle_hit': False,
-                'success': False,
+                'success': True,
                 'time': 0
             }
 
@@ -61,23 +82,20 @@ class ParticipantData(object):
                 'variation': self.variations,
             }
 
-        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
-        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
-
-        # for i in range(self.num_variations):
-        #     self.variations[i+1] = self.object_positions
-
-        # 1 = Online + Teleop
-        # 2 = Ofline + Teleop
-        # 3 = Online + Pendant
-        # 4 = Offline + Pendant
-        # for i in range(self.num_methods):
-        #     self.methods[i+1] = self.variations
+    def loadData(self):
+        data_path = self.path + 'data.txt'
+        print(data_path)
         
-        # check if path exists, create if not
-        self.path = path + 'participant_' + str(number) + '/'
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
+        with open(data_path, "r") as infile:
+            outfile = ast.literal_eval(infile.read())
+
+            self.sex = outfile['sex']
+            self.number = outfile['number']
+            self.age = outfile['age']
+            
+            for i in range(self.num_methods):
+                self.methods[i+1] = outfile['method'][i+1]
+
 
     def setName(self, name):
         self.name = name
@@ -105,6 +123,12 @@ class ParticipantData(object):
 
     def getStoragePath(self):
         return self.path
+
+    def setContext(self, context):
+        self.context = context
+    
+    def getContext(self):
+        return self.context
 
     def setTrial(self, trial):
         self.trial = trial
@@ -148,14 +172,14 @@ class ParticipantData(object):
                     qw.append(float(datapoint[6]))
                     t.append(float(datapoint[7]))
 
-            self.refined_trajectory['trajectory']['x'] = x
-            self.refined_trajectory['trajectory']['y'] = y
-            self.refined_trajectory['trajectory']['z'] = z
-            self.refined_trajectory['trajectory']['qx'] = qx
-            self.refined_trajectory['trajectory']['qy'] = qy
-            self.refined_trajectory['trajectory']['qz'] = qz
-            self.refined_trajectory['trajectory']['qw'] = qw
-            self.refined_trajectory['trajectory']['t'] = t
+            self.refined_trajectory['x'] = x
+            self.refined_trajectory['y'] = y
+            self.refined_trajectory['z'] = z
+            self.refined_trajectory['qx'] = qx
+            self.refined_trajectory['qy'] = qy
+            self.refined_trajectory['qz'] = qz
+            self.refined_trajectory['qw'] = qw
+            self.refined_trajectory['t'] = t
             # self.trials[trial]['context'] = [context.x, context.y, context.z]
 
             # append dictionary
@@ -204,6 +228,7 @@ class ParticipantData(object):
             self.predicted_trajectory['qz'] = qz
             self.predicted_trajectory['qw'] = qw
             self.predicted_trajectory['t'] = t
+
             # self.predicted_trajectory['context'] = [context.x, context.y, context.z]
 
             # if before_after == 1:
@@ -242,13 +267,15 @@ class ParticipantData(object):
         self.methods[method]['number_of_updates'] = value
     
     def toCSV(self):
-        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
-            f.write(str(self.methods))
+        # with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
+        #     f.write(str(self.methods))
 
         data = {'number': self.number, 'age': self.age, 'sex': self.sex, 'method': self.methods}
-
-        df = pd.DataFrame.from_dict(data)
-        df.to_csv(self.path + 'data.csv')
+        with open(self.path + 'data.txt', 'w+') as f:
+            f.write(str(data))
+            
+        # df = pd.DataFrame.from_dict(data)
+        # df.to_csv(self.path + 'data.csv')
 
             
 if __name__ == "__main__":

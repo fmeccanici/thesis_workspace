@@ -1609,29 +1609,49 @@ class experimentGUI(QMainWindow):
     
     def on_initialize_experiment_click(self):
         
-        if 'learning_from_demonstration' not in self.nodes:
-            self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch')
-        else: 
-            self.stop_node('learning_from_demonstration')
-            self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch')
-        if 'trajectory_refinement' not in self.nodes:
-            self.start_node('trajectory_refinement', 'trajectory_refinement.launch')        
-        
-        time.sleep(5)
-        self.on_clear_trajectories_click()
-        self.on_build_model_click()
-        self.on_go_to_click()
-        self.on_set_object_position_click()
-        self.on_set_obstacle_position_click()
-        time.sleep(4)
+        try: 
+            rospy.wait_for_service('create_participant')
+            create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
+            number_msg = Byte()
 
-        self.on_get_context_click()
+            number_msg.data = int(self.lineEdit_20.text())
+
+            # dummy variable names --> not necessary when data exists
+
+            sex_msg = Bool()
+            sex_msg.data = 1
+            age_msg = Byte()
+            age_msg.data = 1
+
+            resp = create_participant(number_msg, sex_msg, age_msg)     
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+        ### Commented to test loading participant data
+        ### This button is use temporarily for that
+        # if 'learning_from_demonstration' not in self.nodes:
+        #     self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch')
+        # else: 
+        #     self.stop_node('learning_from_demonstration')
+        #     self.start_node('learning_from_demonstration', 'learning_from_demonstration.launch')
+        # if 'trajectory_refinement' not in self.nodes:
+        #     self.start_node('trajectory_refinement', 'trajectory_refinement.launch')        
         
-        time.sleep(3)
-        self.on_predict_click()
+        # time.sleep(5)
+        # self.on_clear_trajectories_click()
+        # self.on_build_model_click()
+        # self.on_go_to_click()
+        # self.on_set_object_position_click()
+        # self.on_set_obstacle_position_click()
+        # time.sleep(4)
+
+        # self.on_get_context_click()
         
-        time.sleep(1)
-        self.on_visualize_prediction_click()
+        # time.sleep(3)
+        # self.on_predict_click()
+        
+        # time.sleep(1)
+        # self.on_visualize_prediction_click()
         
     def on_next_trial_click(self):
         self.on_clear_trajectories_click()

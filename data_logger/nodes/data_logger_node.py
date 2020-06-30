@@ -7,6 +7,8 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
                                 IncrementObstaclesHit, IncrementObstaclesHitResponse, IncrementNumberOfUpdates, IncrementNumberOfUpdatesResponse,
                                 SetNumberOfUpdates, SetNumberOfUpdatesResponse, ToCsv, ToCsvResponse)
 
+from learning_from_demonstration.srv import GetContext
+
 class DataLoggerNode(object):
     def __init__(self):
         rospy.init_node('data_logger')
@@ -55,6 +57,17 @@ class DataLoggerNode(object):
         num_updates = req.number_of_updates.data
         before_after = req.before_after.data
         environment = req.environment.data
+
+        try:
+            rospy.wait_for_service('get_context', timeout=2.0)
+
+            get_context = rospy.ServiceProxy('get_context', GetContext)
+            resp = get_context()
+            context = [resp.context.x, resp.context.y, resp.context.z]
+            self.participant_data.setContext(context)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)       
 
         self.data[number].setPredictedTrajectory(from_file=1, condition=condition, 
                                                 context=context, num_updates=num_updates,
