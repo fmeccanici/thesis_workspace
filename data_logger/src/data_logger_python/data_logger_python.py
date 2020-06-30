@@ -150,12 +150,13 @@ class ParticipantData(object):
         self.method = method
 
     def setRefinedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs:
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs and "method" in kwargs:
             object_position = kwargs["object_position"]
             variation = kwargs["variation"]
             trial = kwargs["trial"]
             context = kwargs["context"]
             time = kwargs["time"]
+            method = kwargs["method"]
 
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'refined_trajectory.csv'
@@ -194,6 +195,8 @@ class ParticipantData(object):
             self.setVariation(variation)
             self.setTrial(trial)
             self.setObjectPosition(object_position)
+            self.setMethod(method)
+
             # append dictionary
             # we start with 0 refinement --> n + 1
             #             
@@ -209,13 +212,14 @@ class ParticipantData(object):
                 
     def setPredictedTrajectory(self, *args, **kwargs):
 
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs:
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs and "method" in kwargs:
             
             object_position = kwargs["object_position"]
             variation = kwargs["variation"]
             trial = kwargs["trial"]
             context = kwargs["context"]
             time = kwargs["time"]
+            method = kwargs["method"]
 
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'predicted_trajectory.csv'
@@ -274,6 +278,7 @@ class ParticipantData(object):
             self.setVariation(variation)
             self.setTrial(trial)
             self.setObjectPosition(object_position)
+            self.setMethod(method)
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = self.predicted_trajectory
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time

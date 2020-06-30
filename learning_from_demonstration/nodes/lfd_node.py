@@ -123,7 +123,7 @@ class lfdNode():
                 break
             else:
                 self.elapsed_time = time.time() - t
-                print(self.elapsed_time)
+                # print(self.elapsed_time)
         rospy.loginfo("Stopped timer")
 
     def stopTimer(self):

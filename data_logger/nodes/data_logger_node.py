@@ -46,10 +46,11 @@ class DataLoggerNode(object):
         variation = req.variation.data
         time = req.time.data
         trial = req.trial.data
+        method = req.method.data 
 
         self.data[number].setRefinedTrajectory(from_file=1, context=context, variation=variation,
                                                 object_position=object_position, 
-                                                time=time, trial=trial)
+                                                time=time, trial=trial, method=method)
     
         resp = AddRefinementResponse()
         return resp
@@ -63,6 +64,7 @@ class DataLoggerNode(object):
         variation = req.variation.data
         time = req.time.data
         trial = req.trial.data
+        method = req.method.data 
 
         try:
             rospy.wait_for_service('get_context', timeout=2.0)
@@ -77,7 +79,7 @@ class DataLoggerNode(object):
 
         self.data[number].setPredictedTrajectory(from_file=1, context=context, variation=variation,
                                                 object_position=object_position, 
-                                                time=time, trial=trial)
+                                                time=time, trial=trial, method=method)
 
 
         resp = SetPredictionResponse()

@@ -221,16 +221,16 @@ class experimentGUI(QMainWindow):
         self.pushButton_35.setGeometry(QRect(320, 300, 90, 27))
         self.pushButton_35.setObjectName("pushButton_35")
         self.radioButton_27 = QRadioButton(self.groupBox_3)
-        self.radioButton_27.setGeometry(QRect(300, 260, 161, 22))
+        self.radioButton_27.setGeometry(QRect(300, 260, 171, 22))
         self.radioButton_27.setObjectName("radioButton_27")
         self.radioButton_24 = QRadioButton(self.groupBox_3)
-        self.radioButton_24.setGeometry(QRect(300, 200, 141, 22))
+        self.radioButton_24.setGeometry(QRect(300, 200, 171, 22))
         self.radioButton_24.setObjectName("radioButton_24")
         self.radioButton_25 = QRadioButton(self.groupBox_3)
-        self.radioButton_25.setGeometry(QRect(300, 220, 141, 22))
+        self.radioButton_25.setGeometry(QRect(300, 220, 161, 22))
         self.radioButton_25.setObjectName("radioButton_25")
         self.radioButton_26 = QRadioButton(self.groupBox_3)
-        self.radioButton_26.setGeometry(QRect(300, 240, 141, 22))
+        self.radioButton_26.setGeometry(QRect(300, 240, 171, 22))
         self.radioButton_26.setObjectName("radioButton_26")
         self.label_23 = QLabel(self.groupBox_3)
         self.label_23.setGeometry(QRect(290, 170, 121, 16))
@@ -471,27 +471,6 @@ class experimentGUI(QMainWindow):
         self.groupBox_8 = QGroupBox(self.centralwidget)
         self.groupBox_8.setGeometry(QRect(1550, 690, 331, 331))
         self.groupBox_8.setObjectName("groupBox_8")
-        self.groupBox_9 = QGroupBox(self.groupBox_8)
-        self.groupBox_9.setGeometry(QRect(0, 30, 91, 261))
-        self.groupBox_9.setObjectName("groupBox_9")
-        self.radioButton_11 = QRadioButton(self.groupBox_9)
-        self.radioButton_11.setGeometry(QRect(10, 30, 117, 22))
-        self.radioButton_11.setObjectName("radioButton_11")
-        self.radioButton_12 = QRadioButton(self.groupBox_9)
-        self.radioButton_12.setGeometry(QRect(10, 60, 117, 22))
-        self.radioButton_12.setObjectName("radioButton_12")
-        self.radioButton_13 = QRadioButton(self.groupBox_9)
-        self.radioButton_13.setGeometry(QRect(10, 90, 117, 22))
-        self.radioButton_13.setObjectName("radioButton_13")
-        self.pushButton_27 = QPushButton(self.groupBox_9)
-        self.pushButton_27.setGeometry(QRect(0, 170, 91, 27))
-        self.pushButton_27.setObjectName("pushButton_27")
-        self.pushButton_28 = QPushButton(self.groupBox_9)
-        self.pushButton_28.setGeometry(QRect(0, 200, 91, 27))
-        self.pushButton_28.setObjectName("pushButton_28")
-        self.pushButton_30 = QPushButton(self.groupBox_9)
-        self.pushButton_30.setGeometry(QRect(0, 130, 91, 27))
-        self.pushButton_30.setObjectName("pushButton_30")
         self.groupBox_10 = QGroupBox(self.groupBox_8)
         self.groupBox_10.setGeometry(QRect(90, 30, 111, 121))
         self.groupBox_10.setObjectName("groupBox_10")
@@ -566,11 +545,51 @@ class experimentGUI(QMainWindow):
         self.pushButton_29 = QPushButton(self.frame_5)
         self.pushButton_29.setGeometry(QRect(100, 160, 91, 27))
         self.pushButton_29.setObjectName("pushButton_29")
+        self.pushButton_27 = QPushButton(self.frame_5)
+        self.pushButton_27.setGeometry(QRect(0, 250, 91, 27))
+        self.pushButton_27.setObjectName("pushButton_27")
+        self.pushButton_30 = QPushButton(self.frame_5)
+        self.pushButton_30.setGeometry(QRect(0, 210, 91, 27))
+        self.pushButton_30.setObjectName("pushButton_30")
+        self.pushButton_28 = QPushButton(self.frame_5)
+        self.pushButton_28.setGeometry(QRect(0, 280, 91, 27))
+        self.pushButton_28.setObjectName("pushButton_28")
+        self.groupBox_11 = QGroupBox(self.frame_5)
+        self.groupBox_11.setGeometry(QRect(0, 30, 91, 81))
+        self.groupBox_11.setObjectName("groupBox_11")
+        self.radioButton_13 = QRadioButton(self.groupBox_11)
+        self.radioButton_13.setGeometry(QRect(0, 30, 41, 22))
+        self.radioButton_13.setObjectName("radioButton_13")
+        self.radioButton_22 = QRadioButton(self.groupBox_11)
+        self.radioButton_22.setGeometry(QRect(0, 60, 41, 22))
+        self.radioButton_22.setObjectName("radioButton_22")
+        self.radioButton_23 = QRadioButton(self.groupBox_11)
+        self.radioButton_23.setGeometry(QRect(40, 30, 41, 22))
+        self.radioButton_23.setObjectName("radioButton_23")
+        self.radioButton_28 = QRadioButton(self.groupBox_11)
+        self.radioButton_28.setGeometry(QRect(40, 60, 41, 22))
+        self.radioButton_28.setObjectName("radioButton_28")
+        self.radioButton_13.raise_()
+        self.radioButton_22.raise_()
+        self.radioButton_23.raise_()
+        self.radioButton_28.raise_()
+        self.groupBox_10.raise_()
+        self.groupBox_9 = QGroupBox(self.frame_5)
+        self.groupBox_9.setGeometry(QRect(0, 120, 91, 81))
+        self.groupBox_9.setObjectName("groupBox_9")
+        self.radioButton_11 = QRadioButton(self.groupBox_9)
+        self.radioButton_11.setGeometry(QRect(10, 30, 117, 22))
+        self.radioButton_11.setObjectName("radioButton_11")
+        self.radioButton_12 = QRadioButton(self.groupBox_9)
+        self.radioButton_12.setGeometry(QRect(10, 60, 117, 22))
+        self.radioButton_12.setObjectName("radioButton_12")
+        self.radioButton_11.raise_()
+        self.radioButton_12.raise_()
         self.frame_5.raise_()
-        self.groupBox_9.raise_()
+        self.frame_5.raise_()
         self.groupBox_10.raise_()
         self.groupBox_4 = QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QRect(0, 10, 1881, 641))
+        self.groupBox_4.setGeometry(QRect(0, 0, 1881, 641))
         self.groupBox_4.setObjectName("groupBox_4")
         self.groupBox_5.raise_()
         self.groupBox_2.raise_()
@@ -597,6 +616,7 @@ class experimentGUI(QMainWindow):
         self.radioButton_11.setChecked(True)
         self.radioButton_14.setChecked(True)
         self.radioButton_21.setChecked(True)
+        self.radioButton_28.setChecked(True)
 
         # object position
         self.lineEdit.setText("0.8")
@@ -739,7 +759,9 @@ class experimentGUI(QMainWindow):
         lift_goal.name = ["torso_lift_joint"]
         head_goal.name = ["head_2_joint", "head_1_joint"]
 
-        lift_goal.position = [0.19432052791416207]
+        # lift_goal.position = [0.19432052791416207]
+        lift_goal.position = [0.3]
+
         head_goal.position = [-0.6499237225775083, 0.0]
 
         head_goal.effort = [0.0, 0.0]
@@ -1283,7 +1305,7 @@ class experimentGUI(QMainWindow):
             #     self.lineEdit_11.setText(str(round(-0.0, 3)))
             #     self.lineEdit_10.setText(str(round(-0.123, 3)))
             #     self.lineEdit_13.setText(str(round(0.03, 3)))
-        elif group_box.title() == "Environment" and self.radioButton_11.isChecked():
+        elif group_box.title() == "Object position" and self.radioButton_11.isChecked():
 
             if button.text() == '1' and button.isChecked():
 
@@ -1374,7 +1396,7 @@ class experimentGUI(QMainWindow):
                 print("Not needed for this condition!")
 
         # condition 2
-        elif group_box.title() == "Environment" and self.radioButton_12.isChecked():
+        elif group_box.title() == "Object position" and self.radioButton_12.isChecked():
             if button.text() == '1' and button.isChecked():
 
                 self.lineEdit_9.setText(str(round(0.387, 3)))
@@ -1502,7 +1524,7 @@ class experimentGUI(QMainWindow):
                 self.lineEdit_16.setText("0.7")
 
         # condition 3
-        elif group_box.title() == "Environment" and self.radioButton_13.isChecked():
+        elif group_box.title() == "Object position" and self.radioButton_13.isChecked():
 
             if button.text() == '1' and button.isChecked():
 
@@ -1717,6 +1739,16 @@ class experimentGUI(QMainWindow):
     def get_trial(self):
         return int(self.lineEdit_22.text())
     
+    def getMethod(self):
+        if self.radioButton_13.isChecked():
+            return 1
+        elif self.radioButton_22.isChecked():
+            return 2
+        elif self.radioButton_23.isChecked():
+            return 3
+        elif self.radioButton_28.isChecked():
+            return 4
+
     def get_object_position(self):
         if self.radioButton_14.isChecked():
             return 1
@@ -1782,6 +1814,8 @@ class experimentGUI(QMainWindow):
     def on_store_data_click(self):
         number_msg = Byte()
         number_msg.data = int(self.lineEdit_20.text())
+        method_msg = Byte()
+        method_msg.data = self.getMethod()
         object_position_msg = Byte()
         object_position_msg.data = self.get_object_position()
         context_msg = Point()
@@ -1810,7 +1844,7 @@ class experimentGUI(QMainWindow):
                 set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
 
                 resp = set_prediction(number_msg, object_position_msg, variation_msg,
-                                    trial_msg, context_msg, time_msg)
+                                    trial_msg, context_msg, time_msg, method_msg)
             except (rospy.ServiceException, rospy.ROSException) as e:
                 print("Service call failed: %s" %e)
                 
@@ -1820,7 +1854,7 @@ class experimentGUI(QMainWindow):
                 rospy.wait_for_service('add_refinement', timeout=2.0)
                 add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
                 resp = add_refinement(number_msg, object_position_msg, variation_msg,
-                                    trial_msg, context_msg, time_msg)
+                                    trial_msg, context_msg, time_msg, method_msg)
             except (rospy.ServiceException, rospy.ROSException) as e:
                 print("Service call failed: %s" %e)
                 
@@ -1851,19 +1885,18 @@ class experimentGUI(QMainWindow):
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox_2.setTitle(_translate("MainWindow", " Refinement"))
         self.pushButton_6.setText(_translate("MainWindow", "Add to model"))
         self.pushButton_21.setText(_translate("MainWindow", "Refine prediction"))
         self.pushButton_22.setText(_translate("MainWindow", "Visualize"))
         self.pushButton_23.setText(_translate("MainWindow", "Refine refinement"))
         self.pushButton_10.setText(_translate("MainWindow", "Calibrate init pose"))
-        self.radioButton_2.setText(_translate("MainWindow", "We&lford"))
-        self.radioButton_3.setText(_translate("MainWindow", "&Normal"))
+        self.radioButton_2.setText(_translate("MainWindow", "Welford"))
+        self.radioButton_3.setText(_translate("MainWindow", "Normal"))
         self.pushButton_24.setText(_translate("MainWindow", "Execute refinement"))
         self.groupBox_7.setTitle(_translate("MainWindow", "Execution time"))
         self.radioButton_8.setText(_translate("MainWindow", "Predicted"))
-        self.radioButton_9.setText(_translate("MainWindow", "Man&ual"))
+        self.radioButton_9.setText(_translate("MainWindow", "Manual"))
         self.lineEdit_17.setText(_translate("MainWindow", "10"))
         self.lineEdit_17.setPlaceholderText(_translate("MainWindow", "10"))
         self.lineEdit_19.setText(_translate("MainWindow", "10"))
@@ -1884,10 +1917,10 @@ class experimentGUI(QMainWindow):
         self.pushButton_11.setText(_translate("MainWindow", "Stop"))
         self.pushButton_14.setText(_translate("MainWindow", "Build model"))
         self.pushButton_35.setText(_translate("MainWindow", "Start"))
-        self.radioButton_27.setText(_translate("MainWindow", "Offline + Pendant"))
-        self.radioButton_24.setText(_translate("MainWindow", "Online + Teleop"))
-        self.radioButton_25.setText(_translate("MainWindow", "Offline + Teleop"))
-        self.radioButton_26.setText(_translate("MainWindow", "Online + Pendant"))
+        self.radioButton_27.setText(_translate("MainWindow", "Offline + Pendant (4)"))
+        self.radioButton_24.setText(_translate("MainWindow", "Online + Teleop (1)"))
+        self.radioButton_25.setText(_translate("MainWindow", "Offline + Teleop (2)"))
+        self.radioButton_26.setText(_translate("MainWindow", "Online + Pendant (3)"))
         self.label_23.setText(_translate("MainWindow", "Teaching Modes"))
         self.groupBox.setTitle(_translate("MainWindow", "Simulation environment"))
         self.label.setText(_translate("MainWindow", "x: "))
@@ -1933,13 +1966,6 @@ class experimentGUI(QMainWindow):
         self.pushButton_39.setText(_translate("MainWindow", "Start"))
         self.label_25.setText(_translate("MainWindow", "keyboard"))
         self.groupBox_8.setTitle(_translate("MainWindow", "Experiment"))
-        self.groupBox_9.setTitle(_translate("MainWindow", "Variation"))
-        self.radioButton_11.setText(_translate("MainWindow", "1"))
-        self.radioButton_12.setText(_translate("MainWindow", "2"))
-        self.radioButton_13.setText(_translate("MainWindow", "3"))
-        self.pushButton_27.setText(_translate("MainWindow", "Start logger"))
-        self.pushButton_28.setText(_translate("MainWindow", "Stop logger"))
-        self.pushButton_30.setText(_translate("MainWindow", "Next trial"))
         self.groupBox_10.setTitle(_translate("MainWindow", "Object position"))
         self.radioButton_14.setText(_translate("MainWindow", "1"))
         self.radioButton_15.setText(_translate("MainWindow", "2"))
@@ -1963,9 +1989,19 @@ class experimentGUI(QMainWindow):
         self.lineEdit_22.setText(_translate("MainWindow", "1"))
         self.label_27.setText(_translate("MainWindow", "Trial"))
         self.pushButton_29.setText(_translate("MainWindow", "Load data"))
+        self.pushButton_27.setText(_translate("MainWindow", "Start logger"))
+        self.pushButton_30.setText(_translate("MainWindow", "Next trial"))
+        self.pushButton_28.setText(_translate("MainWindow", "Stop logger"))
+        self.groupBox_11.setTitle(_translate("MainWindow", "Method"))
+        self.radioButton_13.setText(_translate("MainWindow", "1"))
+        self.radioButton_22.setText(_translate("MainWindow", "2"))
+        self.radioButton_23.setText(_translate("MainWindow", "3"))
+        self.radioButton_28.setText(_translate("MainWindow", "4"))
+        self.groupBox_9.setTitle(_translate("MainWindow", "Variation"))
+        self.radioButton_11.setText(_translate("MainWindow", "1"))
+        self.radioButton_12.setText(_translate("MainWindow", "2"))
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
-        self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching &GUI"))
-
+        self.menuOnline_teaching_GUI.setTitle(_translate("MainWindow", "Online teaching GUI"))
 
 
 
