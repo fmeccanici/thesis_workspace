@@ -20,8 +20,12 @@ class ParticipantData(object):
             self.initData()
 
         # if it exists --> load data 
-        else:
+        elif os.path.exists(self.path) and os.path.isfile(self.path+'data.txt'):
             self.loadData()
+        else:
+            self.sex = sex
+            self.age = age
+            self.initData()
 
         # parameters used to fill the methods dictionary
         self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
@@ -146,7 +150,12 @@ class ParticipantData(object):
         self.method = method
 
     def setRefinedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1:
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs:
+            object_position = kwargs["object_position"]
+            variation = kwargs["variation"]
+            trial = kwargs["trial"]
+            context = kwargs["context"]
+            time = kwargs["time"]
 
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'refined_trajectory.csv'
@@ -181,20 +190,33 @@ class ParticipantData(object):
             self.refined_trajectory['qw'] = qw
             self.refined_trajectory['t'] = t
             # self.trials[trial]['context'] = [context.x, context.y, context.z]
-
+            
+            self.setVariation(variation)
+            self.setTrial(trial)
+            self.setObjectPosition(object_position)
             # append dictionary
             # we start with 0 refinement --> n + 1
-            n = self.methods[self.method][self.variation][self.object_position][self.trial]['number_of_refinements'] + 1
-            print(n)
-            self.methods[self.method][self.variation][self.object_position][self.trial]['refined_trajectory'] = self.refined_trajectory          
-            
+            #             
             # increment number of refined trajectories
-            self.methods[self.method][self.variation][self.object_position][self.trial]['number_of_refinements'] += 1
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
+            
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = self.refined_trajectory
+            
+            # increment time (need to think about how to get the correct time)
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] += time
 
             return 0
                 
     def setPredictedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1:
+
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs:
+            
+            object_position = kwargs["object_position"]
+            variation = kwargs["variation"]
+            trial = kwargs["trial"]
+            context = kwargs["context"]
+            time = kwargs["time"]
+
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'predicted_trajectory.csv'
 
@@ -249,8 +271,13 @@ class ParticipantData(object):
             #     print("Set prediction after updating")
 
             # self.methods[self.method][self.variation][self.object_position]['predicted'][self.trial] = self.predicted_trajectory
+            self.setVariation(variation)
+            self.setTrial(trial)
+            self.setObjectPosition(object_position)
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = self.predicted_trajectory
-    
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+
     def incrementObstaclesHit(self, method):
         self.methods[method]['obstacles_hit'] += 1
 

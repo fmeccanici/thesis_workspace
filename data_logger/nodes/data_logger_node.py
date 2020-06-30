@@ -41,22 +41,28 @@ class DataLoggerNode(object):
     def _addRefinement(self, req):
         rospy.loginfo("Adding refinement using service")
         number = req.number.data
-        condition = req.condition.data
         context = req.context
-        self.data[number].addRefinedTrajectory(from_file=1, condition=condition, 
-                                                context=context)
+        object_position = req.object_position.data
+        variation = req.variation.data
+        time = req.time.data
+        trial = req.trial.data
+
+        self.data[number].setRefinedTrajectory(from_file=1, context=context, variation=variation,
+                                                object_position=object_position, 
+                                                time=time, trial=trial)
     
         resp = AddRefinementResponse()
         return resp
 
     def _setPredicted(self, req):
         rospy.loginfo("Set predicted trajectory using service")
+        
         number = req.number.data
-        condition = req.condition.data
         context = req.context
-        num_updates = req.number_of_updates.data
-        before_after = req.before_after.data
-        environment = req.environment.data
+        object_position = req.object_position.data
+        variation = req.variation.data
+        time = req.time.data
+        trial = req.trial.data
 
         try:
             rospy.wait_for_service('get_context', timeout=2.0)
@@ -69,9 +75,10 @@ class DataLoggerNode(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)       
 
-        self.data[number].setPredictedTrajectory(from_file=1, condition=condition, 
-                                                context=context, num_updates=num_updates,
-                                                before_after=before_after, environment=environment)
+        self.data[number].setPredictedTrajectory(from_file=1, context=context, variation=variation,
+                                                object_position=object_position, 
+                                                time=time, trial=trial)
+
 
         resp = SetPredictionResponse()
         return resp

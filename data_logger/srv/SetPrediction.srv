@@ -1,8 +1,8 @@
 std_msgs/Byte number
-std_msgs/Byte condition
-std_msgs/Byte environment
+std_msgs/Byte object_position
+std_msgs/Byte variation
+std_msgs/Byte trial
 geometry_msgs/Point context
-std_msgs/Bool before_after
-std_msgs/UInt32 number_of_updates
+std_msgs/Float32 time
 
 ---
