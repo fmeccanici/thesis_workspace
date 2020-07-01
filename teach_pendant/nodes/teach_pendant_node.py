@@ -76,7 +76,7 @@ class KeyboardControl():
     def interpolate(self):
         n = 100
         T = 10
-        print(self.waypoints)
+
         x = np.linspace(0, T, len(self.waypoints))
         x_desired = np.linspace(0, T, n)
 
@@ -84,11 +84,18 @@ class KeyboardControl():
         carty = [data.position.y for data in self.waypoints]
         cartz = [data.position.z for data in self.waypoints]
 
-        qstart = [self.waypoints[0].orientation.w, self.waypoints[0].orientation.x, self.waypoints[0].orientation.y, 
-                self.waypoints[0].orientation.z]
+        
+        qstart = [self.waypoints[0].orientation.x, self.waypoints[0].orientation.y, 
+                self.waypoints[0].orientation.z, self.waypoints[0].orientation.w]
 
-        qend = [self.waypoints[-1].orientation.w, self.waypoints[-1].orientation.x, self.waypoints[-1].orientation.y, 
-                self.waypoints[-1].orientation.z]
+        qend = [self.waypoints[-1].orientation.x, self.waypoints[-1].orientation.y, 
+                self.waypoints[-1].orientation.z, self.waypoints[-1].orientation.w]
+
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/qstart.txt', 'w+') as f:
+            f.write(str(qstart))
+        
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/qend.txt', 'w+') as f:
+            f.write(str(qend))
 
         # splinex = InterpolatedUnivariateSpline(x, cartx)
         # spliney = InterpolatedUnivariateSpline(x, carty)
@@ -115,11 +122,14 @@ class KeyboardControl():
 
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
             pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-            
+            print(q)
             ynew = pose + [x_desired[i]]
 
             self.EEtrajectory.append(ynew)
         
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/eval_traj.txt', 'w+') as f:
+            f.write(str(self.EEtrajectory))
+
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
                         self.ee_pose.orientation.y, self.ee_pose.orientation.z)

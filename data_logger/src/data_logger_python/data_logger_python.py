@@ -100,6 +100,8 @@ class ParticipantData(object):
             for i in range(self.num_methods):
                 self.methods[i+1] = outfile['method'][i+1]
 
+    def getMethods(self):
+        return self.methods
 
     def setName(self, name):
         self.name = name

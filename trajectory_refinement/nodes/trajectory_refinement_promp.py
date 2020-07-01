@@ -102,7 +102,7 @@ class trajectoryRefinement():
 
     def _keyboard_callback(self, data):
 
-        added_value = 0.02
+        added_value = 0.01
         if data.key.data == 'q':
             self.master_pose.position.x += added_value
         elif data.key.data == 'a':
@@ -165,17 +165,17 @@ class trajectoryRefinement():
     def _masterPoseCallback(self, data):
         self.master_pose = data.master_pose.pose        
 
-    # def _buttonCallback(self, data):
-    #     self.grey_button_prev = self.grey_button
-    #     self.grey_button = data.grey_button
-    #     self.white_button_prev = self.white_button
-    #     self.white_button = data.white_button
+    def _buttonCallback(self, data):
+        self.grey_button_prev = self.grey_button
+        self.grey_button = data.grey_button
+        self.white_button_prev = self.white_button
+        self.white_button = data.white_button
 
-    #     if (self.grey_button != self.grey_button_prev) and (self.grey_button == 1):
-    #         self.grey_button_toggle = not self.grey_button_toggle
+        if (self.grey_button != self.grey_button_prev) and (self.grey_button == 1):
+            self.grey_button_toggle = not self.grey_button_toggle
 
-    #     if (self.white_button != self.white_button_prev) and (self.white_button == 1):
-    #         self.white_button_toggle = not self.white_button_toggle
+        if (self.white_button != self.white_button_prev) and (self.white_button == 1):
+            self.white_button_toggle = not self.white_button_toggle
 
     def _end_effector_pose_callback(self,data):
         self.current_slave_pose = data.pose
@@ -208,7 +208,7 @@ class trajectoryRefinement():
         return response
 
     def calibrate_master_pose_for_normalization(self):
-        rospy.wait_for_message('/master_control_comm', ControlComm, timeout=5.0)
+        # rospy.wait_for_message('/master_control_comm', ControlComm, timeout=5.0)
         self.firstMasterPose = PoseStamped()
         self.firstMasterPose.pose.position.x = self.master_pose.position.x
         self.firstMasterPose.pose.position.y = self.master_pose.position.y

@@ -1194,6 +1194,8 @@ class experimentGUI(QMainWindow):
             self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/complete_model_situation2/"
         elif self.radioButton_13.isChecked():
             self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/complete_model_situation3/"
+        elif self.radioButton_23.isChecked():
+            self.raw_path = self._rospack.get_path('learning_from_demonstration') + "/data/raw/complete_model/"
 
         path = String()
         path.data = self.raw_path
@@ -1622,7 +1624,7 @@ class experimentGUI(QMainWindow):
     def on_load_data_click(self):
         
         try: 
-            rospy.wait_for_service('create_participant')
+            rospy.wait_for_service('create_participant', timeout=2.0)
             create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
             number_msg = Byte()
 
