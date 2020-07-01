@@ -996,7 +996,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>&amp;3</string>
+      <string>2</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="radioButton_5">
@@ -1009,7 +1009,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>3</string>
+      <string>&amp;3</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_25">
@@ -1703,11 +1703,6 @@
         <string>4</string>
        </property>
       </widget>
-      <zorder>radioButton_13</zorder>
-      <zorder>radioButton_22</zorder>
-      <zorder>radioButton_23</zorder>
-      <zorder>radioButton_28</zorder>
-      <zorder>groupBox_10</zorder>
      </widget>
      <widget class="QGroupBox" name="groupBox_9">
       <property name="geometry">
@@ -1747,9 +1742,6 @@
         <string>2</string>
        </property>
       </widget>
-      <zorder>radioButton_11</zorder>
-      <zorder>radioButton_12</zorder>
-      <zorder>frame_5</zorder>
      </widget>
     </widget>
     <zorder>frame_5</zorder>

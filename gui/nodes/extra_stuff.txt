@@ -10,5 +10,3 @@ self.lineEdit_3.setText("0.9")
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import * 
-
-
