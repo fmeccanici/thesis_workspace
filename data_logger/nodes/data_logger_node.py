@@ -3,9 +3,8 @@
 import rospy
 from data_logger_python.data_logger_python import ParticipantData
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
-                                SetPrediction, SetPredictionResponse, IncrementObjectMissed, IncrementObjectMissedResponse,
-                                IncrementObstaclesHit, IncrementObstaclesHitResponse, IncrementNumberOfUpdates, IncrementNumberOfUpdatesResponse,
-                                SetNumberOfUpdates, SetNumberOfUpdatesResponse, ToCsv, ToCsvResponse)
+                                SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
+                                SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse)
 
 from learning_from_demonstration.srv import GetContext
 
@@ -16,10 +15,10 @@ class DataLoggerNode(object):
         self._create_participant_service = rospy.Service('create_participant', CreateParticipant, self._createParticipant)
         self._add_refinement_service = rospy.Service('add_refinement', AddRefinement, self._addRefinement)
         self._set_prediction_service = rospy.Service('set_prediction', SetPrediction, self._setPredicted)
-        self._increment_object_missed_service = rospy.Service('increment_object_missed', IncrementObjectMissed, self._incrementObjectMissed)
-        self._increment_obstacles_hit_service = rospy.Service('increment_obstacles_hit', IncrementObstaclesHit, self._incrementObstaclesHit)
-        self._increment_number_of_updates_service = rospy.Service('increment_number_of_updates', IncrementNumberOfUpdates, self._incrementNumberOfUpdates)
-        self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
+        self._set_object_missed_service = rospy.Service('set_object_missed', SetObjectMissed, self._setObjectMissed)
+        self._set_obstacles_hit_service = rospy.Service('set_obstacles_hit', SetObstaclesHit, self._setObstaclesHit)
+        # self._increment_number_of_updates_service = rospy.Service('increment_number_of_updates', IncrementNumberOfUpdates, self._incrementNumberOfUpdates)
+        # self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
         self._to_csv_service = rospy.Service('to_csv', ToCsv, self._toCsv)
 
         self.data = {}
@@ -85,39 +84,41 @@ class DataLoggerNode(object):
         resp = SetPredictionResponse()
         return resp
 
-    def _incrementObstaclesHit(self, req):
+    def _setObstaclesHit(self, req):
         number = req.number.data
-        condition = req.condition.data
-        self.data[number].incrementObstaclesHit(condition=condition)
+        # condition = req.condition.data
+        self.data[number].setObstaclesHit()
 
-        resp = IncrementObstaclesHitResponse()
+        rospy.loginfo("Set obstacle hit")
+        resp = SetObstaclesHitResponse()
         return resp
 
-    def _incrementObjectMissed(self, req):
+    def _setObjectMissed(self, req):
         number = req.number.data
-        condition = req.condition.data
-        self.data[number].incrementObjectMissed(condition=condition)
+        # condition = req.condition.data
+        self.data[number].setObjectMissed()
+        rospy.loginfo("Set object miss")
 
-        resp = IncrementObjectMissedResponse()
+        resp = SetObjectMissedResponse()
         return resp
 
-    def _incrementNumberOfUpdates(self, req):
-        number = req.number.data 
-        condition = req.condition.data
-        self.data[number].incrementNumberOfUpdates(condition=condition)
+    # def _incrementNumberOfUpdates(self, req):
+    #     number = req.number.data 
+    #     condition = req.condition.data
+    #     self.data[number].incrementNumberOfUpdates(condition=condition)
 
-        resp = IncrementNumberOfUpdatesResponse()
-        return resp
+    #     resp = IncrementNumberOfUpdatesResponse()
+    #     return resp
 
-    def _setNumberOfUpdates(self, req):
-        number = req.number.data
-        condition = req.condition.data
-        number_of_updates = req.number_of_updates.data
+    # def _setNumberOfUpdates(self, req):
+    #     number = req.number.data
+    #     condition = req.condition.data
+    #     number_of_updates = req.number_of_updates.data
 
-        self.data[number].setNumberOfUpdates(condition=condition, value=number_of_updates)
+    #     self.data[number].setNumberOfUpdates(condition=condition, value=number_of_updates)
 
-        resp = SetNumberOfUpdatesResponse()
-        return resp
+    #     resp = SetNumberOfUpdatesResponse()
+    #     return resp
 
     def _toCsv(self, req):
         rospy.loginfo("Converting data to csv using service")

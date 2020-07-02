@@ -13,9 +13,8 @@
     FILES
     CreateParticipant.srv
     AddRefinement.srv
-    IncrementNumberOfUpdates.srv
-    IncrementObjectMissed.srv
-    IncrementObstaclesHit.srv
+    SetObjectMissed.srv
+    SetObstaclesHit.srv
     SetNumberOfUpdates.srv
     ToCsv.srv
     SetPrediction.srv

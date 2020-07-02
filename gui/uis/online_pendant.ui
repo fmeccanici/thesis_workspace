@@ -478,6 +478,19 @@
       <string>Set</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_11">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>0</y>
+       <width>99</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Exit</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
@@ -501,59 +514,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Refine prediction</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_23">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>150</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Refine refinement</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_22">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>90</y>
-       <width>150</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Visualize</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_3">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>120</y>
-       <width>97</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Refined</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_4">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>150</y>
-       <width>97</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Predicted</string>
+      <string>Refine</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_6">
@@ -569,17 +530,30 @@
       <string>Add to model</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox_7">
+    <widget class="QRadioButton" name="radioButton">
      <property name="geometry">
       <rect>
-       <x>110</x>
-       <y>120</y>
-       <width>97</width>
+       <x>40</x>
+       <y>60</y>
+       <width>117</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
-      <string>Clear</string>
+      <string>Prediction</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>90</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Refinement</string>
      </property>
     </widget>
    </widget>
@@ -606,58 +580,6 @@
      </property>
      <property name="text">
       <string>Predict</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_25">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>150</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Refine refinement</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_26">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>90</y>
-       <width>150</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Visualize</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_5">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>120</y>
-       <width>97</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Refined</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_6">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>150</y>
-       <width>97</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Predicted</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_7">
@@ -740,6 +662,58 @@
        <width>91</width>
        <height>27</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_7">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>100</y>
+       <width>97</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Clear</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>97</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Predicted</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>97</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Refined</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_22">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>150</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Visualize</string>
      </property>
     </widget>
    </widget>

@@ -280,16 +280,25 @@ class ParticipantData(object):
             self.setVariation(variation)
             self.setTrial(trial)
             self.setObjectPosition(object_position)
+            print("method set to " + str(method))
             self.setMethod(method)
+            print("method set to " + str(self.method))
+
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = self.predicted_trajectory
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
-    def incrementObstaclesHit(self, method):
-        self.methods[method]['obstacles_hit'] += 1
+    def setObstaclesHit(self):
+        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
+        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 
-    def incrementObjectMissed(self, method):
-        self.methods[method]['object_missed'] += 1
+        # self.methods[method]['obstacles_hit'] += 1
+
+    def setObjectMissed(self):
+        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['object_missed'] = True
+        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
+
+        # self.methods[method]['object_missed'] += 1
     
     def incrementNumberOfRefinement(self, method):
         self.methods[method]['number_of_refinements'] += 1

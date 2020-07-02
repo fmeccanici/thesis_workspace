@@ -10,9 +10,8 @@ from PyQt5.QtGui import *
 
 from rviz_python.rviz_python import rvizPython
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
-                                SetPrediction, SetPredictionResponse, IncrementObjectMissed, IncrementObjectMissedResponse,
-                                IncrementObstaclesHit, IncrementObstaclesHitResponse, IncrementNumberOfUpdates, IncrementNumberOfUpdatesResponse,
-                                SetNumberOfUpdates, SetNumberOfUpdatesResponse, ToCsv, ToCsvResponse)
+                                SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
+                                SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse)
 
 from std_msgs.msg import UInt32, Bool, Byte
 

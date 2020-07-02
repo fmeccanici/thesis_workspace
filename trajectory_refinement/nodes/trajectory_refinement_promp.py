@@ -121,20 +121,20 @@ class trajectoryRefinement():
 
         elif data.key.data == '':
             if self.master_pose.position.y > 0.0:
-                self.master_pose.position.y -= added_value/2
+                self.master_pose.position.y -= added_value/10
             elif self.master_pose.position.y < 0.0:
-                self.master_pose.position.y += added_value/2
+                self.master_pose.position.y += added_value/10
 
 
             if self.master_pose.position.x > 0.0:
-                self.master_pose.position.x -= added_value/2
+                self.master_pose.position.x -= added_value/10
             elif self.master_pose.position.x < 0.0:
-                self.master_pose.position.x += added_value/2
-            
+                self.master_pose.position.x += added_value/10
+        
             if self.master_pose.position.z > 0.0:
-                self.master_pose.position.z -= added_value/2
+                self.master_pose.position.z -= added_value/10
             elif self.master_pose.position.z < 0.0:
-                self.master_pose.position.z += added_value/2        
+                self.master_pose.position.z += added_value/10       
 
         elif data.key.data == 'space':
             if self.white_button_toggle == 0:
@@ -372,12 +372,12 @@ class trajectoryRefinement():
 
 
 
-        plt.plot(y_refined_aligned)
-        plt.plot(y_pred_aligned)
+        # plt.plot(y_refined_aligned)
+        # plt.plot(y_pred_aligned)
 
-        plt.title('Predicted and refined trajectory after DTW')
-        plt.xlabel('datapoint [-]')
-        plt.ylabel('position [m]')
+        # plt.title('Predicted and refined trajectory after DTW')
+        # plt.xlabel('datapoint [-]')
+        # plt.ylabel('position [m]')
         # plt.show()
 
         # lengths are the same so doesnt matter which length I take
@@ -438,30 +438,30 @@ class trajectoryRefinement():
         # print("new_traj good T = " + str(new_traj))
         n_pred = len(prediction)
 
-        plt.figure()
-        plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
-        plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
-        plt.title("Comparison refined and predicted trajectory (before resampling)")
-        plt.xlabel("datapoint [-]")
-        plt.ylabel("position [m]")
-        plt.grid()
-        plt.legend()
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_before_resampling.png')
-        plt.close()
+        # plt.figure()
+        # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        # plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
+        # plt.title("Comparison refined and predicted trajectory (before resampling)")
+        # plt.xlabel("datapoint [-]")
+        # plt.ylabel("position [m]")
+        # plt.grid()
+        # plt.legend()
+        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_before_resampling.png')
+        # plt.close()
 
         # resample new trajectory to match the prediction
         new_traj = self.resampler.interpolate_predicted_trajectory(new_traj, n_pred)
 
-        plt.figure()
-        plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
-        plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
-        plt.title("Comparison refined and predicted trajectory (after resampling)")
-        plt.xlabel("datapoint [-]")
-        plt.ylabel("position [m]")
-        plt.grid()
-        plt.legend()
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_after_resampling.png')
-        plt.close()   
+        # plt.figure()
+        # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        # plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
+        # plt.title("Comparison refined and predicted trajectory (after resampling)")
+        # plt.xlabel("datapoint [-]")
+        # plt.ylabel("position [m]")
+        # plt.grid()
+        # plt.legend()
+        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_after_resampling.png')
+        # plt.close()   
 
         rospy.loginfo("len_new_traj before dtw = " + str(len(new_traj)))
         rospy.loginfo("len pred before dtw = " + str(len(prediction)))
@@ -475,29 +475,29 @@ class trajectoryRefinement():
 
         # print("pred_aligned_time = " + str( [x[-1] for x in pred_aligned]))
 
-        plt.figure()
-        plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
-        # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
-        plt.title("Comparison refined and predicted trajectory (after DTW)")
-        plt.xlabel("datapoint [-]")
-        plt.ylabel("position [m]")
-        plt.grid()
-        plt.legend()
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_DTW_resampling_both.png')
-        plt.close()   
+        # plt.figure()
+        # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
+        # # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
+        # plt.title("Comparison refined and predicted trajectory (after DTW)")
+        # plt.xlabel("datapoint [-]")
+        # plt.ylabel("position [m]")
+        # plt.grid()
+        # plt.legend()
+        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/comparison_new_predicted_DTW_resampling_both.png')
+        # plt.close()   
 
         # object_pos_wrt_base = self.getMarkerWRTBase()
         # new_traj = self.parser.get_trajectory_wrt_context(new_traj, object_pos_wrt_base)
         # plt.figure()
-        plt.plot(self.parser.getCartesianPositions(new_traj))
-        # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
-        plt.title("Relative trajectory")
-        plt.xlabel("datapoint [-]")
-        plt.ylabel("position [m]")
-        plt.grid()
-        plt.legend()
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
-        plt.close()   
+        # plt.plot(self.parser.getCartesianPositions(new_traj))
+        # # plt.plot(self.parser.getCartesianPositions(pred_aligned), color='red', label='predicted')
+        # plt.title("Relative trajectory")
+        # plt.xlabel("datapoint [-]")
+        # plt.ylabel("position [m]")
+        # plt.grid()
+        # plt.legend()
+        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/new_traj_relative.png')
+        # plt.close()   
 
         # print("time vector after dtw = " + str([x[-1] for x in new_traj]))
 

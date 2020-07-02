@@ -4,22 +4,35 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-import rospy, rospkg, roslaunch, sys
+import rospy, rospkg, roslaunch, sys, time
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 
 # ros services
-from learning_from_demonstration.srv import GoToPose
+from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
+                                                GetContext, GetObjectPosition,
+                                                WelfordUpdate)
 from gazebo_msgs.srv import SetModelState
+from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
+from data_logger.srv import (CreateParticipant, AddRefinement,
+                                SetPrediction, ToCsv, SetObstaclesHit,
+                                SetObjectMissed)
+
+from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 
 # ros messages
 from sensor_msgs.msg import JointState
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Point
 from gazebo_msgs.msg import ModelState 
+from promp_context_ros.msg import prompTraj
+from trajectory_visualizer.msg import TrajectoryVisualization
+from std_msgs.msg import String, Bool, Byte, UInt32, Float32
 
 # rviz python
 from rviz_python.rviz_python import rvizPython
 
+# error messages
+import genpy
 
 # class that enables multithreading with Qt
 class Worker(QRunnable):
@@ -68,7 +81,10 @@ class OnlinePendantGUI(QMainWindow):
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
         
+        # variables
         self.nodes = {}
+        self.elapsed_time_prev = 0
+        self.elapsed_time = 0
 
         # initialize Qt GUI
         self.initGUI()
@@ -187,48 +203,30 @@ class OnlinePendantGUI(QMainWindow):
         self.pushButton_10 = QPushButton(self.groupBox)
         self.pushButton_10.setGeometry(QRect(10, 150, 99, 27))
         self.pushButton_10.setObjectName("pushButton_10")
+        self.pushButton_11 = QPushButton(self.groupBox)
+        self.pushButton_11.setGeometry(QRect(200, 0, 99, 27))
+        self.pushButton_11.setObjectName("pushButton_11")
         self.groupBox_6 = QGroupBox(self.centralwidget)
         self.groupBox_6.setGeometry(QRect(680, 660, 411, 171))
         self.groupBox_6.setObjectName("groupBox_6")
         self.pushButton_21 = QPushButton(self.groupBox_6)
         self.pushButton_21.setGeometry(QRect(10, 30, 150, 27))
         self.pushButton_21.setObjectName("pushButton_21")
-        self.pushButton_23 = QPushButton(self.groupBox_6)
-        self.pushButton_23.setGeometry(QRect(10, 60, 150, 27))
-        self.pushButton_23.setObjectName("pushButton_23")
-        self.pushButton_22 = QPushButton(self.groupBox_6)
-        self.pushButton_22.setGeometry(QRect(10, 90, 150, 27))
-        self.pushButton_22.setObjectName("pushButton_22")
-        self.checkBox_3 = QCheckBox(self.groupBox_6)
-        self.checkBox_3.setGeometry(QRect(10, 120, 97, 22))
-        self.checkBox_3.setObjectName("checkBox_3")
-        self.checkBox_4 = QCheckBox(self.groupBox_6)
-        self.checkBox_4.setGeometry(QRect(10, 150, 97, 22))
-        self.checkBox_4.setObjectName("checkBox_4")
         self.pushButton_6 = QPushButton(self.groupBox_6)
         self.pushButton_6.setGeometry(QRect(170, 30, 150, 27))
         self.pushButton_6.setObjectName("pushButton_6")
-        self.checkBox_7 = QCheckBox(self.groupBox_6)
-        self.checkBox_7.setGeometry(QRect(110, 120, 97, 22))
-        self.checkBox_7.setObjectName("checkBox_7")
+        self.radioButton = QRadioButton(self.groupBox_6)
+        self.radioButton.setGeometry(QRect(40, 60, 117, 22))
+        self.radioButton.setObjectName("radioButton")
+        self.radioButton_2 = QRadioButton(self.groupBox_6)
+        self.radioButton_2.setGeometry(QRect(40, 90, 117, 22))
+        self.radioButton_2.setObjectName("radioButton_2")
         self.groupBox_7 = QGroupBox(self.centralwidget)
         self.groupBox_7.setGeometry(QRect(680, 850, 411, 171))
         self.groupBox_7.setObjectName("groupBox_7")
         self.pushButton_24 = QPushButton(self.groupBox_7)
         self.pushButton_24.setGeometry(QRect(10, 30, 150, 27))
         self.pushButton_24.setObjectName("pushButton_24")
-        self.pushButton_25 = QPushButton(self.groupBox_7)
-        self.pushButton_25.setGeometry(QRect(10, 60, 150, 27))
-        self.pushButton_25.setObjectName("pushButton_25")
-        self.pushButton_26 = QPushButton(self.groupBox_7)
-        self.pushButton_26.setGeometry(QRect(10, 90, 150, 27))
-        self.pushButton_26.setObjectName("pushButton_26")
-        self.checkBox_5 = QCheckBox(self.groupBox_7)
-        self.checkBox_5.setGeometry(QRect(10, 120, 97, 22))
-        self.checkBox_5.setObjectName("checkBox_5")
-        self.checkBox_6 = QCheckBox(self.groupBox_7)
-        self.checkBox_6.setGeometry(QRect(10, 150, 97, 22))
-        self.checkBox_6.setObjectName("checkBox_6")
         self.pushButton_7 = QPushButton(self.groupBox_7)
         self.pushButton_7.setGeometry(QRect(170, 30, 150, 27))
         self.pushButton_7.setObjectName("pushButton_7")
@@ -250,6 +248,18 @@ class OnlinePendantGUI(QMainWindow):
         self.lineEdit_6 = QLineEdit(self.groupBox_7)
         self.lineEdit_6.setGeometry(QRect(200, 100, 91, 27))
         self.lineEdit_6.setObjectName("lineEdit_6")
+        self.checkBox_7 = QCheckBox(self.groupBox_7)
+        self.checkBox_7.setGeometry(QRect(110, 100, 97, 22))
+        self.checkBox_7.setObjectName("checkBox_7")
+        self.checkBox_4 = QCheckBox(self.groupBox_7)
+        self.checkBox_4.setGeometry(QRect(10, 130, 97, 22))
+        self.checkBox_4.setObjectName("checkBox_4")
+        self.checkBox_3 = QCheckBox(self.groupBox_7)
+        self.checkBox_3.setGeometry(QRect(10, 100, 97, 22))
+        self.checkBox_3.setObjectName("checkBox_3")
+        self.pushButton_22 = QPushButton(self.groupBox_7)
+        self.pushButton_22.setGeometry(QRect(10, 70, 150, 27))
+        self.pushButton_22.setObjectName("pushButton_22")
         self.groupBox_12 = QGroupBox(self.centralwidget)
         self.groupBox_12.setGeometry(QRect(1060, 650, 511, 361))
         self.groupBox_12.setObjectName("groupBox_12")
@@ -301,6 +311,9 @@ class OnlinePendantGUI(QMainWindow):
         # initialize default radio buttons
         self.radioButton_11.setChecked(True)
         self.radioButton_14.setChecked(True)
+        self.checkBox_2.setChecked(True)
+        self.checkBox_4.setChecked(True)
+        self.radioButton.setChecked(True)
 
         # Rviz python 
         config_file = self.rospack.get_path('gui') + "/gui.rviz"
@@ -319,12 +332,12 @@ class OnlinePendantGUI(QMainWindow):
         self.groupBox_4.setTitle(_translate("MainWindow", "RViz"))
         self.groupBox.setTitle(_translate("MainWindow", "Experiment"))
         self.groupBox_10.setTitle(_translate("MainWindow", "Object position"))
-        self.radioButton_14.setText(_translate("MainWindow", "1"))
-        self.radioButton_15.setText(_translate("MainWindow", "2"))
-        self.radioButton_16.setText(_translate("MainWindow", "3"))
-        self.radioButton_17.setText(_translate("MainWindow", "4"))
-        self.radioButton_18.setText(_translate("MainWindow", "5"))
-        self.radioButton_19.setText(_translate("MainWindow", "6"))
+        self.radioButton_14.setText(_translate("MainWindow", "&1"))
+        self.radioButton_15.setText(_translate("MainWindow", "&2"))
+        self.radioButton_16.setText(_translate("MainWindow", "&3"))
+        self.radioButton_17.setText(_translate("MainWindow", "&4"))
+        self.radioButton_18.setText(_translate("MainWindow", "&5"))
+        self.radioButton_19.setText(_translate("MainWindow", "&6"))
         self.groupBox_9.setTitle(_translate("MainWindow", "Variation"))
         self.radioButton_11.setText(_translate("MainWindow", "1"))
         self.radioButton_12.setText(_translate("MainWindow", "2"))
@@ -351,24 +364,22 @@ class OnlinePendantGUI(QMainWindow):
         self.pushButton_8.setText(_translate("MainWindow", "Initialize"))
         self.pushButton_9.setText(_translate("MainWindow", "Set"))
         self.pushButton_10.setText(_translate("MainWindow", "Set"))
+        self.pushButton_11.setText(_translate("MainWindow", "Exit"))
         self.groupBox_6.setTitle(_translate("MainWindow", "Refinement"))
-        self.pushButton_21.setText(_translate("MainWindow", "Refine prediction"))
-        self.pushButton_23.setText(_translate("MainWindow", "Refine refinement"))
-        self.pushButton_22.setText(_translate("MainWindow", "Visualize"))
-        self.checkBox_3.setText(_translate("MainWindow", "Refined"))
-        self.checkBox_4.setText(_translate("MainWindow", "Predicted"))
+        self.pushButton_21.setText(_translate("MainWindow", "Refine"))
         self.pushButton_6.setText(_translate("MainWindow", "Add to model"))
-        self.checkBox_7.setText(_translate("MainWindow", "Clear"))
+        self.radioButton.setText(_translate("MainWindow", "Prediction"))
+        self.radioButton_2.setText(_translate("MainWindow", "Refinement"))
         self.groupBox_7.setTitle(_translate("MainWindow", "LfD"))
         self.pushButton_24.setText(_translate("MainWindow", "Predict"))
-        self.pushButton_25.setText(_translate("MainWindow", "Refine refinement"))
-        self.pushButton_26.setText(_translate("MainWindow", "Visualize"))
-        self.checkBox_5.setText(_translate("MainWindow", "Refined"))
-        self.checkBox_6.setText(_translate("MainWindow", "Predicted"))
         self.pushButton_7.setText(_translate("MainWindow", "Get context"))
         self.label_5.setText(_translate("MainWindow", "x: "))
         self.label_6.setText(_translate("MainWindow", "z: "))
         self.label_4.setText(_translate("MainWindow", "y: "))
+        self.checkBox_7.setText(_translate("MainWindow", "Clear"))
+        self.checkBox_4.setText(_translate("MainWindow", "Predicted"))
+        self.checkBox_3.setText(_translate("MainWindow", "Refined"))
+        self.pushButton_22.setText(_translate("MainWindow", "Visualize"))
         self.groupBox_12.setTitle(_translate("MainWindow", "Nodes"))
         self.label_17.setText(_translate("MainWindow", "LfD"))
         self.pushButton_3.setText(_translate("MainWindow", "Start"))
@@ -384,20 +395,45 @@ class OnlinePendantGUI(QMainWindow):
         self.label_26.setText(_translate("MainWindow", "Logger"))
 
 
-
         # button events
-        self.pushButton_8.clicked.connect(lambda:self.useMultithread(self.onInitializeClick))
+
+        # multithreading this function results in segmentation fault
+        # self.pushButton_8.clicked.connect(lambda:self.useMultithread(self.onInitializeClick))
+        self.pushButton_8.clicked.connect(self.onInitializeClick)
+
         self.pushButton_3.clicked.connect(lambda:self.startNode('learning_from_demonstration', 'learning_from_demonstration.launch'))
         self.pushButton_4.clicked.connect(lambda:self.stopNode('learning_from_demonstration.launch'))
-        self.pushButton_2.clicked.connect(lambda:self.startNode('trajectory_refinement', 'trajectory_refinement.launch'))
-        self.pushButton_5.clicked.connect(lambda:self.stopNode('trajectory_refinement.launch'))
-        self.pushButton_39.clicked.connect(lambda:self.startNode('keyboard_control', 'keyboard_control.launch'))
+        self.pushButton_2.clicked.connect(lambda:self.startNode('trajectory_refinement', 'trajectory_refinement_keyboard.launch'))
+        self.pushButton_5.clicked.connect(lambda:self.stopNode('trajectory_refinement_keyboard.launch'))
+        self.pushButton_39.clicked.connect(lambda:self.startNode('teleop_control', 'keyboard_control.launch'))
         self.pushButton_38.clicked.connect(lambda:self.stopNode('keyboard_control.launch'))
         
         self.pushButton_43.clicked.connect(lambda:self.startNode('data_logger', 'data_logging.launch'))
         self.pushButton_44.clicked.connect(lambda:self.stopNode('data_logger.launch'))
 
         self.pushButton_9.clicked.connect(lambda:self.useMultithread(self.onSetObjectPositionClick))
+        self.pushButton_40.clicked.connect(lambda:self.useMultithread(self.onStartTimerClick))
+        self.pushButton_41.clicked.connect(self.onStopTimerClick)
+        self.pushButton_42.clicked.connect(self.onZeroTimerClick)
+        self.pushButton_22.clicked.connect(self.onVisualizeClick)
+        self.pushButton_24.clicked.connect(self.onPredictClick)
+        self.pushButton_7.clicked.connect(self.onGetContextClick)
+
+        self.pushButton_34.clicked.connect(lambda:self.useMultithread(self.onInitialPoseClick))
+        self.pushButton_21.clicked.connect(lambda:self.useMultithread(self.onRefineClick))
+        self.pushButton_6.clicked.connect(self.onAddModelClick)
+        self.pushButton_31.clicked.connect(self.onStoreClick)
+        self.pushButton_29.clicked.connect(self.onLoadClick)
+        self.pushButton_30.clicked.connect(self.onSaveClick)
+        self.pushButton.clicked.connect(self.onNextClick)
+        self.pushButton_11.clicked.connect(self.onExitClick)
+
+        self.pushButton_32.clicked.connect(self.onObstacleHitClick)
+        self.pushButton_33.clicked.connect(self.onObjectMissedClick)
+
+
+
+
 
 
     # multithread for executing trajectories
@@ -442,6 +478,185 @@ class OnlinePendantGUI(QMainWindow):
             self.nodes[launch_file].shutdown()
         except (AttributeError, KeyError):
             rospy.loginfo( ("Node not launched yet") )
+
+    def startTimer(self):
+        self.start_time = time.time()
+        # self.stop_timer = False
+
+        # while True:
+        #     if self.stop_timer == True:
+        #         break
+        #     else:
+        #         self.elapsed_time = self.elapsed_time_prev + (time.time() - t)
+        #         self.lineEdit_21.setText(str(round(self.elapsed_time, 1)))
+
+    def stopTimer(self):
+        # # prev is used to store the previous elapsed time
+        # self.elapsed_time_prev = self.elapsed_time
+        # self.stop_timer = True
+        self.elapsed_time = self.elapsed_time_prev + (time.time() - self.start_time)
+        self.lineEdit_21.setText(str(round(self.elapsed_time, 1)))
+        self.elapsed_time_prev = self.elapsed_time
+
+    def zeroTimer(self):
+        self.elapsed_time = 0
+        self.elapsed_time_prev = 0
+        self.lineEdit_21.setText('0')
+
+    def onStartTimerClick(self):
+        self.startTimer()
+
+    def onStopTimerClick(self):
+        self.stopTimer()
+
+    def onZeroTimerClick(self):
+        self.zeroTimer()
+
+    def onPredictClick(self):
+        try:
+            rospy.wait_for_service('make_prediction', timeout=2.0)
+
+            make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
+            resp = make_prediction(self.context)
+            self.prediction = resp.prediction
+        
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+        
+        except AttributeError:
+            rospy.loginfo("Context not yet extracted!")
+    
+    def onRefineClick(self):
+
+        try:
+            refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
+            self.T_desired = 10.0
+            
+            # start timer
+            self.startTimer()
+            
+
+            if self.radioButton.isChecked():
+                resp = refine_trajectory(self.prediction, self.T_desired)
+                
+
+            elif self.radioButton_2.isChecked():
+                resp = refine_trajectory(self.refined_trajectory, self.T_desired)
+
+            self.refined_trajectory = resp.refined_trajectory
+            
+            self.stopTimer()
+            rospy.loginfo("Got a refined trajectory")
+
+        except AttributeError as e:
+                rospy.loginfo(("No refined trajectory available yet!: {}").format(e))
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+    
+    
+
+    def onAddModelClick(self):
+        amount = 2
+
+        try:
+            rospy.wait_for_service('welford_update', timeout=2.0)
+            rospy.wait_for_service('get_object_position', timeout=2.0)
+
+            reference_frame = String()
+            reference_frame.data = 'base'
+            get_object = rospy.ServiceProxy('get_object_position', GetObjectPosition)
+
+            resp = get_object(reference_frame)
+            object_wrt_base = resp.object_position
+
+            refined_trajectory, dt = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+            refined_trajectory_wrt_object = self.parser.get_trajectory_wrt_context(refined_trajectory, self.parser.point_to_list(object_wrt_base))
+
+            welford_update = rospy.ServiceProxy('welford_update', WelfordUpdate)
+            refined_trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(refined_trajectory_wrt_object, self.parser.point_to_list(self.context))
+            
+            for i in range(amount):
+                resp = welford_update(refined_trajectory_wrt_object_msg)
+            
+            rospy.loginfo("Added " + str(amount) + " trajectories to model using Welford")
+            
+            # stop and reset timer
+            self.stopTimer()
+            self.zeroTimer()
+        except (AttributeError, ValueError) as e:
+                rospy.loginfo("Problem with adding trajectory: %s" %e)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def onGetContextClick(self):
+        try:
+            rospy.wait_for_service('get_context', timeout=2.0)
+
+            get_context = rospy.ServiceProxy('get_context', GetContext)
+            resp = get_context()
+            self.context = resp.context
+            self.lineEdit_5.setText(str(round(self.context.x, 2)))
+            self.lineEdit_6.setText(str(round(self.context.y, 2)))
+            self.lineEdit_4.setText(str(round(self.context.z, 2)))
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)       
+
+    def onNextClick(self):
+        self.lineEdit.setText(str(int(self.lineEdit.text()) + 1))
+
+    def onVisualizeClick(self):
+        try:
+            rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+
+            visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+            visualization_msg = TrajectoryVisualization()
+
+
+            if self.checkBox_3.isChecked() and self.checkBox_4.isChecked():
+                visualization_msg.pose_array = self.refined_trajectory.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+
+                resp = visualize_trajectory(visualization_msg)
+                
+                visualization_msg.pose_array = self.prediction.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 0.0
+
+                resp = visualize_trajectory(visualization_msg)
+
+            elif self.checkBox_3.isChecked() and not self.checkBox_4.isChecked():
+                visualization_msg.pose_array = self.refined_trajectory.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+                resp = visualize_trajectory(visualization_msg)
+            
+            elif self.checkBox_4.isChecked() and not self.checkBox_3.isChecked():
+                visualization_msg.pose_array = self.prediction.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 0.0                
+                resp = visualize_trajectory(visualization_msg)
+            elif not self.checkBox_4.isChecked() and not self.checkBox_3.isChecked():
+                rospy.wait_for_service('clear_trajectories', timeout=2.0)
+
+                clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
+
+                resp = clear_trajectories()
+            else:
+                rospy.loginfo("Visualization combination not possible!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+        except AttributeError:
+            rospy.loginfo("No prediction made yet!")
 
     def initHeadLiftJoint(self):
         lift_goal = JointState()
@@ -505,16 +720,23 @@ class OnlinePendantGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
 
-    def onInitializeClick(self):
-        # self.stopNode('learning_from_demonstration.launch')
-        # self.stopNode('trajectory_refinement_keyboard.launch')
-        # self.stopNode('keyboard_control.launch')
-        # self.stopNode('data_logging.launch')
+    def onExitClick(self):
+        # stop all nodes before exiting to prevent freezing
+        self.stopNode('learning_from_demonstration.launch')
+        self.stopNode('trajectory_refinement_keyboard.launch')
+        self.stopNode('keyboard_control.launch')
+        self.stopNode('data_logging.launch')
 
-        # self.startNode('learning_from_demonstration', 'learning_from_demonstration.launch')
-        # self.startNode('trajectory_refinement', 'trajectory_refinement_keyboard.launch')
-        # self.startNode('teleop_control', 'keyboard_control.launch')
-        # self.startNode('data_logger', 'data_logging.launch')
+    def onInitializeClick(self):
+        self.stopNode('learning_from_demonstration.launch')
+        self.stopNode('trajectory_refinement_keyboard.launch')
+        self.stopNode('keyboard_control.launch')
+        self.stopNode('data_logging.launch')
+
+        self.startNode('learning_from_demonstration', 'learning_from_demonstration.launch')
+        self.startNode('trajectory_refinement', 'trajectory_refinement_keyboard.launch')
+        self.startNode('teleop_control', 'keyboard_control.launch')
+        self.startNode('data_logger', 'data_logging.launch')
 
         self.lineEdit.setText('1')
         
@@ -522,13 +744,19 @@ class OnlinePendantGUI(QMainWindow):
         self.initHeadLiftJoint()
 
         # go to initial pose
-        self.gotToInitialPose()
+        self.goToInitialPose()
 
-    def gotToInitialPose(self):
+    def onInitialPoseClick(self):
+        self.goToInitialPose()
+
+    def goToInitialPose(self):
         pose = Pose()
         try:
             pose.position.x = 0.609
-            pose.position.y = -0.306
+            # pose.position.y = -0.306
+            pose.position.y = -0.290
+
+
             pose.position.z = 0.816
 
             pose.orientation.x = 0.985
@@ -546,6 +774,242 @@ class OnlinePendantGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
+    def getObjectPosition(self):
+        if self.radioButton_14.isChecked():
+            return 1
+        elif self.radioButton_15.isChecked():
+            return 2
+        elif self.radioButton_16.isChecked():
+            return 3
+        elif self.radioButton_17.isChecked():
+            return 4
+        elif self.radioButton_18.isChecked():
+            return 5
+        elif self.radioButton_19.isChecked():
+            return 6
+        else: 
+            print("No environment selected")
+    
+    def getVariation(self):
+        if self.radioButton_11.isChecked():
+            return 1
+        elif self.radioButton_12.isChecked():
+            return 2
+        else: 
+            print("No variation selected")
+    
+    def getTrial(self):  
+        try:
+            return int(self.lineEdit.text())
+        except ValueError:
+            rospy.loginfo("No trial set!")
+
+    def storeData(self, *args, **kwargs):
+
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
+        
+        if "prediction" in kwargs and "refined" in kwargs:
+            file_name = 'predicted_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.prediction.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)
+            
+            file_name = 'refined_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.refined_trajectory.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)
+
+        elif "prediction" in kwargs and "refined" not in kwargs:
+            file_name = 'predicted_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.prediction.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.prediction.times[i])
+                f.write(data)
+
+        elif "prediction" not in kwargs and "refined" in kwargs:
+            file_name = 'refined_trajectory.csv'
+            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+            
+            with open(path+file_name, 'w+') as f:
+                for i,pose in enumerate(self.refined_trajectory.poses):
+                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
+                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
+                                                                pose.orientation.w, self.refined_trajectory.times[i])
+                f.write(data)
+
+    def onObstacleHitClick(self):
+        number_msg = Byte()
+        number_msg.data = int(self.lineEdit_20.text())
+        method_msg = Byte()
+
+        # method 3: online + pendant
+        method_msg.data = 3
+        object_position_msg = Byte()
+        object_position_msg.data = self.getObjectPosition()
+        context_msg = Point()
+        try:
+            context_msg = self.context
+        except AttributeError:
+            rospy.loginfo("Context not set!")
+            return -1
+        variation_msg = Byte()
+        variation_msg.data = self.getVariation()
+        trial_msg = Byte()
+        trial_msg.data = self.getTrial()
+        
+        try:
+            rospy.wait_for_service('set_obstacles_hit', timeout=2.0)
+            set_obstacle_hit = rospy.ServiceProxy('set_obstacles_hit', SetObstaclesHit)
+            
+            resp = set_obstacle_hit(number_msg, object_position_msg, 
+                                    variation_msg, trial_msg)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def onObjectMissedClick(self):
+        number_msg = Byte()
+        number_msg.data = int(self.lineEdit_20.text())
+        method_msg = Byte()
+
+        # method 3: online + pendant
+        method_msg.data = 3
+        object_position_msg = Byte()
+        object_position_msg.data = self.getObjectPosition()
+        context_msg = Point()
+        try:
+            context_msg = self.context
+        except AttributeError:
+            rospy.loginfo("Context not set!")
+            return -1
+        variation_msg = Byte()
+        variation_msg.data = self.getVariation()
+        trial_msg = Byte()
+        trial_msg.data = self.getTrial()
+
+        try:
+            rospy.wait_for_service('set_object_missed', timeout=2.0)
+            set_object_missed = rospy.ServiceProxy('set_object_missed', SetObjectMissed)
+            
+            resp = set_object_missed(number_msg, object_position_msg, 
+                                    variation_msg, trial_msg)
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+    
+    def onStoreClick(self):
+        number_msg = Byte()
+        number_msg.data = int(self.lineEdit_20.text())
+        method_msg = Byte()
+
+        # method 3: online + pendant
+        method_msg.data = 3
+        object_position_msg = Byte()
+        object_position_msg.data = self.getObjectPosition()
+        context_msg = Point()
+        try:
+            context_msg = self.context
+        except AttributeError:
+            rospy.loginfo("Context not set!")
+            return -1
+
+        variation_msg = Byte()
+        variation_msg.data = self.getVariation()
+        trial_msg = Byte()
+        trial_msg.data = self.getTrial()
+            
+        time_msg = Float32()
+        time_msg.data = self.elapsed_time
+
+    
+        if self.checkBox.isChecked() and self.checkBox_2.isChecked():
+            self.storeData(predicted=1)   
+            self.storeData(refined=1)
+         
+            try:
+                rospy.wait_for_service('set_prediction', timeout=2.0)
+                set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
+
+                resp = set_prediction(number_msg, object_position_msg, variation_msg,
+                                    trial_msg, context_msg, time_msg, method_msg)
+
+                
+                rospy.wait_for_service('add_refinement', timeout=2.0)
+                add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
+                resp = add_refinement(number_msg, object_position_msg, variation_msg,
+                                    trial_msg, context_msg, time_msg, method_msg)
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+        
+        elif self.checkBox.isChecked() and not self.checkBox_2.isChecked():
+            self.storeData(refined=1)
+            try:
+                rospy.wait_for_service('add_refinement', timeout=2.0)
+                add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
+                resp = add_refinement(number_msg, object_position_msg, variation_msg,
+                                    trial_msg, context_msg, time_msg, method_msg)
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+        
+        elif not self.checkBox.isChecked() and self.checkBox_2.isChecked():
+            self.storeData(predicted=1)
+            try:
+                rospy.wait_for_service('set_prediction', timeout=2.0)
+                set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
+
+                resp = set_prediction(number_msg, object_position_msg, variation_msg,
+                                    trial_msg, context_msg, time_msg, method_msg)
+
+            except (rospy.ServiceException, rospy.ROSException, genpy.message.SerializationError) as e:
+                print("Service call failed: %s" %e)
+        else:
+            rospy.loginfo("No trajectory selected for storage!")
+    
+    def onSaveClick(self):
+        try: 
+            rospy.wait_for_service('to_csv')
+            to_csv = rospy.ServiceProxy('to_csv', ToCsv)
+            number_msg = Byte()
+            number_msg.data = int(self.lineEdit_20.text())
+
+            resp = to_csv(number_msg)     
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def onLoadClick(self):
+        try: 
+            rospy.wait_for_service('create_participant', timeout=2.0)
+            create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
+            number_msg = Byte()
+
+            number_msg.data = int(self.lineEdit_20.text())
+
+            # dummy variable names --> not necessary when data exists
+
+            sex_msg = Bool()
+            sex_msg.data = 1
+            age_msg = Byte()
+            age_msg.data = 1
+
+            resp = create_participant(number_msg, sex_msg, age_msg)     
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+    
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
