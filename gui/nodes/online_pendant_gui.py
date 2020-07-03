@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # import Qt stuff
 from PyQt5.QtWidgets import *
@@ -538,15 +539,28 @@ class OnlinePendantGUI(QMainWindow):
 
             if self.radioButton.isChecked():
                 resp = refine_trajectory(self.prediction, self.T_desired)
-                
 
             elif self.radioButton_2.isChecked():
                 resp = refine_trajectory(self.refined_trajectory, self.T_desired)
-
+                
             self.refined_trajectory = resp.refined_trajectory
-            
+
+
+
             self.stopTimer()
             rospy.loginfo("Got a refined trajectory")
+
+
+            # make sure the previous refinement is deleted
+            # visualize refinement and prediction
+            self.setVisualizationCheckBoxes(what_to_visualize='clear')
+            self.onVisualizeClick()
+            self.setVisualizationCheckBoxes(what_to_visualize='both')
+            self.onVisualizeClick()
+            
+            self.onInitialPoseClick()
+            self.onSetObjectPositionClick()
+
 
         except AttributeError as e:
                 rospy.loginfo(("No refined trajectory available yet!: {}").format(e))
@@ -604,8 +618,80 @@ class OnlinePendantGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)       
 
+    def objectPositionToRadioButton(self, object_position):
+        if object_position == 1:
+            return 14
+        elif object_position == 2:
+            return 15
+        elif object_position == 3:
+            return 16
+        elif object_position == 4:
+            return 17
+        elif object_position == 5:
+            return 18
+        elif object_position == 6:
+            return 19
+
     def onNextClick(self):
-        self.lineEdit.setText(str(int(self.lineEdit.text()) + 1))
+        
+        self.checkBox.setChecked(True)
+        self.checkBox_2.setChecked(True)
+
+        self.onLoadClick()
+        self.onStoreClick()
+        self.onSaveClick()
+
+        # move to next trial
+        next_trial = int(self.lineEdit.text()) + 1
+        max_trials = 5
+
+        # move to next object position if total amount of trials is reached
+        if next_trial == max_trials + 1:
+            self.lineEdit.setText(str(1))
+            next_object_position = self.getObjectPosition() + 1
+            exec("self.radioButton_" + str(self.objectPositionToRadioButton(next_object_position)) + ".setChecked(True)")
+            self.onSetObjectPositionClick()
+            
+            time.sleep(2)
+            
+            # move ee to initial pose
+            self.onInitialPoseClick()
+
+            # get new context
+            self.onGetContextClick()
+            self.onPredictClick()
+
+            # clear all trajectories
+            self.checkBox_3.setChecked(False)
+            self.checkBox_4.setChecked(False)
+            self.onVisualizeClick()
+
+            # visualize prediction
+            self.checkBox_4.setChecked(True)
+            self.onVisualizeClick()
+
+        else:
+            self.lineEdit.setText(str(next_trial))
+
+            self.onSetObjectPositionClick()
+
+            # move ee to initial pose
+            self.onInitialPoseClick()
+
+            # add current refinement to model and make new prediction
+            self.onAddModelClick()
+            self.onGetContextClick()
+            self.onPredictClick()
+
+            # clear all trajectories
+            self.checkBox_3.setChecked(False)
+            self.checkBox_4.setChecked(False)
+            self.onVisualizeClick()
+
+            # visualize prediction
+            self.checkBox_4.setChecked(True)
+            self.onVisualizeClick()
+
 
     def onVisualizeClick(self):
         try:
@@ -727,6 +813,23 @@ class OnlinePendantGUI(QMainWindow):
         self.stopNode('keyboard_control.launch')
         self.stopNode('data_logging.launch')
 
+    def setVisualizationCheckBoxes(self, what_to_visualize='prediction'):
+        if what_to_visualize == 'prediction':
+            self.checkBox_4.setChecked(True)
+            self.checkBox_3.setChecked(False)
+
+        elif what_to_visualize == 'refinement':
+            self.checkBox_4.setChecked(False)
+            self.checkBox_3.setChecked(True)
+
+        elif what_to_visualize == 'clear':
+            self.checkBox_4.setChecked(False)
+            self.checkBox_3.setChecked(False)
+
+        elif what_to_visualize == 'both':
+            self.checkBox_4.setChecked(True)
+            self.checkBox_3.setChecked(True)
+
     def onInitializeClick(self):
         self.stopNode('learning_from_demonstration.launch')
         self.stopNode('trajectory_refinement_keyboard.launch')
@@ -740,11 +843,23 @@ class OnlinePendantGUI(QMainWindow):
 
         self.lineEdit.setText('1')
         
+        time.sleep(20)
+
         # initialize lift and head joints
         self.initHeadLiftJoint()
 
         # go to initial pose
         self.goToInitialPose()
+
+        self.onSetObjectPositionClick()
+        time.sleep(2)
+        self.onGetContextClick()
+
+        self.onPredictClick()
+
+        self.setVisualizationCheckBoxes(what_to_visualize='prediction')
+        self.onVisualizeClick()
+
 
     def onInitialPoseClick(self):
         self.goToInitialPose()
