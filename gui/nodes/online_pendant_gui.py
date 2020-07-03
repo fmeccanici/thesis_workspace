@@ -597,7 +597,7 @@ class OnlinePendantGUI(QMainWindow):
             
             # stop and reset timer
             self.stopTimer()
-            self.zeroTimer()
+
         except (AttributeError, ValueError) as e:
                 rospy.loginfo("Problem with adding trajectory: %s" %e)
 
@@ -640,6 +640,8 @@ class OnlinePendantGUI(QMainWindow):
         self.onLoadClick()
         self.onStoreClick()
         self.onSaveClick()
+        
+        self.zeroTimer()
 
         # move to next trial
         next_trial = int(self.lineEdit.text()) + 1
