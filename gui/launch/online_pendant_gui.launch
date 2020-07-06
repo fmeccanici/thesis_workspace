@@ -1,6 +1,6 @@
 <launch>
 
-    <node pkg="gui" name="online_pendant_gui" 
+    <node pkg="gui" name="gui" 
     type="online_pendant_gui.py" output="screen">
     </node>
 

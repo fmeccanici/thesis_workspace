@@ -355,7 +355,7 @@ class OnlinePendantGUI(QMainWindow):
         self.groupBox_5.setTitle(_translate("MainWindow", "Data"))
         self.pushButton_29.setText(_translate("MainWindow", "Load"))
         self.pushButton_31.setText(_translate("MainWindow", "Store"))
-        self.lineEdit_20.setText(_translate("MainWindow", "1"))
+        self.lineEdit_20.setText(_translate("MainWindow", "4"))
         self.label_22.setText(_translate("MainWindow", "Participant"))
         self.checkBox_2.setText(_translate("MainWindow", "Predicted"))
         self.checkBox.setText(_translate("MainWindow", "Refined"))
@@ -571,7 +571,9 @@ class OnlinePendantGUI(QMainWindow):
     
 
     def onAddModelClick(self):
-        amount = 2
+
+        # 2 was too much, later trajectories had too little influence
+        amount = 1
 
         try:
             rospy.wait_for_service('welford_update', timeout=2.0)
@@ -652,13 +654,17 @@ class OnlinePendantGUI(QMainWindow):
             self.lineEdit.setText(str(1))
             next_object_position = self.getObjectPosition() + 1
             exec("self.radioButton_" + str(self.objectPositionToRadioButton(next_object_position)) + ".setChecked(True)")
-            self.onSetObjectPositionClick()
-            
-            time.sleep(2)
             
             # move ee to initial pose
             self.onInitialPoseClick()
 
+            # wait until arm is not in the way of the object
+            time.sleep(2)
+            self.onSetObjectPositionClick()
+
+            # needed to get correct context --> wait until arm is at initial pose
+            time.sleep(2)
+            
             # get new context
             self.onGetContextClick()
             self.onPredictClick()
@@ -775,16 +781,19 @@ class OnlinePendantGUI(QMainWindow):
             object_position.model_name = 'aruco_cube'
 
             if self.radioButton_14.isChecked():
-                object_position.pose.position.x = 0.85
+                object_position.pose.position.x = 0.82
                 object_position.pose.position.y = 0.3
                 object_position.pose.position.z = 0.9
             elif self.radioButton_15.isChecked():
-                object_position.pose.position.x = 0.85
+                object_position.pose.position.x = 0.82
                 object_position.pose.position.y = 0.0
                 object_position.pose.position.z = 0.9
             elif self.radioButton_16.isChecked():
                 object_position.pose.position.x = 0.65
-                object_position.pose.position.y = 0.3
+
+                # 0.29 instead of 0.30 because otherwise object is on the edge of not
+                # being detected
+                object_position.pose.position.y = 0.29
                 object_position.pose.position.z = 0.9
             elif self.radioButton_17.isChecked():
                 object_position.pose.position.x = 0.65
