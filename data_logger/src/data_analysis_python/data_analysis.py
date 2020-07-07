@@ -1,4 +1,4 @@
-import ast
+import ast, os
 from data_logger_python.data_logger_python import ParticipantData
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,13 +6,20 @@ import numpy as np
 class DataAnalysis(object):
     def __init__(self):
         self.data_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'
+        self.figures_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/figures/'
         self.data = {}
         self.num_methods = 4
+        self.num_object_positions = 6
+        self.num_trials = 10
 
     def loadData(self, participant_number):
         participant = ParticipantData(participant_number, 0, 0)
         self.data[participant_number] = participant        
 
+        # check if path exists, create if not
+        path = self.figures_path + 'participant_' + str(participant_number) + '/'
+        if not os.path.exists(path):
+            os.makedirs(path)
 
     def plotPrediction(self, participant_number, method, variation, object_position, trial):
         methods = self.data[participant_number].getMethods()
@@ -62,11 +69,34 @@ class DataAnalysis(object):
         
         return total_adaptation_time, adaptation_time
 
-    def getNumberOfRefinements(self, participant_number, method, variation, object_position):
+    def getNumberOfRefinements(self, participant_number, method, variation):
+        methods = self.data[participant_number].getMethods()
+        refinements_per_object_position = []
+
+        for object_position in methods[method]['variation'][variation]['object_position']:
+            refinements = 0
+
+            for trial in methods[method]['variation'][variation]['object_position'][object_position]['trial']:
+                refinements += methods[method]['variation'][variation]['object_position'][object_position]['trial'][trial]['number_of_refinements']
+
+            refinements_per_object_position.append(refinements)
+
+        return refinements_per_object_position
+
+    def getNumberOfSuccess(self, participant_number, method, variation):
+        methods = self.data[participant_number].getMethods()
         
-        for trial in methods[method]['variation'][variation]['object_position'][object_position]['trial']:
-            
-        return methods[method]['variation'][variation]['object_position'][object_position]['trial'][trial]['number_of_refinements']
+        success_per_object_position = []
+
+        for object_position in methods[method]['variation'][variation]['object_position']:
+            success = 0
+
+            for trial in methods[method]['variation'][variation]['object_position'][object_position]['trial']:
+                success += int(methods[method]['variation'][variation]['object_position'][object_position]['trial'][trial]['success'])
+
+            success_per_object_position.append(success)
+
+        return success_per_object_position
 
     def plotAdaptationTime(self, participant_number):
         
@@ -75,15 +105,19 @@ class DataAnalysis(object):
 
         methods = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
         object_positions = ['1', '2', '3', '4', '5', '6']
+        
+        plt.figure()
 
         for method in range(1, self.num_methods+1):
-            plt.figure()
+            plt.subplot(2, 2, method)
             adaptation_times = self.calculateAdaptationTime(participant_number, method, variation)[1]
             plt.bar(object_positions, adaptation_times)
             plt.title(methods[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Adaptation time [s]")
-        plt.show()
+            plt.tight_layout()
+
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/adaptation_time.pdf')
     
     def plotNumberOfRefinements(self, participant_number):
         # set to test, need to loop and calculate mean in final version
@@ -91,16 +125,41 @@ class DataAnalysis(object):
 
         methods = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
         object_positions = ['1', '2', '3', '4', '5', '6']
+
+        plt.figure()
         
         for method in range(1, self.num_methods+1):
-            plt.figure()
-            number_of_refinements = getNumberOfRefinements
-            plt.bar(object_positions, adaptation_times)
+            plt.subplot(2, 2, method)
+
+            number_of_refinements = self.getNumberOfRefinements(participant_number, method, variation)
+            plt.bar(object_positions, number_of_refinements)
             plt.title(methods[method-1])
             plt.xlabel("Object position [-]")
-            plt.ylabel("Adaptation time [s]")
-        plt.show()
+            plt.ylabel("Number of refinements [-]")
+            plt.tight_layout()
 
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_refinements.pdf')
+
+        
+
+    def plotNumberOfSuccess(self, participant_number):
+        # set to test, need to loop and calculate mean in final version
+        variation = 1
+
+        methods = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
+        object_positions = ['1', '2', '3', '4', '5', '6']
+
+        plt.figure()
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_success = self.getNumberOfSuccess(participant_number, method, variation)
+            plt.bar(object_positions, [ x / self.num_trials * 100 for x in number_of_success ] )
+            plt.title(methods[method-1])
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Successfull trials [%]")
+            plt.tight_layout()
+        
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_successes.pdf')
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
@@ -110,3 +169,5 @@ if __name__ == "__main__":
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     data_analysis.calculateAdaptationTime(1, 3, 1)
     data_analysis.plotAdaptationTime(1)
+    data_analysis.plotNumberOfRefinements(1)
+    data_analysis.plotNumberOfSuccess(1)
