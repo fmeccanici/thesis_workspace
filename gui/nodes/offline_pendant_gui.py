@@ -84,7 +84,7 @@ class OnlinePendantGUI(QMainWindow):
         self.parser = trajectoryParser()
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
-        self.stop_timer_service = rospy.Service('/stop_timer', Empty, self._stopTimer)
+        self.stop_timer_service = rospy.Service('stop_timer', Empty, self._stopTimer)
 
 
         # variables
@@ -538,6 +538,17 @@ class OnlinePendantGUI(QMainWindow):
                 resp = execute_trajectory(self.prediction, self.T_desired)
 
             elif self.radioButton_2.isChecked():
+                try:
+                    rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
+
+                    get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
+
+                    resp = get_demo_pendant()
+                    self.refined_trajectory = resp.demo
+                
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+
                 resp = execute_trajectory(self.refined_trajectory, self.T_desired)
                 
             # self.refined_trajectory = resp.refined_trajectory
@@ -566,6 +577,7 @@ class OnlinePendantGUI(QMainWindow):
             print("Service call failed: %s"%e)
     
     def _stopTimer(self, req):
+        print('check stop timer')
         self.stopTimer()
         resp = Empty()
         return resp

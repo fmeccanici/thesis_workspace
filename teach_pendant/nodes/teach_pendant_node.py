@@ -18,14 +18,14 @@ from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantRe
 from std_msgs.msg import String
 from os import listdir
 from os.path import isfile, join
-from trajectory_visualizer.srv import VisualizeTrajectory
+from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_visualizer.msg import TrajectoryVisualization
 
 class KeyboardControl():
     def __init__(self):
         rospy.init_node('teach_pendant')
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
-        self._get_demonstration = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
+        self._get_demonstration_service = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
 
         self.keyboard_pub_ = rospy.Publisher('teach_pendant', Keyboard, queue_size=10)
         self.keyboard = Keyboard()
@@ -85,16 +85,16 @@ class KeyboardControl():
         x = np.linspace(0, T, len(self.waypoints))
         x_desired = np.linspace(0, T, n)
 
-        cartx = [data.position.x for data in self.waypoints]
-        carty = [data.position.y for data in self.waypoints]
-        cartz = [data.position.z for data in self.waypoints]
+        cartx = [data[0] for data in self.waypoints]
+        carty = [data[1] for data in self.waypoints]
+        cartz = [data[2] for data in self.waypoints]
 
         
-        qstart = [self.waypoints[0].orientation.x, self.waypoints[0].orientation.y, 
-                self.waypoints[0].orientation.z, self.waypoints[0].orientation.w]
+        qstart = [self.waypoints[0][3], self.waypoints[0][4], 
+                self.waypoints[0][5], self.waypoints[0][6]]
 
-        qend = [self.waypoints[-1].orientation.x, self.waypoints[-1].orientation.y, 
-                self.waypoints[-1].orientation.z, self.waypoints[-1].orientation.w]
+        qend = [self.waypoints[-1][3], self.waypoints[-1][4], 
+                self.waypoints[-1][5], self.waypoints[-1][6]]
 
         with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/qstart.txt', 'w+') as f:
             f.write(str(qstart))
@@ -127,13 +127,13 @@ class KeyboardControl():
 
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
             pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-            print(q)
             ynew = pose + [x_desired[i]]
 
             self.EEtrajectory.append(ynew)
         
         with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/eval_traj.txt', 'w+') as f:
             f.write(str(self.EEtrajectory))
+        print(self.waypoints)
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
@@ -271,10 +271,12 @@ class KeyboardControl():
                         get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
                         resp = get_ee_pose()
                         self.ee_pose = resp.pose
-                    
-                        self.waypoints.append(self.ee_pose)
-                        rospy.loginfo("Set waypoint")
-                        
+                        ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
+                                    self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
+                                    self.ee_pose.orientation.w]
+
+                        self.waypoints.append(ee_pose)
+
                     except (rospy.ServiceException, rospy.ROSException) as e:
                         print("Service call failed: %s" %e)
                     
@@ -306,13 +308,22 @@ class KeyboardControl():
                     get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
                     resp = get_ee_pose()
                     self.ee_pose = resp.pose
+                    ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
+                                self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
+                                self.ee_pose.orientation.w]
+
+                    # set first waypoint
+                    self.waypoints.append(ee_pose)
 
                 except (rospy.ServiceException, rospy.ROSException) as e:
                     print("Service call failed: %s" %e)
 
             if self.execution_phase == False and self.keyboard.key.data == 'enter':
                 self.interpolate()
-                
+
+                # empty waypoints
+                self.waypoints = []
+
                 try:
                     rospy.wait_for_service('get_context', timeout=2.0)
                 except (rospy.ServiceException, rospy.ROSException) as e:
@@ -325,8 +336,11 @@ class KeyboardControl():
                 
                 try:
                     rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+                    rospy.wait_for_service('clear_trajectories', timeout=2.0)
 
                     visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+                    clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
+
                     visualization_msg = TrajectoryVisualization()
 
                 except (rospy.ServiceException, rospy.ROSException) as e:
@@ -334,7 +348,10 @@ class KeyboardControl():
 
                 except AttributeError:
                     rospy.loginfo("No prediction made yet!")
-                
+
+
+                resp = clear_trajectories()
+        
                 # visualize refinement
                 visualization_msg.pose_array = self.parser.predicted_trajectory_to_prompTraj_message(self.EEtrajectory, self.parser.point_to_list(self.context)).poses
                 visualization_msg.r = 0
@@ -356,8 +373,9 @@ class KeyboardControl():
                     stop_timer = rospy.ServiceProxy('stop_timer', Empty)
                     visualization_msg = TrajectoryVisualization()
 
-                    rospy.loginfo("Timer stopped using service")
                     resp = stop_timer()
+                    rospy.loginfo("Timer stopped using service")
+
                 except (rospy.ServiceException, rospy.ROSException) as e:
                     print("Service call failed: %s" %e)                    
             
@@ -469,7 +487,7 @@ class KeyboardControl():
         elif key == Key.enter:
             self.keyboard.key.data = ''
 
-        elif key == Key.ctrl_l:
+        elif key == Key.ctrl_r:
             # kill node when esc is pressed
             os.system('kill %d' % os.getpid())
             raise pynput.keyboard.Listener.StopException
