@@ -163,11 +163,11 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadData(1)
+    data_analysis.loadData(10)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
-    data_analysis.calculateAdaptationTime(1, 3, 1)
-    data_analysis.plotAdaptationTime(1)
-    data_analysis.plotNumberOfRefinements(1)
-    data_analysis.plotNumberOfSuccess(1)
+    # data_analysis.calculateAdaptationTime(1, 3, 1)
+    # data_analysis.plotAdaptationTime(1)
+    data_analysis.plotNumberOfRefinements(10)
+    # data_analysis.plotNumberOfSuccess(1)

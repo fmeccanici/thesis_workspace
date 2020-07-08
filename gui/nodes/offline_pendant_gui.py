@@ -18,7 +18,8 @@ from gazebo_msgs.srv import SetModelState
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
 from data_logger.srv import (CreateParticipant, AddRefinement,
                                 SetPrediction, ToCsv, SetObstaclesHit,
-                                SetObjectMissed)
+                                SetObjectMissed, IncrementNumberOfRefinements)
+
 from teach_pendant.srv import GetDemonstrationPendant
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from std_srvs.srv import Empty
@@ -351,7 +352,7 @@ class OnlinePendantGUI(QMainWindow):
         self.groupBox_5.setTitle(_translate("MainWindow", "Data"))
         self.pushButton_29.setText(_translate("MainWindow", "Load"))
         self.pushButton_31.setText(_translate("MainWindow", "Store"))
-        self.lineEdit_20.setText(_translate("MainWindow", "1"))
+        self.lineEdit_20.setText(_translate("MainWindow", ""))
         self.label_22.setText(_translate("MainWindow", "Participant"))
         self.checkBox_2.setText(_translate("MainWindow", "Predicted"))
         self.checkBox.setText(_translate("MainWindow", "Refined"))
@@ -489,8 +490,8 @@ class OnlinePendantGUI(QMainWindow):
         # # prev is used to store the previous elapsed time
         # self.elapsed_time_prev = self.elapsed_time
         # self.stop_timer = True
-        rospy.loginfo("time = " + str(self.elapsed_time))
         self.elapsed_time = self.elapsed_time_prev + (time.time() - self.start_time)
+        rospy.loginfo("time = " + str(self.elapsed_time))
         self.lineEdit_21.setText(str(round(self.elapsed_time, 1)))
         self.elapsed_time_prev = self.elapsed_time
 
@@ -523,10 +524,20 @@ class OnlinePendantGUI(QMainWindow):
             rospy.loginfo("Context not yet extracted!")
     
     def onRefineClick(self):
+        number_msg = Byte()
+        try:
+            number_msg.data = int(self.lineEdit_20.text())
+        except ValueError: 
+            print("No participant number set!")
+            return -1
 
         try:
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
+            rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
+
             execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+            
+
 
             self.T_desired = 10.0
             
@@ -538,19 +549,18 @@ class OnlinePendantGUI(QMainWindow):
                 resp = execute_trajectory(self.prediction, self.T_desired)
 
             elif self.radioButton_2.isChecked():
-                try:
-                    rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
-
-                    get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
-
-                    resp = get_demo_pendant()
-                    self.refined_trajectory = resp.demo
+                rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
+                get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
                 
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e)
+                resp = get_demo_pendant()
+                self.refined_trajectory = resp.demo
 
                 resp = execute_trajectory(self.refined_trajectory, self.T_desired)
-                
+            
+            # increment number of refinements
+            increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
+            increment_refinement(number_msg)
+
             # self.refined_trajectory = resp.refined_trajectory
 
 
@@ -583,13 +593,20 @@ class OnlinePendantGUI(QMainWindow):
         return resp
         
     def onAddModelClick(self):
-
+        # number_msg = Byte()
+        # try:
+        #     number_msg.data = int(self.lineEdit_20.text())
+        # except ValueError: 
+        #     print("No participant number set!")
+        #     return -1
+            
         # 2 was too much, later trajectories had too little influence
         amount = 1
 
         try:
             rospy.wait_for_service('add_demonstration', timeout=2.0)
             rospy.wait_for_service('get_object_position', timeout=2.0)
+            # rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
 
             reference_frame = String()
             reference_frame.data = 'base'
@@ -603,10 +620,14 @@ class OnlinePendantGUI(QMainWindow):
 
             add_demonstration = rospy.ServiceProxy('add_demonstration', AddDemonstration)
             refined_trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(refined_trajectory_wrt_object, self.parser.point_to_list(self.context))
-            
+
+            # increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
+
+
             for i in range(amount):
                 resp = add_demonstration(refined_trajectory_wrt_object_msg)
-            
+                # increment_refinement(number_msg)
+
             rospy.loginfo("Added " + str(amount) + " trajectories to model using Welford")
             
             # stop and reset timer
@@ -650,9 +671,27 @@ class OnlinePendantGUI(QMainWindow):
         
         self.checkBox.setChecked(True)
         self.checkBox_2.setChecked(True)
+        
+        # just to be sure we have the refinements
+        try:
+            rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
+
+            get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
+
+            resp = get_demo_pendant()
+            self.refined_trajectory = resp.demo
+            rospy.loginfo(self.refined_trajectory)
+            rospy.loginfo("Got an offline taught trajectory using the Keyboard")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
 
         self.onLoadClick()
-        self.onStoreClick()
+        try:
+            self.onStoreClick()
+        except AttributeError:
+            return "No refinement available yet"
+
         self.onSaveClick()
         
         self.zeroTimer()
@@ -711,7 +750,7 @@ class OnlinePendantGUI(QMainWindow):
             # visualize prediction
             self.checkBox_4.setChecked(True)
             self.onVisualizeClick()
-
+        
 
     def onVisualizeClick(self):
         
@@ -901,7 +940,9 @@ class OnlinePendantGUI(QMainWindow):
 
         self.lineEdit.setText('1')
         
+        # needed to be able to get context --> trained model
         time.sleep(20)
+
 
         # initialize lift and head joints
         self.initHeadLiftJoint()
@@ -1026,7 +1067,12 @@ class OnlinePendantGUI(QMainWindow):
 
     def onObstacleHitClick(self):
         number_msg = Byte()
-        number_msg.data = int(self.lineEdit_20.text())
+        try:
+            number_msg.data = int(self.lineEdit_20.text())
+        except ValueError: 
+            print("No participant number set!")
+            return -1
+        
         method_msg = Byte()
 
         # method 4: offline + pendant
@@ -1055,7 +1101,13 @@ class OnlinePendantGUI(QMainWindow):
 
     def onObjectMissedClick(self):
         number_msg = Byte()
-        number_msg.data = int(self.lineEdit_20.text())
+        
+        try:
+            number_msg.data = int(self.lineEdit_20.text())
+        except ValueError: 
+            print("No participant number set!")
+            return -1
+        
         method_msg = Byte()
 
         # method 4: online + pendant
@@ -1085,7 +1137,12 @@ class OnlinePendantGUI(QMainWindow):
     
     def onStoreClick(self):
         number_msg = Byte()
-        number_msg.data = int(self.lineEdit_20.text())
+        try:
+            number_msg.data = int(self.lineEdit_20.text())
+        except ValueError: 
+            print("No participant number set!")
+            return -1
+
         method_msg = Byte()
 
         # method 4: online + pendant
@@ -1156,7 +1213,12 @@ class OnlinePendantGUI(QMainWindow):
             rospy.wait_for_service('to_csv')
             to_csv = rospy.ServiceProxy('to_csv', ToCsv)
             number_msg = Byte()
-            number_msg.data = int(self.lineEdit_20.text())
+
+            try:
+                number_msg.data = int(self.lineEdit_20.text())
+            except ValueError: 
+                print("No participant number set!")
+                return -1
 
             resp = to_csv(number_msg)     
 
@@ -1169,8 +1231,11 @@ class OnlinePendantGUI(QMainWindow):
             create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
             number_msg = Byte()
 
-            number_msg.data = int(self.lineEdit_20.text())
-
+            try:
+                number_msg.data = int(self.lineEdit_20.text())
+            except ValueError: 
+                print("No participant number set!")
+                return -1
             # dummy variable names --> not necessary when data exists
 
             sex_msg = Bool()

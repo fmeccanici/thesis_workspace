@@ -151,6 +151,7 @@ class ParticipantData(object):
     def setMethod(self, method):
         self.method = method
 
+
     def setRefinedTrajectory(self, *args, **kwargs):
         if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs and "method" in kwargs:
             object_position = kwargs["object_position"]
@@ -203,7 +204,7 @@ class ParticipantData(object):
             # we start with 0 refinement --> n + 1
             #             
             # increment number of refined trajectories
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
+            # self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
             
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = self.refined_trajectory
             
@@ -300,8 +301,12 @@ class ParticipantData(object):
 
         # self.methods[method]['object_missed'] += 1
     
-    def incrementNumberOfRefinement(self, method):
-        self.methods[method]['number_of_refinements'] += 1
+    def incrementNumberOfRefinements(self):
+        before = self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']
+        after = self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] + 1
+        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] = after
+
+        print("number of refinements incremented from " + str(before) + " to " + str(after))
 
     def incrementNumberOfUpdates(self, method):
         self.methods[method]['number_of_updates'] += 1

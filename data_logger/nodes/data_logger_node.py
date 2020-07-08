@@ -4,7 +4,8 @@ import rospy
 from data_logger_python.data_logger_python import ParticipantData
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
                                 SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
-                                SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse)
+                                SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse,
+                                IncrementNumberOfRefinements, IncrementNumberOfRefinementsResponse)
 
 from learning_from_demonstration.srv import GetContext
 
@@ -17,7 +18,7 @@ class DataLoggerNode(object):
         self._set_prediction_service = rospy.Service('set_prediction', SetPrediction, self._setPredicted)
         self._set_object_missed_service = rospy.Service('set_object_missed', SetObjectMissed, self._setObjectMissed)
         self._set_obstacles_hit_service = rospy.Service('set_obstacles_hit', SetObstaclesHit, self._setObstaclesHit)
-        # self._increment_number_of_updates_service = rospy.Service('increment_number_of_updates', IncrementNumberOfUpdates, self._incrementNumberOfUpdates)
+        self._increment_number_of_refinements_service = rospy.Service('increment_number_of_refinements', IncrementNumberOfRefinements, self._incrementNumberOfRefinements)
         # self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
         self._to_csv_service = rospy.Service('to_csv', ToCsv, self._toCsv)
 
@@ -102,13 +103,12 @@ class DataLoggerNode(object):
         resp = SetObjectMissedResponse()
         return resp
 
-    # def _incrementNumberOfUpdates(self, req):
-    #     number = req.number.data 
-    #     condition = req.condition.data
-    #     self.data[number].incrementNumberOfUpdates(condition=condition)
+    def _incrementNumberOfRefinements(self, req):
+        number = req.number.data 
+        self.data[number].incrementNumberOfRefinements()
 
-    #     resp = IncrementNumberOfUpdatesResponse()
-    #     return resp
+        resp = IncrementNumberOfRefinementsResponse()
+        return resp
 
     # def _setNumberOfUpdates(self, req):
     #     number = req.number.data

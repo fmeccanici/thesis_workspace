@@ -79,7 +79,7 @@ class KeyboardControl():
         return resp
  
     def interpolate(self):
-        n = 100
+        n = 75
         T = 10
 
         x = np.linspace(0, T, len(self.waypoints))
@@ -302,6 +302,9 @@ class KeyboardControl():
                 # go to initial pose
                 self.goToInitialPose()
                 
+                # sleep to get the correct initial pose
+                time.sleep(2)
+                
                 # get pose for the teach loop to not jump back
                 try:
                     rospy.wait_for_service('get_ee_pose', timeout=2.0)
@@ -362,6 +365,7 @@ class KeyboardControl():
 
                 # go to initial position
                 self.goToInitialPose()
+
 
                 # set execution phase to true again so we can execute trajectory
                 # without the end_effector publisher to intervene

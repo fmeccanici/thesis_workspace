@@ -18,6 +18,7 @@
     SetNumberOfUpdates.srv
     ToCsv.srv
     SetPrediction.srv
+    IncrementNumberOfRefinements.srv
   )
   
 catkin_python_setup()
