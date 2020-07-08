@@ -6,17 +6,20 @@ from pynput.keyboard import Key, Listener, KeyCode
 import threading, pynput
 from teleop_control.msg import Keyboard
 
+from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped, Pose
 from pyquaternion import Quaternion
 import numpy as np
 import time, stat
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSpline, UnivariateSpline
-from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext
+from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext, GoToPose
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse
 from std_msgs.msg import String
 from os import listdir
 from os.path import isfile, join
+from trajectory_visualizer.srv import VisualizeTrajectory
+from trajectory_visualizer.msg import TrajectoryVisualization
 
 class KeyboardControl():
     def __init__(self):
@@ -27,6 +30,8 @@ class KeyboardControl():
         self.keyboard_pub_ = rospy.Publisher('teach_pendant', Keyboard, queue_size=10)
         self.keyboard = Keyboard()
         
+        self.execution_phase = True
+
         self.parser = trajectoryParser()
         self.EEtrajectory = []
     
@@ -221,30 +226,145 @@ class KeyboardControl():
         except IndexError:
             # no files in folder yet --> create first file
             return "raw_trajectory_1.txt"
+    
+    def goToInitialPose(self):
+        pose = Pose()
+        try:
+            pose.position.x = 0.609
+            # pose.position.y = -0.306
+            pose.position.y = -0.290
+
+
+            pose.position.z = 0.816
+
+            pose.orientation.x = 0.985
+            pose.orientation.y = -0.103
+            pose.orientation.z = -0.124
+            pose.orientation.w = 0.064
+            
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+        
+        except ValueError:
+            rospy.loginfo("Make sure you set a pose!")
+        
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
 
     def ros_loop(self):
         r = rospy.Rate(30)
+        self.keyboard_toggle = 1
+
         while not rospy.is_shutdown():
-            self.keyboard_pub_.publish(self.keyboard)
-            self.teach_loop()
+            
 
-            if self.keyboard.key.data == 'space':
+            ### Only do offline teaching when we are not executing the trajectory
+            if self.execution_phase == False:
 
+                self.keyboard_pub_.publish(self.keyboard)
+                self.teach_loop()
 
+                if self.keyboard.key.data == 'space' and self.keyboard_toggle == 1:
+                    try:
+                        rospy.wait_for_service('get_ee_pose', timeout=2.0)
+                        get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+                        resp = get_ee_pose()
+                        self.ee_pose = resp.pose
+                    
+                        self.waypoints.append(self.ee_pose)
+                        rospy.loginfo("Set waypoint")
+                        
+                    except (rospy.ServiceException, rospy.ROSException) as e:
+                        print("Service call failed: %s" %e)
+                    
+                    self.keyboard_toggle = 0
+
+                elif self.keyboard.key.data == 'space_released' and self.keyboard_toggle == 0:
+
+                    self.keyboard_toggle = 1
+
+            elif self.execution_phase == True and self.keyboard.key.data == 'space':
+                # stop execution
+                # set phase to false so we can teach
+                self.execution_phase = False
+                try:
+                    rospy.wait_for_service('stop_execution', timeout=2.0)
+                    stop_execution = rospy.ServiceProxy('stop_execution', Empty)
+                    resp = stop_execution()
+                        
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+                
+
+                # go to initial pose
+                self.goToInitialPose()
+                
+                # get pose for the teach loop to not jump back
                 try:
                     rospy.wait_for_service('get_ee_pose', timeout=2.0)
                     get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
                     resp = get_ee_pose()
                     self.ee_pose = resp.pose
-                
-                    self.waypoints.append(self.ee_pose)
-            
+
                 except (rospy.ServiceException, rospy.ROSException) as e:
                     print("Service call failed: %s" %e)
-            
-            if self.keyboard.key.data == 'enter':
+
+            if self.execution_phase == False and self.keyboard.key.data == 'enter':
                 self.interpolate()
                 
+                try:
+                    rospy.wait_for_service('get_context', timeout=2.0)
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)   
+
+                get_context = rospy.ServiceProxy('get_context', GetContext)
+                resp = get_context()
+                
+                self.context = resp.context
+                
+                try:
+                    rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+
+                    visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+                    visualization_msg = TrajectoryVisualization()
+
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+
+                except AttributeError:
+                    rospy.loginfo("No prediction made yet!")
+                
+                # visualize refinement
+                visualization_msg.pose_array = self.parser.predicted_trajectory_to_prompTraj_message(self.EEtrajectory, self.parser.point_to_list(self.context)).poses
+                visualization_msg.r = 0
+                visualization_msg.g = 1
+                visualization_msg.b = 0
+
+                resp = visualize_trajectory(visualization_msg)
+
+                # go to initial position
+                self.goToInitialPose()
+
+                # set execution phase to true again so we can execute trajectory
+                # without the end_effector publisher to intervene
+                self.execution_phase = True
+
+                try:
+                    rospy.wait_for_service('stop_timer', timeout=2.0)
+
+                    stop_timer = rospy.ServiceProxy('stop_timer', Empty)
+                    visualization_msg = TrajectoryVisualization()
+
+                    rospy.loginfo("Timer stopped using service")
+                    resp = stop_timer()
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)                    
+            
+            
+            
+            elif self.execution_phase == True and self.keyboard.key.data == 'enter':
+                rospy.loginfo("Executing trajectory: No interpolation possible")
                 # rospy.wait_for_service('get_object_position', timeout=2.0)
 
                 # reference_frame = String()
@@ -254,14 +374,14 @@ class KeyboardControl():
                 # resp = get_object(reference_frame)
                 # object_wrt_base = resp.object_position
 
-                try:
-                    rospy.wait_for_service('get_context', timeout=2.0)
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e)   
+                # try:
+                #     rospy.wait_for_service('get_context', timeout=2.0)
+                # except (rospy.ServiceException, rospy.ROSException) as e:
+                #     print("Service call failed: %s" %e)   
 
-                get_context = rospy.ServiceProxy('get_context', GetContext)
-                resp = get_context()
-                self.context = resp.context
+                # get_context = rospy.ServiceProxy('get_context', GetContext)
+                # resp = get_context()
+                # self.context = resp.context
 
                 # try:
                 #     rospy.wait_for_service('add_demonstration', timeout=2.0)
@@ -345,11 +465,11 @@ class KeyboardControl():
         elif key == KeyCode(char = 'h'):
             self.keyboard.key.data = ''
         elif key == Key.space:
-            self.keyboard.key.data = ''
+            self.keyboard.key.data = 'space_released'
         elif key == Key.enter:
             self.keyboard.key.data = ''
 
-        elif key == Key.esc:
+        elif key == Key.ctrl_l:
             # kill node when esc is pressed
             os.system('kill %d' % os.getpid())
             raise pynput.keyboard.Listener.StopException

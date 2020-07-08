@@ -639,7 +639,6 @@ class experimentGUI(QMainWindow):
         QMetaObject.connectSlotsByName(self)
 
     def _keyboard_callback(self, data):
-
         # stop execution
         if data.key.data == 'space':
             try:
