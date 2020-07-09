@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.5
 
-import os, csv, ast
+import os, csv, ast, copy
 import pandas as pd
 
 class ParticipantData(object):
@@ -56,7 +56,7 @@ class ParticipantData(object):
         self.num_methods = 4
         self.num_variations = 2
         self.num_object_positions = 6
-        self.num_trials = 10
+        self.num_trials = 5
 
         for i in range(self.num_trials):
             self.trials[i+1] = {
@@ -71,19 +71,19 @@ class ParticipantData(object):
 
         for j in range(self.num_object_positions):
             self.object_positions[j+1] = {
-            'trial': self.trials,
+            'trial': copy.deepcopy(self.trials),
             'adaptation_time': 0
             }
         
         for i in range(self.num_variations):
             self.variations[i+1] = {
-                'object_position': self.object_positions,
+                'object_position': copy.deepcopy(self.object_positions),
                 'total_adaptation_time': 0
             }
         
         for i in range(self.num_methods):
             self.methods[i+1] = {
-                'variation': self.variations,
+                'variation': copy.deepcopy(self.variations),
             }
 
     def loadData(self):
@@ -205,8 +205,9 @@ class ParticipantData(object):
             #             
             # increment number of refined trajectories
             # self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
-            
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = self.refined_trajectory
+            trajectory = copy.deepcopy(self.refined_trajectory)
+
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
             
             # increment time (need to think about how to get the correct time)
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] += time
@@ -281,13 +282,14 @@ class ParticipantData(object):
             self.setVariation(variation)
             self.setTrial(trial)
             self.setObjectPosition(object_position)
-            print("method set to " + str(method))
             self.setMethod(method)
-            print("method set to " + str(self.method))
+            
+            trajectory = copy.deepcopy(self.predicted_trajectory)
 
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = self.predicted_trajectory
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] += time
+
 
     def setObstaclesHit(self):
         self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
@@ -302,11 +304,12 @@ class ParticipantData(object):
         # self.methods[method]['object_missed'] += 1
     
     def incrementNumberOfRefinements(self):
-        before = self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']
-        after = self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] + 1
-        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] = after
-
-        print("number of refinements incremented from " + str(before) + " to " + str(after))
+        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
+        print("method " + str(self.method))
+        print("variation " + str(self.variation))
+        print("object position " + str(self.object_position))
+        print("trial " + str(self.trial))
+        print("number of refinements incremented to " + str(self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
 
     def incrementNumberOfUpdates(self, method):
         self.methods[method]['number_of_updates'] += 1

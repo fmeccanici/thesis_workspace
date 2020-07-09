@@ -352,7 +352,7 @@ class OnlinePendantGUI(QMainWindow):
         self.groupBox_5.setTitle(_translate("MainWindow", "Data"))
         self.pushButton_29.setText(_translate("MainWindow", "Load"))
         self.pushButton_31.setText(_translate("MainWindow", "Store"))
-        self.lineEdit_20.setText(_translate("MainWindow", ""))
+        self.lineEdit_20.setText(_translate("MainWindow", "99"))
         self.label_22.setText(_translate("MainWindow", "Participant"))
         self.checkBox_2.setText(_translate("MainWindow", "Predicted"))
         self.checkBox.setText(_translate("MainWindow", "Refined"))
@@ -530,15 +530,14 @@ class OnlinePendantGUI(QMainWindow):
         except ValueError: 
             print("No participant number set!")
             return -1
-
+        # do not load participant here --> keeps storing/incrementing the initial value
+        
         try:
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
             rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
 
             execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
             
-
-
             self.T_desired = 10.0
             
             # start timer
@@ -938,8 +937,12 @@ class OnlinePendantGUI(QMainWindow):
         self.startNode('teach_pendant', 'teach_pendant.launch')
         self.startNode('data_logger', 'data_logging.launch')
 
+        # set trial
         self.lineEdit.setText('1')
-        
+
+        # load participant data
+        self.onLoadClick()
+
         # needed to be able to get context --> trained model
         time.sleep(20)
 

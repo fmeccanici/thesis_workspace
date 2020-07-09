@@ -115,6 +115,7 @@ class DataAnalysis(object):
             plt.title(methods[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Adaptation time [s]")
+            
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/adaptation_time.pdf')
@@ -163,11 +164,11 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadData(10)
+    data_analysis.loadData(99)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     # data_analysis.calculateAdaptationTime(1, 3, 1)
-    # data_analysis.plotAdaptationTime(1)
-    data_analysis.plotNumberOfRefinements(10)
+    data_analysis.plotAdaptationTime(99)
+    data_analysis.plotNumberOfRefinements(99)
     # data_analysis.plotNumberOfSuccess(1)
