@@ -153,14 +153,11 @@ class ParticipantData(object):
 
 
     def setRefinedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs and "method" in kwargs:
-            object_position = kwargs["object_position"]
-            variation = kwargs["variation"]
-            trial = kwargs["trial"]
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "time" in kwargs:
+            
             context = kwargs["context"]
             time = kwargs["time"]
-            method = kwargs["method"]
-
+            
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'refined_trajectory.csv'
             with open(path+file_name, 'r') as f:
@@ -193,12 +190,6 @@ class ParticipantData(object):
             self.refined_trajectory['qz'] = qz
             self.refined_trajectory['qw'] = qw
             self.refined_trajectory['t'] = t
-            # self.trials[trial]['context'] = [context.x, context.y, context.z]
-            
-            self.setVariation(variation)
-            self.setTrial(trial)
-            self.setObjectPosition(object_position)
-            self.setMethod(method)
 
             # append dictionary
             # we start with 0 refinement --> n + 1
@@ -210,20 +201,17 @@ class ParticipantData(object):
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
             
             # increment time (need to think about how to get the correct time)
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] += time
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
             return 0
                 
     def setPredictedTrajectory(self, *args, **kwargs):
 
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "object_position" in kwargs and "variation" in kwargs and "trial" in kwargs and "context" in kwargs and "time" in kwargs and "method" in kwargs:
+        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "time" in kwargs:
             
-            object_position = kwargs["object_position"]
-            variation = kwargs["variation"]
-            trial = kwargs["trial"]
             context = kwargs["context"]
             time = kwargs["time"]
-            method = kwargs["method"]
+            print("elapsed time to store python = " + str(time))
 
             path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
             file_name = 'predicted_trajectory.csv'
@@ -279,16 +267,12 @@ class ParticipantData(object):
             #     print("Set prediction after updating")
 
             # self.methods[self.method][self.variation][self.object_position]['predicted'][self.trial] = self.predicted_trajectory
-            self.setVariation(variation)
-            self.setTrial(trial)
-            self.setObjectPosition(object_position)
-            self.setMethod(method)
-            
+
             trajectory = copy.deepcopy(self.predicted_trajectory)
 
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
             self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] += time
+            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
 
     def setObstaclesHit(self):
@@ -320,6 +304,7 @@ class ParticipantData(object):
     def toCSV(self):
         # with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
         #     f.write(str(self.methods))
+        print("number of refinements incremented to " + str(self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
 
         data = {'number': self.number, 'age': self.age, 'sex': self.sex, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:

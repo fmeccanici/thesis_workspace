@@ -133,7 +133,7 @@ class KeyboardControl():
         
         with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/eval_traj.txt', 'w+') as f:
             f.write(str(self.EEtrajectory))
-        print(self.waypoints)
+        # print(self.waypoints)
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 

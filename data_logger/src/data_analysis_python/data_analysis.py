@@ -115,7 +115,7 @@ class DataAnalysis(object):
             plt.title(methods[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Adaptation time [s]")
-            
+            plt.ylim((0,150))
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/adaptation_time.pdf')
@@ -137,6 +137,8 @@ class DataAnalysis(object):
             plt.title(methods[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Number of refinements [-]")
+            plt.ylim((0,10))
+
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_refinements.pdf')

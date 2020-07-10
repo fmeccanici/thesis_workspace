@@ -5,9 +5,11 @@ from data_logger_python.data_logger_python import ParticipantData
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
                                 SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
                                 SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse,
-                                IncrementNumberOfRefinements, IncrementNumberOfRefinementsResponse)
+                                IncrementNumberOfRefinements, IncrementNumberOfRefinementsResponse,
+                                SetParameters, SetParametersResponse)
 
 from learning_from_demonstration.srv import GetContext
+import copy
 
 class DataLoggerNode(object):
     def __init__(self):
@@ -21,6 +23,7 @@ class DataLoggerNode(object):
         self._increment_number_of_refinements_service = rospy.Service('increment_number_of_refinements', IncrementNumberOfRefinements, self._incrementNumberOfRefinements)
         # self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
         self._to_csv_service = rospy.Service('to_csv', ToCsv, self._toCsv)
+        self._set_parameters_service = rospy.Service('data_logger/set_parameters', SetParameters, self._setParameters)
 
         self.data = {}
 
@@ -31,13 +34,35 @@ class DataLoggerNode(object):
         sex = req.sex.data
 
         self.participant_data = ParticipantData(number, sex, age)
-        self.data[number] = self.participant_data
+        self.data[number] = copy.deepcopy(self.participant_data)
 
         resp = CreateParticipantResponse()
-        print(number)
+        rospy.loginfo("loaded/created participant " + str(number) + ": " + str(self.data[number]))
 
         return resp
+    
+    def _setParameters(self, req):
+        number = req.number.data
+        object_position = req.object_position.data
+        variation = req.variation.data
+        trial = req.trial.data
+        method = req.method.data
 
+        self.data[number].setMethod(method)
+        self.data[number].setTrial(trial)
+        self.data[number].setObjectPosition(object_position)
+        self.data[number].setVariation(variation)
+
+        rospy.loginfo("Data logger parameters set to: ")
+        rospy.loginfo("method " + str(method))
+        rospy.loginfo("variation " + str(variation))
+        rospy.loginfo("object position " + str(object_position))
+        rospy.loginfo("trial " + str(trial))
+
+        resp = SetParametersResponse()
+        
+        return resp       
+        
     def _addRefinement(self, req):
         rospy.loginfo("Adding refinement using service")
         number = req.number.data
