@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: marco_description
+    relative_path: robots/marco_titanium.urdf.xacro
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/marco.srdf
+  CONFIG:
+    author_name: Darshan
+    author_email: darshanin.nl@gmail.com
+    generated_timestamp: 1534170088

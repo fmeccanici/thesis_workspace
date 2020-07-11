@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/darshan/marco_ws_test/devel/include",
+                "/opt/ros/kinetic/include",
+                "/home/darshan/marco_ws_test/src/marco_dynamixel/DynamixelSDK/include",
+                "/home/darshan/marco_ws_test/src/marco_dynamixel/dynamixel_workbench_ros_control/include",
+                "/home/darshan/marco_ws_test/src/marco_dynamixel/dynamixel_workbench_single_manager/include",
+                "/home/darshan/marco_ws_test/src/marco_dynamixel/dynamixel_workbench_toolbox/include",
+                "/home/darshan/marco_ws_test/src/telemanip_slave/marco_arm_int/include",
+                "/home/darshan/marco_ws_test/src/marco_wifi/include",
+                "/home/darshan/marco_ws_test/src/moveit_visual_tools/include",
+                "/home/darshan/marco_ws_test/src/marco_navigation/collision_aware_nav/include",
+                "/home/darshan/marco_ws_test/src/telemanip_slave/slave_control/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,19 @@
+<package>
+    <name>execution_failure_detection</name>
+    <version>1.0.0</version>
+    <description>
+        Package that detects failures in execution for my experiment
+    </description>
+    <maintainer email="f.meccanici@heemskerk-innovative.nl">Floris Meccanici</maintainer>
+    <author>Floris Meccanici</author>
+    <license>new BSD</license>
+
+<run_depend>rospy</run_depend>
+<buildtool_depend>catkin</buildtool_depend>
+
+<run_depend>std_msgs</run_depend>
+<build_depend>std_msgs</build_depend>
+<run_depend>geometry_msgs</run_depend>
+<build_depend>geometry_msgs</build_depend>
+
+</package>
