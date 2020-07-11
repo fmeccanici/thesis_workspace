@@ -12,36 +12,49 @@ class ExecutionFailureNode(object):
         self.model_pub = rospy.Publisher('execution_failure_detection/model_visualization', MarkerArray, queue_size=10)
         self.frame_id = 'base_footprint'
 
-        for i,model_filename in enumerate(os.listdir(self.model_path)): 
-            pose = Pose()
-            if model_filename.endswith(".stl") or model_filename.endswith(".dae"):
-                
-                if os.path.splitext(model_filename)[0] == "kitchen_table":
-                    pose.position.x = 0.478747
-                    pose.position.y = -0.660374
-                    pose.position.z = 0.0
-                
-                elif os.path.splitext(model_filename)[0] == "aruco_cube_5cm":
-                    pose.position.x = 0.81999491302
-                    pose.position.y = 0.299999273129
-                    pose.position.z = 0.708
+        x = 0.8
+        y = 1.5
+        z = 0.66
 
-                model = Marker(header=Header(stamp=rospy.Time.now(),
-                                                frame_id=self.frame_id),
-                                                pose=pose,
-                                                type=Marker.MESH_RESOURCE,
-                                                color=ColorRGBA(r=1, g=0, b=0, a=1),
-                                                mesh_resource="package://execution_failure_detection/models/" + model_filename,
-                                                scale=Vector3(1.0,1.0,1.0),
-                                                id=i,
-                                                action=Marker.ADD)
-                # model = Marker()
-                # model.type = Marker.MESH_RESOURCE
-                # model.frame_id = self.frame_id
-                # model.mesh_resource = self.model_path + model_filename
-                self.models.append(model)
+        pose = Pose()
+        pose.position.x = 0.478747 + x/2
+        pose.position.y = -0.660374 + y/2
+        pose.position.z = 0.0 + z/2
+        color = 'red'
 
+        self.addCube(x,y,z,pose, color)
 
+        x = 0.05
+        y = 0.05
+        z = 0.1
+
+        pose = Pose()
+        pose.position.x = 0.81999491302 
+        pose.position.y = 0.299999273129 
+        pose.position.z = 0.708 
+        color = 'blue'
+
+        self.addCube(x,y,z,pose, color)
+
+_path + model_filename
+                # self.models.append(model)
+
+    def addCube(self, x, y, z, pose, color):
+        if color == 'red':
+            color=ColorRGBA(r=1, g=0, b=0, a=1)
+        elif color == 'blue':
+            color=ColorRGBA(r=0, g=0, b=1, a=1)
+
+        cube = Marker(header=Header(stamp=rospy.Time.now(),
+                                        frame_id=self.frame_id),
+                                        pose=pose,
+                                        type=Marker.CUBE,
+                                        color=color,
+                                        id=len(self.models)+1,
+                                        scale=Vector3(x, y, z),
+                                        action=Marker.ADD)
+        self.models.append(cube)
+    
     def visualizeModels(self):
         self.model_pub.publish(self.models)
 
