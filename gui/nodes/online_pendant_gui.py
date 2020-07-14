@@ -21,6 +21,7 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
                                 SetParameters)
 
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
+from execution_failure_detection.srv import GetExecutionFailure
 
 # ros messages
 from sensor_msgs.msg import JointState
@@ -544,6 +545,22 @@ class OnlinePendantGUI(QMainWindow):
             print("No participant number set!")
             return -1
         # do not load participant here --> keeps storing/incrementing the initial value
+        method_msg = Byte()
+
+        # method 3: online + pendant
+        method_msg.data = 3
+        object_position_msg = Byte()
+        object_position_msg.data = self.getObjectPosition()
+        context_msg = Point()
+        try:
+            context_msg = self.context
+        except AttributeError:
+            rospy.loginfo("Context not set!")
+            return -1
+        variation_msg = Byte()
+        variation_msg.data = self.getVariation()
+        trial_msg = Byte()
+        trial_msg.data = self.getTrial()
         
         try:
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
@@ -563,6 +580,33 @@ class OnlinePendantGUI(QMainWindow):
                 resp = refine_trajectory(self.refined_trajectory, self.T_desired)
                 
             self.refined_trajectory = resp.refined_trajectory
+            obstacle_hit = resp.obstacle_hit.data
+            
+            execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
+            resp = execution_failure()
+            object_reached = resp.object_reached.data
+
+            print("\n")
+
+            rospy.loginfo("object missed: " + str(not object_reached))
+            rospy.loginfo("obstacle hit: " + str(obstacle_hit))
+            
+            print("\n")
+
+            if obstacle_hit:
+                rospy.wait_for_service('set_obstacles_hit', timeout=2.0)
+                set_obstacle_hit = rospy.ServiceProxy('set_obstacles_hit', SetObstaclesHit)
+                
+                resp = set_obstacle_hit(number_msg, object_position_msg, 
+                                        variation_msg, trial_msg)
+            if not object_reached:
+                rospy.wait_for_service('set_object_missed', timeout=2.0)
+
+                set_object_missed = rospy.ServiceProxy('set_object_missed', SetObjectMissed)
+
+                
+                resp = set_object_missed(number_msg, object_position_msg, 
+                                        variation_msg, trial_msg)
             
             increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
             increment_refinement(number_msg)
@@ -880,6 +924,7 @@ class OnlinePendantGUI(QMainWindow):
         self.startNode('trajectory_refinement', 'trajectory_refinement_keyboard.launch')
         self.startNode('teleop_control', 'keyboard_control.launch')
         self.startNode('data_logger', 'data_logging.launch')
+        self.startNode('execution_failure_detection', 'execution_failure_detection.launch')
 
         self.lineEdit.setText('1')
         

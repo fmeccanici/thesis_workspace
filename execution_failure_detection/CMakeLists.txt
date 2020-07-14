@@ -12,7 +12,12 @@
     FILES
     GetExecutionFailure.srv
   )
-  
+
+add_message_files(
+   FILES
+   ExecutionFailure.msg
+ )
+
 catkin_python_setup()
 
 generate_messages(

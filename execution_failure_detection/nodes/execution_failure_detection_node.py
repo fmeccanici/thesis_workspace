@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy, os, tf
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import Header, ColorRGBA, Bool
@@ -8,6 +10,7 @@ from pyquaternion import Quaternion
 
 from gazebo_msgs.msg import LinkStates
 from execution_failure_detection.srv import GetExecutionFailure, GetExecutionFailureResponse
+from execution_failure_detection.msg import ExecutionFailure
 
 class ExecutionFailureNode(object):
     def __init__(self, model_path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/models/'):
@@ -38,7 +41,7 @@ class ExecutionFailureNode(object):
         self.link_states_sub = rospy.Subscriber('/gazebo/link_states', LinkStates, self.linkStatesCallback)
 
         self.execution_failure_service = rospy.Service('get_execution_failure', GetExecutionFailure, self._getExecutionFailure)
-
+        self.execution_failure_pub = rospy.Publisher('execution_failure', ExecutionFailure, queue_size=10)
         self.listener = tf.TransformListener()
         
 
@@ -318,9 +321,16 @@ class ExecutionFailureNode(object):
             self.setEllipsoidOrigin(ellipsoid_type='all')
             self.addEllipsoid(ellipsoid_type='all')
             self.visualizeModels()
-            print("obstacle hit: " + str(self.isObstacleHit()))
-            print("object reached: " + str(self.isObjectReached()))
-            print('\n')
+
+            execution_failure_msg = ExecutionFailure()
+            execution_failure_msg.object_reached = Bool(self.isObjectReached())
+            execution_failure_msg.obstacle_hit = Bool(self.isObstacleHit())
+
+            self.execution_failure_pub.publish(execution_failure_msg)
+
+            # print("obstacle hit: " + str(self.isObstacleHit()))
+            # print("object reached: " + str(self.isObjectReached()))
+            # print('\n')
             r.sleep()
 
 if __name__ == "__main__":

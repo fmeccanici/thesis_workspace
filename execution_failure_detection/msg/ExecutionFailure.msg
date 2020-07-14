@@ -1,0 +1,2 @@
+std_msgs/Bool object_reached
+std_msgs/Bool obstacle_hit

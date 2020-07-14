@@ -10,7 +10,7 @@ class DataAnalysis(object):
         self.data = {}
         self.num_methods = 4
         self.num_object_positions = 6
-        self.num_trials = 10
+        self.num_trials = 5
 
     def loadData(self, participant_number):
         participant = ParticipantData(participant_number, 0, 0)
@@ -83,6 +83,37 @@ class DataAnalysis(object):
 
         return refinements_per_object_position
 
+    def getNumberOfObjectMissed(self, participant_number, method, variation):
+        methods = self.data[participant_number].getMethods()
+
+        object_missed_per_object_position = []
+
+        for object_position in methods[method]['variation'][variation]['object_position']:
+            object_missed = 0
+
+            for trial in methods[method]['variation'][variation]['object_position'][object_position]['trial']:
+                object_missed += int(methods[method]['variation'][variation]['object_position'][object_position]['trial'][trial]['success'])
+
+            object_missed_per_object_position.append(object_missed)
+
+        return object_missed_per_object_position
+
+    def getNumberOfObstaclesHit(self, participant_number, method, variation):
+        methods = self.data[participant_number].getMethods()
+
+        obstacle_hit_per_object_position = []
+
+        for object_position in methods[method]['variation'][variation]['object_position']:
+            obstacle_hit = 0
+
+            for trial in methods[method]['variation'][variation]['object_position'][object_position]['trial']:
+                obstacle_hit += int(methods[method]['variation'][variation]['object_position'][object_position]['trial'][trial]['success'])
+
+            obstacle_hit_per_object_position.append(object_missed)
+
+        return obstacle_hit_per_object_position
+
+
     def getNumberOfSuccess(self, participant_number, method, variation):
         methods = self.data[participant_number].getMethods()
         
@@ -143,7 +174,26 @@ class DataAnalysis(object):
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_refinements.pdf')
 
+    def plotNumberOfObjectMissed(self, participant_number):
+        # set to test, need to loop and calculate mean in final version
+        variation = 1
+
+        methods = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
+        object_positions = ['1', '2', '3', '4', '5', '6']
+
+        plt.figure()
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_success = self.getNumberOfSuccess(participant_number, method, variation)
+            plt.bar(object_positions, [ x / self.num_trials * 100 for x in number_of_success ] )
+            plt.title(methods[method-1])
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Successfull trials [%]")
+            plt.tight_layout()
         
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_successes.pdf')
+
+        plt.figure()
 
     def plotNumberOfSuccess(self, participant_number):
         # set to test, need to loop and calculate mean in final version
@@ -164,6 +214,8 @@ class DataAnalysis(object):
         
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_successes.pdf')
 
+        plt.figure()
+
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
     data_analysis.loadData(99)
@@ -173,4 +225,4 @@ if __name__ == "__main__":
     # data_analysis.calculateAdaptationTime(1, 3, 1)
     data_analysis.plotAdaptationTime(99)
     data_analysis.plotNumberOfRefinements(99)
-    # data_analysis.plotNumberOfSuccess(1)
+    data_analysis.plotNumberOfSuccess(99)

@@ -15,6 +15,7 @@ from pynput.keyboard import Key, Listener, KeyCode
 from learning_from_demonstration.srv import AddDemonstration, AddDemonstrationResponse, MakePrediction, MakePredictionResponse, SetObject, SetObjectResponse
 from promp_context_ros.msg import prompTraj
 from trajectory_refinement.srv import RefineTrajectory, RefineTrajectoryResponse, CalibrateMasterPose, CalibrateMasterPoseResponse
+from execution_failure_detection.srv import GetExecutionFailure
 
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from master_control.msg import ControlComm
@@ -22,7 +23,8 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from geometry_msgs.msg import PoseStamped, WrenchStamped, PoseArray, Pose, Point
 from aruco_msgs.msg import MarkerArray
 from teleop_control.msg import Keyboard
-
+from std_msgs.msg import Bool
+from execution_failure_detection.msg import ExecutionFailure
 
 # import own python packages
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
@@ -77,7 +79,7 @@ class trajectoryRefinement():
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         # self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
         # self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
-
+        self.execution_failure_sub = rospy.Subscriber("/execution_failure", ExecutionFailure, self._executionFailureCallback)
 
         # services
         self._refine_trajectory_service = rospy.Service('refine_trajectory', RefineTrajectory, self._refine_trajectory)
@@ -99,6 +101,10 @@ class trajectoryRefinement():
     def _get_parameters(self):
         self.button_source = rospy.get_param('~button_source')
         print("Button source set to: " + str(self.button_source))
+
+    def _executionFailureCallback(self, data):
+        self.object_reached = data.object_reached.data
+        self.obstacle_hit = data.obstacle_hit.data
 
     def _keyboard_callback(self, data):
 
@@ -262,6 +268,7 @@ class trajectoryRefinement():
         self.end_effector_goal_pub.publish(pose)
 
     def refineTrajectory(self, traj, dt):
+        self.obstacle_hit_once = False
 
         traj_pos = self.parser.getCartesianPositions(traj)
         refined_traj = []
@@ -343,6 +350,21 @@ class trajectoryRefinement():
             slave_goal.header.stamp = rospy.Time.now() 
 
             self.moveEEto(slave_goal)
+
+            # check if collision occurs with environment
+            try:
+                # get_execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
+                # resp = get_execution_failure()
+
+                # # if collision occurs set to true for this refinement
+                # if resp.obstacle_hit.data == True:
+                #     self.obstacle_hit = resp.obstacle_hit.data
+                if self.obstacle_hit == True and self.obstacle_hit_once == False:
+                    self.obstacle_hit_once = True
+
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s"%e)
+
             # print("dt = " + str(dt))
 
             time.sleep(dt)
@@ -507,6 +529,12 @@ class trajectoryRefinement():
         # print("new_traj_msg = " + str(new_traj_msg.times))
         response = RefineTrajectoryResponse()
         response.refined_trajectory = new_traj_msg
+        
+        obstacle_hit_msg = Bool()
+        
+        obstacle_hit_msg.data = self.obstacle_hit_once
+
+        response.obstacle_hit = obstacle_hit_msg
 
         return response
     

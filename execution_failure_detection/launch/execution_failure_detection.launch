@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="execution_failure_detection" name="execution_failure_detection"
+    type="execution_failure_detection_node.py">
+    </node>
+</launch>
+
+

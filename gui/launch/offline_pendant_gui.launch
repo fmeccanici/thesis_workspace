@@ -1,0 +1,7 @@
+<launch>
+
+    <node pkg="gui" name="gui" 
+    type="offline_pendant_gui.py" output="screen">
+    </node>
+
+</launch>

@@ -282,6 +282,7 @@ class ParticipantData(object):
         # self.methods[method]['obstacles_hit'] += 1
 
     def setObjectMissed(self):
+
         self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['object_missed'] = True
         self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 

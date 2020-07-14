@@ -24,6 +24,7 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from teach_pendant.srv import GetDemonstrationPendant
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from std_srvs.srv import Empty
+from execution_failure_detection.srv import GetExecutionFailure
 
 # ros messages
 from sensor_msgs.msg import JointState
@@ -570,6 +571,8 @@ class OnlinePendantGUI(QMainWindow):
             print("No participant number set!")
             return -1
         # do not load participant here --> keeps storing/incrementing the initial value
+
+        # do not load participant here --> keeps storing/incrementing the initial value
         
         try:
             rospy.wait_for_service('execute_trajectory', timeout=2.0)
@@ -706,7 +709,31 @@ class OnlinePendantGUI(QMainWindow):
             return 19
 
     def onNextClick(self):
-        
+        number_msg = Byte()
+        try:
+            number_msg.data = int(self.lineEdit_20.text())
+        except ValueError: 
+            print("No participant number set!")
+            return -1
+
+        # get stuff used for adding the failure
+        method_msg = Byte()
+
+        # method 4: offline + pendant
+        method_msg.data = 4
+        object_position_msg = Byte()
+        object_position_msg.data = self.getObjectPosition()
+        context_msg = Point()
+        try:
+            context_msg = self.context
+        except AttributeError:
+            rospy.loginfo("Context not set!")
+            return -1
+        variation_msg = Byte()
+        variation_msg.data = self.getVariation()
+        trial_msg = Byte()
+        trial_msg.data = self.getTrial()
+
         self.checkBox.setChecked(True)
         self.checkBox_2.setChecked(True)
         
@@ -718,12 +745,41 @@ class OnlinePendantGUI(QMainWindow):
 
             resp = get_demo_pendant()
             self.refined_trajectory = resp.demo
-            rospy.loginfo(self.refined_trajectory)
-            rospy.loginfo("Got an offline taught trajectory using the Keyboard")
+            obstacle_hit = resp.obstacle_hit.data
+            object_reached = resp.object_reached.data
+            
+            print("\n")
 
+            rospy.loginfo("object missed: " + str(not object_reached))
+            rospy.loginfo("obstacle hit: " + str(obstacle_hit))
+            
+            print("\n")
+
+            # rospy.loginfo(self.refined_trajectory)
+            rospy.loginfo("Got an offline taught trajectory using the Keyboard")
+            
+            # set failure
+            if obstacle_hit:
+                set_obstacle_hit = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
+
+                rospy.wait_for_service('set_obstacles_hit', timeout=2.0)
+                set_obstacle_hit = rospy.ServiceProxy('set_obstacles_hit', SetObstaclesHit)
+                
+                resp = set_obstacle_hit(number_msg, object_position_msg, 
+                                        variation_msg, trial_msg)
+            if not object_reached:
+                set_object_missed = rospy.ServiceProxy('set_object_missed', SetObjectMissed)
+
+                rospy.wait_for_service('set_object_missed', timeout=2.0)
+                set_obstacle_hit = rospy.ServiceProxy('set_object_missed', SetObjectMissed)
+                
+                resp = set_object_missed(number_msg, object_position_msg, 
+                                        variation_msg, trial_msg)
+            
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
         
+
         # move to next trial
         next_trial = int(self.lineEdit.text()) + 1
         max_trials = 5
@@ -982,6 +1038,7 @@ class OnlinePendantGUI(QMainWindow):
         self.startNode('learning_from_demonstration', 'learning_from_demonstration.launch')
         self.startNode('teach_pendant', 'teach_pendant.launch')
         self.startNode('data_logger', 'data_logging.launch')
+        self.startNode('execution_failure_detection', 'execution_failure_detection.launch')
 
         # set trial
         self.lineEdit.setText('1')

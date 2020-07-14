@@ -15,22 +15,25 @@ from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSplin
 from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext, GoToPose
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from os import listdir
 from os.path import isfile, join
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_visualizer.msg import TrajectoryVisualization
+from execution_failure_detection.msg import ExecutionFailure
 
 class KeyboardControl():
     def __init__(self):
         rospy.init_node('teach_pendant')
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self._get_demonstration_service = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
+        self.execution_failure_sub = rospy.Subscriber("/execution_failure", ExecutionFailure, self._executionFailureCallback)
 
         self.keyboard_pub_ = rospy.Publisher('teach_pendant', Keyboard, queue_size=10)
         self.keyboard = Keyboard()
         
         self.execution_phase = True
+        # self.obstacle_hit = False
 
         self.parser = trajectoryParser()
         self.EEtrajectory = []
@@ -50,6 +53,11 @@ class KeyboardControl():
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
         rospy.loginfo("You can start the teach pendant")
+    
+    def _executionFailureCallback(self, data):
+        self.object_reached = data.object_reached.data
+        self.obstacle_hit = data.obstacle_hit.data
+
     def quaternion_rotation(self, axis, angle):
         w = np.cos(angle/2)
         x = 0
@@ -75,6 +83,12 @@ class KeyboardControl():
 
         resp = GetDemonstrationPendantResponse()
         resp.demo = self.parser.predicted_trajectory_to_prompTraj_message(self.EEtrajectory, self.parser.point_to_list(self.context))
+        resp.obstacle_hit = Bool(self.obstacle_hit_once)
+        resp.object_reached = Bool(self.object_reached_once)
+
+        # set obstacle hit back to false
+        self.obstacle_hit_once = False
+        self.object_reached_once = False
 
         return resp
  
@@ -255,12 +269,17 @@ class KeyboardControl():
     def ros_loop(self):
         r = rospy.Rate(30)
         self.keyboard_toggle = 1
+        self.obstacle_hit_once = False
 
         while not rospy.is_shutdown():
-            
+
 
             ### Only do offline teaching when we are not executing the trajectory
             if self.execution_phase == False:
+                
+                # detect if obstacle is hit
+                if self.obstacle_hit == True:
+                    self.obstacle_hit_once = True
 
                 self.keyboard_pub_.publish(self.keyboard)
                 self.teach_loop()
@@ -298,6 +317,8 @@ class KeyboardControl():
                 except (rospy.ServiceException, rospy.ROSException) as e:
                     print("Service call failed: %s" %e)
                 
+                # check if object is reached
+                self.object_reached_once = self.object_reached
 
                 # go to initial pose
                 self.goToInitialPose()
@@ -322,6 +343,7 @@ class KeyboardControl():
                     print("Service call failed: %s" %e)
 
             if self.execution_phase == False and self.keyboard.key.data == 'enter':
+
                 self.interpolate()
 
                 # empty waypoints
@@ -363,6 +385,8 @@ class KeyboardControl():
 
                 resp = visualize_trajectory(visualization_msg)
 
+                self.object_reached_once = self.object_reached
+                
                 # go to initial position
                 self.goToInitialPose()
 
