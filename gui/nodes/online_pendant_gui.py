@@ -1254,14 +1254,12 @@ class OnlinePendantGUI(QMainWindow):
         except AttributeError:
             rospy.loginfo("Context not set!")
             return -1
-        variation_msg = Byte()
-        variation_msg.data = self.getVariation()
         trial_msg = Byte()
         trial_msg.data = self.getTrial()
 
         rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
         set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
-        resp = set_parameters(number_msg, object_position_msg, variation_msg, trial_msg, method_msg)
+        resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg)
 
 
     def onSaveClick(self):

@@ -23,7 +23,7 @@ from std_msgs.msg import Bool, Float32
 from geometry_msgs.msg import Point
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from std_srvs.srv import Empty, EmptyResponse
-from execution_failure_detection.srv import ExecutionFailure
+from execution_failure_detection.msg import ExecutionFailure
 
 # import my own classes
 from learning_from_demonstration_python.learning_from_demonstration import learningFromDemonstration
