@@ -12,7 +12,7 @@ from learning_from_demonstration_python.trajectory_parser import trajectoryParse
 # ros services
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
-                                                WelfordUpdate)
+                                                WelfordUpdate, ExecuteTrajectory)
 from gazebo_msgs.srv import SetModelState
 from trajectory_visualizer.srv import VisualizeTrajectory, VisualizeTrajectoryResponse, ClearTrajectories, ClearTrajectoriesResponse
 from data_logger.srv import (CreateParticipant, AddRefinement,

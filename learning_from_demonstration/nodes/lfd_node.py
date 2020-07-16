@@ -38,7 +38,7 @@ import time
 import matplotlib
 from os import listdir
 from os.path import isfile, join
-import os, stat, time
+import os, stat, time, copy
 from _thread import start_new_thread
 
 # use agg to avoid gui from over his nek gaan 
