@@ -1,6 +1,3 @@
 std_msgs/Byte number
-std_msgs/Byte object_position
-std_msgs/Byte variation
-std_msgs/Byte trial
 
 ---

@@ -30,6 +30,7 @@ from gazebo_msgs.msg import ModelState
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.msg import TrajectoryVisualization
 from std_msgs.msg import String, Bool, Byte, UInt32, Float32
+from data_logger.msg import TrajectoryData
 
 # rviz python
 from rviz_python.rviz_python import rvizPython
@@ -435,11 +436,6 @@ class OnlinePendantGUI(QMainWindow):
         self.pushButton_32.clicked.connect(self.onObstacleHitClick)
         self.pushButton_33.clicked.connect(self.onObjectMissedClick)
 
-
-
-
-
-
     # multithread for executing trajectories
     # needed since otherwise the GUI will freeze
     def useMultithread(self, function):
@@ -485,21 +481,10 @@ class OnlinePendantGUI(QMainWindow):
 
     def startTimer(self):
         self.start_time = time.time()
-        # self.stop_timer = False
-
-        # while True:
-        #     if self.stop_timer == True:
-        #         break
-        #     Felse:
-        #         self.elapsed_time = self.elapsed_time_prev + (time.time() - t)
-        #         self.lineEdit_21.setText(str(round(self.elapsed_time, 1)))
 
     def stopTimer(self):
         rospy.loginfo("Stopped timer")
         
-        # # prev is used to store the previous elapsed time
-        # self.elapsed_time_prev = self.elapsed_time
-        # self.stop_timer = True
         if self.start_time == 0:
             self.elapsed_time = 0
         else:
@@ -544,23 +529,6 @@ class OnlinePendantGUI(QMainWindow):
         except ValueError: 
             print("No participant number set!")
             return -1
-        # do not load participant here --> keeps storing/incrementing the initial value
-        method_msg = Byte()
-
-        # method 3: online + pendant
-        method_msg.data = 3
-        object_position_msg = Byte()
-        object_position_msg.data = self.getObjectPosition()
-        context_msg = Point()
-        try:
-            context_msg = self.context
-        except AttributeError:
-            rospy.loginfo("Context not set!")
-            return -1
-        variation_msg = Byte()
-        variation_msg.data = self.getVariation()
-        trial_msg = Byte()
-        trial_msg.data = self.getTrial()
         
         try:
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
@@ -593,30 +561,15 @@ class OnlinePendantGUI(QMainWindow):
             
             print("\n")
 
-            if obstacle_hit:
-                rospy.wait_for_service('set_obstacles_hit', timeout=2.0)
-                set_obstacle_hit = rospy.ServiceProxy('set_obstacles_hit', SetObstaclesHit)
-                
-                resp = set_obstacle_hit(number_msg, object_position_msg, 
-                                        variation_msg, trial_msg)
-            if not object_reached:
-                rospy.wait_for_service('set_object_missed', timeout=2.0)
+            # store refinement along with if it failed or not
+            self.storeData(refinement=1, object_missed = not object_reached, obstacle_hit = obstacle_hit )
 
-                set_object_missed = rospy.ServiceProxy('set_object_missed', SetObjectMissed)
-
-                
-                resp = set_object_missed(number_msg, object_position_msg, 
-                                        variation_msg, trial_msg)
-            
+            # increment number of refinements
+            rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
             increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
             increment_refinement(number_msg)
 
             rospy.loginfo("Got a refined trajectory")
-            
-            # increment number of refinements
-            rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
-
-
 
             # make sure the previous refinement is deleted
             # visualize refinement and prediction
@@ -624,13 +577,10 @@ class OnlinePendantGUI(QMainWindow):
             self.onVisualizeClick()
             self.setVisualizationCheckBoxes(what_to_visualize='both')
             self.onVisualizeClick()
+
+            self.obstacle_hit_refinement = copy.deepcopy(obstacle_hit)
+            self.object_reached_refinement = copy.deepcopy(object_reached)
             
-            self.onInitialPoseClick()
-            self.onSetObjectPositionClick()
-
-
-            # self.stopTimer()
-
         except AttributeError as e:
                 rospy.loginfo(("No refined trajectory available yet!: {}").format(e))
 
@@ -731,6 +681,9 @@ class OnlinePendantGUI(QMainWindow):
 
         obstacle_hit, object_reached = self.executeTrajectory(self.prediction)
 
+        # store prediction along with failure
+        self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_reached=object_reached)
+
         if obstacle_hit or object_reached:
             print("Trajectory failure!")
             # should also print this in operator GUI
@@ -741,12 +694,6 @@ class OnlinePendantGUI(QMainWindow):
             # move ee to initial pose
             self.onInitialPoseClick()
 
-            # sleep again to allow the operator to know 
-            # that refinement is needed
-            time.sleep(2)
-
-            self.onRefineClick()
-            
     def onNextClick(self):
         
         self.checkBox.setChecked(True)
@@ -1054,51 +1001,27 @@ class OnlinePendantGUI(QMainWindow):
             rospy.loginfo("No trial set!")
 
     def storeData(self, *args, **kwargs):
+        number_msg = Byte(int(self.lineEdit_20.text()))
 
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
         
-        if "prediction" in kwargs and "refined" in kwargs:
-            file_name = 'predicted_trajectory.csv'
-            data = 'x, y, z, qx, qy, qz, qw, t, \n'
-
-            with open(path+file_name, 'w+') as f:
-                for i,pose in enumerate(self.prediction.poses):
-                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
-                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
-                                                                pose.orientation.w, self.prediction.times[i])
-                f.write(data)
+        if "prediction" in kwargs and "refined" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
             
-            file_name = 'refined_trajectory.csv'
-            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+            # store prediction and refinement in dictionary in data logger
+            self.storePrediction(prediction, number_msg)
+            self.storeRefinement(refinement, number_msg)
 
-            with open(path+file_name, 'w+') as f:
-                for i,pose in enumerate(self.refined_trajectory.poses):
-                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
-                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
-                                                                pose.orientation.w, self.prediction.times[i])
-                f.write(data)
+        elif "prediction" in kwargs and "refined" not in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
+            self.storePrediction(prediction, number_msg)
 
-        elif "prediction" in kwargs and "refined" not in kwargs:
-            file_name = 'predicted_trajectory.csv'
-            data = 'x, y, z, qx, qy, qz, qw, t, \n'
+        elif "prediction" not in kwargs and "refined" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
+            refinement = TrajectoryData(self.refinement, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
+            self.storeRefinement(refinement, number_msg)
 
-            with open(path+file_name, 'w+') as f:
-                for i,pose in enumerate(self.prediction.poses):
-                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
-                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
-                                                                pose.orientation.w, self.prediction.times[i])
-                f.write(data)
 
-        elif "prediction" not in kwargs and "refined" in kwargs:
-            file_name = 'refined_trajectory.csv'
-            data = 'x, y, z, qx, qy, qz, qw, t, \n'
-            
-            with open(path+file_name, 'w+') as f:
-                for i,pose in enumerate(self.refined_trajectory.poses):
-                    data += "%s, %s, %s, %s, %s, %s, %s, %s \n" % (pose.position.x, pose.position.y, pose.position.z, 
-                                                                pose.orientation.x, pose.orientation.y, pose.orientation.z,
-                                                                pose.orientation.w, self.refined_trajectory.times[i])
-                f.write(data)
 
     def onObstacleHitClick(self):
         number_msg = Byte()
@@ -1159,27 +1082,27 @@ class OnlinePendantGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
     
+
+    def storePrediction(self, prediction, number_msg):
+        try:
+            rospy.wait_for_service('set_prediction', timeout=2.0)
+            set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
+            resp = set_prediction(number_msg)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def storeRefinement(self, refinement, number_msg):
+        try:
+            rospy.wait_for_service('add_refinement', timeout=2.0)
+            add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
+            resp = add_refinement(number_msg)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
     def onStoreClick(self):
         number_msg = Byte()
         number_msg.data = int(self.lineEdit_20.text())
-        method_msg = Byte()
 
-        # method 3: online + pendant
-        method_msg.data = 3
-        object_position_msg = Byte()
-        object_position_msg.data = self.getObjectPosition()
-        context_msg = Point()
-        try:
-            context_msg = self.context
-        except AttributeError:
-            rospy.loginfo("Context not set!")
-            return -1
-
-        variation_msg = Byte()
-        variation_msg.data = self.getVariation()
-        trial_msg = Byte()
-        trial_msg.data = self.getTrial()
-            
         time_msg = Float32()
         time_msg.data = self.elapsed_time
 
@@ -1193,8 +1116,7 @@ class OnlinePendantGUI(QMainWindow):
                 rospy.wait_for_service('set_prediction', timeout=2.0)
                 set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
 
-                resp = set_prediction(number_msg, object_position_msg, variation_msg,
-                                    trial_msg, context_msg, time_msg, method_msg)
+                resp = set_prediction(number_msg)
 
                 
                 rospy.wait_for_service('add_refinement', timeout=2.0)

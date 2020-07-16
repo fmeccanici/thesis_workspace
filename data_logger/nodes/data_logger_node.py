@@ -66,11 +66,6 @@ class DataLoggerNode(object):
     def _addRefinement(self, req):
         rospy.loginfo("Adding refinement using service")
         number = req.number.data
-        context = req.context
-        object_position = req.object_position.data
-        time = req.time.data
-        trial = req.trial.data
-        method = req.method.data 
 
         self.data[number].setRefinedTrajectory(from_file=1, context=context,
                                                 object_position=object_position, 
@@ -83,11 +78,6 @@ class DataLoggerNode(object):
         rospy.loginfo("Set predicted trajectory using service")
         
         number = req.number.data
-        context = req.context
-        object_position = req.object_position.data
-        time = req.time.data
-        trial = req.trial.data
-        method = req.method.data 
 
         try:
             rospy.wait_for_service('get_context', timeout=2.0)
