@@ -1,3 +1,4 @@
 std_msgs/Byte number
-
+data_logger/TrajectoryData trajectory_data
+std_msgs/Float32 time
 ---

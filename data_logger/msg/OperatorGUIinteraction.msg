@@ -1,0 +1,2 @@
+std_msgs/Bool refine_prediction
+std_msgs/Bool refine_refinement

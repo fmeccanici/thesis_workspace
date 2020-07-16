@@ -14,6 +14,7 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
                                 SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse)
 
 from std_msgs.msg import UInt32, Bool, Byte
+from data_logger.msg import OperatorGUIinteraction
 
 class ImageWidget(QWidget):
 
@@ -48,6 +49,8 @@ class OperatorGUI(QMainWindow):
         rospy.init_node("operator_gui")
         self._rospack = rospkg.RosPack()
         # self._store_data_service = rospy.Service('store_data', StoreData, self._storeData)
+
+        self._operator_gui_interaction_pub = rospy.Publisher('operator_gui_interaction', OperatorGUI, queue_size=10)
 
         self.initUI()
         self.show()
@@ -103,8 +106,14 @@ class OperatorGUI(QMainWindow):
         self.radioButton.raise_()
         self.radioButton_2.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1300, 60, 511, 661))
+        self.groupBox_3.setGeometry(QRect(1400, 10, 511, 661))
         self.groupBox_3.setObjectName("groupBox_3")
+        self.pushButton = QPushButton(self.centralwidget)
+        self.pushButton.setGeometry(QRect(520, 770, 271, 101))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton_2 = QPushButton(self.centralwidget)
+        self.pushButton_2.setGeometry(QRect(810, 770, 271, 101))
+        self.pushButton_2.setObjectName("pushButton_2")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1920, 25))
@@ -135,15 +144,35 @@ class OperatorGUI(QMainWindow):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
+        self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Participant form"))
         self.label.setText(_translate("MainWindow", "Age"))
         self.label_2.setText(_translate("MainWindow", "Sex"))
         self.label_3.setText(_translate("MainWindow", "Number"))
-        self.radioButton.setText(_translate("MainWindow", "Male"))
+        self.radioButton.setText(_translate("MainWindow", "Ma&le"))
         self.radioButton_2.setText(_translate("MainWindow", "Female"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Instructions"))
+        self.pushButton.setText(_translate("MainWindow", "Red"))
+        self.pushButton_2.setText(_translate("MainWindow", "Green"))
+
         self.buttonBox.accepted.connect(self.on_ok_click)
         self.radioButton.setChecked(1)
+        self.pushButton.clicked.connect(self.onRedClick)
+        self.pushButton_2.clicked.connect(self.onGreenClick)
+
+    def onRedClick(self):
+        operator_gui_interaction = OperatorGUIinteraction()
+        operator_gui_interaction.refine_prediction = Bool(1)
+        operator_gui_interaction.refine_refinement = Bool(0)
+
+        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
+
+    def onGreenClick(self):
+        operator_gui_interaction = OperatorGUIinteraction()
+        operator_gui_interaction.refine_prediction = Bool(0)
+        operator_gui_interaction.refine_refinement = Bool(1)
+
+        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
 
     def on_ok_click(self):
         number = int(self.lineEdit.text())

@@ -1,7 +1,5 @@
 std_msgs/Byte number
-std_msgs/Byte object_position
-std_msgs/Byte trial
-geometry_msgs/Point context
 std_msgs/Float32 time
-std_msgs/Byte method
+TrajectoryData trajectory_data
+
 ---

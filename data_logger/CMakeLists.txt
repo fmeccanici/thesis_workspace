@@ -15,13 +15,17 @@
     AddRefinement.srv
     SetObjectMissed.srv
     SetObstaclesHit.srv
-    SetNumberOfUpdates.srv
     ToCsv.srv
     SetPrediction.srv
     IncrementNumberOfRefinements.srv
     SetParameters.srv
   )
-  
+  add_message_files(
+    FILES
+    TrajectoryData.msg
+    OperatorGUIinteraction.msg
+  )
+
 catkin_python_setup()
 
 generate_messages(

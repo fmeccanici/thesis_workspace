@@ -138,34 +138,30 @@ class ParticipantData(object):
         self.method = method
 
     def setRefinedTrajectory(self, *args, **kwargs):
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "time" in kwargs:
-            
-            context = kwargs["context"]
+        if "time" in kwargs and "refinement" in kwargs:            
+            refinement = kwargs["refinement"]
             time = kwargs["time"]
-            
-            path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
-            file_name = 'refined_trajectory.csv'
-            with open(path+file_name, 'r') as f:
-                reader = csv.reader(f)
-                data = list(reader)
-                x = []
-                y = []
-                z = []
-                qx = []
-                qy = []
-                qz = []
-                qw = []
-                t = []
+            trajectory = refinement.poses
+            t = refinement.t
 
-                for datapoint in data[1:]:
-                    x.append(float(datapoint[0]))
-                    y.append(float(datapoint[1]))
-                    z.append(float(datapoint[2]))
-                    qx.append(float(datapoint[3]))
-                    qy.append(float(datapoint[4]))
-                    qz.append(float(datapoint[5]))
-                    qw.append(float(datapoint[6]))
-                    t.append(float(datapoint[7]))
+            x = []
+            y = []
+            z = []
+            qx = []
+            qy = []
+            qz = []
+            qw = []
+            t = []
+
+            for i, datapoint in enumerate(trajectory):
+                x.append(float(datapoint.position.x))
+                y.append(float(datapoint.position.y))
+                z.append(float(datapoint.position.z))
+                qx.append(float(datapoint.orientation.x))
+                qy.append(float(datapoint.orientation.y))
+                qz.append(float(datapoint.orientation.z))
+                qw.append(float(datapoint.orientation.w))
+                t.append(float(t[i]))
 
             self.refined_trajectory['x'] = x
             self.refined_trajectory['y'] = y
@@ -192,36 +188,31 @@ class ParticipantData(object):
                 
     def setPredictedTrajectory(self, *args, **kwargs):
 
-        if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "time" in kwargs:
-            
-            context = kwargs["context"]
+        if "time" in kwargs and "prediction" in kwargs:            
+            prediction = kwargs["prediction"]
             time = kwargs["time"]
-            print("elapsed time to store python = " + str(time))
+            context = prediction.context
+            trajectory = prediction.poses
+            t = prediction.t
 
-            path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
-            file_name = 'predicted_trajectory.csv'
+            x = []
+            y = []
+            z = []
+            qx = []
+            qy = []
+            qz = []
+            qw = []
+            t = []
 
-            with open(path+file_name, 'r') as f:
-                reader = csv.reader(f)
-                data = list(reader)
-                x = []
-                y = []
-                z = []
-                qx = []
-                qy = []
-                qz = []
-                qw = []
-                t = []
-
-                for datapoint in data[1:]:
-                    x.append(float(datapoint[0]))
-                    y.append(float(datapoint[1]))
-                    z.append(float(datapoint[2]))
-                    qx.append(float(datapoint[3]))
-                    qy.append(float(datapoint[4]))
-                    qz.append(float(datapoint[5]))
-                    qw.append(float(datapoint[6]))
-                    t.append(float(datapoint[7]))
+            for i, datapoint in enumerate(trajectory):
+                x.append(float(datapoint.position.x))
+                y.append(float(datapoint.position.y))
+                z.append(float(datapoint.position.z))
+                qx.append(float(datapoint.orientation.x))
+                qy.append(float(datapoint.orientation.y))
+                qz.append(float(datapoint.orientation.z))
+                qw.append(float(datapoint.orientation.w))
+                t.append(float(t[i]))
 
             self.predicted_trajectory['x'] = x
             self.predicted_trajectory['y'] = y
@@ -231,27 +222,6 @@ class ParticipantData(object):
             self.predicted_trajectory['qz'] = qz
             self.predicted_trajectory['qw'] = qw
             self.predicted_trajectory['t'] = t
-
-            # self.predicted_trajectory['context'] = [context.x, context.y, context.z]
-
-            # if before_after == 1:
-            #     print('method = ' + str(method))
-            #     print('object_position = ' + str(object_position))
-
-
-            #     self.methods[method][object_position]['predicted_trajectory']['before'] = self.predicted_trajectory
-            #     with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test1.txt', 'w+') as f:
-            #         f.write(str(self.methods))
-
-            #     print("Set prediction before updating")
-
-            # else:
-            #     self.methods[method][object_position]['predicted_trajectory']['after'] = self.predicted_trajectory
-            #     self.methods[method][object_position]['predicted_trajectory']['number_of_updates'] = num_updates
-                
-            #     print("Set prediction after updating")
-
-            # self.methods[self.method][self.variation][self.object_position]['predicted'][self.trial] = self.predicted_trajectory
 
             trajectory = copy.deepcopy(self.predicted_trajectory)
 

@@ -2,7 +2,7 @@
 <launch>
 
     <node pkg="data_logger" name="operator_gui" 
-    type="gui.py" output="screen">
+    type="operator_gui.py" output="screen">
  
     </node>
 

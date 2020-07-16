@@ -66,10 +66,10 @@ class DataLoggerNode(object):
     def _addRefinement(self, req):
         rospy.loginfo("Adding refinement using service")
         number = req.number.data
+        refinement = req.trajectory_data.trajectory
+        time = req.trajectory_data.time.data
 
-        self.data[number].setRefinedTrajectory(from_file=1, context=context,
-                                                object_position=object_position, 
-                                                time=time, trial=trial, method=method)
+        self.data[number].setRefinedTrajectory(refinement=refinement, time=time)
     
         resp = AddRefinementResponse()
         return resp
@@ -78,6 +78,8 @@ class DataLoggerNode(object):
         rospy.loginfo("Set predicted trajectory using service")
         
         number = req.number.data
+        time = req.trajectory_data.time.data
+        prediction = req.trajectory_data.trajectory
 
         try:
             rospy.wait_for_service('get_context', timeout=2.0)
@@ -90,9 +92,8 @@ class DataLoggerNode(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)       
 
-        self.data[number].setPredictedTrajectory(from_file=1, context=context,
-                                                object_position=object_position, 
-                                                time=time, trial=trial, method=method)
+        self.data[number].setPredictedTrajectory(prediction=prediction,
+                                                time=time)
 
 
         resp = SetPredictionResponse()

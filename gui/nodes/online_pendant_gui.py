@@ -30,7 +30,7 @@ from gazebo_msgs.msg import ModelState
 from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.msg import TrajectoryVisualization
 from std_msgs.msg import String, Bool, Byte, UInt32, Float32
-from data_logger.msg import TrajectoryData
+from data_logger.msg import TrajectoryData, OperatorGUIinteraction
 
 # rviz python
 from rviz_python.rviz_python import rvizPython
@@ -90,6 +90,8 @@ class OnlinePendantGUI(QMainWindow):
         self.elapsed_time_prev = 0
         self.elapsed_time = 0
         self.start_time = 0
+        self.max_trials = 5
+        self.max_refinements = 5
 
         # initialize Qt GUI
         self.initGUI()
@@ -659,6 +661,10 @@ class OnlinePendantGUI(QMainWindow):
         return resp.obstacle_hit.data, resp.object_reached.data
 
     def startTrial(self):
+        
+        # set what to refine (prediction/refinements) to none
+        self.refine = 'none'
+
         # move ee to initial pose
         self.onInitialPoseClick()
 
@@ -684,7 +690,12 @@ class OnlinePendantGUI(QMainWindow):
         # store prediction along with failure
         self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_reached=object_reached)
 
-        if obstacle_hit or object_reached:
+        # loop the refinement until max refinements has reached
+        # or the last refinement was successful
+        number_of_refinements = 0
+
+        while obstacle_hit and not object_reached and number_of_refinements <= self.max_refinements:
+            
             print("Trajectory failure!")
             # should also print this in operator GUI
 
@@ -694,80 +705,165 @@ class OnlinePendantGUI(QMainWindow):
             # move ee to initial pose
             self.onInitialPoseClick()
 
-    def onNextClick(self):
-        
-        self.checkBox.setChecked(True)
-        self.checkBox_2.setChecked(True)
+            # wait until the operator clicked the red or green button
+            rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
+            refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
+            self.T_desired = 10.0
 
-        # move to next trial
+            if self.refine == 'prediction':
+
+                # we only need to start the timer if it is equal to zero, else just keep the timer running
+                if self.start_time == 0:
+                    # start timer
+                    self.startTimer()
+                else: pass
+
+                resp = refine_trajectory(self.prediction, self.T_desired)
+            elif self.refine == 'refinement':
+
+                # we only need to start the timer if it is equal to zero, else just keep the timer running
+                if self.start_time == 0:
+                    # start timer
+                    self.startTimer()
+                else: pass
+
+                resp = refine_trajectory(self.refined_trajectory, self.T_desired)
+            
+            self.refined_trajectory = resp.refined_trajectory
+            obstacle_hit = resp.obstacle_hit.data
+            execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
+            resp = execution_failure()
+            object_reached = resp.object_reached.data
+            
+            print("\n")
+
+            rospy.loginfo("object missed: " + str(not object_reached))
+            rospy.loginfo("obstacle hit: " + str(obstacle_hit))
+            
+            print("\n")
+            
+            # store refinement along with if it failed or not
+            self.storeData(refinement=1, object_missed = not object_reached, obstacle_hit = obstacle_hit )
+            # increment number of refinements
+            rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
+            increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
+            increment_refinement(number_msg)
+            number_of_refinements += 1
+
+            rospy.loginfo("Got a refined trajectory")
+            
+            # make sure the previous refinement is deleted
+            # visualize refinement and prediction
+            self.setVisualizationCheckBoxes(what_to_visualize='clear')
+            self.onVisualizeClick()
+            self.setVisualizationCheckBoxes(what_to_visualize='both')
+            self.onVisualizeClick()
+
+        ####### update model #######
+        # move ee to initial pose
+        self.onInitialPoseClick()
+        # add current refinement to model 
+        self.onAddModelClick()
+        self.stopTimer()
+
+        ###### save data ######
+        self.onSaveClick()
+        self.zeroTimer()
+
+        ####### move to next trial ########
         next_trial = int(self.lineEdit.text()) + 1
-        max_trials = 5
 
-        # move to next object position if total amount of trials is reached
-        if next_trial == max_trials + 1:
+        if next_trial == self.max_trials + 1:
             self.lineEdit.setText(str(1))
             next_object_position = self.getObjectPosition() + 1
             exec("self.radioButton_" + str(self.objectPositionToRadioButton(next_object_position)) + ".setChecked(True)")
-            
-            # move ee to initial pose
-            self.onInitialPoseClick()
-
-            # wait until arm is not in the way of the object
-            time.sleep(2)
-            self.onSetObjectPositionClick()
-
-            # needed to get correct context --> wait until arm is at initial pose
-            time.sleep(2)
-            
-            # get new context
-            self.onGetContextClick()
-            self.onPredictClick()
-
-            # clear all trajectories
-            self.checkBox_3.setChecked(False)
-            self.checkBox_4.setChecked(False)
-            self.onVisualizeClick()
-
-            # visualize prediction
-            self.checkBox_4.setChecked(True)
-            self.onVisualizeClick()
-
         else:
             self.lineEdit.setText(str(next_trial))
-
-            self.onSetObjectPositionClick()
-
-            # move ee to initial pose
-            self.onInitialPoseClick()
-
-            # add current refinement to model and make new prediction
-            self.onAddModelClick()
-
-            self.stopTimer()
-
-            # sava data in data_logger
-            try:
-                self.onStoreClick()
-                self.onSaveClick()
-            except AttributeError:
-                return "No refinement available yet"
-            
-            self.zeroTimer()
-
-            self.onGetContextClick()
-            self.onPredictClick()
-
-            # clear all trajectories
-            self.checkBox_3.setChecked(False)
-            self.checkBox_4.setChecked(False)
-            self.onVisualizeClick()
-
-            # visualize prediction
-            self.checkBox_4.setChecked(True)
-            self.onVisualizeClick()
-
+        
         # set new parameters in data logger
         self.setParameters()
+    
+    def _operatorGuiInteraction(self, data):
+        interaction = OperatorGUIinteraction()
+        if interaction.refine_prediction.data:
+            self.refine = 'prediction'
+        elif interaction.refine_refinement.data:
+            self.refine = 'refinement'
+
+    def onNextClick(self):
+        self.startTrial()
+        # self.checkBox.setChecked(True)
+        # self.checkBox_2.setChecked(True)
+
+        # # move to next trial
+        # next_trial = int(self.lineEdit.text()) + 1
+        # max_trials = 5
+
+        # # move to next object position if total amount of trials is reached
+        # if next_trial == max_trials + 1:
+        #     self.lineEdit.setText(str(1))
+        #     next_object_position = self.getObjectPosition() + 1
+        #     exec("self.radioButton_" + str(self.objectPositionToRadioButton(next_object_position)) + ".setChecked(True)")
+            
+        #     # move ee to initial pose
+        #     self.onInitialPoseClick()
+
+        #     # wait until arm is not in the way of the object
+        #     time.sleep(2)
+        #     self.onSetObjectPositionClick()
+
+        #     # needed to get correct context --> wait until arm is at initial pose
+        #     time.sleep(2)
+            
+        #     # get new context
+        #     self.onGetContextClick()
+        #     self.onPredictClick()
+
+        #     # clear all trajectories
+        #     self.checkBox_3.setChecked(False)
+        #     self.checkBox_4.setChecked(False)
+        #     self.onVisualizeClick()
+
+        #     # visualize prediction
+        #     self.checkBox_4.setChecked(True)
+        #     self.onVisualizeClick()
+
+        # else:
+        #     self.lineEdit.setText(str(next_trial))
+
+        #     self.onSetObjectPositionClick()
+
+        #     # move ee to initial pose
+        #     self.onInitialPoseClick()
+
+        #     # add current refinement to model and make new prediction
+        #     self.onAddModelClick()
+
+        #     self.stopTimer()
+
+        #     # sava data in data_logger
+        #     try:
+        #         self.onStoreClick()
+        #         self.onSaveClick()
+        #     except AttributeError:
+        #         return "No refinement available yet"
+            
+        #     self.zeroTimer()
+
+        #     self.onGetContextClick()
+        #     self.onPredictClick()
+
+        #     # clear all trajectories
+        #     self.checkBox_3.setChecked(False)
+        #     self.checkBox_4.setChecked(False)
+        #     self.onVisualizeClick()
+
+        #     # visualize prediction
+        #     self.checkBox_4.setChecked(True)
+        #     self.onVisualizeClick()
+
+        # # set new parameters in data logger
+        # self.setParameters()
         
     def onVisualizeClick(self):
         try:
@@ -1002,23 +1098,25 @@ class OnlinePendantGUI(QMainWindow):
 
     def storeData(self, *args, **kwargs):
         number_msg = Byte(int(self.lineEdit_20.text()))
-
+        time_msg = Float32(self.elapsed_time)
+        
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
         
         if "prediction" in kwargs and "refined" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
-            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
+
             
             # store prediction and refinement in dictionary in data logger
             self.storePrediction(prediction, number_msg)
             self.storeRefinement(refinement, number_msg)
 
         elif "prediction" in kwargs and "refined" not in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
             self.storePrediction(prediction, number_msg)
 
         elif "prediction" not in kwargs and "refined" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            refinement = TrajectoryData(self.refinement, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]))
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
             self.storeRefinement(refinement, number_msg)
 
 
@@ -1083,11 +1181,11 @@ class OnlinePendantGUI(QMainWindow):
             print("Service call failed: %s" %e)
     
 
-    def storePrediction(self, prediction, number_msg):
+    def storePrediction(self, prediction, number_msg, time_msg):
         try:
             rospy.wait_for_service('set_prediction', timeout=2.0)
             set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
-            resp = set_prediction(number_msg)
+            resp = set_prediction(number_msg, prediction)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
@@ -1095,7 +1193,7 @@ class OnlinePendantGUI(QMainWindow):
         try:
             rospy.wait_for_service('add_refinement', timeout=2.0)
             add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
-            resp = add_refinement(number_msg)
+            resp = add_refinement(number_msg, refinement)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
@@ -1109,23 +1207,9 @@ class OnlinePendantGUI(QMainWindow):
         print("elapsed time to store = " + str(self.elapsed_time))
 
         if self.checkBox.isChecked() and self.checkBox_2.isChecked():
-            self.storeData(predicted=1)   
+            self.storeData(prediction=1)   
             self.storeData(refined=1)
          
-            try:
-                rospy.wait_for_service('set_prediction', timeout=2.0)
-                set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
-
-                resp = set_prediction(number_msg)
-
-                
-                rospy.wait_for_service('add_refinement', timeout=2.0)
-                add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
-                resp = add_refinement(number_msg, object_position_msg, variation_msg,
-                                    trial_msg, context_msg, time_msg, method_msg)
-            except (rospy.ServiceException, rospy.ROSException) as e:
-                print("Service call failed: %s" %e)
-        
         elif self.checkBox.isChecked() and not self.checkBox_2.isChecked():
             self.storeData(refined=1)
             try:
@@ -1137,7 +1221,7 @@ class OnlinePendantGUI(QMainWindow):
                 print("Service call failed: %s" %e)
         
         elif not self.checkBox.isChecked() and self.checkBox_2.isChecked():
-            self.storeData(predicted=1)
+            self.storeData(prediction=1)
             try:
                 rospy.wait_for_service('set_prediction', timeout=2.0)
                 set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
