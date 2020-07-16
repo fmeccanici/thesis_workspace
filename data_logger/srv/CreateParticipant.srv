@@ -1,5 +1,5 @@
 std_msgs/Byte number
-std_msgs/Bool sex
+std_msgs/Bool gender
 std_msgs/Byte age
 
 ---

@@ -109,7 +109,7 @@ class DataAnalysis(object):
             for trial in methods[method]['variation'][variation]['object_position'][object_position]['trial']:
                 obstacle_hit += int(methods[method]['variation'][variation]['object_position'][object_position]['trial'][trial]['success'])
 
-            obstacle_hit_per_object_position.append(object_missed)
+            obstacle_hit_per_object_position.append(obstacle_hit)
 
         return obstacle_hit_per_object_position
 
@@ -184,16 +184,38 @@ class DataAnalysis(object):
         plt.figure()
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            number_of_success = self.getNumberOfSuccess(participant_number, method, variation)
-            plt.bar(object_positions, [ x / self.num_trials * 100 for x in number_of_success ] )
+            number_of_object_missed = self.getNumberOfObjectMissed(participant_number, method, variation)
+            plt.bar(object_positions, [ x / self.num_trials * 100 for x in number_of_object_missed ] )
             plt.title(methods[method-1])
             plt.xlabel("Object position [-]")
-            plt.ylabel("Successfull trials [%]")
+            plt.ylabel("Object missed [%]")
             plt.tight_layout()
         
-        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_successes.pdf')
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_objects_missed.pdf')
 
         plt.figure()
+
+    def plotNumberOfObstaclesHit(self, participant_number):
+        # set to test, need to loop and calculate mean in final version
+        variation = 1
+
+        methods = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
+        object_positions = ['1', '2', '3', '4', '5', '6']
+
+        plt.figure()
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_obstacles_hit = self.getNumberOfObstaclesHit(participant_number, method, variation)
+            plt.bar(object_positions, [ x / self.num_trials * 100 for x in number_of_obstacles_hit ] )
+            plt.title(methods[method-1])
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Obstacles hit [%]")
+            plt.tight_layout()
+        
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_obstacles_hit.pdf')
+
+        plt.figure()
+
 
     def plotNumberOfSuccess(self, participant_number):
         # set to test, need to loop and calculate mean in final version
@@ -226,3 +248,5 @@ if __name__ == "__main__":
     data_analysis.plotAdaptationTime(99)
     data_analysis.plotNumberOfRefinements(99)
     data_analysis.plotNumberOfSuccess(99)
+    data_analysis.plotNumberOfObstaclesHit(99)
+    data_analysis.plotNumberOfObjectMissed(99)

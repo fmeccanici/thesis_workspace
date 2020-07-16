@@ -18,8 +18,11 @@ class DataLoggerNode(object):
         self._create_participant_service = rospy.Service('create_participant', CreateParticipant, self._createParticipant)
         self._add_refinement_service = rospy.Service('add_refinement', AddRefinement, self._addRefinement)
         self._set_prediction_service = rospy.Service('set_prediction', SetPrediction, self._setPredicted)
+        
         self._set_object_missed_service = rospy.Service('set_object_missed', SetObjectMissed, self._setObjectMissed)
         self._set_obstacles_hit_service = rospy.Service('set_obstacles_hit', SetObstaclesHit, self._setObstaclesHit)
+
+
         self._increment_number_of_refinements_service = rospy.Service('increment_number_of_refinements', IncrementNumberOfRefinements, self._incrementNumberOfRefinements)
         # self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
         self._to_csv_service = rospy.Service('to_csv', ToCsv, self._toCsv)
@@ -31,9 +34,9 @@ class DataLoggerNode(object):
         rospy.loginfo("Creating participant using service")
         number = req.number.data
         age = req.age.data
-        sex = req.sex.data
+        gender = req.gender.data
 
-        self.participant_data = ParticipantData(number, sex, age)
+        self.participant_data = ParticipantData(number, gender, age)
         self.data[number] = copy.deepcopy(self.participant_data)
 
         resp = CreateParticipantResponse()
@@ -44,18 +47,15 @@ class DataLoggerNode(object):
     def _setParameters(self, req):
         number = req.number.data
         object_position = req.object_position.data
-        variation = req.variation.data
         trial = req.trial.data
         method = req.method.data
 
         self.data[number].setMethod(method)
         self.data[number].setTrial(trial)
         self.data[number].setObjectPosition(object_position)
-        self.data[number].setVariation(variation)
 
         rospy.loginfo("Data logger parameters set to: ")
         rospy.loginfo("method " + str(method))
-        rospy.loginfo("variation " + str(variation))
         rospy.loginfo("object position " + str(object_position))
         rospy.loginfo("trial " + str(trial))
 
@@ -68,12 +68,11 @@ class DataLoggerNode(object):
         number = req.number.data
         context = req.context
         object_position = req.object_position.data
-        variation = req.variation.data
         time = req.time.data
         trial = req.trial.data
         method = req.method.data 
 
-        self.data[number].setRefinedTrajectory(from_file=1, context=context, variation=variation,
+        self.data[number].setRefinedTrajectory(from_file=1, context=context,
                                                 object_position=object_position, 
                                                 time=time, trial=trial, method=method)
     
@@ -86,7 +85,6 @@ class DataLoggerNode(object):
         number = req.number.data
         context = req.context
         object_position = req.object_position.data
-        variation = req.variation.data
         time = req.time.data
         trial = req.trial.data
         method = req.method.data 
@@ -102,7 +100,7 @@ class DataLoggerNode(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)       
 
-        self.data[number].setPredictedTrajectory(from_file=1, context=context, variation=variation,
+        self.data[number].setPredictedTrajectory(from_file=1, context=context,
                                                 object_position=object_position, 
                                                 time=time, trial=trial, method=method)
 

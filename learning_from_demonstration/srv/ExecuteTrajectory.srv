@@ -4,3 +4,5 @@ float64 T_desired
 ---
 
 std_msgs/Bool success
+std_msgs/Bool obstacle_hit
+std_msgs/Bool object_reached

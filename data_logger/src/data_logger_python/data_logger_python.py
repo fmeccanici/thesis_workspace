@@ -4,7 +4,7 @@ import os, csv, ast, copy
 import pandas as pd
 
 class ParticipantData(object):
-    def __init__(self, number, sex, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
+    def __init__(self, number, gender, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
         self.number = number
         self.num_methods = 4
@@ -14,7 +14,7 @@ class ParticipantData(object):
         self.path = path + 'participant_' + str(number) + '/'
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-            self.sex = sex
+            self.gender = gender
             self.age = age
 
             self.initData()
@@ -23,14 +23,13 @@ class ParticipantData(object):
         elif os.path.exists(self.path) and os.path.isfile(self.path+'data.txt'):
             self.loadData()
         else:
-            self.sex = sex
+            self.gender = gender
             self.age = age
             self.initData()
 
         # parameters used to fill the methods dictionary
-        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
-        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [] }
-        self.variation = 1
+        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'success': True}
+        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'success': True}
         self.trial = 1
         self.object_position = 1
         self.context = []
@@ -50,11 +49,9 @@ class ParticipantData(object):
     def initData(self):
         self.object_positions = {}
         self.methods = {}
-        self.variations = {}
         self.trials = {}
 
         self.num_methods = 4
-        self.num_variations = 2
         self.num_object_positions = 6
         self.num_trials = 5
 
@@ -63,27 +60,19 @@ class ParticipantData(object):
                 'predicted_trajectory': {}, 'context': [],
                 'refined_trajectory': {},
                 'number_of_refinements': 0,
-                'object_missed': False,
-                'obstacle_hit': False,
-                'success': True,
                 'time': 0
             }
 
         for j in range(self.num_object_positions):
             self.object_positions[j+1] = {
             'trial': copy.deepcopy(self.trials),
-            'adaptation_time': 0
-            }
-        
-        for i in range(self.num_variations):
-            self.variations[i+1] = {
-                'object_position': copy.deepcopy(self.object_positions),
-                'total_adaptation_time': 0
+            'time': 0
             }
         
         for i in range(self.num_methods):
             self.methods[i+1] = {
-                'variation': copy.deepcopy(self.variations),
+                'object_position': copy.deepcopy(self.object_positions),
+                'time': 0
             }
 
     def loadData(self):
@@ -93,7 +82,7 @@ class ParticipantData(object):
         with open(data_path, "r") as infile:
             outfile = ast.literal_eval(infile.read())
 
-            self.sex = outfile['sex']
+            self.gender = outfile['gender']
             self.number = outfile['number']
             self.age = outfile['age']
             
@@ -142,15 +131,11 @@ class ParticipantData(object):
     def getTrial(self):
         return self.trial
 
-    def setVariation(self, variation):
-        self.variation = variation
-
     def setObjectPosition(self, object_position):
         self.object_position = object_position
 
     def setMethod(self, method):
         self.method = method
-
 
     def setRefinedTrajectory(self, *args, **kwargs):
         if "from_file" in kwargs and kwargs["from_file"] == 1 and "context" in kwargs and "time" in kwargs:
@@ -195,13 +180,13 @@ class ParticipantData(object):
             # we start with 0 refinement --> n + 1
             #             
             # increment number of refined trajectories
-            # self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
+            # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
             trajectory = copy.deepcopy(self.refined_trajectory)
 
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
+            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
             
             # increment time (need to think about how to get the correct time)
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
             return 0
                 
@@ -270,31 +255,30 @@ class ParticipantData(object):
 
             trajectory = copy.deepcopy(self.predicted_trajectory)
 
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
-            self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
+            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
+            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
 
     def setObstaclesHit(self):
-        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
-        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 
         # self.methods[method]['obstacles_hit'] += 1
-
+ 
     def setObjectMissed(self):
 
-        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['object_missed'] = True
-        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['object_missed'] = True
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 
         # self.methods[method]['object_missed'] += 1
     
     def incrementNumberOfRefinements(self):
-        self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
         print("method " + str(self.method))
-        print("variation " + str(self.variation))
         print("object position " + str(self.object_position))
         print("trial " + str(self.trial))
-        print("number of refinements incremented to " + str(self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
+        print("number of refinements incremented to " + str(self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
 
     def incrementNumberOfUpdates(self, method):
         self.methods[method]['number_of_updates'] += 1
@@ -305,9 +289,9 @@ class ParticipantData(object):
     def toCSV(self):
         # with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
         #     f.write(str(self.methods))
-        print("number of refinements incremented to " + str(self.methods[self.method]['variation'][self.variation]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
+        print("number of refinements incremented to " + str(self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
 
-        data = {'number': self.number, 'age': self.age, 'sex': self.sex, 'method': self.methods}
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:
             f.write(str(data))
             

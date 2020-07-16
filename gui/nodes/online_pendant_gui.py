@@ -536,7 +536,7 @@ class OnlinePendantGUI(QMainWindow):
         
         except AttributeError:
             rospy.loginfo("Context not yet extracted!")
-    
+
     def onRefineClick(self):
         number_msg = Byte()
         try:
@@ -638,7 +638,6 @@ class OnlinePendantGUI(QMainWindow):
             print("Service call failed: %s"%e)
     
 
-
     def onAddModelClick(self):
 
         # 2 was too much, later trajectories had too little influence
@@ -701,6 +700,53 @@ class OnlinePendantGUI(QMainWindow):
         elif object_position == 6:
             return 19
 
+    def executeTrajectory(self, traj):
+        rospy.wait_for_service('execute_trajectory', timeout=2.0)
+        execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+        self.T_desired = 10.0
+        resp = execute_trajectory(traj, self.T_desired)
+
+        return resp.obstacle_hit.data, resp.object_reached.data
+
+    def startTrial(self):
+        # move ee to initial pose
+        self.onInitialPoseClick()
+
+        # wait until arm is not in the way of the object
+        time.sleep(2)
+        self.onSetObjectPositionClick()
+
+        # get new context
+        self.onGetContextClick()
+        self.onPredictClick()
+
+        # clear all trajectories
+        self.checkBox_3.setChecked(False)
+        self.checkBox_4.setChecked(False)
+        self.onVisualizeClick()
+
+        # visualize prediction
+        self.checkBox_4.setChecked(True)
+        self.onVisualizeClick()
+
+        obstacle_hit, object_reached = self.executeTrajectory(self.prediction)
+
+        if obstacle_hit or object_reached:
+            print("Trajectory failure!")
+            # should also print this in operator GUI
+
+            # sleep so there are no sudden movements    
+            time.sleep(2)
+        
+            # move ee to initial pose
+            self.onInitialPoseClick()
+
+            # sleep again to allow the operator to know 
+            # that refinement is needed
+            time.sleep(2)
+
+            self.onRefineClick()
+            
     def onNextClick(self):
         
         self.checkBox.setChecked(True)

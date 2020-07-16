@@ -23,6 +23,7 @@ from std_msgs.msg import Bool, Float32
 from geometry_msgs.msg import Point
 from geomagic_touch_m.msg import GeomagicButtonEvent
 from std_srvs.srv import Empty, EmptyResponse
+from execution_failure_detection.srv import ExecutionFailure
 
 # import my own classes
 from learning_from_demonstration_python.learning_from_demonstration import learningFromDemonstration
@@ -83,6 +84,8 @@ class lfdNode():
         elif self.button_source == "keyboard":
             self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
         
+        self._execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+
         # ros services
         self._add_demo_service = rospy.Service('add_demonstration', AddDemonstration, self._add_demonstration)
         self._predict_service = rospy.Service('make_prediction', MakePrediction, self._make_prediction)
@@ -189,6 +192,11 @@ class lfdNode():
 
         return resp
 
+    # failure detection callback
+    def _executionFailureCallback(self, data):
+        self.object_reached = data.object_reached.data
+        self.obstacle_hit = data.obstacle_hit.data
+
     # button callback
     def _buttonCallback(self, data):
         self.grey_button_previous = self.grey_button 
@@ -284,6 +292,9 @@ class lfdNode():
 
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")
+
+        self.obstacle_hit_once = False
+
         slave_goal = PoseStamped()
         for datapoint in traj:
             slave_goal.pose.position.x = datapoint[0]
@@ -306,8 +317,13 @@ class lfdNode():
                 self.stop_execution = False
                 break
             self._end_effector_goal_pub.publish(slave_goal)
-
+            
+            if self.obstacle_hit == True and self.obstacle_hit_once == False:
+                self.obstacle_hit_once = True
+            
             time.sleep(dt)
+        
+        self.object_reached_temp = copy.deepcopy(self.object_reached)
 
     def context_to_msg(self, context):
         point = Point()
@@ -568,10 +584,19 @@ class lfdNode():
         # print("dt = " + str(dt))
         
         self.executeTrajectory(traj, dt)
+        
+        # check if obstacle was hit
+        obstacle_hit_msg = Bool(self.obstacle_hit_once)
+
+        # store object reached value
+        object_reached_msg = Bool(self.object_reached_temp)
 
         # is empty but need to create class otherwise error
         resp = ExecuteTrajectoryResponse()
 
+        resp.obstacle_hit = obstacle_hit_msg
+        resp.object_reached = object_reached_msg
+        
         return resp
 
     def _go_to_pose(self, req):

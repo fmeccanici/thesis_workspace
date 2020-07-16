@@ -1219,8 +1219,8 @@ class OnlinePendantGUI(QMainWindow):
         
         method_msg = Byte()
 
-        # method 4: online + pendant
-        method_msg.data = 4
+        # method 4: offline + pendant
+        method_msg.data = 3
         object_position_msg = Byte()
         object_position_msg.data = self.getObjectPosition()
         context_msg = Point()
