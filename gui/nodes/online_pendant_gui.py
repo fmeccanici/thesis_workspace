@@ -694,7 +694,7 @@ class OnlinePendantGUI(QMainWindow):
         # or the last refinement was successful
         number_of_refinements = 0
 
-        while obstacle_hit and not object_reached and number_of_refinements <= self.max_refinements:
+        """while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
             
             print("Trajectory failure!")
             # should also print this in operator GUI
@@ -781,7 +781,7 @@ class OnlinePendantGUI(QMainWindow):
             self.lineEdit.setText(str(next_trial))
         
         # set new parameters in data logger
-        self.setParameters()
+        self.setParameters()"""
     
     def _operatorGuiInteraction(self, data):
         interaction = OperatorGUIinteraction()

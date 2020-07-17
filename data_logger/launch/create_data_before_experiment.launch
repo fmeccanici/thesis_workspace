@@ -1,0 +1,10 @@
+
+<launch>
+    <!-- <node pkg="learning_from_demonstration" name="learning_from_demonstration" 
+    type="lfd_node.py" output="screen">
+     -->
+    <node pkg="data_logger" name="data_logger" 
+    type="create_data_before_experiment.py" output="screen">
+    </node>
+
+</launch>

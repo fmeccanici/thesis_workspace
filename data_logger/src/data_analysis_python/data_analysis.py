@@ -238,15 +238,69 @@ class DataAnalysis(object):
 
         plt.figure()
 
+    def plotDataBeforeExperiment(self):
+        path = self.data_path + 'before_experiment/data.txt'
+        num_object_positions = 4
+        object_labels = ["1", "2", "3", "4"]
+        
+        with open(path, "r") as infile:
+            outfile = ast.literal_eval(infile.read())
+            data_before_experiment = outfile
+
+            success_list = []
+            object_missed_list = []
+            obstacle_hit_list = []
+
+            for position in range(1,num_object_positions+1):
+                success = 0
+                object_missed = 0
+                obstacle_hit = 0
+                for trial in range(1,self.num_trials+1):
+                    success += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
+                    object_missed += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
+                    obstacle_hit += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
+
+                success_list.append(success)
+                object_missed_list.append(object_missed)
+                obstacle_hit_list.append(obstacle_hit)
+            
+            fig = plt.figure()
+            fig.suptitle("Initial model")
+
+            plt.subplot(1,3,1)
+            plt.bar(object_labels, success)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Success [True/False]")
+            plt.ylim([0,1])
+
+            plt.subplot(1,3,2)
+            plt.bar(object_labels, object_missed)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Object missed [True/False]")
+            plt.ylim([0,1])
+
+
+            plt.subplot(1,3,3)
+            plt.bar(object_labels, obstacle_hit)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Obstacle hit [True/False]")
+            plt.ylim([0,1])
+
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        plt.savefig(self.figures_path + "/before_experiment/success.pdf")
+
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadData(99)
+    # data_analysis.loadData(99)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     # data_analysis.calculateAdaptationTime(1, 3, 1)
-    data_analysis.plotAdaptationTime(99)
-    data_analysis.plotNumberOfRefinements(99)
-    data_analysis.plotNumberOfSuccess(99)
-    data_analysis.plotNumberOfObstaclesHit(99)
-    data_analysis.plotNumberOfObjectMissed(99)
+    # data_analysis.plotAdaptationTime(99)
+    # data_analysis.plotNumberOfRefinements(99)
+    # data_analysis.plotNumberOfSuccess(99)
+    # data_analysis.plotNumberOfObstaclesHit(99)
+    # data_analysis.plotNumberOfObjectMissed(99)
+    data_analysis.plotDataBeforeExperiment()
