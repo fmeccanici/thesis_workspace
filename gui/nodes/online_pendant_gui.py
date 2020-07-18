@@ -84,6 +84,7 @@ class OnlinePendantGUI(QMainWindow):
         self.parser = trajectoryParser()
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
+        self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
         
         # variables
         self.nodes = {}
@@ -432,7 +433,7 @@ class OnlinePendantGUI(QMainWindow):
         self.pushButton_31.clicked.connect(self.onStoreClick)
         self.pushButton_29.clicked.connect(self.onLoadClick)
         self.pushButton_30.clicked.connect(self.onSaveClick)
-        self.pushButton.clicked.connect(self.onNextClick)
+        self.pushButton.clicked.connect(lambda:self.useMultithread(self.onNextClick))
         self.pushButton_11.clicked.connect(self.onExitClick)
 
         self.pushButton_32.clicked.connect(self.onObstacleHitClick)
@@ -689,12 +690,13 @@ class OnlinePendantGUI(QMainWindow):
 
         # store prediction along with failure
         self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_reached=object_reached)
+        self.onSaveClick()
 
         # loop the refinement until max refinements has reached
         # or the last refinement was successful
         number_of_refinements = 0
-
-        """while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
+        
+        while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
             
             print("Trajectory failure!")
             # should also print this in operator GUI
@@ -709,6 +711,8 @@ class OnlinePendantGUI(QMainWindow):
             rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
             refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
             self.T_desired = 10.0
+            # time.sleep(2)
+            # print(self.refine)
 
             if self.refine == 'prediction':
 
@@ -730,6 +734,7 @@ class OnlinePendantGUI(QMainWindow):
                 resp = refine_trajectory(self.refined_trajectory, self.T_desired)
             
             self.refined_trajectory = resp.refined_trajectory
+            
             obstacle_hit = resp.obstacle_hit.data
             execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
             resp = execution_failure()
@@ -781,15 +786,19 @@ class OnlinePendantGUI(QMainWindow):
             self.lineEdit.setText(str(next_trial))
         
         # set new parameters in data logger
-        self.setParameters()"""
-    
+        self.setParameters()
+        
     def _operatorGuiInteraction(self, data):
-        interaction = OperatorGUIinteraction()
-        if interaction.refine_prediction.data:
+        # interaction = OperatorGUIinteraction()
+        # print(interaction.refine_prediction.data)
+        # print(interaction.refine_refinement.data)
+        
+        if data.refine_prediction.data:
             self.refine = 'prediction'
-        elif interaction.refine_refinement.data:
+        elif data.refine_refinement.data:
             self.refine = 'refinement'
 
+        # print(self.refine)
     def onNextClick(self):
         self.startTrial()
         # self.checkBox.setChecked(True)
@@ -1260,7 +1269,6 @@ class OnlinePendantGUI(QMainWindow):
         rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
         set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
         resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg)
-
 
     def onSaveClick(self):
         try: 

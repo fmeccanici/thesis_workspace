@@ -50,7 +50,7 @@ class OperatorGUI(QMainWindow):
         self._rospack = rospkg.RosPack()
         # self._store_data_service = rospy.Service('store_data', StoreData, self._storeData)
 
-        self._operator_gui_interaction_pub = rospy.Publisher('operator_gui_interaction', OperatorGUI, queue_size=10)
+        self._operator_gui_interaction_pub = rospy.Publisher('operator_gui_interaction', OperatorGUIinteraction, queue_size=10)
 
         self.initUI()
         self.show()
