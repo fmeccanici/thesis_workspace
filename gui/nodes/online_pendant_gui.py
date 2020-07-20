@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-import rospy, rospkg, roslaunch, sys, time
+import rospy, rospkg, roslaunch, sys, time, copy
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 
@@ -31,6 +31,9 @@ from promp_context_ros.msg import prompTraj
 from trajectory_visualizer.msg import TrajectoryVisualization
 from std_msgs.msg import String, Bool, Byte, UInt32, Float32
 from data_logger.msg import TrajectoryData, OperatorGUIinteraction
+
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 
 # rviz python
 from rviz_python.rviz_python import rvizPython
@@ -93,6 +96,9 @@ class OnlinePendantGUI(QMainWindow):
         self.start_time = 0
         self.max_trials = 5
         self.max_refinements = 5
+
+        self.parser = trajectoryParser()
+        self.resampler = trajectoryResampler()
 
         # initialize Qt GUI
         self.initGUI()
@@ -675,6 +681,7 @@ class OnlinePendantGUI(QMainWindow):
         # wait until arm is not in the way of the object
         time.sleep(2)
         self.onSetObjectPositionClick()
+        time.sleep(2)
 
         # get new context
         self.onGetContextClick()
@@ -709,6 +716,8 @@ class OnlinePendantGUI(QMainWindow):
         
             # move ee to initial pose
             self.onInitialPoseClick()
+            time.sleep(2)
+            self.onSetObjectPositionClick()
 
             # wait until the operator clicked the red or green button
             rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
@@ -770,7 +779,6 @@ class OnlinePendantGUI(QMainWindow):
             self.setVisualizationCheckBoxes(what_to_visualize='both')
             self.onVisualizeClick()
             
-            self.onSetObjectPositionClick()
 
 
         ####### update model #######
@@ -891,9 +899,22 @@ class OnlinePendantGUI(QMainWindow):
             visualization_msg = TrajectoryVisualization()
 
 
+
             if self.checkBox_3.isChecked() and self.checkBox_4.isChecked():
                 visualization_msg.pose_array = self.refined_trajectory.poses
                 visualization_msg.r = 0.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+                resp = visualize_trajectory(visualization_msg)
+
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                refined_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+                refined_traj_keypoints = self.resampler.interpolate_learned_keypoints(refined_traj_keypoints[0], n_keypoints)
+                refined_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(refined_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = refined_traj_keypoints.poses
+                visualization_msg.r = 1.0
                 visualization_msg.g = 1.0
                 visualization_msg.b = 0.0
 
@@ -905,20 +926,57 @@ class OnlinePendantGUI(QMainWindow):
                 visualization_msg.b = 0.0
 
                 resp = visualize_trajectory(visualization_msg)
-
+                
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                prediction_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.prediction)
+                prediction_traj_keypoints = self.resampler.interpolate_learned_keypoints(prediction_traj_keypoints[0], n_keypoints)
+                prediction_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(prediction_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = prediction_traj_keypoints.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 1.0
+                resp = visualize_trajectory(visualization_msg)
+                
             elif self.checkBox_3.isChecked() and not self.checkBox_4.isChecked():
                 visualization_msg.pose_array = self.refined_trajectory.poses
                 visualization_msg.r = 0.0
                 visualization_msg.g = 1.0
                 visualization_msg.b = 0.0
                 resp = visualize_trajectory(visualization_msg)
-            
+                
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                refined_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+                refined_traj_keypoints = self.resampler.interpolate_learned_keypoints(refined_traj_keypoints[0], n_keypoints)
+                refined_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(refined_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = refined_traj_keypoints.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+                resp = visualize_trajectory(visualization_msg)
+
             elif self.checkBox_4.isChecked() and not self.checkBox_3.isChecked():
                 visualization_msg.pose_array = self.prediction.poses
                 visualization_msg.r = 1.0
                 visualization_msg.g = 0.0
                 visualization_msg.b = 0.0                
                 resp = visualize_trajectory(visualization_msg)
+
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                prediction_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.prediction)
+                prediction_traj_keypoints = self.resampler.interpolate_learned_keypoints(prediction_traj_keypoints[0], n_keypoints)
+                prediction_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(prediction_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = prediction_traj_keypoints.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 1.0
+                resp = visualize_trajectory(visualization_msg)
+
             elif not self.checkBox_4.isChecked() and not self.checkBox_3.isChecked():
                 rospy.wait_for_service('clear_trajectories', timeout=2.0)
 
@@ -931,8 +989,10 @@ class OnlinePendantGUI(QMainWindow):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
-        except AttributeError:
-            rospy.loginfo("No prediction made yet!")
+        except AttributeError as e:
+            rospy.loginfo("No prediction made yet!:")
+            rospy.loginfo(str(e))
+            
 
     def initHeadLiftJoint(self):
         lift_goal = JointState()

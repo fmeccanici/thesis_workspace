@@ -447,7 +447,7 @@ class trajectoryRefinement():
 
         n = len(prediction)
         # dt = req.trajectory.times[1]
-        # print("len prediction = " + str(len(prediction)))
+        print("len prediction = " + str(len(prediction)))
         if n < ndesired:
             prediction, dt = self.resampler.interpolate_learned_keypoints(prediction, ndesired)
 
@@ -459,7 +459,7 @@ class trajectoryRefinement():
         new_traj = self.resampler.resample_time(new_traj, self.parser.get_total_time(prediction))
         # print("new_traj good T = " + str(new_traj))
         n_pred = len(prediction)
-
+        print("len refinement = " + str(len(new_traj)))
         # plt.figure()
         # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
         # plt.plot(self.parser.getCartesianPositions(prediction), color='red', label='predicted')
@@ -473,6 +473,7 @@ class trajectoryRefinement():
 
         # resample new trajectory to match the prediction
         new_traj = self.resampler.interpolate_predicted_trajectory(new_traj, n_pred)
+            
 
         # plt.figure()
         # plt.plot(self.parser.getCartesianPositions(new_traj), color='green', label='refined')
