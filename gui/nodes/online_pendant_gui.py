@@ -662,7 +662,10 @@ class OnlinePendantGUI(QMainWindow):
         return resp.obstacle_hit.data, resp.object_reached.data
 
     def startTrial(self):
-        
+
+        # set participant number
+        number_msg = Byte(int(self.lineEdit_20.text()))
+
         # set what to refine (prediction/refinements) to none
         self.refine = 'none'
 
@@ -695,8 +698,9 @@ class OnlinePendantGUI(QMainWindow):
         # loop the refinement until max refinements has reached
         # or the last refinement was successful
         number_of_refinements = 0
-        
-        while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
+        operator_wants_to_refine = True
+
+        while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements and self.refine != 'done':
             
             print("Trajectory failure!")
             # should also print this in operator GUI
@@ -723,6 +727,7 @@ class OnlinePendantGUI(QMainWindow):
                 else: pass
 
                 resp = refine_trajectory(self.prediction, self.T_desired)
+            
             elif self.refine == 'refinement':
 
                 # we only need to start the timer if it is equal to zero, else just keep the timer running
@@ -733,6 +738,10 @@ class OnlinePendantGUI(QMainWindow):
 
                 resp = refine_trajectory(self.refined_trajectory, self.T_desired)
             
+            elif self.refine == 'done':
+                print("Operator is done refining")
+                break
+
             self.refined_trajectory = resp.refined_trajectory
             
             obstacle_hit = resp.obstacle_hit.data
@@ -751,6 +760,7 @@ class OnlinePendantGUI(QMainWindow):
             self.storeData(refinement=1, object_missed = not object_reached, obstacle_hit = obstacle_hit )
             # increment number of refinements
             rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
+            
             increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
             increment_refinement(number_msg)
             number_of_refinements += 1
@@ -763,17 +773,22 @@ class OnlinePendantGUI(QMainWindow):
             self.onVisualizeClick()
             self.setVisualizationCheckBoxes(what_to_visualize='both')
             self.onVisualizeClick()
+            
+            self.onSetObjectPositionClick()
 
-        ####### update model #######
-        # move ee to initial pose
-        self.onInitialPoseClick()
-        # add current refinement to model 
-        self.onAddModelClick()
-        self.stopTimer()
+        # if operator is done refining do not update the model
+        # there is no trajectory to update 
+        if self.refine != 'done':
+            ####### update model #######
+            # move ee to initial pose
+            self.onInitialPoseClick()
+            # add current refinement to model 
+            self.onAddModelClick()
+            self.stopTimer()
 
-        ###### save data ######
-        self.onSaveClick()
-        self.zeroTimer()
+            ###### save data ######
+            self.onSaveClick()
+            self.zeroTimer()
 
         ####### move to next trial ########
         next_trial = int(self.lineEdit.text()) + 1
