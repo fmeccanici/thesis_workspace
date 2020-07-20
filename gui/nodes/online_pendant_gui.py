@@ -698,9 +698,8 @@ class OnlinePendantGUI(QMainWindow):
         # loop the refinement until max refinements has reached
         # or the last refinement was successful
         number_of_refinements = 0
-        operator_wants_to_refine = True
 
-        while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements and self.refine != 'done':
+        while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
             
             print("Trajectory failure!")
             # should also print this in operator GUI
@@ -737,10 +736,7 @@ class OnlinePendantGUI(QMainWindow):
                 else: pass
 
                 resp = refine_trajectory(self.refined_trajectory, self.T_desired)
-            
-            elif self.refine == 'done':
-                print("Operator is done refining")
-                break
+
 
             self.refined_trajectory = resp.refined_trajectory
             
@@ -776,19 +772,17 @@ class OnlinePendantGUI(QMainWindow):
             
             self.onSetObjectPositionClick()
 
-        # if operator is done refining do not update the model
-        # there is no trajectory to update 
-        if self.refine != 'done':
-            ####### update model #######
-            # move ee to initial pose
-            self.onInitialPoseClick()
-            # add current refinement to model 
-            self.onAddModelClick()
-            self.stopTimer()
 
-            ###### save data ######
-            self.onSaveClick()
-            self.zeroTimer()
+        ####### update model #######
+        # move ee to initial pose
+        self.onInitialPoseClick()
+        # add current refinement to model 
+        self.onAddModelClick()
+        self.stopTimer()
+
+        ###### save data ######
+        self.onSaveClick()
+        self.zeroTimer()
 
         ####### move to next trial ########
         next_trial = int(self.lineEdit.text()) + 1
