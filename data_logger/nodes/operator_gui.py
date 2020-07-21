@@ -175,26 +175,37 @@ class OperatorGUI(QMainWindow):
         self._operator_gui_interaction_pub.publish(operator_gui_interaction)
 
     def on_ok_click(self):
-        number = int(self.lineEdit.text())
+        operator_gui_interaction = OperatorGUIinteraction()
+        operator_gui_interaction.number = Byte(int(self.lineEdit.text()))
+        operator_gui_interaction.age = Byte(int(self.lineEdit_3.text()))
         if self.radioButton.isChecked():
-            sex = 1
+            gender = 1
         else:
-            sex = 0
-        age = int(self.lineEdit_3.text())
-        try: 
-            rospy.wait_for_service('create_participant')
-            create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
-            number_msg = Byte()
-            number_msg.data = number
-            sex_msg = Bool()
-            sex_msg.data = sex
-            age_msg = Byte()
-            age_msg.data = age
+            gender = 0
+        operator_gui_interaction.gender = Bool(gender)
+        
+        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
 
-            resp = create_participant(number_msg, sex_msg, age_msg)     
+        # number = int(self.lineEdit.text())
+        # if self.radioButton.isChecked():
+        #     sex = 1
+        # else:
+        #     sex = 0
+        # age = int(self.lineEdit_3.text())
+        # try: 
+        #     rospy.wait_for_service('create_participant')
+        #     create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
+        #     number_msg = Byte()
+        #     number_msg.data = number
+        #     sex_msg = Bool()
+        #     sex_msg.data = sex
+        #     age_msg = Byte()
+        #     age_msg.data = age
 
-        except (rospy.ServiceException, rospy.ROSException) as e:
-            print("Service call failed: %s" %e)
+        #     resp = create_participant(number_msg, sex_msg, age_msg)     
+
+        # except (rospy.ServiceException, rospy.ROSException) as e:
+        #     print("Service call failed: %s" %e)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

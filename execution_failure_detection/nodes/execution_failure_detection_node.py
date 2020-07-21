@@ -9,8 +9,9 @@ import copy
 from pyquaternion import Quaternion
 
 from gazebo_msgs.msg import LinkStates
-from execution_failure_detection.srv import GetExecutionFailure, GetExecutionFailureResponse
+from execution_failure_detection.srv import GetExecutionFailure, GetExecutionFailureResponse, SetExpectedObjectPosition, SetExpectedObjectPositionResponse
 from execution_failure_detection.msg import ExecutionFailure
+from geometry_msgs.msg import Point
 
 class ExecutionFailureNode(object):
     def __init__(self, model_path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/models/'):
@@ -41,9 +42,12 @@ class ExecutionFailureNode(object):
         self.link_states_sub = rospy.Subscriber('/gazebo/link_states', LinkStates, self.linkStatesCallback)
 
         self.execution_failure_service = rospy.Service('get_execution_failure', GetExecutionFailure, self._getExecutionFailure)
+        self.set_expected_object_position_service = rospy.Service('set_expected_object_position', SetExpectedObjectPosition, self._setExpectedObjectPosition)
+        self.expected_object_pose = Pose()
+
         self.execution_failure_pub = rospy.Publisher('execution_failure', ExecutionFailure, queue_size=10)
         self.listener = tf.TransformListener()
-        
+
 
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
@@ -81,6 +85,12 @@ class ExecutionFailureNode(object):
         color = 'blue'
         self.addCube(self.object_size_x, self.object_size_y, self.object_size_z, self.object_pose, color, 2)
 
+    def _setExpectedObjectPosition(self, req):
+        self.expected_object_pose = req.expected_object_pose
+
+        resp = SetExpectedObjectPositionResponse()
+
+        return resp
 
     def setEllipsoidSize(self, ellipsoid_type='collision'):
 
@@ -159,6 +169,21 @@ class ExecutionFailureNode(object):
 
         return False
     
+    def isObjectKickedOver(self):
+        # print(round(self.object_pose.position.x, 2))
+        # print(round(self.expected_object_pose.position.x, 2))
+        # print('\n')
+        # print(round(self.object_pose.position.y, 2))
+        # print(round(self.expected_object_pose.position.y, 2))
+        # print('\n')
+
+        
+        
+        if round(self.object_pose.position.x, 2) != round(self.expected_object_pose.position.x, 2) or round(self.object_pose.position.y, 2) != round(self.expected_object_pose.position.y, 2):
+            return True
+        
+        return False
+
     def isObjectReached(self):
         x = self.object_pose.position.x 
         ymin, ymax = self.object_pose.position.y - self.object_size_y/2, self.object_pose.position.y + self.object_size_y/2
@@ -166,7 +191,7 @@ class ExecutionFailureNode(object):
 
         for y in np.arange(ymin, ymax, 0.01):
             for z in np.arange(zmin, zmax, 0.01):
-                if self.isInsideEllipsoid(x, y, z, ellipsoid_type='reaching'):
+                if self.isInsideEllipsoid(x, y, z, ellipsoid_type='reaching') and not self.isObjectKickedOver():
                     return True
 
         return False

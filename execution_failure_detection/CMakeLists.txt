@@ -11,6 +11,7 @@
   add_service_files(
     FILES
     GetExecutionFailure.srv
+    SetExpectedObjectPosition.srv
   )
 
 add_message_files(
