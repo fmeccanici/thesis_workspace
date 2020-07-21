@@ -13,8 +13,9 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
                                 SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
                                 SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse)
 
-from std_msgs.msg import UInt32, Bool, Byte
+from std_msgs.msg import UInt32, Bool, Byte, String
 from data_logger.msg import OperatorGUIinteraction
+from experiment.srv import SetText, SetTextResponse
 
 class ImageWidget(QWidget):
 
@@ -51,6 +52,8 @@ class OperatorGUI(QMainWindow):
         # self._store_data_service = rospy.Service('store_data', StoreData, self._storeData)
 
         self._operator_gui_interaction_pub = rospy.Publisher('operator_gui_interaction', OperatorGUIinteraction, queue_size=10)
+        self.set_text_service = rospy.Service('operator_gui/set_text', SetText, self._setText)
+        self.set_text_sub = rospy.Subscriber('operator_gui/text', String, self._textCallback)
 
         self.initUI()
         self.show()
@@ -61,7 +64,7 @@ class OperatorGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(20, 9, 1271, 671))
+        self.groupBox.setGeometry(QRect(20, 9, 1881, 671))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(10, 870, 251, 151))
@@ -106,14 +109,26 @@ class OperatorGUI(QMainWindow):
         self.radioButton.raise_()
         self.radioButton_2.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1400, 10, 511, 661))
+        self.groupBox_3.setGeometry(QRect(1400, 680, 511, 341))
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton = QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QRect(520, 770, 271, 101))
+        self.pushButton.setGeometry(QRect(520, 870, 271, 101))
+        font = QFont()
+        font.setPointSize(40)
+        self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
         self.pushButton_2 = QPushButton(self.centralwidget)
-        self.pushButton_2.setGeometry(QRect(810, 770, 271, 101))
+        self.pushButton_2.setGeometry(QRect(810, 870, 271, 101))
+        font = QFont()
+        font.setPointSize(40)
+        self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
+        self.plainTextEdit = QPlainTextEdit(self.centralwidget)
+        self.plainTextEdit.setGeometry(QRect(20, 680, 1361, 171))
+        font = QFont()
+        font.setPointSize(40)
+        self.plainTextEdit.setFont(font)
+        self.plainTextEdit.setObjectName("plainTextEdit")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1920, 25))
@@ -144,7 +159,6 @@ class OperatorGUI(QMainWindow):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
-        self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Participant form"))
         self.label.setText(_translate("MainWindow", "Age"))
         self.label_2.setText(_translate("MainWindow", "Sex"))
@@ -154,11 +168,28 @@ class OperatorGUI(QMainWindow):
         self.groupBox_3.setTitle(_translate("MainWindow", "Instructions"))
         self.pushButton.setText(_translate("MainWindow", "Red"))
         self.pushButton_2.setText(_translate("MainWindow", "Green"))
+        self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
+
+        self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
+        self.pushButton_2.setStyleSheet("background-color: green; font: bold 40px; color: black")
 
         self.buttonBox.accepted.connect(self.on_ok_click)
         self.radioButton.setChecked(1)
         self.pushButton.clicked.connect(self.onRedClick)
         self.pushButton_2.clicked.connect(self.onGreenClick)
+    
+    def _textCallback(self, data):
+        self.text = data.data
+        self.plainTextEdit.setPlainText(self.text)
+
+    def _setText(self, req):
+        text = req.text.data
+        print(text)
+        print("CHECK CHECK 12")
+        self.plainTextEdit.setPlainText(text)
+        resp = SetTextResponse()
+        
+        return resp
 
     def onRedClick(self):
         operator_gui_interaction = OperatorGUIinteraction()
@@ -183,7 +214,7 @@ class OperatorGUI(QMainWindow):
         else:
             gender = 0
         operator_gui_interaction.gender = Bool(gender)
-        
+
         self._operator_gui_interaction_pub.publish(operator_gui_interaction)
 
         # number = int(self.lineEdit.text())

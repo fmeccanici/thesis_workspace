@@ -26,6 +26,7 @@ from gazebo_msgs.srv import SetModelState
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
+from experiment.srv import SetText
 
 class ExperimentNode(object):
     def __init__(self):
@@ -57,8 +58,8 @@ class ExperimentNode(object):
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
+        self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
-        
     def _operatorGuiInteraction(self, data):    
         if data.refine_prediction.data:
             self.refine = 'prediction'
@@ -73,6 +74,10 @@ class ExperimentNode(object):
 
     def _getParameters(self):
         self.method = rospy.get_param('~method')            
+
+    def setOperatorGuiText(self, text):
+        set_text = rospy.ServiceProxy('operator_gui/set_text', SetText)
+        set_text(String(text))
 
     def startNode(self, package, launch_file):
         if launch_file not in self.nodes: 
@@ -358,6 +363,10 @@ class ExperimentNode(object):
             number_msg = Byte()
             
             # wait until we have operator interaction
+            text = "FILL IN FORM"
+            # self.setOperatorGuiText(text)
+            self.operator_gui_text_pub.publish(String(text))
+            
             rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
             number_msg.data = self.participant_number
 
@@ -481,6 +490,7 @@ class ExperimentNode(object):
         self.start_time = 0
     
     def startTrial(self):
+        self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
 
         self.goToInitialPose()
         time.sleep(2)
@@ -562,7 +572,7 @@ class ExperimentNode(object):
 
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
-                
+
             ####### update model #######
             self.goToInitialPose()
             self.addToModel()

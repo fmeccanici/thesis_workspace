@@ -19,7 +19,7 @@
      <rect>
       <x>20</x>
       <y>9</y>
-      <width>1271</width>
+      <width>1881</width>
       <height>671</height>
      </rect>
     </property>
@@ -167,9 +167,9 @@
     <property name="geometry">
      <rect>
       <x>1400</x>
-      <y>10</y>
+      <y>680</y>
       <width>511</width>
-      <height>661</height>
+      <height>341</height>
      </rect>
     </property>
     <property name="title">
@@ -180,10 +180,15 @@
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>770</y>
+      <y>870</y>
       <width>271</width>
       <height>101</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>40</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Red</string>
@@ -193,13 +198,36 @@
     <property name="geometry">
      <rect>
       <x>810</x>
-      <y>770</y>
+      <y>870</y>
       <width>271</width>
       <height>101</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>40</pointsize>
+     </font>
+    </property>
     <property name="text">
      <string>Green</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>680</y>
+      <width>1361</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>40</pointsize>
+     </font>
+    </property>
+    <property name="plainText">
+     <string>START EXPERIMENT</string>
     </property>
    </widget>
   </widget>

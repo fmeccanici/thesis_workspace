@@ -8,13 +8,18 @@
     message_generation
   )
 
-  #add_service_files(
-  #  FILES
-  #)
+  add_service_files(
+    FILES
+    SetText.srv
+  )
 
   #add_message_files(
   #  FILES
   #)
-
+  generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+  )
   catkin_package(CATKIN_DEPENDS std_msgs geometry_msgs message_runtime
 )
