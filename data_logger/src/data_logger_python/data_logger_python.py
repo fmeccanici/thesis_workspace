@@ -2,6 +2,7 @@
 
 import os, csv, ast, copy
 import pandas as pd
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 class ParticipantData(object):
     def __init__(self, number, gender, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
@@ -9,6 +10,7 @@ class ParticipantData(object):
         self.number = number
         self.num_methods = 4
         self.methods = {}
+        self.parser = trajectoryParser()
 
         # check if path exists, create if not
         self.path = path + 'participant_' + str(number) + '/'
@@ -138,11 +140,16 @@ class ParticipantData(object):
         self.method = method
 
     def setRefinedTrajectory(self, *args, **kwargs):
+        print(kwargs)
+        print("time" in kwargs and "refinement" in kwargs)
         if "time" in kwargs and "refinement" in kwargs:            
             refinement = kwargs["refinement"]
             time = kwargs["time"]
             trajectory = refinement.poses
-            t = refinement.t
+            t = list(refinement.times)
+            object_missed = kwargs["object_missed"]
+            obstacle_hit = kwargs["obstacle_hit"]
+            success = kwargs["success"]
 
             x = []
             y = []
@@ -151,9 +158,8 @@ class ParticipantData(object):
             qy = []
             qz = []
             qw = []
-            t = []
 
-            for i, datapoint in enumerate(trajectory):
+            for datapoint in trajectory:
                 x.append(float(datapoint.position.x))
                 y.append(float(datapoint.position.y))
                 z.append(float(datapoint.position.z))
@@ -161,7 +167,6 @@ class ParticipantData(object):
                 qy.append(float(datapoint.orientation.y))
                 qz.append(float(datapoint.orientation.z))
                 qw.append(float(datapoint.orientation.w))
-                t.append(float(t[i]))
 
             self.refined_trajectory['x'] = x
             self.refined_trajectory['y'] = y
@@ -171,6 +176,9 @@ class ParticipantData(object):
             self.refined_trajectory['qz'] = qz
             self.refined_trajectory['qw'] = qw
             self.refined_trajectory['t'] = t
+            self.refined_trajectory['object_missed'] = object_missed
+            self.refined_trajectory['obstacle_hit'] = obstacle_hit
+            self.refined_trajectory['success'] = success
 
             # append dictionary
             # we start with 0 refinement --> n + 1
@@ -178,9 +186,9 @@ class ParticipantData(object):
             # increment number of refined trajectories
             # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
             trajectory = copy.deepcopy(self.refined_trajectory)
-
+            print('data logger refined traj')
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
-            
+
             # increment time (need to think about how to get the correct time)
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
@@ -190,10 +198,14 @@ class ParticipantData(object):
 
         if "time" in kwargs and "prediction" in kwargs:            
             prediction = kwargs["prediction"]
+
             time = kwargs["time"]
-            context = prediction.context
+            context = self.parser.point_to_list(prediction.object_position)
             trajectory = prediction.poses
-            t = prediction.t
+            t = list(prediction.times)
+            object_missed = kwargs["object_missed"]
+            obstacle_hit = kwargs["obstacle_hit"]
+            success = kwargs["success"]
 
             x = []
             y = []
@@ -202,9 +214,8 @@ class ParticipantData(object):
             qy = []
             qz = []
             qw = []
-            t = []
 
-            for i, datapoint in enumerate(trajectory):
+            for datapoint in trajectory:
                 x.append(float(datapoint.position.x))
                 y.append(float(datapoint.position.y))
                 z.append(float(datapoint.position.z))
@@ -212,7 +223,6 @@ class ParticipantData(object):
                 qy.append(float(datapoint.orientation.y))
                 qz.append(float(datapoint.orientation.z))
                 qw.append(float(datapoint.orientation.w))
-                t.append(float(t[i]))
 
             self.predicted_trajectory['x'] = x
             self.predicted_trajectory['y'] = y
@@ -222,13 +232,15 @@ class ParticipantData(object):
             self.predicted_trajectory['qz'] = qz
             self.predicted_trajectory['qw'] = qw
             self.predicted_trajectory['t'] = t
+            self.predicted_trajectory['object_missed'] = object_missed
+            self.predicted_trajectory['obstacle_hit'] = obstacle_hit
+            self.predicted_trajectory['success'] = success
 
             trajectory = copy.deepcopy(self.predicted_trajectory)
 
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
-
 
     def setObstaclesHit(self):
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True

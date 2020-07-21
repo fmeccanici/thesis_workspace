@@ -68,18 +68,35 @@ class DataLoggerNode(object):
         number = req.number.data
         refinement = req.trajectory_data.trajectory
         time = req.trajectory_data.time.data
+        object_missed = req.trajectory_data.object_missed.data
+        obstacle_hit = req.trajectory_data.obstacle_hit.data
 
-        self.data[number].setRefinedTrajectory(refinement=refinement, time=time)
+        if object_missed or obstacle_hit:
+            success = False
+        else:
+            success = True
+
+        self.data[number].setRefinedTrajectory(refinement=refinement, time=time, 
+                                                object_missed=object_missed, 
+                                                obstacle_hit=obstacle_hit,
+                                                success=success)
     
         resp = AddRefinementResponse()
         return resp
 
     def _setPredicted(self, req):
         rospy.loginfo("Set predicted trajectory using service")
-        
+
         number = req.number.data
         time = req.trajectory_data.time.data
         prediction = req.trajectory_data.trajectory
+        object_missed = req.trajectory_data.object_missed.data
+        obstacle_hit = req.trajectory_data.obstacle_hit.data
+
+        if object_missed or obstacle_hit:
+            success = False
+        else:
+            success = True
 
         try:
             rospy.wait_for_service('get_context', timeout=2.0)
@@ -92,8 +109,9 @@ class DataLoggerNode(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)       
 
-        self.data[number].setPredictedTrajectory(prediction=prediction,
-                                                time=time)
+        self.data[number].setPredictedTrajectory(prediction=prediction, 
+                                                time=time, object_missed=object_missed,
+                                                obstacle_hit=obstacle_hit, success=success)
 
 
         resp = SetPredictionResponse()

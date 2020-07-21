@@ -699,7 +699,7 @@ class OnlinePendantGUI(QMainWindow):
         obstacle_hit, object_reached = self.executeTrajectory(self.prediction)
 
         # store prediction along with failure
-        self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_reached=object_reached)
+        self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached)
         self.onSaveClick()
 
         # loop the refinement until max refinements has reached
@@ -716,7 +716,7 @@ class OnlinePendantGUI(QMainWindow):
         
             # move ee to initial pose
             self.onInitialPoseClick()
-            time.sleep(2)
+            time.sleep(4)
             self.onSetObjectPositionClick()
 
             # wait until the operator clicked the red or green button
@@ -763,6 +763,7 @@ class OnlinePendantGUI(QMainWindow):
             
             # store refinement along with if it failed or not
             self.storeData(refinement=1, object_missed = not object_reached, obstacle_hit = obstacle_hit )
+            
             # increment number of refinements
             rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
             
@@ -790,6 +791,7 @@ class OnlinePendantGUI(QMainWindow):
 
         ###### save data ######
         self.onSaveClick()
+        self.storeData()
         self.zeroTimer()
 
         ####### move to next trial ########
@@ -847,7 +849,7 @@ class OnlinePendantGUI(QMainWindow):
 
         #     # clear all trajectories
         #     self.checkBox_3.setChecked(False)
-        #     self.checkBox_4.setChecked(False)
+        #     self.checkBox_4.setChecked(False)F
         #     self.onVisualizeClick()
 
         #     # visualize prediction
@@ -1179,25 +1181,25 @@ class OnlinePendantGUI(QMainWindow):
         time_msg = Float32(self.elapsed_time)
         
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
-        
-        if "prediction" in kwargs and "refined" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
+        if "prediction" in kwargs and "refinement" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
             prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
             refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
 
             
             # store prediction and refinement in dictionary in data logger
-            self.storePrediction(prediction, number_msg)
-            self.storeRefinement(refinement, number_msg)
+            self.storePrediction(prediction, number_msg, time_msg)
+            self.storeRefinement(refinement, number_msg, time_msg)
 
-        elif "prediction" in kwargs and "refined" not in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
+        elif "prediction" in kwargs and "refinement" not in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
             prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
-            self.storePrediction(prediction, number_msg)
+            print('store prediction')
+            self.storePrediction(prediction, number_msg, time_msg)
 
-        elif "prediction" not in kwargs and "refined" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
+        elif "prediction" not in kwargs and "refinement" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
             refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
-            self.storeRefinement(refinement, number_msg)
+            print('store refinement')
 
-
+            self.storeRefinement(refinement, number_msg, time_msg)
 
     def onObstacleHitClick(self):
         number_msg = Byte()
@@ -1263,15 +1265,15 @@ class OnlinePendantGUI(QMainWindow):
         try:
             rospy.wait_for_service('set_prediction', timeout=2.0)
             set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
-            resp = set_prediction(number_msg, prediction)
+            resp = set_prediction(number_msg, prediction, time_msg)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
-    def storeRefinement(self, refinement, number_msg):
+    def storeRefinement(self, refinement, number_msg, time_msg):
         try:
             rospy.wait_for_service('add_refinement', timeout=2.0)
             add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
-            resp = add_refinement(number_msg, refinement)
+            resp = add_refinement(number_msg, refinement, time_msg)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
