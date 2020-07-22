@@ -559,7 +559,7 @@ class ExperimentNode(object):
 
 
                 self.refined_trajectory = resp.refined_trajectory
-                time.sleep(4)
+                time.sleep(5)
 
                 obstacle_hit = resp.obstacle_hit.data
                 execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
@@ -603,11 +603,12 @@ class ExperimentNode(object):
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
 
-                if number_of_refinements == self.max_refinements:
+                if number_of_refinements > self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             ####### update model #######
             self.goToInitialPose()
+            print(self.context)
             self.addToModel()
             self.stopTimer()
             

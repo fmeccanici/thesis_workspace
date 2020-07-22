@@ -36,7 +36,7 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
                                 SetPrediction, SetPredictionResponse, 
-                                SetNumberOfUpdates, SetNumberOfUpdatesResponse, ToCsv, ToCsvResponse)
+                                ToCsv, ToCsvResponse)
 
 # class that enables multithreading with Qt
 class Worker(QRunnable):

@@ -107,54 +107,84 @@ class ExecutionFailureNode(object):
                     (left_finger_tip_trans,left_finger_tip_rot) = self.listener.lookupTransform(self.frame_id,'/gripper_finger_tip_left_link', rospy.Time(0))
                     (right_finger_tip_trans,right_finger_tip_rot) = self.listener.lookupTransform(self.frame_id, '/gripper_finger_tip_right_link', rospy.Time(0))
 
+                    q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
+
                     if ellipsoid_type == 'collision':
-                        self.collision_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) + 0.2
-                        self.collision_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + 0.1
-                        self.collision_ellipsoid_size_z = 0.1 # 0.1 is best
+                        size_wrt_ee = [0.3, -0.01, -0.01]
+                        size_wrt_base = q_ee.rotate(size_wrt_ee)
+
+                        self.collision_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) + size_wrt_base[0]
+                        self.collision_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + size_wrt_base[1]
+                        self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
 
                     elif ellipsoid_type == 'reaching':
-                        self.reaching_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) - 0.08
-                        self.reaching_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + 0.03
-                        self.reaching_ellipsoid_size_z = 0.1 
+                        size_wrt_ee = [0.06, -0.04, 0.1]
+                        size_wrt_base = q_ee.rotate(size_wrt_ee)
+                        
+                        self.reaching_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) + size_wrt_base[0]
+                        self.reaching_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + size_wrt_base[1]
+                        self.reaching_ellipsoid_size_z = size_wrt_base[2] 
 
                     elif ellipsoid_type == 'all':
-                        self.collision_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) + 0.2
-                        self.collision_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + 0.1
-                        self.collision_ellipsoid_size_z = 0.1 # 0.1 is best
+                        size_wrt_ee = [0.3, -0.01, -0.01]
+                        size_wrt_base = q_ee.rotate(size_wrt_ee)
 
-                        self.reaching_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) - 0.08
-                        self.reaching_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + 0.03
-                        self.reaching_ellipsoid_size_z = 0.1 
+                        self.collision_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) + size_wrt_base[0]
+                        self.collision_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + size_wrt_base[1]
+                        self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
+                        
+                        size_wrt_ee = [0.06, -0.05, 0.1]
+                        size_wrt_base = q_ee.rotate(size_wrt_ee)
+                        
+                        self.reaching_ellipsoid_size_x = abs(left_finger_tip_trans[0] - self.ee_pose.position.x) + size_wrt_base[0]
+                        self.reaching_ellipsoid_size_y = abs(left_finger_tip_trans[1] - right_finger_tip_trans[1]) + size_wrt_base[1]
+                        self.reaching_ellipsoid_size_z = size_wrt_base[2] 
                     break
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 pass
 
     def setEllipsoidOrigin(self, ellipsoid_type='collision'):
+        q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
+
         if ellipsoid_type == 'collision':
             self.collision_ellipsoid_origin = copy.deepcopy(self.ee_pose)
-            
-            self.collision_ellipsoid_origin.position.x += 0.04
-            self.collision_ellipsoid_origin.position.y -= 0.01
-            self.collision_ellipsoid_origin.position.z -= 0.01  
+            r_ellipsoid_wrt_ee = [0.02, -0.01, -0.01]
+            r_ellipsoid_wrt_base = q_ee.rotate(r_ellipsoid_wrt_ee)
+
+            self.collision_ellipsoid_origin.position.x += r_ellipsoid_wrt_base[0]
+            self.collision_ellipsoid_origin.position.y += r_ellipsoid_wrt_base[1]
+            self.collision_ellipsoid_origin.position.z += r_ellipsoid_wrt_base[2]
         
         elif ellipsoid_type == 'reaching':
             self.reaching_ellipsoid_origin = copy.deepcopy(self.ee_pose)
 
-            self.reaching_ellipsoid_origin.position.x += 0.12
-            self.reaching_ellipsoid_origin.position.y -= 0.025
-            self.reaching_ellipsoid_origin.position.z -= 0.03
+            r_ellipsoid_wrt_ee = [0.11, 0, 0]
+            r_ellipsoid_wrt_base = q_ee.rotate(r_ellipsoid_wrt_ee)
+
+            self.reaching_ellipsoid_origin.position.x += r_ellipsoid_wrt_base[0]
+            self.reaching_ellipsoid_origin.position.y += r_ellipsoid_wrt_base[1]
+            self.reaching_ellipsoid_origin.position.z += r_ellipsoid_wrt_base[2]
 
         elif ellipsoid_type == 'all':
             self.collision_ellipsoid_origin = copy.deepcopy(self.ee_pose) 
             self.reaching_ellipsoid_origin = copy.deepcopy(self.ee_pose)
-            
-            self.collision_ellipsoid_origin.position.x += 0.04
-            self.collision_ellipsoid_origin.position.y -= 0.01
-            self.collision_ellipsoid_origin.position.z -= 0.01  
 
-            self.reaching_ellipsoid_origin.position.x += 0.12
-            self.reaching_ellipsoid_origin.position.y -= 0.025
-            self.reaching_ellipsoid_origin.position.z -= 0.03
+            # express origin wrt ee frame
+            r_ellipsoid_wrt_ee = [0.02, -0.01, -0.01]
+            
+            # rotate with ee frame to get ellipsoid origin in base frame
+            r_ellipsoid_wrt_base = q_ee.rotate(r_ellipsoid_wrt_ee)
+
+            self.collision_ellipsoid_origin.position.x += r_ellipsoid_wrt_base[0]
+            self.collision_ellipsoid_origin.position.y += r_ellipsoid_wrt_base[1]
+            self.collision_ellipsoid_origin.position.z += r_ellipsoid_wrt_base[2]
+            
+            r_ellipsoid_wrt_ee = [0.10, 0, 0]
+            r_ellipsoid_wrt_base = q_ee.rotate(r_ellipsoid_wrt_ee)
+
+            self.reaching_ellipsoid_origin.position.x += r_ellipsoid_wrt_base[0]
+            self.reaching_ellipsoid_origin.position.y += r_ellipsoid_wrt_base[1]
+            self.reaching_ellipsoid_origin.position.z += r_ellipsoid_wrt_base[2]
 
     def isObstacleHit(self):
         # z = self.table_pose.position.z
@@ -205,15 +235,32 @@ class ExecutionFailureNode(object):
 
         if ellipsoid_type == 'collision':
 
-            # rotate ellipsoid
-            vec_rotated = q_ee.rotate([(x - self.collision_ellipsoid_origin.position.x), (y - self.collision_ellipsoid_origin.position.y), (z - self.collision_ellipsoid_origin.position.z)])
-            f = (vec_rotated[0] / self.collision_ellipsoid_size_x)**2 + (vec_rotated[1] / self.collision_ellipsoid_size_y)**2 + (vec_rotated[2] / self.collision_ellipsoid_size_z)**2 
+            # vec_rotated = q_ee.rotate([(x - self.collision_ellipsoid_origin.position.x), (y - self.collision_ellipsoid_origin.position.y), (z - self.collision_ellipsoid_origin.position.z)])
+
+            # subtract origin of ellipsoid from point to evaluate to get the correct vector to evaluate
+            # if it is inside the ellipsoid 
+            r_eval_wrt_base = [x - self.collision_ellipsoid_origin.position.x, y - self.collision_ellipsoid_origin.position.y, z - self.collision_ellipsoid_origin.position.z]
+            
+            # rotate vector such that it is expressed in the ellipsoid frame and we can evaluate it 
+            # properly
+            r_eval_wrt_ellipsoid = q_ee.rotate(r_eval_wrt_base)
+            
+            f = (r_eval_wrt_ellipsoid[0] / self.collision_ellipsoid_size_x)**2 + (r_eval_wrt_ellipsoid[1] / self.collision_ellipsoid_size_y)**2 + (r_eval_wrt_ellipsoid[2] / self.collision_ellipsoid_size_z)**2 
+            # f = (r_eval_wrt_base[0] / self.collision_ellipsoid_size_x)**2 + (r_eval_wrt_base[1] / self.collision_ellipsoid_size_y)**2 + (r_eval_wrt_base[2] / self.collision_ellipsoid_size_z)**2 
 
         elif ellipsoid_type == 'reaching':
 
-            # rotate ellipsoid
-            vec_rotated = q_ee.rotate([(x - self.reaching_ellipsoid_origin.position.x), (y - self.reaching_ellipsoid_origin.position.y), (z - self.reaching_ellipsoid_origin.position.z)])
-            f = (vec_rotated[0] / self.reaching_ellipsoid_size_x)**2 + (vec_rotated[1] / self.reaching_ellipsoid_size_y)**2 + (vec_rotated[2] / self.reaching_ellipsoid_size_z)**2 
+            # subtract origin of ellipsoid from point to evaluate to get the correct vector to evaluate
+            # if it is inside the ellipsoid 
+            r_eval_wrt_base = [x - self.reaching_ellipsoid_origin.position.x, y - self.reaching_ellipsoid_origin.position.y, z - self.reaching_ellipsoid_origin.position.z]
+            
+            # rotate vector such that it is expressed in the ellipsoid frame and we can evaluate it 
+            # properly
+            # r_eval_wrt_ellipsoid = q_ee.rotate(r_eval_wrt_base)
+            
+            # f = (r_eval_wrt_ellipsoid[0] / self.reaching_ellipsoid_size_x)**2 + (r_eval_wrt_ellipsoid[1] / self.reaching_ellipsoid_size_y)**2 + (r_eval_wrt_ellipsoid[2] / self.reaching_ellipsoid_size_z)**2 
+            f = (r_eval_wrt_base[0] / self.reaching_ellipsoid_size_x)**2 + (r_eval_wrt_base[1] / self.reaching_ellipsoid_size_y)**2 + (r_eval_wrt_base[2] / self.reaching_ellipsoid_size_z)**2 
+
 
         return f < 1
 
