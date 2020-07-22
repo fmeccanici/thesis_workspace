@@ -17,6 +17,18 @@ from std_msgs.msg import UInt32, Bool, Byte, String
 from data_logger.msg import OperatorGUIinteraction
 from experiment.srv import SetText, SetTextResponse
 
+class TextThread(QThread):
+    textSignal = pyqtSignal(str)
+    def __init__(self, parent=None):
+        super(TextThread, self).__init__(parent=parent)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
+        self.text_file = self.text_path + 'text.txt'
+
+    def run(self):
+        while True:
+            with open(self.text_file, 'r') as f:
+                self.textSignal.emit(f.read())
+
 class ImageWidget(QWidget):
 
     def __init__(self):
@@ -50,11 +62,16 @@ class OperatorGUI(QMainWindow):
         rospy.init_node("operator_gui")
         self._rospack = rospkg.RosPack()
         # self._store_data_service = rospy.Service('store_data', StoreData, self._storeData)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
 
         self._operator_gui_interaction_pub = rospy.Publisher('operator_gui_interaction', OperatorGUIinteraction, queue_size=10)
         self.set_text_service = rospy.Service('operator_gui/set_text', SetText, self._setText)
         self.set_text_sub = rospy.Subscriber('operator_gui/text', String, self._textCallback)
-
+        
+        self.text_thread = TextThread(self)
+        self.text_thread.textSignal.connect(self.updateText)
+        self.text_thread.start()
+        
         self.initUI()
         self.show()
 
@@ -184,12 +201,13 @@ class OperatorGUI(QMainWindow):
 
     def _setText(self, req):
         text = req.text.data
-        print(text)
-        print("CHECK CHECK 12")
         self.plainTextEdit.setPlainText(text)
         resp = SetTextResponse()
         
         return resp
+    
+    def updateText(self, text):
+        self.plainTextEdit.setPlainText(text)
 
     def onRedClick(self):
         operator_gui_interaction = OperatorGUIinteraction()
