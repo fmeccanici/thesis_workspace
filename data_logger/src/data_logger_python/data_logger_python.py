@@ -139,10 +139,13 @@ class ParticipantData(object):
     def setMethod(self, method):
         self.method = method
 
+    def setTime(self, *args, **kwargs):
+        time = kwargs["time"]
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+
     def setRefinedTrajectory(self, *args, **kwargs):
-        print(kwargs)
-        print("time" in kwargs and "refinement" in kwargs)
-        if "time" in kwargs and "refinement" in kwargs:            
+
+        if "refinement" in kwargs:            
             refinement = kwargs["refinement"]
             time = kwargs["time"]
             trajectory = refinement.poses
@@ -188,7 +191,7 @@ class ParticipantData(object):
             # increment number of refined trajectories
             # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
             trajectory = copy.deepcopy(self.refined_trajectory)
-            print('data logger refined traj')
+
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
 
             # increment time (need to think about how to get the correct time)
@@ -246,6 +249,8 @@ class ParticipantData(object):
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
+            print("Prediction stored in dictionary")
+            
     def setObstaclesHit(self):
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['success'] = False

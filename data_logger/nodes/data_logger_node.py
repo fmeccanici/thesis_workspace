@@ -6,10 +6,11 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
                                 SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
                                 SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse,
                                 IncrementNumberOfRefinements, IncrementNumberOfRefinementsResponse,
-                                SetParameters, SetParametersResponse)
+                                SetParameters, SetParametersResponse, SetTime, SetTimeResponse)
 
 from learning_from_demonstration.srv import GetContext
 import copy
+from std_srvs.srv import EmptyResponse
 
 class DataLoggerNode(object):
     def __init__(self):
@@ -26,6 +27,8 @@ class DataLoggerNode(object):
         self._increment_number_of_refinements_service = rospy.Service('increment_number_of_refinements', IncrementNumberOfRefinements, self._incrementNumberOfRefinements)
         # self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
         self._to_csv_service = rospy.Service('to_csv', ToCsv, self._toCsv)
+        self._set_time_service = rospy.Service('data_logger/set_time', SetTime, self._setTime)
+
         self._set_parameters_service = rospy.Service('data_logger/set_parameters', SetParameters, self._setParameters)
 
         self.data = {}
@@ -62,12 +65,21 @@ class DataLoggerNode(object):
         resp = SetParametersResponse()
         
         return resp       
-        
+    
+    def _setTime(self, req):
+        time = req.time.data
+        number = req.number.data
+        rospy.loginfo("Setting time using service: t = " + str(time))
+
+        self.data[number].setTime(time=time)
+
+        resp = SetTimeResponse()
+        return resp
+
     def _addRefinement(self, req):
         rospy.loginfo("Adding refinement using service")
         number = req.number.data
         refinement = req.trajectory_data.trajectory
-        time = req.trajectory_data.time.data
         object_missed = req.trajectory_data.object_missed.data
         object_kicked_over = req.trajectory_data.object_kicked_over.data
         obstacle_hit = req.trajectory_data.obstacle_hit.data
@@ -77,7 +89,7 @@ class DataLoggerNode(object):
         else:
             success = True
 
-        self.data[number].setRefinedTrajectory(refinement=refinement, time=time, 
+        self.data[number].setRefinedTrajectory(refinement=refinement,
                                                 object_missed=object_missed, object_kicked_over=object_kicked_over,
                                                 obstacle_hit=obstacle_hit,
                                                 success=success)
@@ -89,7 +101,6 @@ class DataLoggerNode(object):
         rospy.loginfo("Set predicted trajectory using service")
 
         number = req.number.data
-        time = req.trajectory_data.time.data
         prediction = req.trajectory_data.trajectory
         object_missed = req.trajectory_data.object_missed.data
         object_kicked_over = req.trajectory_data.object_kicked_over.data
@@ -112,7 +123,7 @@ class DataLoggerNode(object):
             print("Service call failed: %s" %e)       
 
         self.data[number].setPredictedTrajectory(prediction=prediction, 
-                                                time=time, object_missed=object_missed,
+                                                object_missed=object_missed,
                                                 obstacle_hit=obstacle_hit, success=success,
                                                 object_kicked_over=object_kicked_over)
 

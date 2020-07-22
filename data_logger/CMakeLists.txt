@@ -19,6 +19,7 @@
     SetPrediction.srv
     IncrementNumberOfRefinements.srv
     SetParameters.srv
+    SetTime.srv
   )
   add_message_files(
     FILES

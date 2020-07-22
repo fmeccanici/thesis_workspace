@@ -85,7 +85,7 @@ class DataAnalysis(object):
 
         return refinements_per_object_position
 
-    def getNumberOfObjectMissed(self, participant_number, method, variation):
+    def getNumberOfObjectMissed(self, participant_number, method):
         methods = self.data[participant_number].getMethods()
 
         object_missed_per_object_position = []
@@ -94,7 +94,11 @@ class DataAnalysis(object):
             object_missed = 0
 
             for trial in methods[method]['object_position'][object_position]['trial']:
-                object_missed += int(methods[method]['object_position'][object_position]['trial'][trial]['success'])
+                try:
+                    object_missed += int(methods[method]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['object_missed'])
+                except KeyError as e:
+                    print("Key not available: " + str(e))
+                    continue
 
             object_missed_per_object_position.append(object_missed)
 
@@ -109,8 +113,12 @@ class DataAnalysis(object):
             obstacle_hit = 0
 
             for trial in methods[method]['object_position'][object_position]['trial']:
-                obstacle_hit += int(methods[method]['object_position'][object_position]['trial'][trial]['success'])
-
+                
+                try:
+                    obstacle_hit += int(methods[method]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
+                except KeyError as e:
+                    print("Key not available: " + str(e))
+                    continue
             obstacle_hit_per_object_position.append(obstacle_hit)
 
         return obstacle_hit_per_object_position
@@ -187,7 +195,7 @@ class DataAnalysis(object):
         plt.figure()
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            number_of_obstacles_hit = self.getNumberOfObstaclesHit(participant_number, method, variation)
+            number_of_obstacles_hit = self.getNumberOfObstaclesHit(participant_number, method)
             plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_obstacles_hit ] )
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
@@ -268,14 +276,14 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadData(90)
+    data_analysis.loadData(91)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     # data_analysis.calculateAdaptationTime(1, 3, 1)
-    data_analysis.plotAdaptationTime(90)
-    data_analysis.plotNumberOfRefinements(90)
-    data_analysis.plotSuccesfullPredictions(90)
-    data_analysis.plotNumberOfObstaclesHit(90)
-    data_analysis.plotNumberOfObjectMissed(90)
+    data_analysis.plotAdaptationTime(91)
+    data_analysis.plotNumberOfRefinements(91)
+    data_analysis.plotSuccesfullPredictions(91)
+    data_analysis.plotNumberOfObstaclesHit(91)
+    data_analysis.plotNumberOfObjectMissed(91)
     # data_analysis.plotDataBeforeExperiment()

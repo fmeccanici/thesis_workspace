@@ -18,7 +18,7 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from data_logger.srv import (CreateParticipant, AddRefinement,
                                 SetPrediction, ToCsv, SetObstaclesHit,
                                 SetObjectMissed, IncrementNumberOfRefinements,
-                                SetParameters)
+                                SetParameters, SetTime)
 
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
@@ -381,46 +381,57 @@ class ExperimentNode(object):
 
         return resp.obstacle_hit.data, resp.object_reached.data, resp.object_kicked_over.data
     
-    def storePrediction(self, prediction, number_msg, time_msg):
+    def storePrediction(self, prediction, number_msg):
         try:
             rospy.wait_for_service('set_prediction', timeout=2.0)
             set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
-            resp = set_prediction(number_msg, prediction, time_msg)
+            resp = set_prediction(number_msg, prediction)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
-    def storeRefinement(self, refinement, number_msg, time_msg):
+    def storeRefinement(self, refinement, number_msg):
         try:
             rospy.wait_for_service('add_refinement', timeout=2.0)
             add_refinement = rospy.ServiceProxy('add_refinement', AddRefinement)
-            resp = add_refinement(number_msg, refinement, time_msg)
+            resp = add_refinement(number_msg, refinement)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def storeTime(self, number_msg, time_msg):
+        try:
+            rospy.wait_for_service('data_logger/set_time', timeout=2.0)
+            set_time = rospy.ServiceProxy('data_logger/set_time', SetTime)
+
+            resp = set_time(number_msg, time_msg)
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
     def storeData(self, *args, **kwargs):
         number_msg = Byte(self.participant_number)
-        time_msg = Float32(self.elapsed_time)
-        
-        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
+
+        if "time" in kwargs:
+            time_msg = Float32(self.elapsed_time)
+            self.storeTime(number_msg, time_msg)
+
+        # path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
         if "prediction" in kwargs and "refinement" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]),  time_msg)
-            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]), time_msg)
-            
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]))
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]))
             
             # store prediction and refinement in dictionary in data logger
-            self.storePrediction(prediction, number_msg, time_msg)
-            self.storeRefinement(refinement, number_msg, time_msg)
+            self.storePrediction(prediction, number_msg)
+            self.storeRefinement(refinement, number_msg)
 
         elif "prediction" in kwargs and "refinement" not in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]),  time_msg)
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]))
             print('store prediction')
-            self.storePrediction(prediction, number_msg, time_msg)
+            self.storePrediction(prediction, number_msg)
 
         elif "prediction" not in kwargs and "refinement" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]), time_msg)
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]))
             print('store refinement')
 
-            self.storeRefinement(refinement, number_msg, time_msg)
+            self.storeRefinement(refinement, number_msg)
     
     def saveData(self):
         try: 
@@ -608,9 +619,11 @@ class ExperimentNode(object):
 
             ####### update model #######
             self.goToInitialPose()
-            print(self.context)
             self.addToModel()
             self.stopTimer()
+            
+            # store time
+            self.storeData(time=True)
             
             ###### save data ######
             self.saveData()
