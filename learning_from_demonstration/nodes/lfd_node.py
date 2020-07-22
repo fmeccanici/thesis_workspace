@@ -66,7 +66,6 @@ class lfdNode():
         self.EEtrajectory = []
         self.stop_execution = False
         self.elapsed_time = 0
-
         ## initialize ros related
         rospy.init_node('lfd_node')
 
@@ -196,6 +195,7 @@ class lfdNode():
     def _executionFailureCallback(self, data):
         self.object_reached = data.object_reached.data
         self.obstacle_hit = data.obstacle_hit.data
+        self.object_kicked_over = data.object_kicked_over.data
 
     # button callback
     def _buttonCallback(self, data):
@@ -324,6 +324,7 @@ class lfdNode():
             time.sleep(dt)
         
         self.object_reached_temp = copy.deepcopy(self.object_reached)
+        self.object_kicked_over_temp = copy.deepcopy(self.object_kicked_over)
 
     def context_to_msg(self, context):
         point = Point()
@@ -590,12 +591,14 @@ class lfdNode():
 
         # store object reached value
         object_reached_msg = Bool(self.object_reached_temp)
+        object_kicked_over_msg = Bool(self.object_kicked_over_temp)
 
         # is empty but need to create class otherwise error
         resp = ExecuteTrajectoryResponse()
 
         resp.obstacle_hit = obstacle_hit_msg
         resp.object_reached = object_reached_msg
+        resp.object_kicked_over = object_kicked_over_msg
         
         return resp
 

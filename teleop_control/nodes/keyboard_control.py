@@ -88,7 +88,7 @@ class KeyboardControl():
         elif key == Key.enter:
             self.keyboard.key.data = ''
 
-        elif key == Key.esc:
+        elif key == Key.ctrl_r:
             # kill node when esc is pressed
             os.system('kill %d' % os.getpid())
             raise pynput.keyboard.Listener.StopException

@@ -59,9 +59,11 @@ class ExecutionFailureNode(object):
         obstacle_hit = Bool()
         object_reached.data = self.isObjectReached()
         obstacle_hit.data = self.isObstacleHit()
-
+        object_kicked_over = Bool(self.isObjectKickedOver())
+        
         resp.object_reached = object_reached
         resp.obstacle_hit = obstacle_hit
+        resp.object_kicked_over = object_kicked_over
 
         return resp
 
@@ -191,11 +193,12 @@ class ExecutionFailureNode(object):
 
         for y in np.arange(ymin, ymax, 0.01):
             for z in np.arange(zmin, zmax, 0.01):
-                if self.isInsideEllipsoid(x, y, z, ellipsoid_type='reaching') and not self.isObjectKickedOver():
+                if self.isInsideEllipsoid(x, y, z, ellipsoid_type='reaching'):
                     return True
 
         return False
 
+    
 
     def isInsideEllipsoid(self, x, y, z, ellipsoid_type='collision'):
         q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
@@ -349,7 +352,10 @@ class ExecutionFailureNode(object):
 
             execution_failure_msg = ExecutionFailure()
             execution_failure_msg.object_reached = Bool(self.isObjectReached())
+            execution_failure_msg.object_kicked_over = Bool(self.isObjectKickedOver())
+
             execution_failure_msg.obstacle_hit = Bool(self.isObstacleHit())
+
 
             self.execution_failure_pub.publish(execution_failure_msg)
 

@@ -12,3 +12,6 @@ class TextUpdater(object):
         with open(self.text_file, 'w') as f:
                 f.write("")
     
+    def append(self, text):
+        with open(self.text_file, 'a') as f:
+            f.write(" " + str(text))

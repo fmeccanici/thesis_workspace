@@ -30,8 +30,8 @@ class ParticipantData(object):
             self.initData()
 
         # parameters used to fill the methods dictionary
-        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'success': True}
-        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'success': True}
+        self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'object_kicked_over': False, 'success': True}
+        self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'object_kicked_over': False, 'success': True}
         self.trial = 1
         self.object_position = 1
         self.context = []
@@ -148,6 +148,7 @@ class ParticipantData(object):
             trajectory = refinement.poses
             t = list(refinement.times)
             object_missed = kwargs["object_missed"]
+            object_kicked_over = kwargs["object_kicked_over"]
             obstacle_hit = kwargs["obstacle_hit"]
             success = kwargs["success"]
 
@@ -177,6 +178,7 @@ class ParticipantData(object):
             self.refined_trajectory['qw'] = qw
             self.refined_trajectory['t'] = t
             self.refined_trajectory['object_missed'] = object_missed
+            self.predicted_trajectory['object_kicked_over'] = object_kicked_over
             self.refined_trajectory['obstacle_hit'] = obstacle_hit
             self.refined_trajectory['success'] = success
 
@@ -205,6 +207,7 @@ class ParticipantData(object):
             t = list(prediction.times)
             object_missed = kwargs["object_missed"]
             obstacle_hit = kwargs["obstacle_hit"]
+            object_kicked_over = kwargs["object_kicked_over"]
             success = kwargs["success"]
 
             x = []
@@ -233,6 +236,7 @@ class ParticipantData(object):
             self.predicted_trajectory['qw'] = qw
             self.predicted_trajectory['t'] = t
             self.predicted_trajectory['object_missed'] = object_missed
+            self.predicted_trajectory['object_kicked_over'] = object_kicked_over
             self.predicted_trajectory['obstacle_hit'] = obstacle_hit
             self.predicted_trajectory['success'] = success
 
@@ -254,7 +258,7 @@ class ParticipantData(object):
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 
         # self.methods[method]['object_missed'] += 1
-    
+
     def incrementNumberOfRefinements(self):
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
         print("method " + str(self.method))

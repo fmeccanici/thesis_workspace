@@ -1,3 +1,4 @@
 ---
 std_msgs/Bool object_reached
 std_msgs/Bool obstacle_hit
+std_msgs/Bool object_kicked_over

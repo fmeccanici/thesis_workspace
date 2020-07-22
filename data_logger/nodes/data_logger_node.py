@@ -69,15 +69,16 @@ class DataLoggerNode(object):
         refinement = req.trajectory_data.trajectory
         time = req.trajectory_data.time.data
         object_missed = req.trajectory_data.object_missed.data
+        object_kicked_over = req.trajectory_data.object_kicked_over.data
         obstacle_hit = req.trajectory_data.obstacle_hit.data
 
-        if object_missed or obstacle_hit:
+        if object_missed or obstacle_hit or object_kicked_over:
             success = False
         else:
             success = True
 
         self.data[number].setRefinedTrajectory(refinement=refinement, time=time, 
-                                                object_missed=object_missed, 
+                                                object_missed=object_missed, object_kicked_over=object_kicked_over,
                                                 obstacle_hit=obstacle_hit,
                                                 success=success)
     
@@ -91,9 +92,10 @@ class DataLoggerNode(object):
         time = req.trajectory_data.time.data
         prediction = req.trajectory_data.trajectory
         object_missed = req.trajectory_data.object_missed.data
+        object_kicked_over = req.trajectory_data.object_kicked_over.data
         obstacle_hit = req.trajectory_data.obstacle_hit.data
 
-        if object_missed or obstacle_hit:
+        if object_missed or obstacle_hit or object_kicked_over:
             success = False
         else:
             success = True
@@ -111,7 +113,8 @@ class DataLoggerNode(object):
 
         self.data[number].setPredictedTrajectory(prediction=prediction, 
                                                 time=time, object_missed=object_missed,
-                                                obstacle_hit=obstacle_hit, success=success)
+                                                obstacle_hit=obstacle_hit, success=success,
+                                                object_kicked_over=object_kicked_over)
 
 
         resp = SetPredictionResponse()

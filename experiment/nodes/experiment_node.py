@@ -338,11 +338,12 @@ class ExperimentNode(object):
         method_msg = Byte(self.method_mapping[self.method])
 
         object_position_msg = Byte(self.current_object_position)
+
         context_msg = Point()
         try:
             context_msg = self.context
-        except AttributeError:
-            rospy.loginfo("Context not set!")
+        except AttributeError as e:
+            rospy.loginfo("Context not set!: " + str(e))
             return -1
         trial_msg = Byte(self.current_trial)
 
@@ -378,7 +379,7 @@ class ExperimentNode(object):
         execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
         resp = execute_trajectory(traj, self.T_desired)
 
-        return resp.obstacle_hit.data, resp.object_reached.data
+        return resp.obstacle_hit.data, resp.object_reached.data, resp.object_kicked_over.data
     
     def storePrediction(self, prediction, number_msg, time_msg):
         try:
@@ -402,21 +403,21 @@ class ExperimentNode(object):
         
         path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/gui/data/experiment/'
         if "prediction" in kwargs and "refinement" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
-            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
-
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]),  time_msg)
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]), time_msg)
+            
             
             # store prediction and refinement in dictionary in data logger
             self.storePrediction(prediction, number_msg, time_msg)
             self.storeRefinement(refinement, number_msg, time_msg)
 
         elif "prediction" in kwargs and "refinement" not in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
+            prediction = TrajectoryData(self.prediction, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]),  time_msg)
             print('store prediction')
             self.storePrediction(prediction, number_msg, time_msg)
 
         elif "prediction" not in kwargs and "refinement" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:
-            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["obstacle_hit"]), time_msg)
+            refinement = TrajectoryData(self.refined_trajectory, Bool(kwargs["object_missed"]), Bool(kwargs["object_kicked_over"]), Bool(kwargs["obstacle_hit"]), time_msg)
             print('store refinement')
 
             self.storeRefinement(refinement, number_msg, time_msg)
@@ -493,6 +494,7 @@ class ExperimentNode(object):
         time.sleep(4)
 
         self.getContext()
+        
         self.setDataLoggerParameters()
         self.predict()
         self.visualize('prediction')
@@ -500,20 +502,23 @@ class ExperimentNode(object):
         if self.method == 'online+pendant':
             self.text_updater.update("AUTONOMOUS EXECUTION")
 
-            obstacle_hit, object_reached = self.executeTrajectory(self.prediction)
+            obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
         
             # store prediction along with failure
-            self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached)
+            self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
             
             # update text in operator gui
-            if obstacle_hit and object_reached:
-                self.text_updater.update("FAILURE: OBSTACLE HIT")
-            elif obstacle_hit and not object_reached:
-                self.text_updater.update("FAILURE: OBSTACLE HIT, OBJECT MISSED")
-            elif not obstacle_hit and not object_reached:
-                self.text_updater.update("FAILURE: OBJECT MISSED")
-            elif not obstacle_hit and object_reached:
+            if obstacle_hit or not object_reached or object_kicked_over:
+                self.text_updater.update("FAILURE:")
+            else:
                 self.text_updater.update("SUCCESS!")
+
+            if obstacle_hit:
+                self.text_updater.append("OBSTACLE HIT")
+            if not object_reached:
+                self.text_updater.append("OBJECT MISSED")
+            if object_kicked_over:
+                self.text_updater.append("OBJECT KICKED OVER")
 
             time.sleep(2)
 
@@ -521,7 +526,7 @@ class ExperimentNode(object):
             # or the last refinement was successful
             number_of_refinements = 0
 
-            while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
+            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements:
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
@@ -554,13 +559,14 @@ class ExperimentNode(object):
 
 
                 self.refined_trajectory = resp.refined_trajectory
-                time.sleep(5)
+                time.sleep(4)
 
                 obstacle_hit = resp.obstacle_hit.data
                 execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
                 resp = execution_failure()
                 object_reached = resp.object_reached.data
-            
+                object_kicked_over = resp.object_kicked_over.data
+
                 print("\n")
 
                 rospy.loginfo("object missed: " + str(not object_reached))
@@ -569,18 +575,21 @@ class ExperimentNode(object):
                 print("\n")
 
                 # update text in operator gui
-                if obstacle_hit and object_reached:
-                    self.text_updater.update("FAILURE: OBSTACLE HIT")
-                elif obstacle_hit and not object_reached:
-                    self.text_updater.update("FAILURE: OBSTACLE HIT, OBJECT MISSED")
-                elif not obstacle_hit and not object_reached:
-                    self.text_updater.update("FAILURE: OBJECT MISSED")
-                elif not obstacle_hit and object_reached:
+                if obstacle_hit or not object_reached or object_kicked_over:
+                    self.text_updater.update("FAILURE:")
+                else:
                     self.text_updater.update("SUCCESS!")
+
+                if obstacle_hit:
+                    self.text_updater.append("OBSTACLE HIT")
+                if not object_reached:
+                    self.text_updater.append("OBJECT MISSED")
+                if object_kicked_over:
+                    self.text_updater.append("OBJECT KICKED OVER")
 
                 time.sleep(2)
                 # store refinement along with if it failed or not
-                self.storeData(refinement=1, object_missed = not object_reached, obstacle_hit = obstacle_hit )
+                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
                 # increment number of refinements
                 rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
@@ -593,6 +602,9 @@ class ExperimentNode(object):
 
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
+
+                if number_of_refinements == self.max_refinements:
+                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             ####### update model #######
             self.goToInitialPose()
@@ -616,6 +628,7 @@ class ExperimentNode(object):
         self.initializeHeadLiftJoint()
 
         for object_position in self.object_positions:
+            self.getContext()
             self.setDataLoggerParameters()
             for trial in self.trials:
                 self.startTrial()
