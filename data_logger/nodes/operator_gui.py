@@ -28,6 +28,7 @@ class TextThread(QThread):
         while True:
             with open(self.text_file, 'r') as f:
                 self.textSignal.emit(f.read())
+                self.sleep(1)
 
 class ImageWidget(QWidget):
 
@@ -65,8 +66,8 @@ class OperatorGUI(QMainWindow):
         self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
 
         self._operator_gui_interaction_pub = rospy.Publisher('operator_gui_interaction', OperatorGUIinteraction, queue_size=10)
-        self.set_text_service = rospy.Service('operator_gui/set_text', SetText, self._setText)
-        self.set_text_sub = rospy.Subscriber('operator_gui/text', String, self._textCallback)
+        # self.set_text_service = rospy.Service('operator_gui/set_text', SetText, self._setText)
+        # self.set_text_sub = rospy.Subscriber('operator_gui/text', String, self._textCallback)
         
         self.text_thread = TextThread(self)
         self.text_thread.textSignal.connect(self.updateText)
@@ -195,16 +196,16 @@ class OperatorGUI(QMainWindow):
         self.pushButton.clicked.connect(self.onRedClick)
         self.pushButton_2.clicked.connect(self.onGreenClick)
     
-    def _textCallback(self, data):
-        self.text = data.data
-        self.plainTextEdit.setPlainText(self.text)
+    # def _textCallback(self, data):
+    #     self.text = data.data
+    #     self.plainTextEdit.setPlainText(self.text)
 
-    def _setText(self, req):
-        text = req.text.data
-        self.plainTextEdit.setPlainText(text)
-        resp = SetTextResponse()
+    # def _setText(self, req):
+    #     text = req.text.data
+    #     self.plainTextEdit.setPlainText(text)
+    #     resp = SetTextResponse()
         
-        return resp
+    #     return resp
     
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)

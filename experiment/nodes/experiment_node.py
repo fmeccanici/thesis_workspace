@@ -3,6 +3,7 @@
 import rospy, rospkg, roslaunch, time
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
+from data_logger_python.text_updater import TextUpdater
 
 # import ros messages
 from sensor_msgs.msg import JointState
@@ -35,6 +36,7 @@ class ExperimentNode(object):
         self.rospack = rospkg.RosPack()
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
+        self.text_updater = TextUpdater()
 
         self.nodes = {}
         self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
@@ -58,7 +60,7 @@ class ExperimentNode(object):
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
-        self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
+        # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
     def _operatorGuiInteraction(self, data):    
         if data.refine_prediction.data:
@@ -134,14 +136,6 @@ class ExperimentNode(object):
         self.lift_goal_pub.publish(lift_goal)
         self.head_goal_pub.publish(head_goal)
     
-    def initializeNodes(self):
-        if self.method == 'online+pendant':
-            self.startNode('learning_from_demonstration', 'learning_from_demonstration.launch')
-            self.startNode('trajectory_refinement', 'trajectory_refinement_keyboard.launch')
-            self.startNode('teleop_control', 'keyboard_control.launch')
-            self.startNode('data_logger', 'data_logging.launch')
-            self.startNode('execution_failure_detection', 'execution_failure_detection.launch')
-
     def setObjectPosition(self):
         try:
             object_position = ModelState()
@@ -364,11 +358,11 @@ class ExperimentNode(object):
             
             # wait until we have operator interaction
             text = "FILL IN FORM"
-            # self.setOperatorGuiText(text)
-            self.operator_gui_text_pub.publish(String(text))
+            self.text_updater.update(text)
             
             rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
             number_msg.data = self.participant_number
+            self.text_updater.empty()
 
             # dummy variable names --> not necessary when data exists
             gender_msg = Bool(self.gender)
@@ -490,7 +484,7 @@ class ExperimentNode(object):
         self.start_time = 0
     
     def startTrial(self):
-        self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
+        # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
 
         self.goToInitialPose()
         time.sleep(2)
@@ -504,10 +498,24 @@ class ExperimentNode(object):
         self.visualize('prediction')
 
         if self.method == 'online+pendant':
+            self.text_updater.update("AUTONOMOUS EXECUTION")
+
             obstacle_hit, object_reached = self.executeTrajectory(self.prediction)
         
             # store prediction along with failure
             self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached)
+            
+            # update text in operator gui
+            if obstacle_hit and object_reached:
+                self.text_updater.update("FAILURE: OBSTACLE HIT")
+            elif obstacle_hit and not object_reached:
+                self.text_updater.update("FAILURE: OBSTACLE HIT, OBJECT MISSED")
+            elif not obstacle_hit and not object_reached:
+                self.text_updater.update("FAILURE: OBJECT MISSED")
+            elif not obstacle_hit and object_reached:
+                self.text_updater.update("SUCCESS!")
+
+            time.sleep(2)
 
             # loop the refinement until max refinements has reached
             # or the last refinement was successful
@@ -515,10 +523,12 @@ class ExperimentNode(object):
 
             while (obstacle_hit or not object_reached) and number_of_refinements <= self.max_refinements:
                 print("Trajectory failure!")
+
                 self.goToInitialPose()
                 self.setObjectPosition()
                 
                 # wait until the operator clicked the red or green button
+                self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
                 
@@ -557,7 +567,18 @@ class ExperimentNode(object):
                 rospy.loginfo("obstacle hit: " + str(obstacle_hit))
                 
                 print("\n")
-            
+
+                # update text in operator gui
+                if obstacle_hit and object_reached:
+                    self.text_updater.update("FAILURE: OBSTACLE HIT")
+                elif obstacle_hit and not object_reached:
+                    self.text_updater.update("FAILURE: OBSTACLE HIT, OBJECT MISSED")
+                elif not obstacle_hit and not object_reached:
+                    self.text_updater.update("FAILURE: OBJECT MISSED")
+                elif not obstacle_hit and object_reached:
+                    self.text_updater.update("SUCCESS!")
+
+                time.sleep(2)
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, object_missed = not object_reached, obstacle_hit = obstacle_hit )
                
@@ -592,6 +613,7 @@ class ExperimentNode(object):
 
     def start(self):
         self.loadOrCreateParticipant()
+        self.initializeHeadLiftJoint()
 
         for object_position in self.object_positions:
             self.setDataLoggerParameters()
