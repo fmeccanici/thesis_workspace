@@ -283,11 +283,13 @@ class ExecutionFailureNode(object):
 
             # subtract origin of ellipsoid from point to evaluate to get the correct vector to evaluate
             # if it is inside the ellipsoid 
-            r_eval_wrt_base = [x - self.reaching_ellipsoid_origin.position.x, y - self.reaching_ellipsoid_origin.position.y, z - self.reaching_ellipsoid_origin.position.z]
+            # r_eval_wrt_base = [x - self.reaching_ellipsoid_origin.position.x, y - self.reaching_ellipsoid_origin.position.y, z - self.reaching_ellipsoid_origin.position.z]
 
             # rotate vector such that it is expressed in the ellipsoid frame and we can evaluate it 
             # properly
-            r_eval_wrt_ellipsoid = q_ee.rotate(r_eval_wrt_base)
+            # r_eval_wrt_ellipsoid = q_ee.rotate(r_eval_wrt_base)
+            
+            r_eval_wrt_ellipsoid = [x - self.reaching_ellipsoid_origin.position.x, y - self.reaching_ellipsoid_origin.position.y, z - self.reaching_ellipsoid_origin.position.z]
             
             # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
             self.broadcaster.sendTransform((self.reaching_ellipsoid_origin.position.x, self.reaching_ellipsoid_origin.position.y, self.reaching_ellipsoid_origin.position.z),
@@ -363,7 +365,7 @@ class ExecutionFailureNode(object):
             color=ColorRGBA(r=0, g=1, b=0, a=0.5)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
-                                            frame_id=self.ee_frame),
+                                            frame_id=self.frame_id),
                                             pose=self.collision_ellipsoid_origin,
                                             type=Marker.SPHERE,
                                             color=color,
@@ -381,7 +383,7 @@ class ExecutionFailureNode(object):
             color=ColorRGBA(r=1, g=0, b=1, a=1)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
-                                            frame_id=self.ee_frame),
+                                            frame_id=self.fame_id),
                                             pose=self.reaching_ellipsoid_origin,
                                             type=Marker.SPHERE,
                                             color=color,
@@ -398,7 +400,7 @@ class ExecutionFailureNode(object):
             color=ColorRGBA(r=0, g=1, b=0, a=0.5)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
-                                            frame_id=self.ee_frame),
+                                            frame_id=self.frame_id),
                                             pose=self.collision_ellipsoid_origin,
                                             type=Marker.SPHERE,
                                             color=color,
@@ -413,7 +415,7 @@ class ExecutionFailureNode(object):
             color=ColorRGBA(r=1, g=0, b=1, a=1)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
-                                            frame_id=self.ee_frame),
+                                            frame_id=self.frame_id),
                                             pose=self.reaching_ellipsoid_origin,
                                             type=Marker.SPHERE,
                                             color=color,

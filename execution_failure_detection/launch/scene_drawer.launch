@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="execution_failure_detection" name="scene_drawer"
+    type="scene_drawer_node.py" output='screen'>
+    </node>
+</launch>
+
+
