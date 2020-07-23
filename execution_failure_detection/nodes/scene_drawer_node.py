@@ -173,6 +173,12 @@ class SceneDrawer(object):
                                         (self.object_pose.orientation.x, self.object_pose.orientation.y, self.object_pose.orientation.z,
                                         self.object_pose.orientation.w),
                                         rospy.Time.now(), "object", self.frame_id)
+        
+        # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+        self.broadcaster.sendTransform((self.table_pose.position.x, self.table_pose.position.y, self.table_pose.position.z),
+                                        (self.table_pose.orientation.x, self.table_pose.orientation.y, self.table_pose.orientation.z,
+                                        self.table_pose.orientation.w),
+                                        rospy.Time.now(), "table", self.frame_id)
             
     def deleteEllipsoid(self, ellipsoid_type='reaching'):
         if ellipsoid_type == 'reaching':
