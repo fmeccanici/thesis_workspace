@@ -147,7 +147,6 @@ class ParticipantData(object):
 
         if "refinement" in kwargs:            
             refinement = kwargs["refinement"]
-            time = kwargs["time"]
             trajectory = refinement.poses
             t = list(refinement.times)
             object_missed = kwargs["object_missed"]
@@ -195,7 +194,7 @@ class ParticipantData(object):
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
 
             # increment time (need to think about how to get the correct time)
-            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+            # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
             return 0
                 
@@ -204,7 +203,7 @@ class ParticipantData(object):
         if "time" in kwargs and "prediction" in kwargs:            
             prediction = kwargs["prediction"]
 
-            time = kwargs["time"]
+            # time = kwargs["time"]
             context = self.parser.point_to_list(prediction.object_position)
             trajectory = prediction.poses
             t = list(prediction.times)
@@ -247,7 +246,7 @@ class ParticipantData(object):
 
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
-            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+            # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
             print("Prediction stored in dictionary")
             

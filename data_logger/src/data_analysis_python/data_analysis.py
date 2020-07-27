@@ -276,14 +276,15 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadData(91)
+    number = 105
+    data_analysis.loadData(number)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     # data_analysis.calculateAdaptationTime(1, 3, 1)
-    data_analysis.plotAdaptationTime(91)
-    data_analysis.plotNumberOfRefinements(91)
-    data_analysis.plotSuccesfullPredictions(91)
-    data_analysis.plotNumberOfObstaclesHit(91)
-    data_analysis.plotNumberOfObjectMissed(91)
+    data_analysis.plotAdaptationTime(number)
+    data_analysis.plotNumberOfRefinements(number)
+    data_analysis.plotSuccesfullPredictions(number)
+    data_analysis.plotNumberOfObstaclesHit(number)
+    data_analysis.plotNumberOfObjectMissed(number)
     # data_analysis.plotDataBeforeExperiment()

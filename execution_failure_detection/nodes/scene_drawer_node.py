@@ -80,9 +80,10 @@ class SceneDrawer(object):
                     self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
 
                 elif ellipsoid_type == 'reaching':
-                    size_wrt_ee = [0.15, 0.2, 0.1]
-                    size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-                    
+                    # size_wrt_ee = [0.15, 0.2, 0.1]
+                    # size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
+                    size_wrt_base = [0.075, 0.2, 0.1]
+
                     self.reaching_ellipsoid_size_x = size_wrt_base[0]
                     self.reaching_ellipsoid_size_y = size_wrt_base[1]
                     self.reaching_ellipsoid_size_z = size_wrt_base[2] 
@@ -155,31 +156,51 @@ class SceneDrawer(object):
 
 
 
-    def broadcastFrames(self):
-        # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-        self.broadcaster.sendTransform((self.reaching_ellipsoid_origin.position.x, self.reaching_ellipsoid_origin.position.y, self.reaching_ellipsoid_origin.position.z),
-                                        (self.reaching_ellipsoid_origin.orientation.x, self.reaching_ellipsoid_origin.orientation.y, self.reaching_ellipsoid_origin.orientation.z,
-                                        self.reaching_ellipsoid_origin.orientation.w),
-                                        rospy.Time.now(), "reaching_ellipsoid", self.frame_id)
+    def broadcastFrames(self, ellipsoid_type='all'):
 
-        # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-        self.broadcaster.sendTransform((self.collision_ellipsoid_origin.position.x, self.collision_ellipsoid_origin.position.y, self.collision_ellipsoid_origin.position.z),
-                                        (self.collision_ellipsoid_origin.orientation.x, self.collision_ellipsoid_origin.orientation.y, self.collision_ellipsoid_origin.orientation.z,
-                                        self.collision_ellipsoid_origin.orientation.w),
-                                        rospy.Time.now(), "collision_ellipsoid", self.frame_id)
+        if ellipsoid_type == 'all':
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.reaching_ellipsoid_origin.position.x, self.reaching_ellipsoid_origin.position.y, self.reaching_ellipsoid_origin.position.z),
+                                            (self.reaching_ellipsoid_origin.orientation.x, self.reaching_ellipsoid_origin.orientation.y, self.reaching_ellipsoid_origin.orientation.z,
+                                            self.reaching_ellipsoid_origin.orientation.w),
+                                            rospy.Time.now(), "reaching_ellipsoid", self.frame_id)
+
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.collision_ellipsoid_origin.position.x, self.collision_ellipsoid_origin.position.y, self.collision_ellipsoid_origin.position.z),
+                                            (self.collision_ellipsoid_origin.orientation.x, self.collision_ellipsoid_origin.orientation.y, self.collision_ellipsoid_origin.orientation.z,
+                                            self.collision_ellipsoid_origin.orientation.w),
+                                            rospy.Time.now(), "collision_ellipsoid", self.frame_id)
+                
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.object_pose.position.x, self.object_pose.position.y, self.object_pose.position.z),
+                                            (self.object_pose.orientation.x, self.object_pose.orientation.y, self.object_pose.orientation.z,
+                                            self.object_pose.orientation.w),
+                                            rospy.Time.now(), "object", self.frame_id)
             
-        # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-        self.broadcaster.sendTransform((self.object_pose.position.x, self.object_pose.position.y, self.object_pose.position.z),
-                                        (self.object_pose.orientation.x, self.object_pose.orientation.y, self.object_pose.orientation.z,
-                                        self.object_pose.orientation.w),
-                                        rospy.Time.now(), "object", self.frame_id)
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.table_pose.position.x, self.table_pose.position.y, self.table_pose.position.z),
+                                            (self.table_pose.orientation.x, self.table_pose.orientation.y, self.table_pose.orientation.z,
+                                            self.table_pose.orientation.w),
+                                            rospy.Time.now(), "table", self.frame_id)
         
-        # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-        self.broadcaster.sendTransform((self.table_pose.position.x, self.table_pose.position.y, self.table_pose.position.z),
-                                        (self.table_pose.orientation.x, self.table_pose.orientation.y, self.table_pose.orientation.z,
-                                        self.table_pose.orientation.w),
-                                        rospy.Time.now(), "table", self.frame_id)
+        elif ellipsoid_type == 'reaching':
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.reaching_ellipsoid_origin.position.x, self.reaching_ellipsoid_origin.position.y, self.reaching_ellipsoid_origin.position.z),
+                                            (self.reaching_ellipsoid_origin.orientation.x, self.reaching_ellipsoid_origin.orientation.y, self.reaching_ellipsoid_origin.orientation.z,
+                                            self.reaching_ellipsoid_origin.orientation.w),
+                                            rospy.Time.now(), "reaching_ellipsoid", self.frame_id)
             
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.object_pose.position.x, self.object_pose.position.y, self.object_pose.position.z),
+                                            (self.object_pose.orientation.x, self.object_pose.orientation.y, self.object_pose.orientation.z,
+                                            self.object_pose.orientation.w),
+                                            rospy.Time.now(), "object", self.frame_id)
+            
+            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            self.broadcaster.sendTransform((self.table_pose.position.x, self.table_pose.position.y, self.table_pose.position.z),
+                                            (self.table_pose.orientation.x, self.table_pose.orientation.y, self.table_pose.orientation.z,
+                                            self.table_pose.orientation.w),
+                                            rospy.Time.now(), "table", self.frame_id)
     def deleteEllipsoid(self, ellipsoid_type='reaching'):
         if ellipsoid_type == 'reaching':
             id = 1000
@@ -221,7 +242,7 @@ class SceneDrawer(object):
 
             self.models[id] = cube
 
-            self.deleteEllipsoid(ellipsoid_type='reaching')
+            # self.deleteEllipsoid(ellipsoid_type='reaching')
 
         elif ellipsoid_type == 'reaching':
             id = 1000
@@ -229,7 +250,7 @@ class SceneDrawer(object):
             color=ColorRGBA(r=1, g=0, b=1, a=1)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
-                                            frame_id=self.fame_id),
+                                            frame_id=self.frame_id),
                                             pose=self.reaching_ellipsoid_origin,
                                             type=Marker.SPHERE,
                                             color=color,
@@ -238,7 +259,7 @@ class SceneDrawer(object):
                                             action=Marker.ADD)
 
             self.models[id] = cube
-            self.deleteEllipsoid(ellipsoid_type='collision')
+            # self.deleteEllipsoid(ellipsoid_type='collision')
         
         elif ellipsoid_type == 'all':
             id = 999
@@ -297,13 +318,18 @@ class SceneDrawer(object):
     
     def run(self):
         r = rospy.Rate(30)
-        self.setEllipsoidSize(ellipsoid_type='all')
+        # self.setEllipsoidSize(ellipsoid_type='all')
+        self.setEllipsoidSize(ellipsoid_type='reaching')
         
         while not rospy.is_shutdown():
-            self.setEllipsoidOrigin(ellipsoid_type='all')
-            self.addEllipsoid(ellipsoid_type='all')
+            # self.setEllipsoidOrigin(ellipsoid_type='all')
+            self.setEllipsoidOrigin(ellipsoid_type='reaching')
+
+            # self.addEllipsoid(ellipsoid_type='all')
+            self.addEllipsoid(ellipsoid_type='reaching')
+
             self.visualizeModels()
-            self.broadcastFrames()
+            self.broadcastFrames(ellipsoid_type='reaching')
             
             r.sleep()
 
