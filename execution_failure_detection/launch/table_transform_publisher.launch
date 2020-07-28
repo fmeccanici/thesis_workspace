@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="execution_failure_detection" name="table_transform_publisher"
+    type="table_transform_publisher.py" output='screen'>
+    </node>
+</launch>
+
+

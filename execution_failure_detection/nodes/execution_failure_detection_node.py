@@ -21,8 +21,10 @@ class ExecutionFailureNode(object):
 
         self.table_pose_counter = 0
         self.object_pose_wrt_reaching_ellipsoid = Pose()
+        self.table_pose_wrt_collision_ellipsoid = Pose()
+        self.table_pose_wrt_base_footprint = Pose()
         self.object_pose_wrt_base_footprint = Pose()
-
+        self.collision_ellipsoid_wrt_base_footprint = Pose()
         self.table_pose = Pose()
         
         # set object/table sizes 
@@ -59,33 +61,48 @@ class ExecutionFailureNode(object):
         q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
         
         try:
-            # self.listener.waitForTransform("/object", "/reaching_ellipsoid",
-            #                 rospy.Time.now(), rospy.Duration(1.0))
-            # (trans,rot) = self.listener.lookupTransform('/object', '/reaching_ellipsoid', rospy.Time(0))
             (trans,rot) = self.listener.lookupTransform('/reaching_ellipsoid', '/object', rospy.Time(0))
 
             self.object_pose_wrt_reaching_ellipsoid.position.x = trans[0]
             self.object_pose_wrt_reaching_ellipsoid.position.y = trans[1]
             self.object_pose_wrt_reaching_ellipsoid.position.z = trans[2]
 
-            # print(self.object_pose_wrt_reaching_ellipsoid)
-            
-            # self.listener.waitForTransform("/object", "/base_footprint",
-            #                 rospy.Time.now(), rospy.Duration(1.0))
-            
             (trans,rot) = self.listener.lookupTransform('/object', '/base_footprint', rospy.Time(0))
             self.object_pose_wrt_base_footprint.position.x = trans[0]
             self.object_pose_wrt_base_footprint.position.y = trans[1]
             self.object_pose_wrt_base_footprint.position.z = trans[2]
 
-            # print(self.object_pose_wrt_reaching_ellipsoid)
             # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
             self.broadcaster.sendTransform((self.object_pose_wrt_reaching_ellipsoid.position.x, self.object_pose_wrt_reaching_ellipsoid.position.y, self.object_pose_wrt_reaching_ellipsoid.position.z),
                                             (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z, q_ee.inverse.w),
                                             rospy.Time.now(), "object_wrt_reaching_ellipsoid", "reaching_ellipsoid")
 
+
+            self.object_pose_wrt_reaching_ellipsoid.position.x = trans[0]
+            self.object_pose_wrt_reaching_ellipsoid.position.y = trans[1]
+            self.object_pose_wrt_reaching_ellipsoid.position.z = trans[2]
+
+            (trans,rot) = self.listener.lookupTransform('/collision_ellipsoid', '/table', rospy.Time(0))
+            self.table_pose_wrt_collision_ellipsoid.position.x = trans[0]
+            self.table_pose_wrt_collision_ellipsoid.position.y = trans[1]
+            self.table_pose_wrt_collision_ellipsoid.position.z = trans[2]
+            
+            # for some reason it is the other way around in tf, collision ellipsoid expressed in base footprint
+            (trans,rot) = self.listener.lookupTransform('/base_footprint', '/collision_ellipsoid', rospy.Time(0))
+            self.collision_ellipsoid_wrt_base_footprint.position.x = trans[0]
+            self.collision_ellipsoid_wrt_base_footprint.position.y = trans[1]
+            self.collision_ellipsoid_wrt_base_footprint.position.z = trans[2]
+
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             pass
+        # (trans,rot) = self.listener.lookupTransform('/base_footprint', '/table', rospy.Time(0))
+        # self.table_pose_wrt_base_footprint.position.x = trans[0]
+        # self.table_pose_wrt_base_footprint.position.y = trans[1]
+        # self.table_pose_wrt_base_footprint.position.z = trans[2]
+
+        # self.broadcaster.sendTransform((self.table_pose_wrt_collision_ellipsoid.position.x, self.table_pose_wrt_collision_ellipsoid.position.y, self.table_pose_wrt_collision_ellipsoid.position.z),
+        #                             (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z, q_ee.inverse.w),
+        #                             rospy.Time.now(), "table_wrt_collision_ellipsoid", "collision_ellipsoid")
 
     def _getExecutionFailure(self, req):
         resp = GetExecutionFailureResponse()
@@ -113,14 +130,49 @@ class ExecutionFailureNode(object):
         # seems to be an offset in the z direction 
         # needed to properly detect if it is hitting the table
         z = 0.59
-        xmin, xmax = self.table_pose.position.x - self.table_size_x/2, self.table_pose.position.x + self.table_size_x/2
-        ymin, ymax = self.table_pose.position.y - self.table_size_y/2, self.table_pose.position.y + self.table_size_y/2
+        q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
+
+        vec_min_wrt_base_footprint = [-self.table_size_x/2, self.table_size_y/2, self.table_size_z/2]
+        vec_max_wrt_base_footprint = [self.table_size_x/2, -self.table_size_y/2, self.table_size_z/2]
+        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 10)
+        y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 10)
+        z = vec_min_wrt_base_footprint[2]
+        for i in range(len(x)):
+            for j in range(len(y)):
+                try:
+                    (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "table_" + str(i) + "_" + str(j), rospy.Time(0))
+                    self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                    (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
+                                    q_ee.inverse.w),
+                                    rospy.Time.now(), "table_eval", "collision_ellipsoid")
+                    if self.isInsideEllipsoid(x[i],y[j],z,'collision'): return True
+                except:
+                    continue
+        # vec_table_wrt_base_footprint = np.asarray([self.table_pose_wrt_base_footprint.position.x, self.table_pose_wrt_base_footprint.position.y, self.table_pose_wrt_base_footprint.position.z])
         
-        for x in np.arange(xmin, xmax, 0.1):
-            for y in np.arange(ymin, ymax, 0.1):
-                if self.isInsideEllipsoid(x, y, z, ellipsoid_type='collision'):
-                    return True
-        # if self.isInsideEllipsoid(xmax,ymax,z,'collision'): return True
+        # vec_corner_wrt_base_footprint = vec_table_wrt_base_footprint + np.asarray(vec_min_wrt_base_footprint)
+
+        # self.broadcaster.sendTransform((vec_corner_wrt_base_footprint[0], vec_corner_wrt_base_footprint[1], vec_corner_wrt_base_footprint[2]),
+        #                     (0, 0, 0,
+        #                     1),
+        #                     rospy.Time.now(), "table_corner", "base_footprint")
+
+        # vec_ellipsoid_wrt_base_footprint = np.asarray([self.collision_ellipsoid_wrt_base_footprint.position.x, self.collision_ellipsoid_wrt_base_footprint.position.y, self.collision_ellipsoid_wrt_base_footprint.position.z])
+        # self.broadcaster.sendTransform((vec_ellipsoid_wrt_base_footprint[0], vec_ellipsoid_wrt_base_footprint[1], vec_ellipsoid_wrt_base_footprint[2]),
+        #                     (q_ee.x, q_ee.y, q_ee.z,
+        #                     q_ee.w),
+        #                     rospy.Time.now(), "collision_ellipsoid1", "base_footprint")
+
+        # vec_corner_wrt_collision_ellipsoid = q_ee.rotate(vec_corner_wrt_base_footprint - vec_ellipsoid_wrt_base_footprint)
+        
+        # self.broadcaster.sendTransform((vec_ellipsoid_wrt_base_footprint[0], vec_ellipsoid_wrt_base_footprint[1], vec_ellipsoid_wrt_base_footprint[2]),
+        #                     (0, 0, 0,
+        #                     1),
+        #                     rospy.Time.now(), "table_corner1", "collision_ellipsoid")
+
+        # x,y,z = vec_corner_wrt_collision_ellipsoid[0], vec_corner_wrt_collision_ellipsoid[1], vec_corner_wrt_collision_ellipsoid[2] 
+
+        
 
         return False
     
@@ -131,6 +183,8 @@ class ExecutionFailureNode(object):
         # print(round(self.object_pose.position.y, 2))
         # print(round(self.expected_object_pose.position.y, 2))
         # print('\n')
+        
+
 
         
         
@@ -140,22 +194,18 @@ class ExecutionFailureNode(object):
         return False
 
     def isObjectReached(self):
-        x = self.object_pose_wrt_base_footprint.position.x - self.object_size_x/2
-        ymin, ymax = -self.object_size_y/2, self.object_size_y/2
-        zmin, zmax = -self.object_size_z/2, self.object_size_z/2
+        # used for calculations
+        object_wrt_ellipsoid = [self.object_pose_wrt_reaching_ellipsoid.position.x, self.object_pose_wrt_reaching_ellipsoid.position.y , self.object_pose_wrt_reaching_ellipsoid.position.z]
+        object_wrt_ellipsoid[0] = -object_wrt_ellipsoid[0]
+        object_wrt_ellipsoid[1] = -object_wrt_ellipsoid[1]
+        object_wrt_ellipsoid[2] = -object_wrt_ellipsoid[2]
 
-        # for y in np.arange(ymin, ymax, 0.01):
-        #     for z in np.arange(zmin, zmax, 0.01):
-        #         if self.isInsideEllipsoid(x, y, z, ellipsoid_type='reaching'):
-        #             # r_eval_wrt_base = [x - self.collision_ellipsoid_origin.position.x, y - self.collision_ellipsoid_origin.position.y, z - self.collision_ellipsoid_origin.position.z]
-        #             # print(r_eval_wrt_base)
-        #             # print('\n')
-        #             return True
-        ymin = self.object_pose_wrt_base_footprint.position.y
-        zmin = self.object_pose_wrt_base_footprint.position.z
-        x = self.object_pose_wrt_base_footprint.position.x 
+        x = object_wrt_ellipsoid[0]
+        y = object_wrt_ellipsoid[1]
+        z = object_wrt_ellipsoid[2]
 
-        if self.isInsideEllipsoid(x,ymin,zmin,ellipsoid_type='reaching'):
+        if self.isInsideEllipsoid(x,y,z,ellipsoid_type='reaching'):
+
             return True
 
         return False    
@@ -198,59 +248,24 @@ class ExecutionFailureNode(object):
         q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
             
         if ellipsoid_type == 'collision':
-
-            f = (r_eval_wrt_ellipsoid[0] / self.collision_ellipsoid_size_x)**2 + (r_eval_wrt_ellipsoid[1] / self.collision_ellipsoid_size_y)**2 + (r_eval_wrt_ellipsoid[2] / self.collision_ellipsoid_size_z)**2 
+            a = self.collision_ellipsoid_size_x/2
+            b = self.collision_ellipsoid_size_y/2
+            c = self.collision_ellipsoid_size_z/2
+        
+            
+            f = (x / a)**2 + (y / b)**2 + (z / c)**2 
 
         elif ellipsoid_type == 'reaching':
-
-            # object_wrt_ellipsoid = [self.object_pose_wrt_reaching_ellipsoid.position.x + x, self.object_pose_wrt_reaching_ellipsoid.position.y + y, self.object_pose_wrt_reaching_ellipsoid.position.z + z]
-            # object_wrt_ellipsoid = [self.object_pose_wrt_reaching_ellipsoid.position.x , self.object_pose_wrt_reaching_ellipsoid.position.y , self.object_pose_wrt_reaching_ellipsoid.position.z]
-            # object_corner = [self.object_pose_wrt_base_footprint.position.x - self.object_size_x/2, self.object_pose_wrt_base_footprint.position.y, self.object_pose_wrt_base_footprint.position.z + self.object_size_x/2]
-
-            object_wrt_ellipsoid = [self.object_pose_wrt_reaching_ellipsoid.position.x, self.object_pose_wrt_reaching_ellipsoid.position.y , self.object_pose_wrt_reaching_ellipsoid.position.z]
-            object_wrt_ellipsoid[0] = -object_wrt_ellipsoid[0]
-            object_wrt_ellipsoid[1] = -object_wrt_ellipsoid[1]
-            object_wrt_ellipsoid[2] = -object_wrt_ellipsoid[2]
-
-            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-            # self.broadcaster.sendTransform((object_wrt_ellipsoid[0], object_wrt_ellipsoid[1], object_wrt_ellipsoid[2]),
-            #                                 (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z, q_ee.inverse.w),
-            #                                 rospy.Time.now(), "object_corner", "reaching_ellipsoid")
-
-            size = q_ee.inverse.rotate([self.reaching_ellipsoid_size_x, self.reaching_ellipsoid_size_y, self.reaching_ellipsoid_size_z])
-
-
-            f = (object_wrt_ellipsoid[0] / self.reaching_ellipsoid_size_x)**2 + (object_wrt_ellipsoid[1] / self.reaching_ellipsoid_size_y)**2 + (object_wrt_ellipsoid[2] / self.reaching_ellipsoid_size_z)**2 
-            # f = (object_wrt_ellipsoid[0] / size[0])**2 + (object_wrt_ellipsoid[1] / size[1])**2 + (object_wrt_ellipsoid[2] / size[2])**2 
-
-            # z = np.arange(self.object_pose_wrt_reaching_ellipsoid.position.z - self.object_size_z, self.object_pose_wrt_reaching_ellipsoid.position.z + self.object_size_z,0.0001)
-            
-            # calculate intersection between whole ZX plane to evaluate vector
-            # y = self.object_pose_wrt_reaching_ellipsoid.position.y
-            # y = 0.1
-            y = object_wrt_ellipsoid[1]
-
-            # x = np.arange(self.object_pose_wrt_reaching_ellipsoid.position.x - self.object_size_x, self.object_pose_wrt_reaching_ellipsoid.position.x + self.object_size_x,0.0001)
 
             a = self.reaching_ellipsoid_size_x/2
             b = self.reaching_ellipsoid_size_y/2
             c = self.reaching_ellipsoid_size_z/2
-            # a = size[0]
-            # b = size[1]
-            # c = size[2]
-            print('a = ' + str(a))
-            print('b = ' + str(b))
-            print('c = ' + str(c))
-            print(a * np.sqrt(1 - (y/b)**2))
-            print('y = ' + str(y))
 
-            # bereik van functie
-            # x = np.linspace(-a*np.sqrt(1 - (y/b)**2) , +a*np.sqrt(1 - (y/b)**2), 1000)
-            # x1 = np.linspace(a * np.sqrt(1 - (y/b)**2), 10, 100)
-            x = np.linspace(-a * np.sqrt(1 - (y/b)**2), a * np.sqrt(1 - (y/b)**2), 100)
-            # x2 = np.linspace(-1000 , -0.1, -a * np.sqrt(1 - (y/b)**2))
-            # print(x1)
+            """
             try:
+                # bereik van functie
+                x = np.linspace(-a * np.sqrt(1 - (y/b)**2), a * np.sqrt(1 - (y/b)**2), 100)
+
                 o = object_wrt_ellipsoid
                 # o = q_ee.rotate(object_wrt_ellipsoid)
 
@@ -283,21 +298,22 @@ class ExecutionFailureNode(object):
             except Exception as e:
                 print(e)
                 pass
-            # plt.savefig('/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/nodes/eval_vector_ellipsoid.png')
-            # f =   (object_wrt_ellipsoid[0] / size[0])**2 + (object_wrt_ellipsoid[1] / size[1])**2 + (object_wrt_ellipsoid[2] / size[2])**2 
-            f = (object_wrt_ellipsoid[0] / a)**2 + (object_wrt_ellipsoid[1] / b)**2 + (object_wrt_ellipsoid[2] / c)**2 
+            """
+
+            # ellipsoid equation
+            f = (x / a)**2 + (y / b)**2 + (z / c)**2 
 
         return f < 1
 
     def run(self):
         r = rospy.Rate(30)
-        self.getEllipsoidSize('reaching')
+        self.getEllipsoidSize('all')
 
         while not rospy.is_shutdown():
             # execution_failure_msg = ExecutionFailure()
             # print('\n')
             print("object reached = " + str(self.isObjectReached()))
-            # print("obstacle hit = " + str(self.isObstacleHit()))
+            print("obstacle hit = " + str(self.isObstacleHit()))
             # print('\n')
             # execution_failure_msg.object_reached = Bool(self.isObjectReached())
             # execution_failure_msg.object_kicked_over = Bool(self.isObjectKickedOver())

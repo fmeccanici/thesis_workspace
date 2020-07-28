@@ -6,18 +6,20 @@ from std_msgs.msg import Header, ColorRGBA, Bool
 from geometry_msgs.msg import Vector3, Pose, PoseStamped
 import numpy as np
 import copy
+import tf2_ros
 from pyquaternion import Quaternion
 
 from gazebo_msgs.msg import LinkStates
 from execution_failure_detection.srv import GetExecutionFailure, GetExecutionFailureResponse, SetExpectedObjectPosition, SetExpectedObjectPositionResponse
 from execution_failure_detection.msg import ExecutionFailure
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Point, TransformStamped
 
 class SceneDrawer(object):
     def __init__(self, model_path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/models/'):
         rospy.init_node('scene_drawer')
         self.table_pose_counter = 0
-        
+        self.counter = 0
+
         ##### true size ######
         self.table_size_x = 0.8
         self.table_size_y = 1.5
@@ -44,7 +46,9 @@ class SceneDrawer(object):
         ########### TF ###############
         self.broadcaster = tf.TransformBroadcaster()
         self.listener = tf.TransformListener()
-    
+        self.static_broadcaster = tf2_ros.StaticTransformBroadcaster()
+        self.static_table_transform = TransformStamped()
+
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
 
@@ -157,7 +161,7 @@ class SceneDrawer(object):
 
 
     def broadcastFrames(self, ellipsoid_type='all'):
-
+        rospy.wait_for_message('gazebo/link_states', LinkStates, timeout=2.0)
         if ellipsoid_type == 'all':
             # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
             self.broadcaster.sendTransform((self.reaching_ellipsoid_origin.position.x, self.reaching_ellipsoid_origin.position.y, self.reaching_ellipsoid_origin.position.z),
@@ -182,7 +186,38 @@ class SceneDrawer(object):
                                             (self.table_pose.orientation.x, self.table_pose.orientation.y, self.table_pose.orientation.z,
                                             self.table_pose.orientation.w),
                                             rospy.Time.now(), "table", self.frame_id)
-        
+            
+            
+            # if self.counter == 0:
+            #     self.static_table_transform.header.frame_id = self.frame_id
+            #     # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
+            #     vec_min_wrt_base_footprint = [-self.table_size_x/2, self.table_size_y/2, self.table_size_z/2]
+            #     vec_max_wrt_base_footprint = [self.table_size_x/2, -self.table_size_y/2, self.table_size_z/2]
+
+            #     x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 10)
+            #     y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 10)
+            #     z = vec_min_wrt_base_footprint[2]
+
+            #     for i in range(len(x)):
+            #         for j in range(len(y)):
+            #             self.static_table_transform.header.stamp = rospy.Time.now()
+            #             self.static_table_transform.child_frame_id = "table_" + str(i) + "_" + str(j)
+            #             self.static_table_transform.transform.translation.x = self.table_pose.position.x + x[i]
+            #             self.static_table_transform.transform.translation.y = self.table_pose.position.y + y[j]
+            #             self.static_table_transform.transform.translation.z = self.table_pose.position.z + z
+            #             self.static_table_transform.transform.rotation.x = self.table_pose.orientation.x
+            #             self.static_table_transform.transform.rotation.y = self.table_pose.orientation.y
+            #             self.static_table_transform.transform.rotation.z = self.table_pose.orientation.z
+            #             self.static_table_transform.transform.rotation.w = self.table_pose.orientation.w
+            #             self.static_broadcaster.sendTransform(self.static_table_transform)
+            #     self.counter += 1
+                    
+            # for i in range(len(self.table_poses)):
+            #     self.broadcaster.sendTransform((self.table_poses[i][0], self.table_poses[i][1], self.table_poses[i][2]),
+            #                                     (self.table_poses[i][3], self.table_poses[i][4], self.table_poses[i][5],
+            #                                     self.table_poses[i][6]),
+            #                                     rospy.Time.now(), self.table_poses[i][7], self.frame_id)
+
         elif ellipsoid_type == 'reaching':
             # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
             self.broadcaster.sendTransform((self.reaching_ellipsoid_origin.position.x, self.reaching_ellipsoid_origin.position.y, self.reaching_ellipsoid_origin.position.z),
@@ -196,11 +231,7 @@ class SceneDrawer(object):
                                             self.object_pose.orientation.w),
                                             rospy.Time.now(), "object", self.frame_id)
             
-            # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-            self.broadcaster.sendTransform((self.table_pose.position.x, self.table_pose.position.y, self.table_pose.position.z),
-                                            (self.table_pose.orientation.x, self.table_pose.orientation.y, self.table_pose.orientation.z,
-                                            self.table_pose.orientation.w),
-                                            rospy.Time.now(), "table", self.frame_id)
+
     def deleteEllipsoid(self, ellipsoid_type='reaching'):
         if ellipsoid_type == 'reaching':
             id = 1000
@@ -319,17 +350,17 @@ class SceneDrawer(object):
     def run(self):
         r = rospy.Rate(30)
         # self.setEllipsoidSize(ellipsoid_type='all')
-        self.setEllipsoidSize(ellipsoid_type='reaching')
+        self.setEllipsoidSize(ellipsoid_type='all')
         
         while not rospy.is_shutdown():
             # self.setEllipsoidOrigin(ellipsoid_type='all')
-            self.setEllipsoidOrigin(ellipsoid_type='reaching')
+            self.setEllipsoidOrigin(ellipsoid_type='all')
 
             # self.addEllipsoid(ellipsoid_type='all')
-            self.addEllipsoid(ellipsoid_type='reaching')
+            self.addEllipsoid(ellipsoid_type='all')
 
             self.visualizeModels()
-            self.broadcastFrames(ellipsoid_type='reaching')
+            self.broadcastFrames(ellipsoid_type='all')
             
             r.sleep()
 
