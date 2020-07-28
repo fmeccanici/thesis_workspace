@@ -176,7 +176,7 @@ class SceneDrawer(object):
                                             rospy.Time.now(), "collision_ellipsoid", self.frame_id)
                 
             # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-            self.broadcaster.sendTransform((self.object_pose.position.x, self.object_pose.position.y, self.object_pose.position.z),
+            self.broadcaster.sendTransform((self.object_pose.position.x - self.object_size_x/2, self.object_pose.position.y, self.object_pose.position.z),
                                             (self.object_pose.orientation.x, self.object_pose.orientation.y, self.object_pose.orientation.z,
                                             self.object_pose.orientation.w),
                                             rospy.Time.now(), "object", self.frame_id)

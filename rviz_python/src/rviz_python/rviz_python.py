@@ -80,7 +80,7 @@ class rvizPython( QWidget ):
         thickness_slider.setMinimum( 1 )
         thickness_slider.setMaximum( 1000 )
         thickness_slider.valueChanged.connect( self.onThicknessSliderChanged )
-        layout.addWidget( thickness_slider )
+        # layout.addWidget( thickness_slider )
         
         h_layout = QHBoxLayout()
         

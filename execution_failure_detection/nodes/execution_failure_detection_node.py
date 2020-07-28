@@ -77,11 +77,6 @@ class ExecutionFailureNode(object):
                                             (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z, q_ee.inverse.w),
                                             rospy.Time.now(), "object_wrt_reaching_ellipsoid", "reaching_ellipsoid")
 
-
-            self.object_pose_wrt_reaching_ellipsoid.position.x = trans[0]
-            self.object_pose_wrt_reaching_ellipsoid.position.y = trans[1]
-            self.object_pose_wrt_reaching_ellipsoid.position.z = trans[2]
-
             (trans,rot) = self.listener.lookupTransform('/collision_ellipsoid', '/table', rospy.Time(0))
             self.table_pose_wrt_collision_ellipsoid.position.x = trans[0]
             self.table_pose_wrt_collision_ellipsoid.position.y = trans[1]
@@ -149,49 +144,29 @@ class ExecutionFailureNode(object):
                         return True
                 except:
                     continue
-        # vec_table_wrt_base_footprint = np.asarray([self.table_pose_wrt_base_footprint.position.x, self.table_pose_wrt_base_footprint.position.y, self.table_pose_wrt_base_footprint.position.z])
-        
-        # vec_corner_wrt_base_footprint = vec_table_wrt_base_footprint + np.asarray(vec_min_wrt_base_footprint)
-
-        # self.broadcaster.sendTransform((vec_corner_wrt_base_footprint[0], vec_corner_wrt_base_footprint[1], vec_corner_wrt_base_footprint[2]),
-        #                     (0, 0, 0,
-        #                     1),
-        #                     rospy.Time.now(), "table_corner", "base_footprint")
-
-        # vec_ellipsoid_wrt_base_footprint = np.asarray([self.collision_ellipsoid_wrt_base_footprint.position.x, self.collision_ellipsoid_wrt_base_footprint.position.y, self.collision_ellipsoid_wrt_base_footprint.position.z])
-        # self.broadcaster.sendTransform((vec_ellipsoid_wrt_base_footprint[0], vec_ellipsoid_wrt_base_footprint[1], vec_ellipsoid_wrt_base_footprint[2]),
-        #                     (q_ee.x, q_ee.y, q_ee.z,
-        #                     q_ee.w),
-        #                     rospy.Time.now(), "collision_ellipsoid1", "base_footprint")
-
-        # vec_corner_wrt_collision_ellipsoid = q_ee.rotate(vec_corner_wrt_base_footprint - vec_ellipsoid_wrt_base_footprint)
-        
-        # self.broadcaster.sendTransform((vec_ellipsoid_wrt_base_footprint[0], vec_ellipsoid_wrt_base_footprint[1], vec_ellipsoid_wrt_base_footprint[2]),
-        #                     (0, 0, 0,
-        #                     1),
-        #                     rospy.Time.now(), "table_corner1", "collision_ellipsoid")
-
-        # x,y,z = vec_corner_wrt_collision_ellipsoid[0], vec_corner_wrt_collision_ellipsoid[1], vec_corner_wrt_collision_ellipsoid[2] 
 
         
 
         return False
     
     def isObjectKickedOver(self):
-        # print(round(self.object_pose.position.x, 2))
+        # print(round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 ))
         # print(round(self.expected_object_pose.position.x, 2))
         # print('\n')
-        # print(round(self.object_pose.position.y, 2))
+        # print(abs(round(self.object_pose_wrt_base_footprint.position.y, 2)))
         # print(round(self.expected_object_pose.position.y, 2))
         # print('\n')
         
-
-
+        # account for difference in pose of centre and pose of frontal plane for evakluation
+        # round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 )
+        # thats this + self.object_size / 2
         
         
-        if round(self.object_pose.position.x, 2) != round(self.expected_object_pose.position.x, 2) or round(self.object_pose.position.y, 2) != round(self.expected_object_pose.position.y, 2):
+        if round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 ) != round(self.expected_object_pose.position.x, 2) or abs(round(self.object_pose_wrt_base_footprint.position.y, 2)) != round(self.expected_object_pose.position.y, 2):
             return True
-        
+        # if abs(round(self.object_pose_wrt_base_footprint.position.x, 2)) != round(self.expected_object_pose.position.x, 2) or abs(round(self.object_pose_wrt_base_footprint.position.y, 2)) != round(self.expected_object_pose.position.y, 2):
+        #     return True
+
         return False
 
     def isObjectReached(self):
@@ -206,7 +181,6 @@ class ExecutionFailureNode(object):
         z = object_wrt_ellipsoid[2]
 
         if self.isInsideEllipsoid(x,y,z,ellipsoid_type='reaching'):
-
             return True
 
         return False    
@@ -220,7 +194,6 @@ class ExecutionFailureNode(object):
                 self.collision_ellipsoid_size_y = size_wrt_base[1]
                 self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
                 
-
             elif ellipsoid_type == 'reaching':
                 size_wrt_base = [0.075, 0.2, 0.1]
 
@@ -228,7 +201,6 @@ class ExecutionFailureNode(object):
                 self.reaching_ellipsoid_size_y = size_wrt_base[1]
                 self.reaching_ellipsoid_size_z = size_wrt_base[2] 
             
-
             elif ellipsoid_type == 'all':
                 size_wrt_base = [0.4, 0.2, 0.1]
                 self.collision_ellipsoid_size_x = size_wrt_base[0]
@@ -265,18 +237,23 @@ class ExecutionFailureNode(object):
             """
             try:
                 # bereik van functie
-                x = np.linspace(-a * np.sqrt(1 - (y/b)**2), a * np.sqrt(1 - (y/b)**2), 100)
+                x_plot = np.linspace(-a * np.sqrt(1 - (y/b)**2), a * np.sqrt(1 - (y/b)**2), 100)
 
-                o = object_wrt_ellipsoid
+                o = [self.object_pose_wrt_reaching_ellipsoid.position.x, self.object_pose_wrt_reaching_ellipsoid.position.y, self.object_pose_wrt_reaching_ellipsoid.position.z]
                 # o = q_ee.rotate(object_wrt_ellipsoid)
-
                 o_x = np.linspace(0, o[0], 1000)
                 o_z = np.linspace(0, o[2], 1000)
             
-                # # y = map(lambda z: a*np.sqrt(1 - (y/b)**2) + (z/c)**2, z) 
-                z_1 = map(lambda x: c*np.sqrt(1 - (y/b)**2 - (x/a)**2), x) 
-                z_2 = map(lambda x: -c*np.sqrt(1 - (y/b)**2 - (x/a)**2), x) 
+                print("x = " + str(x))
+                print("y = " + str(y))
+                print("a = " + str(a))
+                print("b = " + str(b))
 
+                # # y = map(lambda z: a*np.sqrt(1 - (y/b)**2) + (z/c)**2, z) 
+                z_1 = map(lambda x: c*np.sqrt(1 - (y/b)**2 - (x/a)**2), x_plot) 
+                z_2 = map(lambda x: -c*np.sqrt(1 - (y/b)**2 - (x/a)**2), x_plot) 
+
+                print(z_1)
                 # print(o_x)
                 # print(o_z)
                 # plt.plot(z_1, x, '-b')
@@ -284,8 +261,8 @@ class ExecutionFailureNode(object):
 
 
 
-                plt.plot(x, z_1, '-b')
-                plt.plot(x, z_2, '-b')
+                plt.plot(x_plot, z_1, '-b')
+                plt.plot(x_plot, z_2, '-b')
                 plt.grid()
                 plt.ylim([-0.2,0.2])
                 plt.xlim([-0.2,0.2])
@@ -299,30 +276,32 @@ class ExecutionFailureNode(object):
             except Exception as e:
                 print(e)
                 pass
-            """
+                """
 
-            # ellipsoid equation
-            f = (x / a)**2 + (y / b)**2 + (z / c)**2 
+        # ellipsoid equation
+        f = (x / a)**2 + (y / b)**2 + (z / c)**2 
 
         return f < 1
-
+        
     def run(self):
         r = rospy.Rate(30)
         self.getEllipsoidSize('all')
 
         while not rospy.is_shutdown():
-            # execution_failure_msg = ExecutionFailure()
+            execution_failure_msg = ExecutionFailure()
             # print('\n')
-            print("object reached = " + str(self.isObjectReached()))
-            print("obstacle hit = " + str(self.isObstacleHit()))
+            # print("object reached = " + str(self.isObjectReached()))
+            # print("obstacle hit = " + str(self.isObstacleHit()))
+            # print("object kicked over = " + str(self.isObjectKickedOver()))
             # print('\n')
-            # execution_failure_msg.object_reached = Bool(self.isObjectReached())
-            # execution_failure_msg.object_kicked_over = Bool(self.isObjectKickedOver())
 
-            # execution_failure_msg.obstacle_hit = Bool(self.isObstacleHit())
+            # make ros message
+            execution_failure_msg.object_reached = Bool(self.isObjectReached())
+            execution_failure_msg.object_kicked_over = Bool(self.isObjectKickedOver())
+            execution_failure_msg.obstacle_hit = Bool(self.isObstacleHit())
 
-
-            # self.execution_failure_pub.publish(execution_failure_msg)
+            # publish ros message
+            self.execution_failure_pub.publish(execution_failure_msg)
 
             r.sleep()
 

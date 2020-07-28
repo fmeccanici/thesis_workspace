@@ -169,6 +169,7 @@ class ExperimentNode(object):
             rospy.wait_for_service('/gazebo/set_model_state')
 
             set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
             resp = set_object(object_position)
 
             rospy.wait_for_service('/set_expected_object_position')

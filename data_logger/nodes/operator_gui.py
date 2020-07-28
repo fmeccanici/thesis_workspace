@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+
 from rviz_python.rviz_python import rvizPython
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
                                 SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
@@ -85,35 +86,35 @@ class OperatorGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(20, 9, 1881, 751))
+        self.groupBox.setGeometry(QRect(20, 9, 1881, 701))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(10, 870, 251, 151))
+        self.groupBox_2.setGeometry(QRect(10, 830, 251, 151))
         self.groupBox_2.setObjectName("groupBox_2")
         self.buttonBox = QDialogButtonBox(self.groupBox_2)
-        self.buttonBox.setGeometry(QRect(10, 120, 176, 27))
+        self.buttonBox.setGeometry(QRect(10, 110, 176, 27))
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.label = QLabel(self.groupBox_2)
-        self.label.setGeometry(QRect(10, 90, 67, 17))
+        self.label.setGeometry(QRect(10, 80, 67, 17))
         self.label.setObjectName("label")
         self.label_2 = QLabel(self.groupBox_2)
-        self.label_2.setGeometry(QRect(10, 60, 67, 17))
+        self.label_2.setGeometry(QRect(10, 50, 67, 17))
         self.label_2.setObjectName("label_2")
         self.label_3 = QLabel(self.groupBox_2)
-        self.label_3.setGeometry(QRect(10, 30, 67, 17))
+        self.label_3.setGeometry(QRect(10, 20, 67, 17))
         self.label_3.setObjectName("label_3")
         self.lineEdit = QLineEdit(self.groupBox_2)
-        self.lineEdit.setGeometry(QRect(80, 30, 113, 27))
+        self.lineEdit.setGeometry(QRect(80, 20, 113, 27))
         self.lineEdit.setObjectName("lineEdit")
         self.lineEdit_3 = QLineEdit(self.groupBox_2)
-        self.lineEdit_3.setGeometry(QRect(80, 90, 113, 27))
+        self.lineEdit_3.setGeometry(QRect(80, 80, 113, 27))
         self.lineEdit_3.setObjectName("lineEdit_3")
         self.radioButton = QRadioButton(self.groupBox_2)
-        self.radioButton.setGeometry(QRect(80, 60, 117, 22))
+        self.radioButton.setGeometry(QRect(80, 50, 117, 22))
         self.radioButton.setObjectName("radioButton")
         self.radioButton_2 = QRadioButton(self.groupBox_2)
-        self.radioButton_2.setGeometry(QRect(160, 60, 117, 22))
+        self.radioButton_2.setGeometry(QRect(160, 50, 117, 22))
         self.radioButton_2.setObjectName("radioButton_2")
         self.frame = QFrame(self.groupBox_2)
         self.frame.setGeometry(QRect(0, 0, 251, 151))
@@ -130,33 +131,30 @@ class OperatorGUI(QMainWindow):
         self.radioButton.raise_()
         self.radioButton_2.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1350, 780, 511, 341))
+        self.groupBox_3.setGeometry(QRect(1400, 750, 451, 251))
+        self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
-        font = QFont()
-        font.setPointSize(15)
-        self.groupBox_3.setFont(font)
-
         self.pushButton = QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QRect(520, 870, 271, 101))
+        self.pushButton.setGeometry(QRect(520, 850, 271, 101))
         font = QFont()
         font.setPointSize(40)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
         self.pushButton_2 = QPushButton(self.centralwidget)
-        self.pushButton_2.setGeometry(QRect(810, 870, 271, 101))
+        self.pushButton_2.setGeometry(QRect(810, 850, 271, 101))
         font = QFont()
         font.setPointSize(40)
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
-        self.plainTextEdit.setGeometry(QRect(20, 770, 1300, 81))
+        self.plainTextEdit.setGeometry(QRect(20, 730, 1351, 81))
         font = QFont()
         font.setPointSize(40)
         self.plainTextEdit.setFont(font)
         self.plainTextEdit.setObjectName("plainTextEdit")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 1920, 25))
+        self.menubar.setGeometry(QRect(0, 0, 1820, 25))
         self.menubar.setObjectName("menubar")
         self.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(self)
@@ -166,7 +164,7 @@ class OperatorGUI(QMainWindow):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
-        config_file = self._rospack.get_path('data_logger') + "/operator_gui.rviz"
+        config_file = self._rospack.get_path('data_logger') + "/experiment.rviz"
 
         self.rviz_widget = rvizPython(config_file)
         self.image_widget = ImageWidget()
@@ -182,7 +180,6 @@ class OperatorGUI(QMainWindow):
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Form"))
         self.label.setText(_translate("MainWindow", "Age"))
@@ -190,10 +187,11 @@ class OperatorGUI(QMainWindow):
         self.label_3.setText(_translate("MainWindow", "Number"))
         self.radioButton.setText(_translate("MainWindow", "Ma&le"))
         self.radioButton_2.setText(_translate("MainWindow", "Female"))
-        # self.groupBox_3.setTitle(_translate("MainWindow", "Instructions"))
         self.pushButton.setText(_translate("MainWindow", "Red"))
         self.pushButton_2.setText(_translate("MainWindow", "Green"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
+
+
 
         self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
         self.pushButton_2.setStyleSheet("background-color: green; font: bold 40px; color: black")
