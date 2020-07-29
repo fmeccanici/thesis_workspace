@@ -67,15 +67,12 @@ class ParticipantData(object):
 
         for j in range(self.num_object_positions):
             self.object_positions[j+1] = {
-            'trial': copy.deepcopy(self.trials),
-            'time': 0
+            'trial': copy.deepcopy(self.trials)
             }
         
         for i in range(self.num_methods):
             self.methods[i+1] = {
-                'object_position': copy.deepcopy(self.object_positions),
-                'time': 0
-            }
+                'object_position': copy.deepcopy(self.object_positions)            }
 
     def loadData(self):
         data_path = self.path + 'data.txt'
@@ -141,7 +138,8 @@ class ParticipantData(object):
 
     def setTime(self, *args, **kwargs):
         time = kwargs["time"]
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = copy.deepcopy(time)
 
     def setRefinedTrajectory(self, *args, **kwargs):
 
@@ -180,10 +178,10 @@ class ParticipantData(object):
             self.refined_trajectory['qw'] = qw
             self.refined_trajectory['t'] = t
             self.refined_trajectory['object_missed'] = object_missed
-            self.predicted_trajectory['object_kicked_over'] = object_kicked_over
+            self.refined_trajectory['object_kicked_over'] = object_kicked_over
             self.refined_trajectory['obstacle_hit'] = obstacle_hit
             self.refined_trajectory['success'] = success
-
+        
             # append dictionary
             # we start with 0 refinement --> n + 1
             #             
@@ -199,8 +197,13 @@ class ParticipantData(object):
             return 0
                 
     def setPredictedTrajectory(self, *args, **kwargs):
-
-        if "time" in kwargs and "prediction" in kwargs:            
+        # print(kwargs["object_missed"])
+        # print(kwargs["obstacle_hit"])
+        # print(kwargs["object_kicked_over"])
+        # test = kwargs["object_missed"]
+        # print()
+        # print(test)
+        if "prediction" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:            
             prediction = kwargs["prediction"]
 
             # time = kwargs["time"]
@@ -243,6 +246,8 @@ class ParticipantData(object):
             self.predicted_trajectory['success'] = success
 
             trajectory = copy.deepcopy(self.predicted_trajectory)
+
+            
 
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['context'] = context

@@ -26,8 +26,9 @@ class TableTransformPublisher(object):
         self.link_states_sub = rospy.Subscriber('/gazebo/link_states', LinkStates, self.linkStatesCallback)
 
     def linkStatesCallback(self, data):
-        self.table_pose = data.pose[2]
+        # print(self.table_pose)
         if self.counter == 0:
+            self.table_pose = data.pose[2]
             self.table_pose.position.x = self.table_pose.position.x + self.table_size_x/2
             self.table_pose.position.y = self.table_pose.position.y + self.table_size_y/2
             self.table_pose.position.z = self.table_pose.position.z + self.table_size_z/2
@@ -36,15 +37,14 @@ class TableTransformPublisher(object):
     def run(self):
 
         # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
-        vec_min_wrt_base_footprint = [-self.table_size_x/2, self.table_size_y/2, self.table_size_z/2]
-        vec_max_wrt_base_footprint = [self.table_size_x/2, -self.table_size_y/2, self.table_size_z/2]
+        vec_min_wrt_base_footprint = [-self.table_size_x/2, -self.table_size_y/2, self.table_size_z/2]
+        vec_max_wrt_base_footprint = [self.table_size_x/2, self.table_size_y/2, self.table_size_z/2]
 
         x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 10)
         y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 10)
         z = vec_min_wrt_base_footprint[2]
 
         rospy.wait_for_message('/gazebo/link_states', LinkStates)
-        
         for i in range(len(x)):
             for j in range(len(y)):
                 static_table_transform = TransformStamped()

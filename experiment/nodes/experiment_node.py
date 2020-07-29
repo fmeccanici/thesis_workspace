@@ -44,7 +44,7 @@ class ExperimentNode(object):
         self.num_trials = 5
         self.num_object_positions = 4
         self.trials = range(1,self.num_trials)
-        self.object_positions = range(1,self.num_object_positions)
+        self.object_positions = range(1,self.num_object_positions+1)
         self.max_refinements = 5
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
@@ -387,6 +387,7 @@ class ExperimentNode(object):
             rospy.wait_for_service('set_prediction', timeout=2.0)
             set_prediction = rospy.ServiceProxy('set_prediction', SetPrediction)
             resp = set_prediction(number_msg, prediction)
+        
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
@@ -439,7 +440,6 @@ class ExperimentNode(object):
             rospy.wait_for_service('to_csv')
             to_csv = rospy.ServiceProxy('to_csv', ToCsv)
             number_msg = Byte(self.participant_number)
-
             resp = to_csv(number_msg)     
 
         except (rospy.ServiceException, rospy.ROSException) as e:
@@ -515,9 +515,14 @@ class ExperimentNode(object):
             self.text_updater.update("AUTONOMOUS EXECUTION")
 
             obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
-        
+            
+            # print(not object_reached)
+            # print(obstacle_hit)
+            # print(object_kicked_over)
+
             # store prediction along with failure
             self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
+            self.saveData()
             
             # update text in operator gui
             if obstacle_hit or not object_reached or object_kicked_over:
@@ -538,7 +543,7 @@ class ExperimentNode(object):
             # or the last refinement was successful
             number_of_refinements = 0
 
-            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements:
+            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
@@ -583,7 +588,8 @@ class ExperimentNode(object):
 
                 rospy.loginfo("object missed: " + str(not object_reached))
                 rospy.loginfo("obstacle hit: " + str(obstacle_hit))
-                
+                rospy.loginfo("object kicked over: " + str(object_kicked_over))
+
                 print("\n")
 
                 # update text in operator gui
@@ -615,7 +621,7 @@ class ExperimentNode(object):
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
 
-                if number_of_refinements > self.max_refinements:
+                if number_of_refinements => self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             ####### update model #######

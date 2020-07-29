@@ -277,6 +277,7 @@ class DTW():
                     trajs_one_demonstration.remove(index)
         
         print("trajs_one = " + str(trajs_one_demonstration))
+        # print(len(trajs_one_demonstration))
 
         # add one demonstrations to the alignment data
         for i in trajs_one_demonstration:

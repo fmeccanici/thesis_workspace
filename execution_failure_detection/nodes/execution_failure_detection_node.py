@@ -136,12 +136,15 @@ class ExecutionFailureNode(object):
             for j in range(len(y)):
                 try:
                     (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "table_" + str(i) + "_" + str(j), rospy.Time(0))
-                    # self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
-                    #                 (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
-                    #                 q_ee.inverse.w),
-                    #                 rospy.Time.now(), "table_eval", "collision_ellipsoid")
+                    self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                    (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
+                                    q_ee.inverse.w),
+                                    rospy.Time.now(), "table_eval", "collision_ellipsoid")
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        # input('continue?')  
+
                         return True
+
                 except:
                     continue
 

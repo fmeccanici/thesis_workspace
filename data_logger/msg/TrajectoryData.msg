@@ -1,4 +1,4 @@
 promp_context_ros/prompTraj trajectory
-std_msgs/Bool obstacle_hit
 std_msgs/Bool object_missed
 std_msgs/Bool object_kicked_over
+std_msgs/Bool obstacle_hit

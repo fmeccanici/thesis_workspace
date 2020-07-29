@@ -195,11 +195,11 @@ class trajectoryTeaching():
             return "raw_trajectory_1.txt"
             
     def run(self):
-        self.goToInitialPose()
-        x = 0.75
-        y = -0.0231
+        # self.goToInitialPose()
+        # x = 0.75
+        # y = -0.0231
         
-        self.set_aruco_position(x, y)
+        # self.set_aruco_position(x, y)
 
         r = rospy.Rate(30)
         while not rospy.is_shutdown():
@@ -214,13 +214,13 @@ class trajectoryTeaching():
                 file_name = self._get_trajectory_file_name(self.path)
                 self._save_data(self.path, file_name)
                 del self.EEtrajectory[:]
-                teaching_node.goToInitialPose()
+                # teaching_node.goToInitialPose()
 
                 # set to 0 to prevent multiple savings
                 self.white_button_toggle_previous = 0
                 
                 # place aruco box back to init position
-                self.set_aruco_position(x, y)
+                # self.set_aruco_position(x, y)
                 time.sleep(1)
 
             r.sleep()

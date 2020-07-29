@@ -50,10 +50,9 @@ class DataAnalysis(object):
     def getTime(self, participant_number, method, object_position, trial):
         methods = self.data[participant_number].getMethods()
         time = methods[method]['object_position'][object_position]['trial'][trial]['time']
-
         return time
 
-    def calculateAdaptationTime(self, participant_number, method):
+    def calculateRefinementTime(self, participant_number, method):
         methods = self.data[participant_number].getMethods()
         
         total_adaptation_time = 0
@@ -68,7 +67,7 @@ class DataAnalysis(object):
             adaptation_time.append(time)
 
         total_adaptation_time = sum(adaptation_time)
-        
+
         return total_adaptation_time, adaptation_time
 
     def getNumberOfRefinements(self, participant_number, method):
@@ -85,8 +84,13 @@ class DataAnalysis(object):
 
         return refinements_per_object_position
 
-    def getNumberOfObjectMissed(self, participant_number, method):
+    def getNumberOfObjectMissed(self,refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
+        
+        if refinement_or_prediction == 'refinement':
+            trajectory = 'refined_trajectory'
+        elif refinement_or_prediction == 'prediction':
+            trajectory = 'predicted_trajectory'
 
         object_missed_per_object_position = []
 
@@ -95,7 +99,7 @@ class DataAnalysis(object):
 
             for trial in methods[method]['object_position'][object_position]['trial']:
                 try:
-                    object_missed += int(methods[method]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['object_missed'])
+                    object_missed += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['object_missed'])
                 except KeyError as e:
                     print("Key not available: " + str(e))
                     continue
@@ -104,8 +108,37 @@ class DataAnalysis(object):
 
         return object_missed_per_object_position
 
-    def getNumberOfObstaclesHit(self, participant_number, method):
+    def getNumberOfObjectKickedOver(self, refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
+        
+        if refinement_or_prediction == 'refinement':
+            trajectory = 'refined_trajectory'
+        elif refinement_or_prediction == 'prediction':
+            trajectory = 'predicted_trajectory'
+
+        object_kicked_over_per_object_position = []
+
+        for object_position in methods[method]['object_position']:
+            object_kicked_over = 0
+
+            for trial in methods[method]['object_position'][object_position]['trial']:
+                try:
+                    object_kicked_over += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['object_kicked_over'])
+                except KeyError as e:
+                    print("Key not available: " + str(e))
+                    continue
+
+            object_kicked_over_per_object_position.append(object_kicked_over)
+
+        return object_kicked_over_per_object_position
+
+    def getNumberOfObstaclesHit(self, refinement_or_prediction, participant_number, method):
+        methods = self.data[participant_number].getMethods()
+        
+        if refinement_or_prediction == 'refinement':
+            trajectory = 'refined_trajectory'
+        elif refinement_or_prediction == 'prediction':
+            trajectory = 'predicted_trajectory'
 
         obstacle_hit_per_object_position = []
 
@@ -115,7 +148,7 @@ class DataAnalysis(object):
             for trial in methods[method]['object_position'][object_position]['trial']:
                 
                 try:
-                    obstacle_hit += int(methods[method]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
+                    obstacle_hit += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['obstacle_hit'])
                 except KeyError as e:
                     print("Key not available: " + str(e))
                     continue
@@ -123,10 +156,13 @@ class DataAnalysis(object):
 
         return obstacle_hit_per_object_position
 
-
-    def getSuccessfulPredictions(self, participant_number, method):
+    def getSuccessfulTrials(self, refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
-        
+        if refinement_or_prediction == 'refinement':
+            trajectory = 'refined_trajectory'
+        elif refinement_or_prediction == 'prediction':
+            trajectory = 'predicted_trajectory'
+
         success_per_object_position = []
         
         for object_position in methods[method]['object_position']:
@@ -135,7 +171,8 @@ class DataAnalysis(object):
 
             for trial in methods[method]['object_position'][object_position]['trial']:
                 try:
-                    success += int(methods[method]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['success'])
+                    
+                    success += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['success'])
                 except KeyError as e:
                     print("Key not available: " + str(e))
                     continue
@@ -143,20 +180,21 @@ class DataAnalysis(object):
 
         return success_per_object_position
 
-    def plotAdaptationTime(self, participant_number):
+    def plotRefinementTime(self, participant_number):
         plt.figure()
 
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            adaptation_times = self.calculateAdaptationTime(participant_number, method)[1]
-            plt.bar(self.object_positions_labels, adaptation_times)
+            refinement_times = self.calculateRefinementTime(participant_number, method)[1]
+            print('adaptation times for plotting: ' + str(refinement_times))
+            plt.bar(self.object_positions_labels, refinement_times)
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
-            plt.ylabel("Adaptation time [s]")
-            plt.ylim((0,150))
+            plt.ylabel("Refinement time [s]")
+            plt.ylim((0,600))
             plt.tight_layout()
 
-        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/adaptation_time.pdf')
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/refinement_time.pdf')
     
     def plotNumberOfRefinements(self, participant_number):
         plt.figure()
@@ -169,40 +207,57 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Number of refinements [-]")
-            plt.ylim((0,10))
+            plt.ylim((0,50))
 
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_refinements.pdf')
 
-    def plotNumberOfObjectMissed(self, participant_number):
+    def plotNumberOfObjectKickedOver(self, participant_number, refinement_or_prediction):
+
         plt.figure()
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            number_of_object_missed = self.getNumberOfObjectMissed(participant_number, method)
+            number_of_object_missed = self.getNumberOfObjectKickedOver(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
             plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_object_missed ] )
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Object missed [%]")
             plt.tight_layout()
         
-        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_objects_missed.pdf')
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_objects_kicked_over_' + str(refinement_or_prediction) + '.pdf')
 
         plt.figure()
 
-    def plotNumberOfObstaclesHit(self, participant_number):
+    def plotNumberOfObjectMissed(self, participant_number, refinement_or_prediction):
 
         plt.figure()
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            number_of_obstacles_hit = self.getNumberOfObstaclesHit(participant_number, method)
+            number_of_object_missed = self.getNumberOfObjectMissed(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
+            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_object_missed ] )
+            plt.title(self.methods_labels[method-1])
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Object missed [%]")
+            plt.tight_layout()
+        
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_objects_missed_' + str(refinement_or_prediction) + '.pdf')
+
+        plt.figure()
+
+    def plotNumberOfObstaclesHit(self, participant_number, refinement_or_prediction):
+
+        plt.figure()
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_obstacles_hit = self.getNumberOfObstaclesHit(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
             plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_obstacles_hit ] )
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Obstacles hit [%]")
             plt.tight_layout()
         
-        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_obstacles_hit.pdf')
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_obstacles_hit_' + str(refinement_or_prediction) + '.pdf')
 
         plt.figure()
 
@@ -210,16 +265,32 @@ class DataAnalysis(object):
         plt.figure()
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            number_of_success = self.getSuccessfulPredictions(participant_number, method)
+            number_of_success = self.getSuccessfulTrials(participant_number=participant_number, refinement_or_prediction='prediction', method=method)
             plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_success ] )
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
-            plt.ylabel("Successfull trials [%]")
+            plt.ylabel("Successfull predictions [%]")
             plt.tight_layout()
         
-        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_successes.pdf')
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/successful_predictions.pdf')
 
         plt.figure()
+
+    def plotSuccesfullRefinements(self, participant_number):
+        plt.figure()
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_success = self.getSuccessfulTrials(participant_number=participant_number, refinement_or_prediction='refinement', method=method)
+            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_success ] )
+            plt.title(self.methods_labels[method-1])
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Successfull refinements [%]")
+            plt.tight_layout()
+        
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/successful_refinements.pdf')
+
+        plt.figure()
+
 
     def plotDataBeforeExperiment(self):
         path = self.data_path + 'before_experiment/data.txt'
@@ -276,15 +347,25 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = 105
+    number = 28
     data_analysis.loadData(number)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
-    # data_analysis.calculateAdaptationTime(1, 3, 1)
-    data_analysis.plotAdaptationTime(number)
+    # data_analysis.calculateRefinementTime(1, 3, 1)
+    data_analysis.plotRefinementTime(number)
     data_analysis.plotNumberOfRefinements(number)
+
     data_analysis.plotSuccesfullPredictions(number)
-    data_analysis.plotNumberOfObstaclesHit(number)
-    data_analysis.plotNumberOfObjectMissed(number)
+    data_analysis.plotSuccesfullRefinements(number)
+
+    data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
+    data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
+
+    data_analysis.plotNumberOfObjectMissed(number, 'refinement')
+    data_analysis.plotNumberOfObjectMissed(number, 'prediction')
+
+    data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
+    data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
+
     # data_analysis.plotDataBeforeExperiment()
