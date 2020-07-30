@@ -1,0 +1,11 @@
+<launch>
+    <include file="$(find execution_failure_detection)/launch/scene_drawer_dishwasher.launch"/>
+    <include file="$(find execution_failure_detection)/launch/upper_basket_transform_publisher.launch"/>
+
+    <node pkg="execution_failure_detection" name="execution_failure_detection"
+    type="execution_failure_detection_dishwasher_node.py" output='screen'>
+    </node>
+
+</launch>
+
+

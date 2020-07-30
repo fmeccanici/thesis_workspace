@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="execution_failure_detection" name="upper_basket_transform_publisher"
+    type="upper_basket_transform_publisher.py" output='screen'>
+    </node>
+</launch>
+
+
