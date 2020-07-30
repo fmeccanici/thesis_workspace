@@ -2,7 +2,10 @@
 <launch>
     <arg name="method" default="online+pendant"/>
 
-    <include file="$(find learning_from_demonstration)/launch/learning_from_demonstration.launch" />
+    <include file="$(find learning_from_demonstration)/launch/learning_from_demonstration.launch">
+        <arg name="raw_folder" value="dishwasher_moved_backwards2"/>
+        <!-- <arg name="raw_folder" value="complete_model_situation3"/> -->
+    </include>
 
     <include file="$(find trajectory_refinement)/launch/trajectory_refinement_keyboard.launch"
     if="$(eval method == 'online+pendant')"/> 
@@ -11,6 +14,7 @@
     if="$(eval method == 'online+pendant')"/>
 
     <include file="$(find data_logger)/launch/data_logging.launch"/> 
-    <include file="$(find execution_failure_detection)/launch/execution_failure_detection.launch"/> 
+    <include file="$(find execution_failure_detection)/launch/execution_failure_detection_dishwasher.launch"/> 
+    <!-- <include file="$(find execution_failure_detection)/launch/execution_failure_detection.launch"/>  -->
 
 </launch>

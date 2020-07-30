@@ -125,7 +125,7 @@ class ExperimentNode(object):
 
         lift_goal.position = [0.3]
 
-        head_goal.position = [-0.7499237225775083, 0.0]
+        head_goal.position = [-0.9, 0.0]
 
         head_goal.effort = [0.0, 0.0]
         lift_goal.effort = [0.0]
@@ -303,6 +303,7 @@ class ExperimentNode(object):
             """
 
             # initial pose dishwasher moved backwards
+            """
             pose.position.x = 0.579
             pose.position.y = 0.09
             pose.position.z = 0.481
@@ -311,6 +312,17 @@ class ExperimentNode(object):
             pose.orientation.y = -0.033
             pose.orientation.z = -0.121
             pose.orientation.w = 0.016
+            """
+            
+            # initial pose dishwasher moved backwards2
+            pose.position.x = 0.537
+            pose.position.y = 0.083
+            pose.position.z = 0.444
+
+            pose.orientation.x = 0.944
+            pose.orientation.y = -0.007
+            pose.orientation.z = -0.329
+            pose.orientation.w = 0.02
 
             rospy.wait_for_service('go_to_pose', timeout=2.0)
             go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)

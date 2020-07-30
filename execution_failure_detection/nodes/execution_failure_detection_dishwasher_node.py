@@ -366,16 +366,16 @@ class ExecutionFailureNode(object):
 
         while not rospy.is_shutdown():
             execution_failure_msg = ExecutionFailure()
-            print('\n')
-            print("object reached = " + str(self.isObjectReached()))
-            print("obstacle hit = " + str(self.isObstacleHit()))
+            # print('\n')
+            # print("object reached = " + str(self.isObjectReached()))
+            # print("obstacle hit = " + str(self.isObstacleHit()))
             # print("object kicked over = " + str(self.isObjectKickedOver()))
-            print('\n')
+            # print('\n')
 
             # make ros message
-            # execution_failure_msg.object_reached = Bool(self.isObjectReached())
-            # execution_failure_msg.object_kicked_over = Bool(self.isObjectKickedOver())
-            # execution_failure_msg.obstacle_hit = Bool(self.isObstacleHit())
+            execution_failure_msg.object_reached = Bool(self.isObjectReached())
+            execution_failure_msg.object_kicked_over = Bool(self.isObjectKickedOver())
+            execution_failure_msg.obstacle_hit = Bool(self.isObstacleHit())
 
             # publish ros message
             self.execution_failure_pub.publish(execution_failure_msg)
