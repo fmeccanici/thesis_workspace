@@ -58,6 +58,10 @@ class lfdNode():
         self.white_button_toggle = 0
         self.white_button_toggle_previous = 0
  
+        self.object_reached = Bool()
+        self.obstacle_hit = Bool()
+        self.object_kicked_over = Bool()
+
         self.marker_pose = Pose()
         self.add_demo_success = Bool()
 

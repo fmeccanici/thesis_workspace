@@ -16,7 +16,7 @@ class InitHeadLift(object):
         # self.lift_goal.position = [0.19432052791416207]
         self.lift_goal.position = [0.3]
 
-        self.head_goal.position = [-0.7499237225775083, 0.0]
+        self.head_goal.position = [-0.9, 0.0]
 
         self.head_goal.effort = [0.0, 0.0]
         self.lift_goal.effort = [0.0]

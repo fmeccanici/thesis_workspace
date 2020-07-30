@@ -42,7 +42,7 @@ class ExperimentNode(object):
         self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
 
         self.num_trials = 5
-        self.num_object_positions = 4
+        self.num_object_positions = 6
         self.trials = range(1,self.num_trials)
         self.object_positions = range(1,self.num_object_positions+1)
         self.max_refinements = 5
@@ -125,7 +125,7 @@ class ExperimentNode(object):
 
         lift_goal.position = [0.3]
 
-        head_goal.position = [-0.6499237225775083, 0.0]
+        head_goal.position = [-0.7499237225775083, 0.0]
 
         head_goal.effort = [0.0, 0.0]
         lift_goal.effort = [0.0]
@@ -141,6 +141,64 @@ class ExperimentNode(object):
             object_position = ModelState()
             object_position.model_name = 'aruco_cube'
 
+            step = 0.07
+            x = 0.83
+            # dishwasher moved backwards    
+            if self.current_object_position == 1:
+                object_position.pose.position.x = x
+                object_position.pose.position.y = 0.25
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 2:
+                object_position.pose.position.x = x
+                object_position.pose.position.y = 0.25 - step
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 3:
+                object_position.pose.position.x = x
+                object_position.pose.position.y = 0.25 - 2*step
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 4:
+                object_position.pose.position.x = x
+                object_position.pose.position.y = 0.25 - 3*step
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 5:
+                object_position.pose.position.x = x
+                object_position.pose.position.y = 0.25 - 4*step
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 6:
+                object_position.pose.position.x = x
+                object_position.pose.position.y = 0.25 - 5*step
+                object_position.pose.position.z = 0.7
+            
+
+            # dishwasher
+            """
+            if self.current_object_position == 1:
+                object_position.pose.position.x = 0.58
+                object_position.pose.position.y = 0.23
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 2:
+                object_position.pose.position.x = 0.58
+                object_position.pose.position.y = 0.06
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 3:
+                object_position.pose.position.x = 0.58
+                object_position.pose.position.y = -0.1
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 4:
+                object_position.pose.position.x = 0.68
+                object_position.pose.position.y = 0.23
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 5:
+                object_position.pose.position.x = 0.68
+                object_position.pose.position.y = 0.06
+                object_position.pose.position.z = 0.7
+            elif self.current_object_position == 6:
+                object_position.pose.position.x = 0.68
+                object_position.pose.position.y = -0.1
+                object_position.pose.position.z = 0.7
+            """
+            # table
+            """
             if self.current_object_position == 1:
                 object_position.pose.position.x = 0.82
                 object_position.pose.position.y = 0.3
@@ -160,6 +218,7 @@ class ExperimentNode(object):
                 object_position.pose.position.x = 0.65
                 object_position.pose.position.y = 0.0
                 object_position.pose.position.z = 0.9
+            """
 
             object_position.pose.orientation.x = 0
             object_position.pose.orientation.y = 0
@@ -188,6 +247,77 @@ class ExperimentNode(object):
     def goToInitialPose(self):
         pose = Pose()
         try:
+
+            # first waypoint for dishwasher
+            pose.position.x = 0.445
+            pose.position.y = 0.013
+            pose.position.z = 0.877
+
+            pose.orientation.x = 0.982
+            pose.orientation.y = 0.009
+            pose.orientation.z = -0.189
+            pose.orientation.w = 0.009
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+
+            # second waypoint for dishwasher
+            pose.position.x = 0.482
+            pose.position.y = -0.373
+            pose.position.z = 0.866
+
+            pose.orientation.x = 0.989
+            pose.orientation.y = -0.021
+            pose.orientation.z = -0.096
+            pose.orientation.w = 0.109
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+
+            # third waypoint for dishwasher
+            pose.position.x = 0.394
+            pose.position.y = -0.305
+            pose.position.z = 0.46
+
+            pose.orientation.x = 0.886
+            pose.orientation.y = -0.219
+            pose.orientation.z = -0.407
+            pose.orientation.w = -0.037
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+
+            """
+            # initial pose dishwasher
+            pose.position.x = 0.472
+            pose.position.y = 0.069
+            pose.position.z = 0.433
+
+            pose.orientation.x = 0.997
+            pose.orientation.y = -0.033
+            pose.orientation.z = -0.056
+            pose.orientation.w = 0.041
+            """
+
+            # initial pose dishwasher moved backwards
+            pose.position.x = 0.579
+            pose.position.y = 0.09
+            pose.position.z = 0.481
+
+            pose.orientation.x = 0.992
+            pose.orientation.y = -0.033
+            pose.orientation.z = -0.121
+            pose.orientation.w = 0.016
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+
+            # table
+            """
             pose.position.x = 0.609
             pose.position.y = -0.290
             pose.position.z = 0.816
@@ -200,10 +330,8 @@ class ExperimentNode(object):
             rospy.wait_for_service('go_to_pose', timeout=2.0)
             go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
             resp = go_to_pose(pose)
-        
-        except ValueError:
-            rospy.loginfo("Make sure you set a pose!")
-        
+            """
+            
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
@@ -621,7 +749,7 @@ class ExperimentNode(object):
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
 
-                if number_of_refinements => self.max_refinements:
+                if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             ####### update model #######

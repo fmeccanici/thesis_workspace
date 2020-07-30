@@ -760,7 +760,7 @@ class experimentGUI(QMainWindow):
         # lift_goal.position = [0.19432052791416207]
         lift_goal.position = [0.3]
 
-        head_goal.position = [-0.6499237225775083, 0.0]
+        head_goal.position = [-0.9, 0.0]
 
         head_goal.effort = [0.0, 0.0]
         lift_goal.effort = [0.0]
@@ -1278,14 +1278,37 @@ class experimentGUI(QMainWindow):
                 # self.lineEdit_10.setText(str(round(-0.194791016723, 3)))
                 # self.lineEdit_13.setText(str(round(0.000475714270521, 3)))
 
-                self.lineEdit_9.setText(str(round(0.445, 3)))
-                self.lineEdit_7.setText(str(round(-0.025, 3)))
-                self.lineEdit_8.setText(str(round(0.426, 3)))
+                # dishwasher
+                # self.lineEdit_9.setText(str(round(0.445, 3)))
+                # self.lineEdit_7.setText(str(round(-0.025, 3)))
+                # self.lineEdit_8.setText(str(round(0.426, 3)))
 
-                self.lineEdit_12.setText(str(round(0.998, 3)))
-                self.lineEdit_11.setText(str(round(0.033, 3)))
-                self.lineEdit_10.setText(str(round(-0.038, 3)))
-                self.lineEdit_13.setText(str(round(0.025, 3)))
+                # self.lineEdit_12.setText(str(round(0.998, 3)))
+                # self.lineEdit_11.setText(str(round(0.033, 3)))
+                # self.lineEdit_10.setText(str(round(-0.038, 3)))
+                # self.lineEdit_13.setText(str(round(0.025, 3)))
+
+                # dishwasher moved backwards
+                """
+                self.lineEdit_9.setText(str(round(0.579, 3)))
+                self.lineEdit_7.setText(str(round(0.09, 3)))
+                self.lineEdit_8.setText(str(round(0.481, 3)))
+
+                self.lineEdit_12.setText(str(round(0.992, 3)))
+                self.lineEdit_11.setText(str(round(-0.033, 3)))
+                self.lineEdit_10.setText(str(round(-0.121, 3)))
+                self.lineEdit_13.setText(str(round(0.016, 3)))
+                """
+                # dishwasher moved backwards 2
+                self.lineEdit_9.setText(str(round(0.537, 3)))
+                self.lineEdit_7.setText(str(round(0.083, 3)))
+                self.lineEdit_8.setText(str(round(0.444, 3)))
+
+                self.lineEdit_12.setText(str(round(0.944, 3)))
+                self.lineEdit_11.setText(str(round(-0.007, 3)))
+                self.lineEdit_10.setText(str(round(-0.329, 3)))
+                self.lineEdit_13.setText(str(round(-0.02, 3)))
+
 
             elif button.text() == '2' and button.isChecked():
                 self.lineEdit_9.setText(str(round(0.371, 3)))
