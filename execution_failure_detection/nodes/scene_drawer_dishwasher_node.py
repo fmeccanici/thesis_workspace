@@ -100,7 +100,7 @@ class SceneDrawer(object):
                 elif ellipsoid_type == 'all':
                     # size_wrt_ee = [0.4, 0.2, 0.1]
                     # size_wrt_ee = q_ee.rotate(size_wrt_ee)
-                    size_wrt_base = [0.4, 0.2, 0.1]
+                    size_wrt_base = [0.35, 0.25, 0.06]
                     self.collision_ellipsoid_size_x = size_wrt_base[0]
                     self.collision_ellipsoid_size_y = size_wrt_base[1]
                     self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best

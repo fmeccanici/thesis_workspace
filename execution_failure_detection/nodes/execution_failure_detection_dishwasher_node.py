@@ -14,6 +14,7 @@ from execution_failure_detection.msg import ExecutionFailure
 from geometry_msgs.msg import Point
 
 import matplotlib.pyplot as plt
+from math import floor
 
 class ExecutionFailureNode(object):
     def __init__(self, model_path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/models/'):
@@ -227,20 +228,51 @@ class ExecutionFailureNode(object):
         return False
     
     def isObjectKickedOver(self):
+        threshold = 0.15
+        # print(floor( ( abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2) * 100 ) / 100)
+        # print(floor(abs(self.expected_object_pose.position.x) * 100 ) / 100 )
+        # print('\n')
+        # print(floor(abs(self.object_pose_wrt_base_footprint.position.y) * 100 ) / 100)
+        # print(floor(abs(self.expected_object_pose.position.y) * 100 ) / 100 )
+        # print('\n')
+        # print(abs(self.object_pose_wrt_base_footprint.position.x))
+        # print(abs(self.object_pose_wrt_base_footprint.position.y))
+        # print('\n')
+        # print(abs(self.expected_object_pose.position.x))
+        # print(abs(self.expected_object_pose.position.y))
+        # print('\n')
+
         # print(round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 ))
-        # print(round(self.expected_object_pose.position.x, 2))
+        # print(round(abs(self.expected_object_pose.position.x), 2))
         # print('\n')
         # print(abs(round(self.object_pose_wrt_base_footprint.position.y, 2)))
-        # print(round(self.expected_object_pose.position.y, 2))
+        # print(round(abs(self.expected_object_pose.position.y), 2))
         # print('\n')
-        
+        # print(abs(self.object_pose_wrt_base_footprint.position.x))
+        # print(abs(self.object_pose_wrt_base_footprint.position.y))
+        # print('\n')
+        # print(abs(self.expected_object_pose.position.x))
+        # print(abs(self.expected_object_pose.position.y))
+        # print('\n')
+
+        # print('\n')
+        # print(abs((abs(self.object_pose_wrt_base_footprint.position.x) - abs(self.expected_object_pose.position.x))))
+        # print(abs((abs(self.object_pose_wrt_base_footprint.position.y) - abs(self.expected_object_pose.position.y))))
+        # print('\n')
+
+
         # account for difference in pose of centre and pose of frontal plane for evakluation
         # round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 )
         # thats this + self.object_size / 2
-        
-        
-        if round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 ) != round(self.expected_object_pose.position.x, 2) or abs(round(self.object_pose_wrt_base_footprint.position.y, 2)) != round(self.expected_object_pose.position.y, 2):
+
+        if abs((abs(self.object_pose_wrt_base_footprint.position.x) - abs(self.expected_object_pose.position.x))) > threshold or abs((abs(self.object_pose_wrt_base_footprint.position.y) - abs(self.expected_object_pose.position.y))) > threshold:
             return True
+        
+        # if floor( ( abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2) * 100 ) / 100 != floor(abs(self.expected_object_pose.position.x) * 100 ) / 100  or floor(abs(self.object_pose_wrt_base_footprint.position.y) * 100 ) / 100 != floor(abs(self.expected_object_pose.position.y) * 100 ) / 100:
+        #     return True        
+        
+        # if round(abs(self.object_pose_wrt_base_footprint.position.x) + self.object_size_x/2, 2 ) != round(abs(self.expected_object_pose.position.x), 2) or abs(round(self.object_pose_wrt_base_footprint.position.y, 2)) != round(abs(self.expected_object_pose.position.y), 2):
+        #     return True
         # if abs(round(self.object_pose_wrt_base_footprint.position.x, 2)) != round(self.expected_object_pose.position.x, 2) or abs(round(self.object_pose_wrt_base_footprint.position.y, 2)) != round(self.expected_object_pose.position.y, 2):
         #     return True
 
@@ -279,7 +311,7 @@ class ExecutionFailureNode(object):
                 self.reaching_ellipsoid_size_z = size_wrt_base[2] 
             
             elif ellipsoid_type == 'all':
-                size_wrt_base = [0.4, 0.2, 0.1]
+                size_wrt_base = [0.35, 0.25, 0.06]
                 self.collision_ellipsoid_size_x = size_wrt_base[0]
                 self.collision_ellipsoid_size_y = size_wrt_base[1]
                 self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best

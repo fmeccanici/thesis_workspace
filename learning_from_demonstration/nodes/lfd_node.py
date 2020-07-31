@@ -334,6 +334,9 @@ class lfdNode():
         self.object_reached_temp = copy.deepcopy(self.object_reached)
         self.object_kicked_over_temp = copy.deepcopy(self.object_kicked_over)
 
+        if self.obstacle_hit == True and self.obstacle_hit_once == False:
+            self.obstacle_hit_once = True
+         
     def context_to_msg(self, context):
         point = Point()
         point.x = context[0]
@@ -596,6 +599,7 @@ class lfdNode():
         
         # check if obstacle was hit
         obstacle_hit_msg = Bool(self.obstacle_hit_once)
+        print('obstacle hit = ' + str(self.obstacle_hit_once))
 
         # store object reached value
         object_reached_msg = Bool(self.object_reached_temp)

@@ -142,7 +142,7 @@ class ExperimentNode(object):
             object_position.model_name = 'aruco_cube'
 
             step = 0.07
-            x = 0.83
+            x = 0.8
             # dishwasher moved backwards    
             if self.current_object_position == 1:
                 object_position.pose.position.x = x
