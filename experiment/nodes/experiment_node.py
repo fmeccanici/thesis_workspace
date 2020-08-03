@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from subprocess import call
 import rospy, rospkg, roslaunch, time
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
@@ -8,7 +8,7 @@ from data_logger_python.text_updater import TextUpdater
 # import ros messages
 from sensor_msgs.msg import JointState
 from data_logger.msg import TrajectoryData, OperatorGUIinteraction
-from std_msgs.msg import Byte, Bool, Float32, String
+from std_msgs.msg import Byte, Bool, Float32, String, Float64
 from geometry_msgs.msg import Point, Pose
 
 from gazebo_msgs.msg import ModelState 
@@ -23,7 +23,7 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory)
-from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
@@ -43,13 +43,13 @@ class ExperimentNode(object):
 
         self.num_trials = 5
         self.num_object_positions = 6
-        self.trials = range(1,self.num_trials)
+        self.trials = range(1,self.num_trials+1)
         self.object_positions = range(1,self.num_object_positions+1)
         self.max_refinements = 5
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
 
-        self.T_desired = 10.0
+        self.T_desired = 15.0
         self.start_time = 0
         self.set_data = False
 
@@ -116,6 +116,19 @@ class ExperimentNode(object):
         except (AttributeError, KeyError):
             rospy.loginfo( ("Node not launched yet") )
     
+    def openGripper(self):
+        rc = call("/home/fmeccanici/Documents/thesis/thesis_workspace/src/teleop_control/scripts/gripper_opener.sh")
+
+        # open_gripper = rospy.ServiceProxy('gazebo/set_model_configuration', SetModelConfiguration)
+        # model_name = String("marco_titanium")
+        # joint_names = []
+        # joint_names.append(String("gripper_joint"))
+        # joint_positions = []
+        # joint_positions.append(Float64(1.0))
+        # resp = open_gripper(model_name, joint_names, joint_positions)
+
+        # return resp
+
     def initializeHeadLiftJoint(self):
         lift_goal = JointState()
         head_goal = JointState()
@@ -638,7 +651,7 @@ class ExperimentNode(object):
     
     def startTrial(self):
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
-
+        self.openGripper()
         self.goToInitialPose()
         time.sleep(2)
 
@@ -765,7 +778,7 @@ class ExperimentNode(object):
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             ####### update model #######
-            self.goToInitialPose()
+            # self.goToInitialPose()
             self.addToModel()
             self.stopTimer()
             

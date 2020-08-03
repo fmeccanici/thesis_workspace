@@ -46,6 +46,7 @@ class TableTransformPublisher(object):
         vec_min_wrt_base_footprint = [-self.upper_basket_size_x/2, 0, 0]
         vec_max_wrt_base_footprint = [0, self.upper_basket_size_y, 0]
 
+
         x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 5)
         y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 5)
         z = vec_min_wrt_base_footprint[2]

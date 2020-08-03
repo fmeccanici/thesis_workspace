@@ -10,7 +10,7 @@ class DataAnalysis(object):
         self.data = {}
         self.num_methods = 4
         self.num_object_positions = 6
-        self.num_trials = 5
+        self.num_trials = 4
         self.methods_labels = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
         self.object_positions_labels = ['1', '2', '3', '4', '5', '6']
 
@@ -101,7 +101,7 @@ class DataAnalysis(object):
                 try:
                     object_missed += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['object_missed'])
                 except KeyError as e:
-                    print("Key not available: " + str(e))
+                    # print("Key not available: " + str(e))
                     continue
 
             object_missed_per_object_position.append(object_missed)
@@ -125,7 +125,7 @@ class DataAnalysis(object):
                 try:
                     object_kicked_over += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['object_kicked_over'])
                 except KeyError as e:
-                    print("Key not available: " + str(e))
+                    # print("Key not available: " + str(e))
                     continue
 
             object_kicked_over_per_object_position.append(object_kicked_over)
@@ -150,7 +150,7 @@ class DataAnalysis(object):
                 try:
                     obstacle_hit += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['obstacle_hit'])
                 except KeyError as e:
-                    print("Key not available: " + str(e))
+                    # print("Key not available: " + str(e))
                     continue
             obstacle_hit_per_object_position.append(obstacle_hit)
 
@@ -168,13 +168,20 @@ class DataAnalysis(object):
         for object_position in methods[method]['object_position']:
             success = 0
 
-
             for trial in methods[method]['object_position'][object_position]['trial']:
+
                 try:
-                    
-                    success += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['success'])
+                    # if number of refinement is zero, we had a successful prediction and no refinement was necessary
+                    # then the success has to be 1 but is zero by default since we have no refinement 
+                    # it gives a key error thus reverts back to the default which is 0
+                    # I only did experiment yet with method 3 on myself but this has to be done for all the methods
+                    if method == 3 and trajectory == 'refined_trajectory' and methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
+                        success += 1
+                    else:
+                        success += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['success'])
+
                 except KeyError as e:
-                    print("Key not available: " + str(e))
+                    # print("Key not available: " + str(e))
                     continue
             success_per_object_position.append(success)
 
@@ -222,7 +229,7 @@ class DataAnalysis(object):
             plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_object_missed ] )
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
-            plt.ylabel("Object missed [%]")
+            plt.ylabel("Object kicked over [%]")
             plt.tight_layout()
         
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_objects_kicked_over_' + str(refinement_or_prediction) + '.pdf')
@@ -292,8 +299,13 @@ class DataAnalysis(object):
         plt.figure()
 
 
-    def plotDataBeforeExperiment(self):
-        path = self.data_path + 'before_experiment/dishwasher2/data.txt'
+    def plotExperimentData(self, *args, **kwargs):
+        if "participant_number" in kwargs:
+            participant_number = kwargs["participant_number"]
+            path = self.data_path + "participant_" + str(participant_number) + '/after_experiment/data.txt'
+        else:
+            path = self.data_path + 'before_experiment/dishwasher2/data.txt'
+
         num_object_positions = 6
         object_labels = ["1", "2", "3", "4", "5", "6"]
         
@@ -324,7 +336,11 @@ class DataAnalysis(object):
                 object_kicked_over_list.append(object_kicked_over)
             
             fig = plt.figure()
-            fig.suptitle("Initial model")
+            
+            if "participant_number" in kwargs:
+                fig.suptitle("Model after experiment")
+            else:
+                fig.suptitle("Initial model")
 
             plt.subplot(1,4,1)
             plt.bar(object_labels, np.asarray(success_list)/self.num_trials*100)
@@ -353,11 +369,14 @@ class DataAnalysis(object):
             plt.tight_layout()
             fig.subplots_adjust(top=0.88)
 
-        plt.savefig(self.figures_path + "/before_experiment/success.pdf")
+        if "participant_number" in kwargs:
+            plt.savefig(self.figures_path + "participant_" + str(participant_number) + "/after_experiment/success.pdf")            
+        else:
+            plt.savefig(self.figures_path + "/before_experiment/success.pdf")
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = 28
+    number = 82
     data_analysis.loadData(number)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
@@ -378,4 +397,5 @@ if __name__ == "__main__":
     # data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
     # data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
 
-    data_analysis.plotDataBeforeExperiment()
+    # data_analysis.plotExperimentData()
+    data_analysis.plotExperimentData(participant_number = number)

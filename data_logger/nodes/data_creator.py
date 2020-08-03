@@ -11,6 +11,13 @@ from learning_from_demonstration_python.trajectory_parser import trajectoryParse
 
 from learning_from_demonstration.srv import WelfordUpdate
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
+import numpy as np
+import random
+
+from trajectory_visualizer.msg import TrajectoryVisualization
+from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
+
+from std_msgs.msg import Float32
 
 class DataCreator(object):
     def __init__(self):
@@ -332,16 +339,44 @@ class DataCreator(object):
             for i in range(self.num_methods):
                 self.methods[i+1] = outfile['method'][i+1]
 
+    def dictToList(self, trajectory_dict):
+        x = trajectory_dict['x']
+        y = trajectory_dict['y']
+        z = trajectory_dict['z']
+        qx = trajectory_dict['qx']
+        qy = trajectory_dict['qy']
+        qz = trajectory_dict['qz']
+        qw = trajectory_dict['qw']
+        t = trajectory_dict['t']
+
+        trajectory_list = []
+
+        for i in range(len(x)):
+            trajectory_list.append([x[i], y[i], z[i], qx[i], qy[i], qz[i], qw[i], t[i]])
+
+        return trajectory_list
+
     def getTrajectory(self, which, participant_number, method, object_position, trial):
+
         if which == 'refinement':
             trajectory = 'refined_trajectory'
         elif which == 'prediction':
             trajectory == 'predicted_trajectory'
 
         traj_wrt_base = self.methods[method]['object_position'][object_position]['trial'][trial][trajectory]
+        traj_wrt_base = self.dictToList(traj_wrt_base)
         context = self.methods[method]['object_position'][object_position]['trial'][trial]['context']
-        object_position = [context.x / 10, context.y / 10, context.z / 10]
-        traj_wrt_object = self.parser.get_trajectory_wrt_context(traj_wrt_base, object_position)
+        
+        r_object_wrt_ee = [context[0] / 10, context[1] / 10, context[2] / 10]
+        
+        # calculate object wrt base
+        r_object_wrt_base = np.asarray(r_object_wrt_ee) + np.asarray([traj_wrt_base[0][0], traj_wrt_base[0][1], traj_wrt_base[0][2]])
+
+        print('\n')
+        print('context = ' + str(r_object_wrt_base))
+        print('\n')
+
+        traj_wrt_object = self.parser.get_trajectory_wrt_context(traj_wrt_base, r_object_wrt_base)
 
         return traj_wrt_object, context
       
@@ -367,15 +402,44 @@ class DataCreator(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)  
 
+    def visualizeExperimentData(self, participant_number, method):
+        self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number)+ '/')
+        self.loadData()
+        
+        # adapt model using experiment data
+        for object_position in self.object_positions:
+            for trial in range(1, self.num_trials+1):
+                
+                # get trajectory wrt context
+                try:
+                    # trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, object_position, trial)
+                    traj_wrt_base = self.methods[method]['object_position'][object_position]['trial'][trial]['refined_trajectory']
+                    traj_wrt_base = self.dictToList(traj_wrt_base)
+                    context = self.methods[method]['object_position'][object_position]['trial'][trial]['context']
+
+                    demo = self.parser.predicted_trajectory_to_prompTraj_message(traj_wrt_base, context)
+
+                    # visualize prediction
+                    visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+                    visualization_msg = TrajectoryVisualization()
+                    visualization_msg.pose_array = demo.poses
+
+                    visualization_msg.r = 0.0
+                    visualization_msg.g = 1.0
+                    visualization_msg.b = 0.0
+
+                    resp = visualize_trajectory(visualization_msg)
+            
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+                
+                except KeyError:
+                    continue
     def createDataAfterExperiment(self, participant_number, method):
         # voor elke trial moet ik de refined trajectory uitlezen samen met de bijbehorende context
         # dan update ik het model met deze context en trajectory
 
-        # create initial model from the raw data
-        # do this by launching the node in a separate
-
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number)+ '/')
-
 
         self.loadData()
 
@@ -383,17 +447,31 @@ class DataCreator(object):
 
         # adapt model using experiment data
         for object_position in self.object_positions:
-            for trial in range(1, self.trials+1):
+            for trial in range(1, self.num_trials+1):
+                
                 # get trajectory wrt context
-                trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, object_position, trial)
-                self.addToModel(trajectory_for_learning, context)
+                try:
+                    trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, object_position, trial)
+                    self.addToModel(trajectory_for_learning, context)
+                
+                # when there was no refinement (already successful prediction)
+                # just continue
+                except KeyError:
+                    continue
+
+        for i in range(self.num_trials):
+            self.trials[i+1] = {
+                'predicted_trajectory': copy.deepcopy(self.predicted_trajectory), 'context': []}
         
+        for j in range(self.num_object_positions):
+            self.data[j+1] = {
+            'trial': copy.deepcopy(self.trials)}
+
         # loop over the object positions again and make predictions
         for position in self.object_positions:
             for trial in range(1, self.num_trials+1):
-                x,y,z = self.object_positions[position][0], self.object_positions[position][1], self.object_positions[position][2]
-
-                print("object position: " + str(self.object_positions[position]))
+                self.current_object_position = position
+                print("object position: " + str(position))
                 print("trial: " + str(trial))
 
                 # move ee to initial pose
@@ -402,7 +480,7 @@ class DataCreator(object):
                 # wait until arm is not in the way of the object
                 time.sleep(2)
                 
-                self.setObjectPosition(x,y,z)
+                self.setObjectPosition()
                 
                 time.sleep(2)
 
@@ -453,12 +531,12 @@ class DataCreator(object):
                 self.data[position]['trial'][trial]['predicted_trajectory']['t'] = t
                 self.data[position]['trial'][trial]['predicted_trajectory']['object_missed'] = not object_reached
                 self.data[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'] = obstacle_hit
-                
-                if not object_reached or obstacle_hit:
+                self.data[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'] = object_kicked_over
+
+                if not object_reached or obstacle_hit or object_kicked_over:
                     self.data[position]['trial'][trial]['predicted_trajectory']['success'] = False
                 
                 self.data[position]['trial'][trial]['context'] = [self.context.x, self.context.y, self.context.z]
-
 
                 self.toTxt()
                 clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
@@ -467,9 +545,10 @@ class DataCreator(object):
                 time.sleep(1)
 
 if __name__ == "__main__":
-    participant_number = 36
+    participant_number = 82
     method = 3 # online + keyboard
 
     data_creator = DataCreator()
+    data_creator.visualizeExperimentData(participant_number, method)
     # data_creator.createDataAfterExperiment(participant_number, method)
-    data_creator.createDataBeforeExperiment()
+    # data_creator.createDataBeforeExperiment()

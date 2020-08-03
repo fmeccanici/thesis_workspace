@@ -584,22 +584,17 @@ class lfdNode():
         traj, dt = self.lfd.parser.promptraj_msg_to_execution_format(req.trajectory)
         ndesired = 75
 
-        # print("T_desired = " + str(req.T_desired))
         if req.T_desired != 0.0:
             dt = req.T_desired / ndesired
 
         # resample trajectory so that it can successfully be executed
         if len(traj) < ndesired:
             traj = self.resampler.interpolate_learned_keypoints(traj, ndesired)
-
-        # print("executed trajectory = " + str(traj))
-        # print("dt = " + str(dt))
         
         self.executeTrajectory(traj, dt)
         
         # check if obstacle was hit
         obstacle_hit_msg = Bool(self.obstacle_hit_once)
-        print('obstacle hit = ' + str(self.obstacle_hit_once))
 
         # store object reached value
         object_reached_msg = Bool(self.object_reached_temp)
@@ -611,7 +606,10 @@ class lfdNode():
         resp.obstacle_hit = obstacle_hit_msg
         resp.object_reached = object_reached_msg
         resp.object_kicked_over = object_kicked_over_msg
-        
+        print('obstacle hit = ' + str(self.obstacle_hit_once))
+        print('object reached = ' + str(self.object_reached_temp))
+        print('object kicked over = ' + str(self.object_kicked_over_temp))
+
         return resp
 
     def _go_to_pose(self, req):

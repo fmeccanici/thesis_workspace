@@ -182,27 +182,13 @@ class ParticipantData(object):
             self.refined_trajectory['obstacle_hit'] = obstacle_hit
             self.refined_trajectory['success'] = success
         
-            # append dictionary
-            # we start with 0 refinement --> n + 1
-            #             
-            # increment number of refined trajectories
-            # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
             trajectory = copy.deepcopy(self.refined_trajectory)
-
             self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
-
-            # increment time (need to think about how to get the correct time)
-            # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
             return 0
                 
     def setPredictedTrajectory(self, *args, **kwargs):
-        # print(kwargs["object_missed"])
-        # print(kwargs["obstacle_hit"])
-        # print(kwargs["object_kicked_over"])
-        # test = kwargs["object_missed"]
-        # print()
-        # print(test)
+
         if "prediction" in kwargs and "object_missed" in kwargs and "obstacle_hit" in kwargs:            
             prediction = kwargs["prediction"]
 
@@ -282,17 +268,10 @@ class ParticipantData(object):
         self.methods[method]['number_of_updates'] = value
     
     def toCSV(self):
-        # with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/test2.txt', 'w+') as f:
-        #     f.write(str(self.methods))
-        print("number of refinements incremented to " + str(self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
-
         data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:
             f.write(str(data))
             
-        # df = pd.DataFrame.from_dict(data)
-        # df.to_csv(self.path + 'data.csv')
-
             
 if __name__ == "__main__":
     participant1_data = ParticipantData(1, 'm', 26)

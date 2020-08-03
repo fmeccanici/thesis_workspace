@@ -123,7 +123,7 @@ class ProMPContext(object):
             interpolate = interp1d(np.linspace(0, 1, len(demonstration[:, joint])), demonstration[:, joint], kind='cubic')
             stretched_demo = interpolate(self.z)
             if self.joints[joint][0] == 'o':
-                print("final context = " + str(stretched_demo[0]))
+                # print("final context = " + str(stretched_demo[0]))
                 plt.plot(stretched_demo)
                 plt.xlabel('datapoint [-]')
                 plt.ylabel('position [m]')
