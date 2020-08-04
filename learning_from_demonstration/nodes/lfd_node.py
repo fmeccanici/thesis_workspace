@@ -668,6 +668,12 @@ class lfdNode():
 
         relative_prediction = self.parser.traj_wrt_base(prediction, object_wrt_base)
 
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/prediction_wrt_object.txt', 'a') as f:
+            f.write(str(prediction))
+
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/prediction_wrt_base.txt', 'a') as f:
+            f.write(str(relative_prediction))
+
         # traj_pred_message = self.predicted_trajectory_to_prompTraj_message(prediction, goal)
         traj_pred_message = self.lfd.parser.predicted_trajectory_to_prompTraj_message(relative_prediction, goal)
 

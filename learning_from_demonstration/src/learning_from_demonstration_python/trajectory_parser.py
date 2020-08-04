@@ -2,6 +2,7 @@
 
 import rospy, ast, os, os.path
 import numpy as np
+
 import matplotlib.pyplot as plt
 from geometry_msgs.msg import Pose
 from promp_context_ros.msg import prompTraj
@@ -132,8 +133,6 @@ class trajectoryParser():
             # calculate relative vectors
             for data in traj_wrt_base:
                 ee_wrt_base = data[0:3]
-                print(ee_wrt_base)
-                print(context_wrt_base)
                 ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, context_wrt_base))            
                 ee_ori =  list(data[3:7])
                 dt = [data[-1]]

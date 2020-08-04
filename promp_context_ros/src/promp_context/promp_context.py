@@ -224,11 +224,16 @@ class ProMPContext(object):
                 plt.xlabel("datapoint [-]")
                 plt.ylabel("position [m]")
                 plt.grid()
-
+                
                 # if self.plot_counter == 0:
                 ax = fig.add_subplot(111)
                 self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
-
+                
+            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/' + str(self.output_name[0]) + '.txt', 'a') as f:
+                f.write(str(list(tau)) + '&')
+            
+            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/x.txt', 'a') as f:
+                f.write(str(list(self.x)) + '&')
             # calculate weights of Mth demonstration: refinement
             # (size N, N=num_basis, M=num_demonstrations)
             w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T
@@ -341,7 +346,7 @@ class ProMPContext(object):
     def generate_trajectory(self, context):
         # print("mean_w_after = " + str((self.mean_w)))
         # print("mean_total_after = " + str((self.mean_total)))
-
+                
         # noise preventing the matrix Sigma_cc to be singular
         noise = np.eye(self.sigma_cc.shape[0]) * self.sigma
 
@@ -369,7 +374,11 @@ class ProMPContext(object):
         #         plt.ylabel("position [m]")
         #         plt.grid()
         # except: pass
+        # if self.output_name[0] == 'ee_x':
 
+        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/prediction_' + str(self.output_name[0]) + '.txt', 'a') as f:
+            f.write(str(list(mu_traj_given_c)) + '&')
+            
         return mu_traj_given_c
 
     def plot_mean_variance(self, x=None, legend='promp', color=None):

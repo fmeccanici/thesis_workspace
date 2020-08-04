@@ -66,9 +66,10 @@ class SceneDrawer(object):
             self.upper_basket_pose.orientation.z = 0
             self.upper_basket_pose.orientation.w = 1
 
-            
+            # only visualize object
+            """
             self.addCube(self.upper_basket_size_x, self.upper_basket_size_y, self.upper_basket_size_z, self.upper_basket_pose, color, 1)
-
+            """
         color = 'blue'
         self.addCube(self.object_size_x, self.object_size_y, self.object_size_z, self.object_pose, color, 2)
 
@@ -330,9 +331,8 @@ class SceneDrawer(object):
             # self.setEllipsoidOrigin(ellipsoid_type='all')
             self.setEllipsoidOrigin(ellipsoid_type='all')
 
-            # self.addEllipsoid(ellipsoid_type='all')
             self.addEllipsoid(ellipsoid_type='all')
-
+            
             self.visualizeModels()
             self.broadcastFrames(ellipsoid_type='all')
             

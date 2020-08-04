@@ -29,13 +29,16 @@ class DataCreator(object):
         self.nodes = {}
         self._rospack = rospkg.RosPack()
 
-        self.object_positions = { 1: [0.8, 0.25, 0.7], 2: [0.8, 0.18, 0.7], 3: [0.8, 0.11, 0.7], 4: [0.8, 0.04, 0.7], 5: [0.8, -0.03, 0.7], 6: [0.8, -0.1, 0.7]}
+        # self.object_positions = { 1: [0.8, 0.25, 0.7], 2: [0.8, 0.18, 0.7], 3: [0.8, 0.11, 0.7], 4: [0.8, 0.04, 0.7], 5: [0.8, -0.03, 0.7], 6: [0.8, -0.1, 0.7]}
+        self.object_positions = { 1: [0.8, 0.25, 0.7]}
+
         self.trials = {}
         self.data = {}
 
         self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False,'object_kicked_over': False,  'success': True}
         self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'object_kicked_over': False, 'success': True}
-        
+        self.debug_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/'
+
         rospy.init_node('data_creator')
 
     def executeTrajectory(self, traj):
@@ -369,17 +372,34 @@ class DataCreator(object):
         
         r_object_wrt_ee = [context[0] / 10, context[1] / 10, context[2] / 10]
         
+        print(r_object_wrt_ee)
+
         # calculate object wrt base
         r_object_wrt_base = np.asarray(r_object_wrt_ee) + np.asarray([traj_wrt_base[0][0], traj_wrt_base[0][1], traj_wrt_base[0][2]])
 
-        print('\n')
-        print('context = ' + str(r_object_wrt_base))
-        print('\n')
+        print(r_object_wrt_base)
+
+
+        # store data for debugging
+        file_name = 'traj_wrt_base_trial_' + str(trial) + '.txt'
+
+        with open(self.debug_path + file_name, 'w+') as f:
+            f.write(str(traj_wrt_base))
+        
+        file_name = 'context_trial_' + str(trial) 
+        
+        with open(self.debug_path + file_name, 'w+') as f:
+            f.write(str(context))
 
         traj_wrt_object = self.parser.get_trajectory_wrt_context(traj_wrt_base, r_object_wrt_base)
 
+        file_name = 'traj_wrt_object_trial_' + str(trial) + '.txt'
+
+        with open(self.debug_path + file_name, 'w+') as f:
+            f.write(str(traj_wrt_object))
+
         return traj_wrt_object, context
-      
+
     def addToModel(self, trajectory, context):
         # 2 was too much, later trajectories had too little influence
         amount = 2
@@ -416,6 +436,8 @@ class DataCreator(object):
                     traj_wrt_base = self.methods[method]['object_position'][object_position]['trial'][trial]['refined_trajectory']
                     traj_wrt_base = self.dictToList(traj_wrt_base)
                     context = self.methods[method]['object_position'][object_position]['trial'][trial]['context']
+                    
+                    # print("context = " + str(context))                    
 
                     demo = self.parser.predicted_trajectory_to_prompTraj_message(traj_wrt_base, context)
 
@@ -424,9 +446,9 @@ class DataCreator(object):
                     visualization_msg = TrajectoryVisualization()
                     visualization_msg.pose_array = demo.poses
 
-                    visualization_msg.r = 0.0
-                    visualization_msg.g = 1.0
-                    visualization_msg.b = 0.0
+                    visualization_msg.r = random.random()
+                    visualization_msg.g = random.random()
+                    visualization_msg.b = random.random()
 
                     resp = visualize_trajectory(visualization_msg)
             
@@ -435,6 +457,7 @@ class DataCreator(object):
                 
                 except KeyError:
                     continue
+    
     def createDataAfterExperiment(self, participant_number, method):
         # voor elke trial moet ik de refined trajectory uitlezen samen met de bijbehorende context
         # dan update ik het model met deze context en trajectory
@@ -452,103 +475,108 @@ class DataCreator(object):
                 # get trajectory wrt context
                 try:
                     trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, object_position, trial)
+                    file_name = 'traj_for_learning_' + str(trial) + '.txt'
+
+                    with open(self.debug_path + file_name, 'w+') as f:
+                        f.write(str(trajectory_for_learning))
+
                     self.addToModel(trajectory_for_learning, context)
-                
+
                 # when there was no refinement (already successful prediction)
                 # just continue
                 except KeyError:
                     continue
 
-        for i in range(self.num_trials):
-            self.trials[i+1] = {
-                'predicted_trajectory': copy.deepcopy(self.predicted_trajectory), 'context': []}
+        # for i in range(self.num_trials):
+        #     self.trials[i+1] = {
+        #         'predicted_trajectory': copy.deepcopy(self.predicted_trajectory), 'context': []}
         
-        for j in range(self.num_object_positions):
-            self.data[j+1] = {
-            'trial': copy.deepcopy(self.trials)}
+        # for j in range(self.num_object_positions):
+        #     self.data[j+1] = {
+        #     'trial': copy.deepcopy(self.trials)}
 
-        # loop over the object positions again and make predictions
-        for position in self.object_positions:
-            for trial in range(1, self.num_trials+1):
-                self.current_object_position = position
-                print("object position: " + str(position))
-                print("trial: " + str(trial))
+        # # loop over the object positions again and make predictions
+        # for position in self.object_positions:
+        #     for trial in range(1, self.num_trials+1):
+        #         self.current_object_position = position
+        #         print("object position: " + str(position))
+        #         print("trial: " + str(trial))
 
-                # move ee to initial pose
-                self.goToInitialPose()
+        #         # move ee to initial pose
+        #         self.goToInitialPose()
 
-                # wait until arm is not in the way of the object
-                time.sleep(2)
+        #         # wait until arm is not in the way of the object
+        #         time.sleep(2)
                 
-                self.setObjectPosition()
+        #         self.setObjectPosition()
                 
-                time.sleep(2)
+        #         time.sleep(2)
 
-                # get new context
-                self.getContext()
-                self.makePrediction()
+        #         # get new context
+        #         self.getContext()
+        #         self.makePrediction()
                 
-                rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+        #         rospy.wait_for_service('visualize_trajectory', timeout=2.0)
                 
-                # visualize prediction
-                visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
-                visualization_msg = TrajectoryVisualization()
-                visualization_msg.pose_array = self.prediction.poses
-                visualization_msg.r = 1.0
-                visualization_msg.g = 0.0
-                visualization_msg.b = 0.0
+        #         # visualize prediction
+        #         visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+        #         visualization_msg = TrajectoryVisualization()
+        #         visualization_msg.pose_array = self.prediction.poses
+        #         visualization_msg.r = 1.0
+        #         visualization_msg.g = 0.0
+        #         visualization_msg.b = 0.0
 
-                resp = visualize_trajectory(visualization_msg)
+        #         resp = visualize_trajectory(visualization_msg)
                 
-                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
+        #         obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
 
-                x = []
-                y = []
-                z = []
-                qx = []
-                qy = []
-                qz = []
-                qw = []
-                t = []
+        #         x = []
+        #         y = []
+        #         z = []
+        #         qx = []
+        #         qy = []
+        #         qz = []
+        #         qw = []
+        #         t = []
 
-                for i,data in enumerate(self.prediction.poses):
-                    x.append(data.position.x)
-                    y.append(data.position.y)
-                    z.append(data.position.z)
-                    qx.append(data.orientation.x)
-                    qy.append(data.orientation.y)
-                    qz.append(data.orientation.z)
-                    qw.append(data.orientation.w)
-                    t.append(self.prediction.times[i])
+        #         for i,data in enumerate(self.prediction.poses):
+        #             x.append(data.position.x)
+        #             y.append(data.position.y)
+        #             z.append(data.position.z)
+        #             qx.append(data.orientation.x)
+        #             qy.append(data.orientation.y)
+        #             qz.append(data.orientation.z)
+        #             qw.append(data.orientation.w)
+        #             t.append(self.prediction.times[i])
 
-                self.data[position]['trial'][trial]['predicted_trajectory']['x'] = x
-                self.data[position]['trial'][trial]['predicted_trajectory']['y'] = y
-                self.data[position]['trial'][trial]['predicted_trajectory']['z'] = z
-                self.data[position]['trial'][trial]['predicted_trajectory']['qx'] = qx
-                self.data[position]['trial'][trial]['predicted_trajectory']['qy'] = qy
-                self.data[position]['trial'][trial]['predicted_trajectory']['qz'] = qz
-                self.data[position]['trial'][trial]['predicted_trajectory']['qw'] = qw
-                self.data[position]['trial'][trial]['predicted_trajectory']['t'] = t
-                self.data[position]['trial'][trial]['predicted_trajectory']['object_missed'] = not object_reached
-                self.data[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'] = obstacle_hit
-                self.data[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'] = object_kicked_over
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['x'] = x
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['y'] = y
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['z'] = z
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['qx'] = qx
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['qy'] = qy
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['qz'] = qz
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['qw'] = qw
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['t'] = t
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['object_missed'] = not object_reached
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'] = obstacle_hit
+        #         self.data[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'] = object_kicked_over
 
-                if not object_reached or obstacle_hit or object_kicked_over:
-                    self.data[position]['trial'][trial]['predicted_trajectory']['success'] = False
+        #         if not object_reached or obstacle_hit or object_kicked_over:
+        #             self.data[position]['trial'][trial]['predicted_trajectory']['success'] = False
                 
-                self.data[position]['trial'][trial]['context'] = [self.context.x, self.context.y, self.context.z]
+        #         self.data[position]['trial'][trial]['context'] = [self.context.x, self.context.y, self.context.z]
 
-                self.toTxt()
-                clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
-                resp = clear_trajectories()
+        #         self.toTxt()
+        #         clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
+        #         resp = clear_trajectories()
 
-                time.sleep(1)
+        #         time.sleep(1)
 
 if __name__ == "__main__":
-    participant_number = 82
+    participant_number = 84
     method = 3 # online + keyboard
 
     data_creator = DataCreator()
     data_creator.visualizeExperimentData(participant_number, method)
-    # data_creator.createDataAfterExperiment(participant_number, method)
+    data_creator.createDataAfterExperiment(participant_number, method)
     # data_creator.createDataBeforeExperiment()
