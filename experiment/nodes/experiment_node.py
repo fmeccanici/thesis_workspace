@@ -653,7 +653,7 @@ class ExperimentNode(object):
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
         self.goToInitialPose()
-        time.sleep(2)
+        time.sleep(5)
 
         self.setObjectPosition()
         time.sleep(4)
@@ -729,6 +729,9 @@ class ExperimentNode(object):
 
 
                 self.refined_trajectory = resp.refined_trajectory
+                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
+                    f.write(str(self.refined_trajectory))
+                    
                 time.sleep(5)
 
                 obstacle_hit = resp.obstacle_hit.data

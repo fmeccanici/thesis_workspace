@@ -366,18 +366,18 @@ class DataCreator(object):
         elif which == 'prediction':
             trajectory == 'predicted_trajectory'
 
-        traj_wrt_base = self.methods[method]['object_position'][object_position]['trial'][trial][trajectory]
+        traj_wrt_base = copy.deepcopy(self.methods[method]['object_position'][object_position]['trial'][trial][trajectory])
         traj_wrt_base = self.dictToList(traj_wrt_base)
-        context = self.methods[method]['object_position'][object_position]['trial'][trial]['context']
+        context = copy.deepcopy(self.methods[method]['object_position'][object_position]['trial'][trial]['context'])
         
-        r_object_wrt_ee = [round(context[0] / 10, 3), round(context[1] / 10, 3), round(context[2] / 10, 3)] 
+        r_object_wrt_ee = [context[0] / 10, context[1] / 10, context[2] / 10] 
         
-        print(r_object_wrt_ee)
+        print('obj wrt ee: ' + str(r_object_wrt_ee))
 
         # calculate object wrt base
         r_object_wrt_base = np.asarray(r_object_wrt_ee) + np.asarray([traj_wrt_base[0][0], traj_wrt_base[0][1], traj_wrt_base[0][2]])
 
-        print(r_object_wrt_base)
+        print('obj wrt base: ' + str(r_object_wrt_base))
 
 
         # store data for debugging
@@ -573,7 +573,7 @@ class DataCreator(object):
         #         time.sleep(1)
 
 if __name__ == "__main__":
-    participant_number = 88
+    participant_number = 89
     method = 3 # online + keyboard
 
     data_creator = DataCreator()

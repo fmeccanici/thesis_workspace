@@ -280,6 +280,7 @@ class trajectoryRefinement():
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
 
+        print('traj pos[0] = ' + str(traj_pos[0]))
         # -2 because traj_pos[i+1] is called and i starts at 0
         while self.white_button_toggle == 0:
 
@@ -294,6 +295,9 @@ class trajectoryRefinement():
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
             pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
+        
+            print('self.normalizeMasterPose(self.master_pose) = ' + str(self.normalizeMasterPose(self.master_pose)))
+            print('pos_next_wrt_pos_current = ' + str(pos_next_wrt_pos_current))
 
 
             ## transform this pose to base_footprint
@@ -304,6 +308,9 @@ class trajectoryRefinement():
                 vnew = np.add(p, traj_pos[i])
             else:
                 vnew = np.add(p, traj_pos[-1])
+            if i == 0:
+                vnew = traj_pos[i]
+            print('vnew = ' + str(vnew))
 
             ee_position = list(vnew)
             t_list = [t]
