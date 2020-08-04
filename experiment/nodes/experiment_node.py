@@ -666,7 +666,7 @@ class ExperimentNode(object):
 
         if self.method == 'online+pendant':
             self.text_updater.update("AUTONOMOUS EXECUTION")
-
+            
             obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
             
             # print(not object_reached)
