@@ -296,7 +296,7 @@ class lfdNode():
 
     def executeTrajectory(self, traj, dt):
         rospy.loginfo("Executing trajectory...")
-
+        self.stop_execution = False
         self.obstacle_hit_once = False
 
         slave_goal = PoseStamped()
@@ -321,12 +321,12 @@ class lfdNode():
                 self.stop_execution = False
                 break
             self._end_effector_goal_pub.publish(slave_goal)
-            
+
             if self.obstacle_hit == True and self.obstacle_hit_once == False:
                 self.obstacle_hit_once = True
             
             time.sleep(dt)
-        
+
         rospy.wait_for_message('execution_failure', ExecutionFailure)
         
         # needed since there is a delay in the object kicked over detection
@@ -381,6 +381,7 @@ class lfdNode():
         y = round(self.marker_pose.position.y, 2)
         z = round(self.marker_pose.position.z, 2)
 
+        print("rounded x = " + str(x))
         return [x, y, z]
 
     def get_context(self):
