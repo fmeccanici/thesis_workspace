@@ -370,7 +370,7 @@ class DataCreator(object):
         traj_wrt_base = self.dictToList(traj_wrt_base)
         context = self.methods[method]['object_position'][object_position]['trial'][trial]['context']
         
-        r_object_wrt_ee = [context[0] / 10, context[1] / 10, context[2] / 10]
+        r_object_wrt_ee = [round(context[0] / 10, 3), round(context[1] / 10, 3), round(context[2] / 10, 3)] 
         
         print(r_object_wrt_ee)
 
@@ -573,7 +573,7 @@ class DataCreator(object):
         #         time.sleep(1)
 
 if __name__ == "__main__":
-    participant_number = 84
+    participant_number = 88
     method = 3 # online + keyboard
 
     data_creator = DataCreator()
