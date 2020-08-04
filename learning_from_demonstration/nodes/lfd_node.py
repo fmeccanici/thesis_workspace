@@ -659,7 +659,7 @@ class lfdNode():
         object_wrt_base = self.get_marker_wrt_base()
         prediction = self.lfd.generalize(goal)
 
-        # print("prediction = " + str(prediction))
+        ## print("prediction = " + str(prediction))
         ndesired = 75
         n = len(prediction)
         
