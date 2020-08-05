@@ -359,9 +359,9 @@ class lfdNode():
         object_wrt_ee = list(np.subtract(object_wrt_base, ee_pos_wrt_base))
         
         # times 10 to get the model to work
-        x = round(object_wrt_ee[0]*10, 2)
-        y = round(object_wrt_ee[1]*10, 2)
-        z = round(object_wrt_ee[2]*10, 2)
+        x = round(object_wrt_ee[0]*10, 5)
+        y = round(object_wrt_ee[1]*10, 5)
+        z = round(object_wrt_ee[2]*10, 5)
 
         return [x, y, z]
     
@@ -377,9 +377,9 @@ class lfdNode():
         return [x, y, z]
 
     def get_marker_wrt_base(self):
-        x = round(self.marker_pose.position.x, 2)
-        y = round(self.marker_pose.position.y, 2)
-        z = round(self.marker_pose.position.z, 2)
+        x = round(self.marker_pose.position.x, 5)
+        y = round(self.marker_pose.position.y, 5)
+        z = round(self.marker_pose.position.z, 5)
 
         print("rounded x = " + str(x))
         return [x, y, z]
