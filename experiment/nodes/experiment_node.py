@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from subprocess import call
-import rospy, rospkg, roslaunch, time
+import rospy, rospkg, roslaunch, time, random
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 from data_logger_python.text_updater import TextUpdater
@@ -61,7 +61,8 @@ class ExperimentNode(object):
 
         self.current_trial = 1
         self.current_object_position = 1
-        
+        self.y_position_step_dict = {1: 0.0, 2: 0.07, 3: 2*0.07, 4: 3*0.07, 5: 4*0.07, 6: 5*0.07}
+
         # ros stuff
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
@@ -134,16 +135,6 @@ class ExperimentNode(object):
     def openGripper(self):
         rc = call("/home/fmeccanici/Documents/thesis/thesis_workspace/src/teleop_control/scripts/gripper_opener.sh")
 
-        # open_gripper = rospy.ServiceProxy('gazebo/set_model_configuration', SetModelConfiguration)
-        # model_name = String("marco_titanium")
-        # joint_names = []
-        # joint_names.append(String("gripper_joint"))
-        # joint_positions = []
-        # joint_positions.append(Float64(1.0))
-        # resp = open_gripper(model_name, joint_names, joint_positions)
-
-        # return resp
-
     def initializeHeadLiftJoint(self):
         lift_goal = JointState()
         head_goal = JointState()
@@ -164,38 +155,54 @@ class ExperimentNode(object):
         self.lift_goal_pub.publish(lift_goal)
         self.head_goal_pub.publish(head_goal)
     
+    def determineYPosition(self):
+        random_object_position = random.choice(list(self.y_position_step_dict.keys()))
+        
+        step = self.y_position_step_dict[random_object_position]
+
+        del self.y_position_step_dict[random_object_position]
+
+        return 0.25 - step
+
     def setObjectPosition(self):
         try:
             object_position = ModelState()
             object_position.model_name = 'aruco_cube'
 
-            step = 0.07
-            x = 0.8
-            # dishwasher moved backwards    
-            if self.current_object_position == 1:
-                object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 2:
-                object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - step
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 3:
-                object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 2*step
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 4:
-                object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 3*step
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 5:
-                object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 4*step
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 6:
-                object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 5*step
-                object_position.pose.position.z = 0.7
+            object_position.pose.position.x = 0.8
+
+            # get random y value
+            y = self.y_position
+
+            object_position.pose.position.y = y
+
+            object_position.pose.position.z = 0.7
+
+            # # dishwasher moved backwards    
+            # if self.current_object_position == 1:
+            #     object_position.pose.position.x = x
+            #     object_position.pose.position.y = 0.25
+            #     object_position.pose.position.z = 0.7
+            # elif self.current_object_position == 2:
+            #     object_position.pose.position.x = x
+            #     object_position.pose.position.y = 0.25 - step
+            #     object_position.pose.position.z = 0.7
+            # elif self.current_object_position == 3:
+            #     object_position.pose.position.x = x
+            #     object_position.pose.position.y = 0.25 - 2*step
+            #     object_position.pose.position.z = 0.7
+            # elif self.current_object_position == 4:
+            #     object_position.pose.position.x = x
+            #     object_position.pose.position.y = 0.25 - 3*step
+            #     object_position.pose.position.z = 0.7
+            # elif self.current_object_position == 5:
+            #     object_position.pose.position.x = x
+            #     object_position.pose.position.y = 0.25 - 4*step
+            #     object_position.pose.position.z = 0.7
+            # elif self.current_object_position == 6:
+            #     object_position.pose.position.x = x
+            #     object_position.pose.position.y = 0.25 - 5*step
+            #     object_position.pose.position.z = 0.7
             
 
             # dishwasher
@@ -683,10 +690,6 @@ class ExperimentNode(object):
             self.text_updater.update("AUTONOMOUS EXECUTION")
             
             obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
-            
-            # print(not object_reached)
-            # print(obstacle_hit)
-            # print(object_kicked_over)
 
             # store prediction along with failure
             self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
@@ -796,6 +799,8 @@ class ExperimentNode(object):
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
+            self.number_of_refinements_updater.update(str(0))
+            
             ####### update model #######
             if number_of_refinements == 0:
                 pass
@@ -826,6 +831,8 @@ class ExperimentNode(object):
         for object_position in self.object_positions:
             self.getContext()
             self.setDataLoggerParameters()
+            self.y_position = self.determineYPosition()
+
             for trial in self.trials:
                 print('object position = ' + str(object_position))
                 print('trial = ' + str(trial))
