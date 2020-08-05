@@ -44,12 +44,13 @@ class ExperimentNode(object):
         self.num_trials = 5
         self.num_object_positions = 6
         self.trials = range(1,self.num_trials+1)
+
         self.object_positions = range(1,self.num_object_positions+1)
         self.max_refinements = 5
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
 
-        self.T_desired = 15.0
+        self.T_desired = 20.0
         self.start_time = 0
         self.set_data = False
 
@@ -781,8 +782,11 @@ class ExperimentNode(object):
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             ####### update model #######
-            # self.goToInitialPose()
-            self.addToModel()
+            if number_of_refinements == 0:
+                pass
+            else:
+                self.addToModel()
+            
             self.stopTimer()
             
             # store time
@@ -794,7 +798,7 @@ class ExperimentNode(object):
 
             self.current_trial += 1
 
-            if self.current_trial >= self.num_trials:
+            if self.current_trial >= self.num_trials+1:
                 self.current_object_position += 1
                 self.current_trial = 1
             
@@ -808,6 +812,9 @@ class ExperimentNode(object):
             self.getContext()
             self.setDataLoggerParameters()
             for trial in self.trials:
+                print('object position = ' + str(object_position))
+                print('trial = ' + str(trial))
+
                 self.startTrial()
 
 

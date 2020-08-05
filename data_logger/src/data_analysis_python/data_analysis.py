@@ -10,7 +10,7 @@ class DataAnalysis(object):
         self.data = {}
         self.num_methods = 4
         self.num_object_positions = 6
-        self.num_trials = 4
+        self.num_trials = 5
         self.methods_labels = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
         self.object_positions_labels = ['1', '2', '3', '4', '5', '6']
 
@@ -198,7 +198,7 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Refinement time [s]")
-            plt.ylim((0,600))
+            plt.ylim((0,250))
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/refinement_time.pdf')
@@ -214,7 +214,7 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Number of refinements [-]")
-            plt.ylim((0,50))
+            plt.ylim((0,10))
 
             plt.tight_layout()
 
@@ -376,26 +376,26 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = 82
+    number = 7
     data_analysis.loadData(number)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     # data_analysis.calculateRefinementTime(1, 3, 1)
-    # data_analysis.plotRefinementTime(number)
-    # data_analysis.plotNumberOfRefinements(number)
+    data_analysis.plotRefinementTime(number)
+    data_analysis.plotNumberOfRefinements(number)
 
-    # data_analysis.plotSuccesfullPredictions(number)
-    # data_analysis.plotSuccesfullRefinements(number)
+    data_analysis.plotSuccesfullPredictions(number)
+    data_analysis.plotSuccesfullRefinements(number)
 
-    # data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
-    # data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
+    data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
+    data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
 
-    # data_analysis.plotNumberOfObjectMissed(number, 'refinement')
-    # data_analysis.plotNumberOfObjectMissed(number, 'prediction')
+    data_analysis.plotNumberOfObjectMissed(number, 'refinement')
+    data_analysis.plotNumberOfObjectMissed(number, 'prediction')
 
-    # data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
-    # data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
+    data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
+    data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
 
     # data_analysis.plotExperimentData()
     data_analysis.plotExperimentData(participant_number = number)
