@@ -13,6 +13,7 @@ from geometry_msgs.msg import Point, Pose
 
 from gazebo_msgs.msg import ModelState 
 from trajectory_visualizer.msg import TrajectoryVisualization
+from execution_failure_detection.msg import ExecutionFailure
 
 # import ros services
 from data_logger.srv import (CreateParticipant, AddRefinement,
@@ -37,6 +38,10 @@ class ExperimentNode(object):
         self.parser = trajectoryParser()
         self.resampler = trajectoryResampler()
         self.text_updater = TextUpdater()
+        self.object_missed_updater = TextUpdater(text_file='object_missed.txt')
+        self.object_kicked_over_updater = TextUpdater(text_file='object_kicked_over.txt')
+        self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
+        self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
 
         self.nodes = {}
         self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
@@ -62,6 +67,15 @@ class ExperimentNode(object):
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
+
+        self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+    
+    # failure detection callback
+    def _executionFailureCallback(self, data):
+        self.object_missed_updater.update(str(not data.object_reached.data))
+        self.obstacle_hit_updater.update( str(data.obstacle_hit.data ))
+
+        self.object_kicked_over_updater.update( str(data.object_kicked_over.data ))
 
     def _operatorGuiInteraction(self, data):    
         if data.refine_prediction.data:
@@ -702,7 +716,7 @@ class ExperimentNode(object):
 
                 self.goToInitialPose()
                 self.setObjectPosition()
-                
+                time.sleep(3)
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
@@ -777,6 +791,7 @@ class ExperimentNode(object):
 
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
+                self.number_of_refinements_updater.update(str(number_of_refinements))
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")

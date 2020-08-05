@@ -328,10 +328,9 @@ class SceneDrawer(object):
         self.setEllipsoidSize(ellipsoid_type='all')
         
         while not rospy.is_shutdown():
-            # self.setEllipsoidOrigin(ellipsoid_type='all')
             self.setEllipsoidOrigin(ellipsoid_type='all')
 
-            self.addEllipsoid(ellipsoid_type='all')
+            # self.addEllipsoid(ellipsoid_type='all')
             
             self.visualizeModels()
             self.broadcastFrames(ellipsoid_type='all')

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-import rospy, os, sys, csv, rospkg
+import rospy, os, sys, csv, rospkg, ast
 from data_logger_python.data_logger_python import ParticipantData
 
 # import Qt stuff
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-
 
 from rviz_python.rviz_python import rvizPython
 from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRefinement, AddRefinementResponse,
@@ -31,13 +30,55 @@ class TextThread(QThread):
                 self.textSignal.emit(f.read())
                 self.sleep(1)
 
+class FailureThread(QThread):
+    object_missed_signal = pyqtSignal(bool)
+    object_kicked_over_signal = pyqtSignal(bool)
+    obstacle_hit_signal = pyqtSignal(bool)
+
+    def __init__(self, parent=None):
+        super(FailureThread, self).__init__(parent=parent)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
+        self.object_missed_file = self.text_path + 'object_missed.txt'
+        self.object_kicked_over_file = self.text_path + 'object_kicked_over.txt'
+        self.obstacle_hit_file = self.text_path + 'obstacle_hit.txt'
+
+    def run(self):
+        while True:
+
+            with open(self.object_missed_file, 'r') as f:
+                self.object_missed_signal.emit(ast.literal_eval(f.read()))
+                self.sleep(1)
+
+            with open(self.object_kicked_over_file, 'r') as f:
+                self.object_kicked_over_signal.emit(ast.literal_eval(f.read()))
+                self.sleep(1)
+
+            with open(self.obstacle_hit_file, 'r') as f:
+                self.obstacle_hit_signal.emit(ast.literal_eval(f.read()))
+                self.sleep(1)
+
+class NumberOfRefinementsThread(QThread):
+    number_of_refinements_signal = pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        super(NumberOfRefinementsThread, self).__init__(parent=parent)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
+        self.number_of_refinements_file = self.text_path + 'number_of_refinements.txt'
+    
+    def run(self):
+        while True:
+
+            with open(self.number_of_refinements_file, 'r') as f:
+                self.number_of_refinements_signal.emit(ast.literal_eval(f.read()))
+                self.sleep(1)
+
 class ImageWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
         self.title = 'PyQt5 image - pythonspot.com'
-        self.left = 10
-        self.top = 10
+        self.left = 0
+        self.top = 0
         self.width = 640
         self.height = 480
         self.initUI()
@@ -49,7 +90,7 @@ class ImageWidget(QWidget):
         # Create widget
         label = QLabel(self)
         # pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/drawio/omni_instruction.png')
-        pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/keyboard_online_instructions.png')
+        pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/keyboard_online_instructions2.png')
         pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
 
         label.setPixmap(pixmap)
@@ -77,16 +118,26 @@ class OperatorGUI(QMainWindow):
         self.text_thread.textSignal.connect(self.updateText)
         self.text_thread.start()
         
+        self.failure_thread = FailureThread(self)
+        self.failure_thread.object_missed_signal.connect(self.updateObjectMissed)
+        self.failure_thread.object_kicked_over_signal.connect(self.updateObjectKickedOver)
+        self.failure_thread.obstacle_hit_signal.connect(self.updateObstacleHit)
+        self.failure_thread.start()
+
+        self.number_of_refinements_thread = NumberOfRefinementsThread(self)
+        self.number_of_refinements_thread.number_of_refinements_signal.connect(self.updateNumberOfRefinements)
+        self.number_of_refinements_thread.start()
+
         self.initUI()
         self.show()
 
     def initUI(self):
         self.setObjectName("MainWindow")
-        self.resize(1920, 1080)
+        self.resize(1820, 1080)
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(20, 9, 1881, 701))
+        self.groupBox.setGeometry(QRect(10, 10, 1881, 701))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(10, 830, 251, 151))
@@ -131,7 +182,7 @@ class OperatorGUI(QMainWindow):
         self.radioButton.raise_()
         self.radioButton_2.raise_()
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1400, 750, 451, 251))
+        self.groupBox_3.setGeometry(QRect(1355, 675, 500, 450))
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
         self.pushButton = QPushButton(self.centralwidget)
@@ -147,11 +198,39 @@ class OperatorGUI(QMainWindow):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
-        self.plainTextEdit.setGeometry(QRect(20, 730, 1351, 81))
+        self.plainTextEdit.setGeometry(QRect(20, 730, 1061, 81))
         font = QFont()
         font.setPointSize(40)
         self.plainTextEdit.setFont(font)
         self.plainTextEdit.setObjectName("plainTextEdit")
+        self.groupBox_4 = QGroupBox(self.centralwidget)
+        self.groupBox_4.setGeometry(QRect(1090, 730, 291, 281))
+        self.groupBox_4.setTitle("")
+        self.groupBox_4.setObjectName("groupBox_4")
+        self.checkBox = QCheckBox(self.groupBox_4)
+        self.checkBox.setGeometry(QRect(20, 10, 201, 31))
+        font = QFont()
+        font.setPointSize(20)
+        self.checkBox.setFont(font)
+        self.checkBox.setObjectName("checkBox")
+        self.checkBox_2 = QCheckBox(self.groupBox_4)
+        self.checkBox_2.setGeometry(QRect(20, 60, 261, 41))
+        font = QFont()
+        font.setPointSize(20)
+        self.checkBox_2.setFont(font)
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.checkBox_3 = QCheckBox(self.groupBox_4)
+        self.checkBox_3.setGeometry(QRect(20, 120, 261, 41))
+        font = QFont()
+        font.setPointSize(20)
+        self.checkBox_3.setFont(font)
+        self.checkBox_3.setObjectName("checkBox_3")
+        self.lineEdit_2 = QLineEdit(self.groupBox_4)
+        self.lineEdit_2.setGeometry(QRect(0, 180, 291, 61))
+        font = QFont()
+        font.setPointSize(21)
+        self.lineEdit_2.setFont(font)
+        self.lineEdit_2.setObjectName("lineEdit_2")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1820, 25))
@@ -190,7 +269,10 @@ class OperatorGUI(QMainWindow):
         self.pushButton.setText(_translate("MainWindow", "Red"))
         self.pushButton_2.setText(_translate("MainWindow", "Green"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
-
+        self.checkBox.setText(_translate("MainWindow", "Object missed"))
+        self.checkBox_2.setText(_translate("MainWindow", "Object kicked over"))
+        self.checkBox_3.setText(_translate("MainWindow", "Obstacle hit"))
+        self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
 
 
         self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
@@ -201,17 +283,27 @@ class OperatorGUI(QMainWindow):
         self.pushButton.clicked.connect(self.onRedClick)
         self.pushButton_2.clicked.connect(self.onGreenClick)
     
-    # def _textCallback(self, data):
-    #     self.text = data.data
-    #     self.plainTextEdit.setPlainText(self.text)
+    def updateObjectMissed(self, object_missed):
+        if object_missed:
+            self.checkBox.setChecked(1)
+        elif not object_missed:
+            self.checkBox.setChecked(0)
 
-    # def _setText(self, req):
-    #     text = req.text.data
-    #     self.plainTextEdit.setPlainText(text)
-    #     resp = SetTextResponse()
-        
-    #     return resp
-    
+    def updateObjectKickedOver(self, object_kicked_over):
+        if object_kicked_over:
+            self.checkBox_2.setChecked(1)
+        elif not object_kicked_over:
+            self.checkBox_2.setChecked(0)
+
+    def updateObstacleHit(self, obstacle_hit):
+        if obstacle_hit:
+            self.checkBox_3.setChecked(1)
+        elif not obstacle_hit:
+            self.checkBox_3.setChecked(0)
+
+    def updateNumberOfRefinements(self, number_of_refinements):
+        self.lineEdit_2.setText(str(number_of_refinements) + '/5 refinements used')
+
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)
 
@@ -240,27 +332,6 @@ class OperatorGUI(QMainWindow):
         operator_gui_interaction.gender = Bool(gender)
 
         self._operator_gui_interaction_pub.publish(operator_gui_interaction)
-
-        # number = int(self.lineEdit.text())
-        # if self.radioButton.isChecked():
-        #     sex = 1
-        # else:
-        #     sex = 0
-        # age = int(self.lineEdit_3.text())
-        # try: 
-        #     rospy.wait_for_service('create_participant')
-        #     create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
-        #     number_msg = Byte()
-        #     number_msg.data = number
-        #     sex_msg = Bool()
-        #     sex_msg.data = sex
-        #     age_msg = Byte()
-        #     age_msg.data = age
-
-        #     resp = create_participant(number_msg, sex_msg, age_msg)     
-
-        # except (rospy.ServiceException, rospy.ROSException) as e:
-        #     print("Service call failed: %s" %e)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

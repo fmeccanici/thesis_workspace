@@ -1,6 +1,6 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 0
+    Help Height: 75
     Name: Displays
     Property Tree Widget:
       Expanded:
@@ -8,17 +8,13 @@ Panels:
         - /Status1
         - /Camera1
         - /Camera1/Visibility1
-        - /Camera2
-        - /Camera2/Visibility1
         - /TF1
         - /TF1/Frames1
         - /TF1/Tree1
         - /MarkerArray1
-        - /RobotModel1
         - /DepthCloud1/Auto Size1
-        - /MarkerArray2
       Splitter Ratio: 0.649411738
-    Tree Height: 219
+    Tree Height: 172
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -76,7 +72,7 @@ Visualization Manager:
         Camera: true
         DepthCloud: false
         Grid: false
-        MarkerArray: true
+        MarkerArray: false
         RobotModel: false
         TF: true
         Value: true
@@ -94,10 +90,10 @@ Visualization Manager:
       Visibility:
         Camera: true
         DepthCloud: false
-        Grid: false
-        MarkerArray: true
+        Grid: true
+        MarkerArray: false
         RobotModel: false
-        TF: true
+        TF: false
         Value: true
       Zoom Factor: 1
     - Class: rviz/TF
@@ -149,6 +145,8 @@ Visualization Manager:
           Value: false
         end_effector_cam_optical_frame:
           Value: false
+        object_wrt_reaching_ellipsoid:
+          Value: false 
         gripper_body_link:
           Value: false
         gripper_camera_mount_link:
@@ -181,224 +179,219 @@ Visualization Manager:
           Value: false
         object:
           Value: true
-        object_wrt_reaching_ellipsoid:
-          Value: false
         odom:
           Value: false
         reaching_ellipsoid:
-          Value: true
+          Value: false
         rear_cam_link:
           Value: false
         rear_cam_optical_frame:
-          Value: false
-        table:
-          Value: false
-        table_0_0:
-          Value: false
-        table_0_1:
-          Value: false
-        table_0_2:
-          Value: false
-        table_0_3:
-          Value: false
-        table_0_4:
-          Value: false
-        table_0_5:
-          Value: false
-        table_0_6:
-          Value: false
-        table_0_7:
-          Value: false
-        table_0_8:
-          Value: false
-        table_0_9:
-          Value: false
-        table_1_0:
-          Value: false
-        table_1_1:
-          Value: false
-        table_1_2:
-          Value: false
-        table_1_3:
-          Value: false
-        table_1_4:
-          Value: false
-        table_1_5:
-          Value: false
-        table_1_6:
-          Value: false
-        table_1_7:
-          Value: false
-        table_1_8:
-          Value: false
-        table_1_9:
-          Value: false
-        table_2_0:
-          Value: false
-        table_2_1:
-          Value: false
-        table_2_2:
-          Value: false
-        table_2_3:
-          Value: false
-        table_2_4:
-          Value: false
-        table_2_5:
-          Value: false
-        table_2_6:
-          Value: false
-        table_2_7:
-          Value: false
-        table_2_8:
-          Value: false
-        table_2_9:
-          Value: false
-        table_3_0:
-          Value: false
-        table_3_1:
-          Value: false
-        table_3_2:
-          Value: false
-        table_3_3:
-          Value: false
-        table_3_4:
-          Value: false
-        table_3_5:
-          Value: false
-        table_3_6:
-          Value: false
-        table_3_7:
-          Value: false
-        table_3_8:
-          Value: false
-        table_3_9:
-          Value: false
-        table_4_0:
-          Value: false
-        table_4_1:
-          Value: false
-        table_4_2:
-          Value: false
-        table_4_3:
-          Value: false
-        table_4_4:
-          Value: false
-        table_4_5:
-          Value: false
-        table_4_6:
-          Value: false
-        table_4_7:
-          Value: false
-        table_4_8:
-          Value: false
-        table_4_9:
-          Value: false
-        table_5_0:
-          Value: false
-        table_5_1:
-          Value: false
-        table_5_2:
-          Value: false
-        table_5_3:
-          Value: false
-        table_5_4:
-          Value: false
-        table_5_5:
-          Value: false
-        table_5_6:
-          Value: false
-        table_5_7:
-          Value: false
-        table_5_8:
-          Value: false
-        table_5_9:
-          Value: false
-        table_6_0:
-          Value: false
-        table_6_1:
-          Value: false
-        table_6_2:
-          Value: false
-        table_6_3:
-          Value: false
-        table_6_4:
-          Value: false
-        table_6_5:
-          Value: false
-        table_6_6:
-          Value: false
-        table_6_7:
-          Value: false
-        table_6_8:
-          Value: false
-        table_6_9:
-          Value: false
-        table_7_0:
-          Value: false
-        table_7_1:
-          Value: false
-        table_7_2:
-          Value: false
-        table_7_3:
-          Value: false
-        table_7_4:
-          Value: false
-        table_7_5:
-          Value: false
-        table_7_6:
-          Value: false
-        table_7_7:
-          Value: false
-        table_7_8:
-          Value: false
-        table_7_9:
-          Value: false
-        table_8_0:
-          Value: false
-        table_8_1:
-          Value: false
-        table_8_2:
-          Value: false
-        table_8_3:
-          Value: false
-        table_8_4:
-          Value: false
-        table_8_5:
-          Value: false
-        table_8_6:
-          Value: false
-        table_8_7:
-          Value: false
-        table_8_8:
-          Value: false
-        table_8_9:
-          Value: false
-        table_9_0:
-          Value: false
-        table_9_1:
-          Value: false
-        table_9_2:
-          Value: false
-        table_9_3:
-          Value: false
-        table_9_4:
-          Value: false
-        table_9_5:
-          Value: false
-        table_9_6:
-          Value: false
-        table_9_7:
-          Value: false
-        table_9_8:
-          Value: false
-        table_9_9:
-          Value: false
-        table_eval:
           Value: false
         torso_fixed_link:
           Value: false
         torso_lift_link:
           Value: false
+        upper_basket_bottom_0_0:
+          Value: false
+        upper_basket_bottom_0_1:
+          Value: false
+        upper_basket_bottom_0_2:
+          Value: false
+        upper_basket_bottom_0_3:
+          Value: false
+        upper_basket_bottom_0_4:
+          Value: false
+        upper_basket_bottom_1_0:
+          Value: false
+        upper_basket_bottom_1_1:
+          Value: false
+        upper_basket_bottom_1_2:
+          Value: false
+        upper_basket_bottom_1_3:
+          Value: false
+        upper_basket_bottom_1_4:
+          Value: false
+        upper_basket_bottom_2_0:
+          Value: false
+        upper_basket_bottom_2_1:
+          Value: false
+        upper_basket_bottom_2_2:
+          Value: false
+        upper_basket_bottom_2_3:
+          Value: false
+        upper_basket_bottom_2_4:
+          Value: false
+        upper_basket_bottom_3_0:
+          Value: false
+        upper_basket_bottom_3_1:
+          Value: false
+        upper_basket_bottom_3_2:
+          Value: false
+        upper_basket_bottom_3_3:
+          Value: false
+        upper_basket_bottom_3_4:
+          Value: false
+        upper_basket_bottom_4_0:
+          Value: false
+        upper_basket_bottom_4_1:
+          Value: false
+        upper_basket_bottom_4_2:
+          Value: false
+        upper_basket_bottom_4_3:
+          Value: false
+        upper_basket_bottom_4_4:
+          Value: false
+        upper_basket_frontal_0_0:
+          Value: false
+        upper_basket_frontal_0_1:
+          Value: false
+        upper_basket_frontal_0_2:
+          Value: false
+        upper_basket_frontal_0_3:
+          Value: false
+        upper_basket_frontal_0_4:
+          Value: false
+        upper_basket_frontal_1_0:
+          Value: false
+        upper_basket_frontal_1_1:
+          Value: false
+        upper_basket_frontal_1_2:
+          Value: false
+        upper_basket_frontal_1_3:
+          Value: false
+        upper_basket_frontal_1_4:
+          Value: false
+        upper_basket_frontal_2_0:
+          Value: false
+        upper_basket_frontal_2_1:
+          Value: false
+        upper_basket_frontal_2_2:
+          Value: false
+        upper_basket_frontal_2_3:
+          Value: false
+        upper_basket_frontal_2_4:
+          Value: false
+        upper_basket_frontal_3_0:
+          Value: false
+        upper_basket_frontal_3_1:
+          Value: false
+        upper_basket_frontal_3_2:
+          Value: false
+        upper_basket_frontal_3_3:
+          Value: false
+        upper_basket_frontal_3_4:
+          Value: false
+        upper_basket_frontal_4_0:
+          Value: false
+        upper_basket_frontal_4_1:
+          Value: false
+        upper_basket_frontal_4_2:
+          Value: false
+        upper_basket_frontal_4_3:
+          Value: false
+        upper_basket_frontal_4_4:
+          Value: false
+        upper_basket_left_side_0_0:
+          Value: false
+        upper_basket_left_side_0_1:
+          Value: false
+        upper_basket_left_side_0_2:
+          Value: false
+        upper_basket_left_side_0_3:
+          Value: false
+        upper_basket_left_side_0_4:
+          Value: false
+        upper_basket_left_side_1_0:
+          Value: false
+        upper_basket_left_side_1_1:
+          Value: false
+        upper_basket_left_side_1_2:
+          Value: false
+        upper_basket_left_side_1_3:
+          Value: false
+        upper_basket_left_side_1_4:
+          Value: false
+        upper_basket_left_side_2_0:
+          Value: false
+        upper_basket_left_side_2_1:
+          Value: false
+        upper_basket_left_side_2_2:
+          Value: false
+        upper_basket_left_side_2_3:
+          Value: false
+        upper_basket_left_side_2_4:
+          Value: false
+        upper_basket_left_side_3_0:
+          Value: false
+        upper_basket_left_side_3_1:
+          Value: false
+        upper_basket_left_side_3_2:
+          Value: false
+        upper_basket_left_side_3_3:
+          Value: false
+        upper_basket_left_side_3_4:
+          Value: false
+        upper_basket_left_side_4_0:
+          Value: false
+        upper_basket_left_side_4_1:
+          Value: false
+        upper_basket_left_side_4_2:
+          Value: false
+        upper_basket_left_side_4_3:
+          Value: false
+        upper_basket_left_side_4_4:
+          Value: false
+        upper_basket_right_side_0_0:
+          Value: false
+        upper_basket_right_side_0_1:
+          Value: false
+        upper_basket_right_side_0_2:
+          Value: false
+        upper_basket_right_side_0_3:
+          Value: false
+        upper_basket_right_side_0_4:
+          Value: false
+        upper_basket_right_side_1_0:
+          Value: false
+        upper_basket_right_side_1_1:
+          Value: false
+        upper_basket_right_side_1_2:
+          Value: false
+        upper_basket_right_side_1_3:
+          Value: false
+        upper_basket_right_side_1_4:
+          Value: false
+        upper_basket_right_side_2_0:
+          Value: false
+        upper_basket_right_side_2_1:
+          Value: false
+        upper_basket_right_side_2_2:
+          Value: false
+        upper_basket_right_side_2_3:
+          Value: false
+        upper_basket_right_side_2_4:
+          Value: false
+        upper_basket_right_side_3_0:
+          Value: false
+        upper_basket_right_side_3_1:
+          Value: false
+        upper_basket_right_side_3_2:
+          Value: false
+        upper_basket_right_side_3_3:
+          Value: false
+        upper_basket_right_side_3_4:
+          Value: false
+        upper_basket_right_side_4_0:
+          Value: false
+        upper_basket_right_side_4_1:
+          Value: false
+        upper_basket_right_side_4_2:
+          Value: false
+        upper_basket_right_side_4_3:
+          Value: false
+        upper_basket_right_side_4_4:
+          Value: false
+
         wheel_left_link:
           Value: false
         wheel_right_link:
@@ -504,209 +497,6 @@ Visualization Manager:
             object:
               {}
             reaching_ellipsoid:
-              object_wrt_reaching_ellipsoid:
-                {}
-            table:
-              {}
-            table_0_0:
-              {}
-            table_0_1:
-              {}
-            table_0_2:
-              {}
-            table_0_3:
-              {}
-            table_0_4:
-              {}
-            table_0_5:
-              {}
-            table_0_6:
-              {}
-            table_0_7:
-              {}
-            table_0_8:
-              {}
-            table_0_9:
-              {}
-            table_1_0:
-              {}
-            table_1_1:
-              {}
-            table_1_2:
-              {}
-            table_1_3:
-              {}
-            table_1_4:
-              {}
-            table_1_5:
-              {}
-            table_1_6:
-              {}
-            table_1_7:
-              {}
-            table_1_8:
-              {}
-            table_1_9:
-              {}
-            table_2_0:
-              {}
-            table_2_1:
-              {}
-            table_2_2:
-              {}
-            table_2_3:
-              {}
-            table_2_4:
-              {}
-            table_2_5:
-              {}
-            table_2_6:
-              {}
-            table_2_7:
-              {}
-            table_2_8:
-              {}
-            table_2_9:
-              {}
-            table_3_0:
-              {}
-            table_3_1:
-              {}
-            table_3_2:
-              {}
-            table_3_3:
-              {}
-            table_3_4:
-              {}
-            table_3_5:
-              {}
-            table_3_6:
-              {}
-            table_3_7:
-              {}
-            table_3_8:
-              {}
-            table_3_9:
-              {}
-            table_4_0:
-              {}
-            table_4_1:
-              {}
-            table_4_2:
-              {}
-            table_4_3:
-              {}
-            table_4_4:
-              {}
-            table_4_5:
-              {}
-            table_4_6:
-              {}
-            table_4_7:
-              {}
-            table_4_8:
-              {}
-            table_4_9:
-              {}
-            table_5_0:
-              {}
-            table_5_1:
-              {}
-            table_5_2:
-              {}
-            table_5_3:
-              {}
-            table_5_4:
-              {}
-            table_5_5:
-              {}
-            table_5_6:
-              {}
-            table_5_7:
-              {}
-            table_5_8:
-              {}
-            table_5_9:
-              {}
-            table_6_0:
-              {}
-            table_6_1:
-              {}
-            table_6_2:
-              {}
-            table_6_3:
-              {}
-            table_6_4:
-              {}
-            table_6_5:
-              {}
-            table_6_6:
-              {}
-            table_6_7:
-              {}
-            table_6_8:
-              {}
-            table_6_9:
-              {}
-            table_7_0:
-              {}
-            table_7_1:
-              {}
-            table_7_2:
-              {}
-            table_7_3:
-              {}
-            table_7_4:
-              {}
-            table_7_5:
-              {}
-            table_7_6:
-              {}
-            table_7_7:
-              {}
-            table_7_8:
-              {}
-            table_7_9:
-              {}
-            table_8_0:
-              {}
-            table_8_1:
-              {}
-            table_8_2:
-              {}
-            table_8_3:
-              {}
-            table_8_4:
-              {}
-            table_8_5:
-              {}
-            table_8_6:
-              {}
-            table_8_7:
-              {}
-            table_8_8:
-              {}
-            table_8_9:
-              {}
-            table_9_0:
-              {}
-            table_9_1:
-              {}
-            table_9_2:
-              {}
-            table_9_3:
-              {}
-            table_9_4:
-              {}
-            table_9_5:
-              {}
-            table_9_6:
-              {}
-            table_9_7:
-              {}
-            table_9_8:
-              {}
-            table_9_9:
               {}
       Update Interval: 0
       Value: true
@@ -715,8 +505,54 @@ Visualization Manager:
       Marker Topic: /trajectory_visualizer/markers
       Name: MarkerArray
       Namespaces:
-        "": true
+        {}
       Queue Size: 96
+      Value: true
+    - Alpha: 1
+      Auto Size:
+        Auto Size Factor: 1
+        Value: true
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/DepthCloud
+      Color: 255; 255; 255
+      Color Image Topic: ""
+      Color Transformer: RGB8
+      Color Transport Hint: raw
+      Decay Time: 0
+      Depth Map Topic: /xtion/depth/image_raw
+      Depth Map Transport Hint: raw
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: DepthCloud
+      Occlusion Compensation:
+        Occlusion Time-Out: 30
+        Value: false
+      Position Transformer: XYZ
+      Queue Size: 5
+      Selectable: true
+      Size (Pixels): 3
+      Style: Flat Squares
+      Topic Filter: true
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /execution_failure_detection/model_visualization
+      Name: MarkerArray
+      Namespaces:
+        "": true
+      Queue Size: 100
       Value: true
     - Alpha: 1
       Class: rviz/RobotModel
@@ -979,52 +815,6 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Alpha: 1
-      Auto Size:
-        Auto Size Factor: 1
-        Value: true
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/DepthCloud
-      Color: 255; 255; 255
-      Color Image Topic: ""
-      Color Transformer: RGB8
-      Color Transport Hint: raw
-      Decay Time: 0
-      Depth Map Topic: /xtion/depth/image_raw
-      Depth Map Transport Hint: raw
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: DepthCloud
-      Occlusion Compensation:
-        Occlusion Time-Out: 30
-        Value: false
-      Position Transformer: XYZ
-      Queue Size: 5
-      Selectable: true
-      Size (Pixels): 3
-      Style: Flat Squares
-      Topic Filter: true
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /execution_failure_detection/model_visualization
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -1050,25 +840,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.93457162
+      Distance: 1.73198152
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.309946001
-        Y: 0.164074421
-        Z: 0.663148403
+        X: 0.688677371
+        Y: -0.0259065386
+        Z: 0.679776073
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.709797502
+      Pitch: 0.459797591
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.971751451
+      Yaw: 5.12358046
     Saved:
       - Class: rviz/Orbit
         Distance: 4.23803568
@@ -1118,7 +908,7 @@ Window Geometry:
   Height: 993
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd000000040000000000000379000003c3fc020000000dfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006100fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730200000b9a0000025800000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007300000000000000011c000000d700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d0065007200610100000000000001b70000001600fffffffb0000000c00430061006d00650072006101000001bd000002060000001600fffffffb0000000a0049006d006100670065000000036d000000510000000000000000fb0000000a0049006d00610067006500000002200000019e0000000000000000fb0000000a0049006d00610067006501000002a5000000c50000000000000000000000010000010f000003dafc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000028000003da000000ad00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073f0000003efc0100000002fb0000000800540069006d006500000000000000073f0000030000fffffffb0000000800540069006d0065010000000000000450000000000000000000000401000003c300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000023e000003c3fc020000000dfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006100fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730200000b9a0000025800000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000002800000138000000d700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d00650072006101000000000000016a0000001600fffffffb0000000c00430061006d0065007200610100000170000002530000001600fffffffb0000000a0049006d006100670065000000036d000000510000000000000000fb0000000a0049006d00610067006500000002200000019e0000000000000000fb0000000a0049006d00610067006501000002a5000000c50000000000000000000000010000010f000003dafc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000028000003da000000ad00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073f0000003efc0100000002fb0000000800540069006d006500000000000000073f0000030000fffffffb0000000800540069006d006501000000000000045000000000000000000000053c000003c300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -1128,5 +918,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1920
-  X: 0
+  X: 2970
   Y: 624
