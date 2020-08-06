@@ -39,7 +39,7 @@ class DataCreator(object):
         #                          4: [0.8, 0.23 - self.y_position_step_dict[4], 0.7], 5: [0.8, 0.23 - self.y_position_step_dict[5], 0.7], 6: [0.8, 0.23 - self.y_position_step_dict[6], 0.7]}
 
         self.y0 = 0.2
-        self.object_positions = { 1: [0.8, y0 - self.y_position_step_dict[1], 0.7], 2: [0.8, y0 - self.y_position_step_dict[2], 0.7], 3: [0.8, y0 - self.y_position_step_dict[3], 0.7]}
+        self.object_positions = { 1: [0.8, self.y0 - self.y_position_step_dict[1], 0.7], 2: [0.8, self.y0 - self.y_position_step_dict[2], 0.7], 3: [0.8, self.y0 - self.y_position_step_dict[3], 0.7]}
 
         # self.object_positions = { 1: [0.8, 0.25, 0.7]}
 
@@ -55,7 +55,7 @@ class DataCreator(object):
     def executeTrajectory(self, traj):
         rospy.wait_for_service('execute_trajectory', timeout=2.0)
         execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-        self.T_desired = 10
+        self.T_desired = 20
         resp = execute_trajectory(traj, self.T_desired)
 
         return resp.obstacle_hit.data, resp.object_reached.data, resp.object_kicked_over.data
