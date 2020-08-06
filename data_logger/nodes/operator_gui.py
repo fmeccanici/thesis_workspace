@@ -137,7 +137,7 @@ class OperatorGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(10, 10, 1881, 701))
+        self.groupBox.setGeometry(QRect(10, 0, 1071, 701))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(10, 830, 251, 151))
@@ -231,6 +231,10 @@ class OperatorGUI(QMainWindow):
         font.setPointSize(21)
         self.lineEdit_2.setFont(font)
         self.lineEdit_2.setObjectName("lineEdit_2")
+        self.groupBox_6 = QGroupBox(self.centralwidget)
+        self.groupBox_6.setGeometry(QRect(1075, 0, 671, 701))
+        self.groupBox_6.setTitle("")
+        self.groupBox_6.setObjectName("groupBox_6")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1820, 25))
@@ -245,14 +249,22 @@ class OperatorGUI(QMainWindow):
 
         config_file = self._rospack.get_path('data_logger') + "/experiment.rviz"
 
-        self.rviz_widget = rvizPython(config_file)
+        self.rviz_widget1 = rvizPython(config_file)
+        self.rviz_widget2 = rvizPython(config_file)
+
         self.image_widget = ImageWidget()
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout2 = QHBoxLayout()
+        self.horizontalLayout3 = QHBoxLayout()
 
         self.groupBox.setLayout(self.horizontalLayout)
-        self.horizontalLayout.addWidget(self.rviz_widget)
+        self.groupBox_6.setLayout(self.horizontalLayout3)
+
+        self.horizontalLayout.addWidget(self.rviz_widget1)
+        self.horizontalLayout3.addWidget(self.rviz_widget2)
+
         self.groupBox_3.setLayout(self.horizontalLayout2)
+        
         self.horizontalLayout2.addWidget(self.image_widget)
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)

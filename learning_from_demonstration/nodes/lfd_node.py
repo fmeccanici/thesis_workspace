@@ -330,6 +330,7 @@ class lfdNode():
         rospy.wait_for_message('execution_failure', ExecutionFailure)
         
         # needed since there is a delay in the object kicked over detection
+        # has to be 4
         time.sleep(4)
         self.object_reached_temp = copy.deepcopy(self.object_reached)
         self.object_kicked_over_temp = copy.deepcopy(self.object_kicked_over)

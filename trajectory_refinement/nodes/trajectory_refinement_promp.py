@@ -379,7 +379,7 @@ class trajectoryRefinement():
             i += 1
         
         # needed since there is a delay in the object kicked over detection
-        time.sleep(2)
+        time.sleep(4)
         
         if self.obstacle_hit == True and self.obstacle_hit_once == False:
             self.obstacle_hit_once = True

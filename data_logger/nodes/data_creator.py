@@ -1,5 +1,6 @@
-#!usr/bin/env python
-import rospy, copy, time, ast, roslaunch, rospkg
+#! /usr/bin/env python
+
+import rospy, copy, time, ast, roslaunch, rospkg, os
 from subprocess import call
 
 from execution_failure_detection.srv import GetExecutionFailure
@@ -31,7 +32,11 @@ class DataCreator(object):
         self.nodes = {}
         self._rospack = rospkg.RosPack()
 
-        self.object_positions = { 1: [0.8, 0.25, 0.7], 2: [0.8, 0.18, 0.7], 3: [0.8, 0.11, 0.7], 4: [0.8, 0.04, 0.7], 5: [0.8, -0.03, 0.7], 6: [0.8, -0.1, 0.7]}
+        self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
+
+        self.object_positions = { 1: [0.8, 0.23 - self.y_position_step_dict[1], 0.7], 2: [0.8, 0.23 - self.y_position_step_dict[2], 0.7], 3: [0.8, 0.23 - self.y_position_step_dict[3], 0.7],
+                                 4: [0.8, 0.23 - self.y_position_step_dict[4], 0.7], 5: [0.8, 0.23 - self.y_position_step_dict[5], 0.7], 6: [0.8, 0.23 - self.y_position_step_dict[6], 0.7]}
+
         # self.object_positions = { 1: [0.8, 0.25, 0.7]}
 
         self.trials = {}
@@ -159,32 +164,34 @@ class DataCreator(object):
             object_position = ModelState()
             object_position.model_name = 'aruco_cube'
 
-            step = 0.07
+            step = 0.066
             x = 0.8
+            y0 = 0.23
+            
             # dishwasher moved backwards    
             if self.current_object_position == 1:
                 object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25
+                object_position.pose.position.y = y0
                 object_position.pose.position.z = 0.7
             elif self.current_object_position == 2:
                 object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - step
+                object_position.pose.position.y = y0 - step
                 object_position.pose.position.z = 0.7
             elif self.current_object_position == 3:
                 object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 2*step
+                object_position.pose.position.y = y0 - 2*step
                 object_position.pose.position.z = 0.7
             elif self.current_object_position == 4:
                 object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 3*step
+                object_position.pose.position.y = y0 - 3*step
                 object_position.pose.position.z = 0.7
             elif self.current_object_position == 5:
                 object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 4*step
+                object_position.pose.position.y = y0 - 4*step
                 object_position.pose.position.z = 0.7
             elif self.current_object_position == 6:
                 object_position.pose.position.x = x
-                object_position.pose.position.y = 0.25 - 5*step
+                object_position.pose.position.y = y0 - 5*step
                 object_position.pose.position.z = 0.7
 
             object_position.pose.orientation.x = 0
@@ -472,8 +479,12 @@ class DataCreator(object):
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number)+ '/')
 
         self.loadData()
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number) + '/after_experiment/'
+        
+        if not os.path.exists(path):
+            os.makedirs(path)
 
-        self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number) + '/after_experiment/')
+        self.setPath(path)
 
         # adapt model using experiment data
         for object_position in self.object_positions:
@@ -537,6 +548,10 @@ class DataCreator(object):
                 
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
 
+                print('obstacle_hit = ' + str(obstacle_hit))
+                print('object_reached = ' + str(object_reached))
+                print('object_kicked_over = ' + str(object_kicked_over))
+
                 x = []
                 y = []
                 z = []
@@ -578,12 +593,20 @@ class DataCreator(object):
                 resp = clear_trajectories()
 
                 time.sleep(1)
+    def run(self):
+        participant_number = int(rospy.get_param('~participant_number'))
+        method = int(rospy.get_param('~method')) # 3 = online + keyboard
+        visualize = bool(rospy.get_param('~visualize'))
+        before_or_after_experiment = rospy.get_param('~before_or_after')
+        
+        if before_or_after_experiment == 'before':
+            self.createDataBeforeExperiment()        
+        elif before_or_after_experiment == 'after' and visualize == True:
+            self.visualizeExperimentData(participant_number, method)
+            self.createDataAfterExperiment(participant_number, method)
+        elif before_or_after_experiment == 'after' and visualize == False:
+            self.createDataAfterExperiment(participant_number, method)
 
 if __name__ == "__main__":
-    participant_number = 5
-    method = 3 # online + keyboard
-
     data_creator = DataCreator()
-    # data_creator.visualizeExperimentData(participant_number, method)
-    data_creator.createDataAfterExperiment(participant_number, method)
-    # data_creator.createDataBeforeExperiment()
+    data_creator.run()

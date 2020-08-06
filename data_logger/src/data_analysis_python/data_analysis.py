@@ -370,13 +370,18 @@ class DataAnalysis(object):
             fig.subplots_adjust(top=0.88)
 
         if "participant_number" in kwargs:
-            plt.savefig(self.figures_path + "participant_" + str(participant_number) + "/after_experiment/success.pdf")            
+            path = self.figures_path + "participant_" + str(participant_number) + "/after_experiment/"
+            if not os.path.exists(path):
+                os.makedirs(path)
+            
+            plt.savefig(path + "success.pdf")            
+        
         else:
             plt.savefig(self.figures_path + "/before_experiment/success.pdf")
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = 7
+    number = 12
     data_analysis.loadData(number)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)

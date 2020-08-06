@@ -874,7 +874,7 @@ Visualization Manager:
         Focal Shape Fixed Size: true
         Focal Shape Size: 0.0500000007
         Invert Z Axis: false
-        Name: Side View
+        Name: Side View 1
         Near Clip Distance: 0.00999999978
         Pitch: -0.0652027726
         Target Frame: <Fixed Frame>
@@ -894,12 +894,53 @@ Visualization Manager:
         Focal Shape Fixed Size: true
         Focal Shape Size: 0.0500000007
         Invert Z Axis: false
-        Name: Top View
+        Name: Top View 1
         Near Clip Distance: 0.00999999978
         Pitch: 1.26979685
         Target Frame: <Fixed Frame>
         Value: Orbit (rviz)
         Yaw: 4.64857626
+      - Class: rviz/Orbit
+        Distance: 3.23467493
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.0599999987
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Focal Point:
+          X: 0.917645156
+          Y: 1.86848676
+          Z: 0.878159285
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.0500000007
+        Invert Z Axis: false
+        Name: Side View 
+        Near Clip Distance: 0.00999999978
+        Pitch: -0.0802027807
+        Target Frame: <Fixed Frame>
+        Value: Orbit (rviz)
+        Yaw: 4.64357805
+      - Class: rviz/Orbit
+        Distance: 1.03866124
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.0599999987
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Focal Point:
+          X: 0.766568601
+          Y: 0.0536101982
+          Z: 0.666449845
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.0500000007
+        Invert Z Axis: false
+        Name: Top View
+        Near Clip Distance: 0.00999999978
+        Pitch: 1.27479684
+        Target Frame: <Fixed Frame>
+        Value: Orbit (rviz)
+        Yaw: 4.71357727
+
 Window Geometry:
   Camera:
     collapsed: false

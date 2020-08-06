@@ -18,8 +18,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>1881</width>
+      <y>0</y>
+      <width>1071</width>
       <height>701</height>
      </rect>
     </property>
@@ -314,6 +314,19 @@
       <string>0/5 refinements used </string>
      </property>
     </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_6">
+    <property name="geometry">
+     <rect>
+      <x>1140</x>
+      <y>0</y>
+      <width>671</width>
+      <height>691</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

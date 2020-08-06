@@ -1,0 +1,21 @@
+<launch>
+
+<arg name="participant_number" default="9"/>
+<arg name="method" default="3"/>
+<arg name="visualize" default="false"/>
+<arg name="before_or_after" default="after"/>
+
+<node pkg="data_logger" name="data_creator" 
+type="data_creator.py" output="screen">
+
+    <param name="participant_number" value="$(arg participant_number)"/>
+    <param name="method" value="$(arg method)"/>
+    <param name="visualize" value="$(arg visualize)"/>
+    <param name="before_or_after" value="$(arg before_or_after)"/>
+
+</node>
+
+
+
+
+</launch>
