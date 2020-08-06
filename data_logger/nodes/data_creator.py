@@ -24,7 +24,7 @@ from std_msgs.msg import Float32
 
 class DataCreator(object):
     def __init__(self):
-        self.num_object_positions = 6
+        self.num_object_positions = 3
         self.num_trials = 5
         self.num_methods = 4
         self.methods = {}
@@ -32,10 +32,14 @@ class DataCreator(object):
         self.nodes = {}
         self._rospack = rospkg.RosPack()
 
-        self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
+        # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
+        self.y_position_step_dict = {1: 0.0, 2: 0.1, 3: 2*0.1}
 
-        self.object_positions = { 1: [0.8, 0.23 - self.y_position_step_dict[1], 0.7], 2: [0.8, 0.23 - self.y_position_step_dict[2], 0.7], 3: [0.8, 0.23 - self.y_position_step_dict[3], 0.7],
-                                 4: [0.8, 0.23 - self.y_position_step_dict[4], 0.7], 5: [0.8, 0.23 - self.y_position_step_dict[5], 0.7], 6: [0.8, 0.23 - self.y_position_step_dict[6], 0.7]}
+        # self.object_positions = { 1: [0.8, 0.23 - self.y_position_step_dict[1], 0.7], 2: [0.8, 0.23 - self.y_position_step_dict[2], 0.7], 3: [0.8, 0.23 - self.y_position_step_dict[3], 0.7],
+        #                          4: [0.8, 0.23 - self.y_position_step_dict[4], 0.7], 5: [0.8, 0.23 - self.y_position_step_dict[5], 0.7], 6: [0.8, 0.23 - self.y_position_step_dict[6], 0.7]}
+
+        self.y0 = 0.2
+        self.object_positions = { 1: [0.8, y0 - self.y_position_step_dict[1], 0.7], 2: [0.8, y0 - self.y_position_step_dict[2], 0.7], 3: [0.8, y0 - self.y_position_step_dict[3], 0.7]}
 
         # self.object_positions = { 1: [0.8, 0.25, 0.7]}
 
@@ -164,9 +168,9 @@ class DataCreator(object):
             object_position = ModelState()
             object_position.model_name = 'aruco_cube'
 
-            step = 0.066
+            step = 0.1
             x = 0.8
-            y0 = 0.23
+            y0 = self.y0
             
             # dishwasher moved backwards    
             if self.current_object_position == 1:
