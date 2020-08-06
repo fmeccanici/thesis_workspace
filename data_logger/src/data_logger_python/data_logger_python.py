@@ -5,11 +5,14 @@ import pandas as pd
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 class ParticipantData(object):
-    def __init__(self, number, gender, age, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
+    def __init__(self, number, gender, age, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
         self.number = number
         self.num_methods = 4
         self.methods = {}
+        self.num_object_positions = num_object_positions
+        self.num_trials = num_trials
+
         self.parser = trajectoryParser()
 
         # check if path exists, create if not
@@ -54,8 +57,6 @@ class ParticipantData(object):
         self.trials = {}
 
         self.num_methods = 4
-        self.num_object_positions = 6
-        self.num_trials = 5
 
         for i in range(self.num_trials):
             self.trials[i+1] = {
