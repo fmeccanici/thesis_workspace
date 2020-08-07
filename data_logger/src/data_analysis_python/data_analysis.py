@@ -387,20 +387,20 @@ if __name__ == "__main__":
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
     # print(data_analysis.getTime(1, 3, 1, 1, 1))
     # data_analysis.calculateRefinementTime(1, 3, 1)
-    data_analysis.plotRefinementTime(number)
-    data_analysis.plotNumberOfRefinements(number)
+    # data_analysis.plotRefinementTime(number)
+    # data_analysis.plotNumberOfRefinements(number)
 
-    data_analysis.plotSuccesfullPredictions(number)
-    data_analysis.plotSuccesfullRefinements(number)
+    # data_analysis.plotSuccesfullPredictions(number)
+    # data_analysis.plotSuccesfullRefinements(number)
 
-    data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
-    data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
+    # data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
+    # data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
 
-    data_analysis.plotNumberOfObjectMissed(number, 'refinement')
-    data_analysis.plotNumberOfObjectMissed(number, 'prediction')
+    # data_analysis.plotNumberOfObjectMissed(number, 'refinement')
+    # data_analysis.plotNumberOfObjectMissed(number, 'prediction')
 
-    data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
-    data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
+    # data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
+    # data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
 
-    # data_analysis.plotExperimentData()
-    data_analysis.plotExperimentData(participant_number = number)
+    data_analysis.plotExperimentData()
+    # data_analysis.plotExperimentData(participant_number = number)
