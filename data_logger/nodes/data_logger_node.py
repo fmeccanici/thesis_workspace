@@ -39,7 +39,9 @@ class DataLoggerNode(object):
         age = req.age.data
         gender = req.gender.data
 
-        self.participant_data = ParticipantData(number, gender, age)
+        num_objects = 3
+
+        self.participant_data = ParticipantData(number, gender, age, num_objects)
         self.data[number] = copy.deepcopy(self.participant_data)
 
         resp = CreateParticipantResponse()

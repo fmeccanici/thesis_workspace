@@ -47,7 +47,7 @@ class ExperimentNode(object):
         self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
 
         self.num_trials = 5
-        self.num_object_positions = 6
+        self.num_object_positions = 3
         self.trials = range(1,self.num_trials+1)
 
         self.object_positions = range(1,self.num_object_positions+1)
@@ -62,7 +62,7 @@ class ExperimentNode(object):
         self.current_trial = 1
         self.current_object_position = 1
         # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
-        self.y_position_step_dict = {1: 0.0, 2: 0.07, 3: 2*0.07, 4: 3*0.07, 5: 4*0.07, 6: 5*0.07}
+        self.y_position_step_dict = {1: 0.0, 2: 0.1, 3: 2*0.1}
 
         # ros stuff
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
@@ -163,7 +163,12 @@ class ExperimentNode(object):
 
         del self.y_position_step_dict[random_object_position]
 
+<<<<<<< HEAD
         return 0.25 - step
+=======
+        y0 = 0.2
+        return y0 - step
+>>>>>>> reduce-experiment-time
 
     def setObjectPosition(self):
         try:
