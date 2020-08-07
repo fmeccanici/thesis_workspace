@@ -61,7 +61,8 @@ class ExperimentNode(object):
 
         self.current_trial = 1
         self.current_object_position = 1
-        self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
+        # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
+        self.y_position_step_dict = {1: 0.0, 2: 0.07, 3: 2*0.07, 4: 3*0.07, 5: 4*0.07, 6: 5*0.07}
 
         # ros stuff
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
@@ -162,7 +163,7 @@ class ExperimentNode(object):
 
         del self.y_position_step_dict[random_object_position]
 
-        return 0.23 - step
+        return 0.25 - step
 
     def setObjectPosition(self):
         try:
