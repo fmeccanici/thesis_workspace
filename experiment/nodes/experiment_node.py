@@ -163,12 +163,8 @@ class ExperimentNode(object):
 
         del self.y_position_step_dict[random_object_position]
 
-<<<<<<< HEAD
-        return 0.25 - step
-=======
         y0 = 0.2
         return y0 - step
->>>>>>> reduce-experiment-time
 
     def setObjectPosition(self):
         try:

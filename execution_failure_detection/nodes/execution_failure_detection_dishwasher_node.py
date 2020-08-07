@@ -31,7 +31,7 @@ class ExecutionFailureNode(object):
         # set object/upper_basket sizes 
 
         ##### true size ######
-        self.upper_basket_size_x = 0.5
+        self.upper_basket_size_x = 0.52
         self.upper_basket_size_y = 0.5
         self.upper_basket_size_z = 0.11
         

@@ -21,7 +21,7 @@ class SceneDrawer(object):
         self.counter = 0
 
         ##### true size ######
-        self.upper_basket_size_x = 0.5
+        self.upper_basket_size_x = 0.52
         self.upper_basket_size_y = 0.5
         self.upper_basket_size_z = 0.11
         
@@ -330,7 +330,7 @@ class SceneDrawer(object):
         while not rospy.is_shutdown():
             self.setEllipsoidOrigin(ellipsoid_type='all')
 
-            self.addEllipsoid(ellipsoid_type='collision')
+            self.addEllipsoid(ellipsoid_type='all')
             
             self.visualizeModels()
             self.broadcastFrames(ellipsoid_type='all')
