@@ -690,6 +690,7 @@ class ExperimentNode(object):
         
         self.text_updater.update("AUTONOMOUS EXECUTION")
         obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
+        
         # store prediction along with failure
         self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
         self.saveData()
@@ -721,7 +722,6 @@ class ExperimentNode(object):
                 self.setObjectPosition()
                 time.sleep(3)
 
-                
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
