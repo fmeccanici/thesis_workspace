@@ -135,22 +135,54 @@ class ExecutionFailureNode(object):
         x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 5)
         y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 5)
         z = vec_min_wrt_base_footprint[2]
+        
         for i in range(len(x)):
             for j in range(len(y)):
                 try:
                     (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "upper_basket_bottom_" + str(i) + "_" + str(j), rospy.Time(0))
-                    # self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
-                    #                 (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
-                    #                 q_ee.inverse.w),
-                    #                 rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
-                    if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
-                        # input('continue?')  
+                    
+                    self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                    (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
+                                    q_ee.inverse.w),
+                                    rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
+                    if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        return True
+        
+
+                    (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "upper_basket_frontal_" + str(i) + "_" + str(j), rospy.Time(0))
+                    self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
+                                q_ee.inverse.w),
+                                rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
+
+
+                    if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        return True
+
+                    (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "upper_basket_right_side_" + str(i) + "_" + str(j), rospy.Time(0))
+                    self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
+                                q_ee.inverse.w),
+                                rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
+
+                    if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        return True
+
+                    (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "upper_basket_left_side_" + str(i) + "_" + str(j), rospy.Time(0))
+                    self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                (q_ee.inverse.x, q_ee.inverse.y, q_ee.inverse.z,
+                                q_ee.inverse.w),
+                                rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
+
+                    if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
                         return True
 
                 except Exception as e:
                     print(e)
                     continue
+        
+        """
         # frontal plane
         vec_min_wrt_base_footprint = copy.deepcopy([-self.upper_basket_size_x/2, 0, 0])
         vec_max_wrt_base_footprint = copy.deepcopy([-self.upper_basket_size_x/2, self.upper_basket_size_y, self.upper_basket_size_z])
@@ -225,6 +257,7 @@ class ExecutionFailureNode(object):
                 except Exception as e:
                     print(e)
                     continue
+        """
         return False
     
     def isObjectKickedOver(self):

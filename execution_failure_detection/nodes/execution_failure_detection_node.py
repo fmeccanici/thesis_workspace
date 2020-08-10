@@ -148,8 +148,6 @@ class ExecutionFailureNode(object):
                 except:
                     continue
 
-        
-
         return False
     
     def isObjectKickedOver(self):

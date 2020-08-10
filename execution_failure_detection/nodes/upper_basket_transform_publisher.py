@@ -41,6 +41,7 @@ class TableTransformPublisher(object):
             self.counter = 1
 
     def run(self):
+        
 
         # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
         vec_min_wrt_base_footprint = [-self.upper_basket_size_x/2, 0, 0]
