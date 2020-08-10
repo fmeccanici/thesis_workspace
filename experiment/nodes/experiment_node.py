@@ -4,16 +4,19 @@ import rospy, rospkg, roslaunch, time, random
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 from data_logger_python.text_updater import TextUpdater
+from pyquaternion import Quaternion
+import numpy as np
 
 # import ros messages
 from sensor_msgs.msg import JointState
 from data_logger.msg import TrajectoryData, OperatorGUIinteraction
 from std_msgs.msg import Byte, Bool, Float32, String, Float64
-from geometry_msgs.msg import Point, Pose
+from geometry_msgs.msg import Point, Pose, PoseStamped
 
 from gazebo_msgs.msg import ModelState 
 from trajectory_visualizer.msg import TrajectoryVisualization
 from execution_failure_detection.msg import ExecutionFailure
+from teleop_control.msg import Keyboard
 
 # import ros services
 from data_logger.srv import (CreateParticipant, AddRefinement,
@@ -23,12 +26,14 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
-                                                WelfordUpdate, ExecuteTrajectory)
+                                                WelfordUpdate, ExecuteTrajectory, 
+                                                GetEEPose)
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
 from experiment.srv import SetText
+from teach_pendant.srv import GetTeachState, GetDemonstrationPendant
 
 class ExperimentNode(object):
     def __init__(self):
@@ -42,6 +47,7 @@ class ExperimentNode(object):
         self.object_kicked_over_updater = TextUpdater(text_file='object_kicked_over.txt')
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
         self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
+        self.number_of_refinements_updater.update(str(0))
 
         self.nodes = {}
         self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
@@ -71,7 +77,7 @@ class ExperimentNode(object):
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
-    
+
     # failure detection callback
     def _executionFailureCallback(self, data):
         self.object_missed_updater.update(str(not data.object_reached.data))
@@ -180,83 +186,6 @@ class ExperimentNode(object):
 
             object_position.pose.position.z = 0.7
 
-            # # dishwasher moved backwards    
-            # if self.current_object_position == 1:
-            #     object_position.pose.position.x = x
-            #     object_position.pose.position.y = 0.25
-            #     object_position.pose.position.z = 0.7
-            # elif self.current_object_position == 2:
-            #     object_position.pose.position.x = x
-            #     object_position.pose.position.y = 0.25 - step
-            #     object_position.pose.position.z = 0.7
-            # elif self.current_object_position == 3:
-            #     object_position.pose.position.x = x
-            #     object_position.pose.position.y = 0.25 - 2*step
-            #     object_position.pose.position.z = 0.7
-            # elif self.current_object_position == 4:
-            #     object_position.pose.position.x = x
-            #     object_position.pose.position.y = 0.25 - 3*step
-            #     object_position.pose.position.z = 0.7
-            # elif self.current_object_position == 5:
-            #     object_position.pose.position.x = x
-            #     object_position.pose.position.y = 0.25 - 4*step
-            #     object_position.pose.position.z = 0.7
-            # elif self.current_object_position == 6:
-            #     object_position.pose.position.x = x
-            #     object_position.pose.position.y = 0.25 - 5*step
-            #     object_position.pose.position.z = 0.7
-            
-
-            # dishwasher
-            """
-            if self.current_object_position == 1:
-                object_position.pose.position.x = 0.58
-                object_position.pose.position.y = 0.23
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 2:
-                object_position.pose.position.x = 0.58
-                object_position.pose.position.y = 0.06
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 3:
-                object_position.pose.position.x = 0.58
-                object_position.pose.position.y = -0.1
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 4:
-                object_position.pose.position.x = 0.68
-                object_position.pose.position.y = 0.23
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 5:
-                object_position.pose.position.x = 0.68
-                object_position.pose.position.y = 0.06
-                object_position.pose.position.z = 0.7
-            elif self.current_object_position == 6:
-                object_position.pose.position.x = 0.68
-                object_position.pose.position.y = -0.1
-                object_position.pose.position.z = 0.7
-            """
-            # table
-            """
-            if self.current_object_position == 1:
-                object_position.pose.position.x = 0.82
-                object_position.pose.position.y = 0.3
-                object_position.pose.position.z = 0.9
-            elif self.current_object_position == 2:
-                object_position.pose.position.x = 0.82
-                object_position.pose.position.y = 0.0
-                object_position.pose.position.z = 0.9
-            elif self.current_object_position == 3:
-                object_position.pose.position.x = 0.65
-
-                # 0.29 instead of 0.30 because otherwise object is on the edge of not
-                # being detected
-                object_position.pose.position.y = 0.29
-                object_position.pose.position.z = 0.9
-            elif self.current_object_position == 4:
-                object_position.pose.position.x = 0.65
-                object_position.pose.position.y = 0.0
-                object_position.pose.position.z = 0.9
-            """
-
             object_position.pose.orientation.x = 0
             object_position.pose.orientation.y = 0
             object_position.pose.orientation.z = 0
@@ -326,30 +255,6 @@ class ExperimentNode(object):
             rospy.wait_for_service('go_to_pose', timeout=2.0)
             go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
             resp = go_to_pose(pose)
-
-            """
-            # initial pose dishwasher
-            pose.position.x = 0.472
-            pose.position.y = 0.069
-            pose.position.z = 0.433
-
-            pose.orientation.x = 0.997
-            pose.orientation.y = -0.033
-            pose.orientation.z = -0.056
-            pose.orientation.w = 0.041
-            """
-
-            # initial pose dishwasher moved backwards
-            """
-            pose.position.x = 0.579
-            pose.position.y = 0.09
-            pose.position.z = 0.481
-
-            pose.orientation.x = 0.992
-            pose.orientation.y = -0.033
-            pose.orientation.z = -0.121
-            pose.orientation.w = 0.016
-            """
             
             # initial pose dishwasher moved backwards2
             pose.position.x = 0.537
@@ -624,7 +529,7 @@ class ExperimentNode(object):
     
     def addToModel(self):
         # 2 was too much, later trajectories had too little influence
-        amount = 2
+        amount = 1
 
         try:
             rospy.wait_for_service('welford_update', timeout=2.0)
@@ -673,6 +578,21 @@ class ExperimentNode(object):
         self.elapsed_time_prev = 0
         self.start_time = 0
 
+    def quaternionRotation(self, axis, angle):
+        w = np.cos(angle/2)
+        x = 0
+        y = 0
+        z = 0
+
+        if axis == 'x':
+            x = np.sin(angle/2)
+        elif axis == 'y':
+            y = np.sin(angle/2)
+        elif axis == 'z':
+            z = np.sin(angle/2)
+              
+        return Quaternion(w, x, y, z).normalised
+
     def startTrial(self):
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
@@ -694,7 +614,7 @@ class ExperimentNode(object):
         # store prediction along with failure
         self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
         self.saveData()
-
+        
         # update text in operator gui
         if obstacle_hit or not object_reached or object_kicked_over:
             self.text_updater.update("FAILURE:")
@@ -709,19 +629,17 @@ class ExperimentNode(object):
             self.text_updater.append("OBJECT KICKED OVER")
 
         time.sleep(2)
-
+        # loop the refinement until max refinements has reached
+        # or the last refinement was successful
+        number_of_refinements = 0
+        
         if self.method == 'online+pendant':
-            # loop the refinement until max refinements has reached
-            # or the last refinement was successful
-            number_of_refinements = 0
-
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
                 self.setObjectPosition()
                 time.sleep(3)
-
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
@@ -800,7 +718,97 @@ class ExperimentNode(object):
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
+        
+        elif self.method == 'offline+pendant':
+            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
 
+                self.goToInitialPose()
+                self.setObjectPosition()
+                time.sleep(10)
+
+                if self.method == 'offline+pendant':
+                    self.startNode('teach_pendant', 'teach_pendant.launch')
+                time.sleep(3)
+
+                self.text_updater.update("START TEACHING")
+                
+                # we only need to start the timer if it is equal to zero, else just keep the timer running
+                if self.start_time == 0:
+                    # start timer
+                    self.startTimer()
+                else: pass
+
+                rospy.wait_for_service('offline_pendant/get_teach_state', timeout=2.0)
+                get_teach_state = rospy.ServiceProxy('offline_pendant/get_teach_state', GetTeachState)
+                resp = get_teach_state()
+                isTeachingOffline = resp.teach_state.data      
+                
+                # use teach_pendant node to teach offline
+                while isTeachingOffline:
+                    resp = get_teach_state()
+                    isTeachingOffline = resp.teach_state.data        
+
+                
+                rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
+                get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
+                
+                resp = get_demo_pendant()
+                
+                self.stopNode('teach_pendant.launch')
+
+                self.goToInitialPose()
+                self.setObjectPosition()
+
+                self.refined_trajectory = resp.demo
+                self.visualize('both')
+                time.sleep(3)
+
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                
+                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
+                    f.write(str(self.refined_trajectory))
+                    
+                print("\n")
+
+                rospy.loginfo("object missed: " + str(not object_reached))
+                rospy.loginfo("obstacle hit: " + str(obstacle_hit))
+                rospy.loginfo("object kicked over: " + str(object_kicked_over))
+
+                print("\n")
+
+                # update text in operator gui
+                if obstacle_hit or not object_reached or object_kicked_over:
+                    self.text_updater.update("FAILURE:")
+                else:
+                    self.text_updater.update("SUCCESS!")
+
+                if obstacle_hit:
+                    self.text_updater.append("OBSTACLE HIT")
+                if not object_reached:
+                    self.text_updater.append("OBJECT MISSED")
+                if object_kicked_over:
+                    self.text_updater.append("OBJECT KICKED OVER")
+
+                time.sleep(2)
+                # store refinement along with if it failed or not
+                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
+               
+                # increment number of refinements
+                rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
+                
+                increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
+                increment_refinement(Byte(self.participant_number))
+                number_of_refinements += 1
+
+                rospy.loginfo("Got a refined trajectory")
+
+                print("number of refinement = " + str(number_of_refinements))
+                self.number_of_refinements_updater.update(str(number_of_refinements))
+
+                if number_of_refinements >= self.max_refinements:
+                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
+
+            
             self.number_of_refinements_updater.update(str(0))
             
             ####### update model #######
@@ -825,6 +833,7 @@ class ExperimentNode(object):
                 self.current_trial = 1
             
             self.setDataLoggerParameters()
+
 
     def start(self):
         self.loadOrCreateParticipant()

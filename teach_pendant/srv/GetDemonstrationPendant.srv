@@ -1,5 +1,3 @@
 
 ---
 promp_context_ros/prompTraj demo
-std_msgs/Bool obstacle_hit
-std_msgs/Bool object_reached

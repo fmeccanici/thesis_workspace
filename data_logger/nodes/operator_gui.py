@@ -45,17 +45,21 @@ class FailureThread(QThread):
     def run(self):
         while True:
 
-            with open(self.object_missed_file, 'r') as f:
-                self.object_missed_signal.emit(ast.literal_eval(f.read()))
-                self.sleep(1)
+            try:
+                with open(self.object_missed_file, 'r') as f:
+                        self.object_missed_signal.emit(ast.literal_eval(f.read()))
+                        self.sleep(1)
+                    
+                with open(self.object_kicked_over_file, 'r') as f:
+                    self.object_kicked_over_signal.emit(ast.literal_eval(f.read()))
+                    self.sleep(1)
 
-            with open(self.object_kicked_over_file, 'r') as f:
-                self.object_kicked_over_signal.emit(ast.literal_eval(f.read()))
-                self.sleep(1)
-
-            with open(self.obstacle_hit_file, 'r') as f:
-                self.obstacle_hit_signal.emit(ast.literal_eval(f.read()))
-                self.sleep(1)
+                with open(self.obstacle_hit_file, 'r') as f:
+                    self.obstacle_hit_signal.emit(ast.literal_eval(f.read()))
+                    self.sleep(1)
+            except SyntaxError as e:
+                print("Problem with parsing failure files: " + str(e))
+                continue
 
 class NumberOfRefinementsThread(QThread):
     number_of_refinements_signal = pyqtSignal(int)
@@ -281,7 +285,7 @@ class OperatorGUI(QMainWindow):
         self.pushButton.setText(_translate("MainWindow", "Red"))
         self.pushButton_2.setText(_translate("MainWindow", "Green"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
-        self.checkBox.setText(_translate("MainWindow", "Object missed"))
+        self.checkBox.setText(_translate("MainWindow", "Reached"))
         self.checkBox_2.setText(_translate("MainWindow", "Object kicked over"))
         self.checkBox_3.setText(_translate("MainWindow", "Obstacle hit"))
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))

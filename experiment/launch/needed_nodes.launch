@@ -13,9 +13,6 @@
     <include file="$(find teleop_control)/launch/keyboard_control.launch" 
     if="$(eval method == 'online+pendant')"/>
 
-    <include file="$(find teach_pendant)/launch/teach_pendant.launch" 
-    if="$(eval method == 'offline+pendant')"/>
-
     <include file="$(find data_logger)/launch/data_logging.launch"/> 
     <include file="$(find execution_failure_detection)/launch/execution_failure_detection_dishwasher.launch"/> 
     <!-- <include file="$(find execution_failure_detection)/launch/execution_failure_detection.launch"/>  -->

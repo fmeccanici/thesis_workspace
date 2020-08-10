@@ -13,6 +13,7 @@ class DataAnalysis(object):
         self.num_trials = 5
         self.methods_labels = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
         self.object_positions_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
+        self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
 
 
     def loadData(self, participant_number):
@@ -23,6 +24,10 @@ class DataAnalysis(object):
         path = self.figures_path + 'participant_' + str(participant_number) + '/'
         if not os.path.exists(path):
             os.makedirs(path)
+
+        for method in self.methods_labels:
+            if not os.path.exists(path):
+                os.makedirs(path + '/' + str(method) + '/')
 
     def plotPrediction(self, participant_number, method, object_position, trial):
         methods = self.data[participant_number].getMethods()
@@ -381,7 +386,7 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = 16
+    number = 19
     data_analysis.loadData(number)
     # data_analysis.plotPrediction(1, 4, 1, 1, 1)
     # data_analysis.plotRefinement(1, 4, 1, 1, 1)
@@ -403,4 +408,4 @@ if __name__ == "__main__":
     data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
 
     # data_analysis.plotExperimentData()
-    data_analysis.plotExperimentData(participant_number = number)
+    # data_analysis.plotExperimentData(participant_number = number)
