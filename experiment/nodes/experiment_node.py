@@ -672,7 +672,7 @@ class ExperimentNode(object):
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
         self.start_time = 0
-    
+
     def startTrial(self):
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
@@ -687,31 +687,29 @@ class ExperimentNode(object):
         self.setDataLoggerParameters()
         self.predict()
         self.visualize('prediction')
+        
+        self.text_updater.update("AUTONOMOUS EXECUTION")
+        obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
+        # store prediction along with failure
+        self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
+        self.saveData()
+
+        # update text in operator gui
+        if obstacle_hit or not object_reached or object_kicked_over:
+            self.text_updater.update("FAILURE:")
+        else:
+            self.text_updater.update("SUCCESS!")
+
+        if obstacle_hit:
+            self.text_updater.append("OBSTACLE HIT")
+        if not object_reached:
+            self.text_updater.append("OBJECT MISSED")
+        if object_kicked_over:
+            self.text_updater.append("OBJECT KICKED OVER")
+
+        time.sleep(2)
 
         if self.method == 'online+pendant':
-            self.text_updater.update("AUTONOMOUS EXECUTION")
-            
-            obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
-
-            # store prediction along with failure
-            self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
-            self.saveData()
-            
-            # update text in operator gui
-            if obstacle_hit or not object_reached or object_kicked_over:
-                self.text_updater.update("FAILURE:")
-            else:
-                self.text_updater.update("SUCCESS!")
-
-            if obstacle_hit:
-                self.text_updater.append("OBSTACLE HIT")
-            if not object_reached:
-                self.text_updater.append("OBJECT MISSED")
-            if object_kicked_over:
-                self.text_updater.append("OBJECT KICKED OVER")
-
-            time.sleep(2)
-
             # loop the refinement until max refinements has reached
             # or the last refinement was successful
             number_of_refinements = 0
@@ -722,6 +720,8 @@ class ExperimentNode(object):
                 self.goToInitialPose()
                 self.setObjectPosition()
                 time.sleep(3)
+
+                
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)

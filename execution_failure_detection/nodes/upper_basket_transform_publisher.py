@@ -41,15 +41,16 @@ class TableTransformPublisher(object):
             self.counter = 1
 
     def run(self):
-        
+
+        number_of_evaluations = 5
 
         # publish collision ellipsoid frame wrt base footprint --> used for visualization in RViz
         vec_min_wrt_base_footprint = [-self.upper_basket_size_x/2, 0, 0]
         vec_max_wrt_base_footprint = [0, self.upper_basket_size_y, 0]
 
 
-        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 5)
-        y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 5)
+        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], number_of_evaluations)
+        y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], number_of_evaluations)
         z = vec_min_wrt_base_footprint[2]
 
         rospy.wait_for_message('/gazebo/link_states', LinkStates)
@@ -75,8 +76,8 @@ class TableTransformPublisher(object):
         vec_max_wrt_base_footprint = copy.deepcopy([-self.upper_basket_size_x/2, self.upper_basket_size_y, self.upper_basket_size_z])
 
         x = vec_min_wrt_base_footprint[0]
-        y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], 5)
-        z = np.linspace(vec_min_wrt_base_footprint[2], vec_max_wrt_base_footprint[2], 5)
+        y = np.linspace(vec_min_wrt_base_footprint[1], vec_max_wrt_base_footprint[1], number_of_evaluations)
+        z = np.linspace(vec_min_wrt_base_footprint[2], vec_max_wrt_base_footprint[2], number_of_evaluations)
 
         rospy.wait_for_message('/gazebo/link_states', LinkStates)
         for i in range(len(y)):
@@ -100,9 +101,9 @@ class TableTransformPublisher(object):
         vec_min_wrt_base_footprint = [-self.upper_basket_size_x/2, 0, 0]
         vec_max_wrt_base_footprint = [0, 0, self.upper_basket_size_z]
 
-        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 5)
+        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], number_of_evaluations)
         y = vec_min_wrt_base_footprint[1]
-        z = np.linspace(vec_min_wrt_base_footprint[2], vec_max_wrt_base_footprint[2], 5)
+        z = np.linspace(vec_min_wrt_base_footprint[2], vec_max_wrt_base_footprint[2], number_of_evaluations)
 
         rospy.wait_for_message('/gazebo/link_states', LinkStates)
         for i in range(len(x)):
@@ -126,9 +127,9 @@ class TableTransformPublisher(object):
         vec_min_wrt_base_footprint = [-self.upper_basket_size_x/2, self.upper_basket_size_y, 0]
         vec_max_wrt_base_footprint = [0, self.upper_basket_size_y, self.upper_basket_size_z]
 
-        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], 5)
+        x = np.linspace(vec_min_wrt_base_footprint[0], vec_max_wrt_base_footprint[0], number_of_evaluations)
         y = vec_min_wrt_base_footprint[1]
-        z = np.linspace(vec_min_wrt_base_footprint[2], vec_max_wrt_base_footprint[2], 5)
+        z = np.linspace(vec_min_wrt_base_footprint[2], vec_max_wrt_base_footprint[2], number_of_evaluations)
 
         rospy.wait_for_message('/gazebo/link_states', LinkStates)
         for i in range(len(x)):
