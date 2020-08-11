@@ -738,7 +738,7 @@ class ExperimentNode(object):
 
                 self.goToInitialPose()
                 self.setObjectPosition()
-                time.sleep(10)
+                time.sleep(3)
 
                 if self.method == 'offline+pendant':
                     self.startNode('teach_pendant', 'teach_pendant.launch')

@@ -136,6 +136,11 @@ class ExecutionFailureNode(object):
                     #                 rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                    (self.q_ee.inverse.x, self.q_ee.inverse.y, self.q_ee.inverse.z,
+                                    self.q_ee.inverse.w),
+                                    rospy.Time.now(), "collision", "collision_ellipsoid")
+
                         # input('continue')
                         return True
         
@@ -148,6 +153,11 @@ class ExecutionFailureNode(object):
 
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                        (self.q_ee.inverse.x, self.q_ee.inverse.y, self.q_ee.inverse.z,
+                        self.q_ee.inverse.w),
+                        rospy.Time.now(), "collision", "collision_ellipsoid")
+
                         # input('continue')
 
                         return True
@@ -159,6 +169,11 @@ class ExecutionFailureNode(object):
                     #             rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                            (self.q_ee.inverse.x, self.q_ee.inverse.y, self.q_ee.inverse.z,
+                            self.q_ee.inverse.w),
+                            rospy.Time.now(), "collision", "collision_ellipsoid")
+
                         # input('continue')
 
                         return True
@@ -170,6 +185,11 @@ class ExecutionFailureNode(object):
                     #             rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        self.broadcaster.sendTransform((trans[0], trans[1], trans[2]),
+                                    (self.q_ee.inverse.x, self.q_ee.inverse.y, self.q_ee.inverse.z,
+                                    self.q_ee.inverse.w),
+                                    rospy.Time.now(), "collision", "collision_ellipsoid")
+
                         # input('continue')
 
                         return True
@@ -264,7 +284,7 @@ class ExecutionFailureNode(object):
                 self.reaching_ellipsoid_size_z = size_wrt_base[2] 
             
             elif ellipsoid_type == 'all':
-                size_wrt_base = [0.35, 0.25, 0.1]
+                size_wrt_base = [0.35, 0.2, 0.1]
                 self.collision_ellipsoid_size_x = size_wrt_base[0]
                 self.collision_ellipsoid_size_y = size_wrt_base[1]
                 self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best

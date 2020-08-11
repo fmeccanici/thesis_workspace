@@ -56,6 +56,11 @@ class KeyboardControl():
             self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
             self.ee_pose.orientation.w]
             self.waypoints.append(ee_pose)
+            pose_publish = PoseStamped()
+            pose_publish.pose = self.ee_pose
+            pose_publish.header.stamp = rospy.Time.now()
+            pose_publish.header.frame_id = 'base_footprint'
+            self.end_effector_goal_pub.publish(pose_publish)
         
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
@@ -209,7 +214,6 @@ class KeyboardControl():
             # q_rotation = Quaternion(axis=np.array([0.0, 0.0, 1.0]), angle=-rotation)
 
             q_rotation = self.quaternion_rotation('z', -rotation)
-
         q_rotated = q_current * q_rotation
         
         self.ee_pose.orientation.w = q_rotated[0]
@@ -305,7 +309,8 @@ class KeyboardControl():
                 self.keyboard_toggle = 1
 
             elif self.keyboard.key.data == 'enter':
-                
+                self.text_updater.update("GENERATING TRAJECTORY")
+
                 # catch fitpack error
                 try:    
                     dfitpack.sproot(-1, -1, -1)    
@@ -331,7 +336,6 @@ class KeyboardControl():
                 except (rospy.ServiceException, rospy.ROSException) as e:
                     print("Service call failed: %s" %e) 
                 
-                self.text_updater.update("GENERATING TRAJECTORY")
 
                 
             r.sleep()

@@ -191,6 +191,8 @@ Visualization Manager:
           Value: false
         torso_lift_link:
           Value: false
+        collision:
+          Value: true
         upper_basket_bottom_0_0:
           Value: false
         upper_basket_bottom_0_1:
@@ -418,7 +420,7 @@ Visualization Manager:
       Name: TF
       Show Arrows: false
       Show Axes: true
-      Show Names: false
+      Show Names: true
       Tree:
         world:
           base_footprint:
