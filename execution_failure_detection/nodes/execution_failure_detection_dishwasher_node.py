@@ -136,6 +136,7 @@ class ExecutionFailureNode(object):
                     #                 rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        # input('continue')
                         return True
         
 
@@ -147,6 +148,8 @@ class ExecutionFailureNode(object):
 
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        # input('continue')
+
                         return True
 
                     (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "upper_basket_right_side_" + str(i) + "_" + str(j), rospy.Time(0))
@@ -156,6 +159,8 @@ class ExecutionFailureNode(object):
                     #             rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        # input('continue')
+
                         return True
 
                     (trans,rot) = self.listener.lookupTransform('collision_ellipsoid', "upper_basket_left_side_" + str(i) + "_" + str(j), rospy.Time(0))
@@ -165,6 +170,8 @@ class ExecutionFailureNode(object):
                     #             rospy.Time.now(), "upper_basket_eval", "collision_ellipsoid")
 
                     if self.isInsideEllipsoid(trans[0],trans[1],trans[2],'collision'): 
+                        # input('continue')
+
                         return True
 
                 except Exception as e:
@@ -257,7 +264,7 @@ class ExecutionFailureNode(object):
                 self.reaching_ellipsoid_size_z = size_wrt_base[2] 
             
             elif ellipsoid_type == 'all':
-                size_wrt_base = [0.35, 0.25, 0.06]
+                size_wrt_base = [0.35, 0.25, 0.1]
                 self.collision_ellipsoid_size_x = size_wrt_base[0]
                 self.collision_ellipsoid_size_y = size_wrt_base[1]
                 self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
