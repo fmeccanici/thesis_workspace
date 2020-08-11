@@ -1,19 +1,22 @@
-import ast, os
+import ast, os, sys
 from data_logger_python.data_logger_python import ParticipantData
 import matplotlib.pyplot as plt
 import numpy as np
+from experiment_variables.experiment_variables import ExperimentVariables
 
 class DataAnalysis(object):
     def __init__(self):
+        self.experiment_variables = ExperimentVariables()
         self.data_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'
         self.figures_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/figures/'
         self.data = {}
-        self.num_methods = 4
-        self.num_object_positions = 3
-        self.num_trials = 5
+        self.num_methods = self.experiment_variables.num_methods
+        self.num_object_positions = self.experiment_variables.num_object_positions
+        self.num_trials = self.experiment_variables.num_trials
+
         self.methods_labels = ['online + omni', 'offline + omni', 'online + keyboard', 'offline + keyboard']
         self.object_positions_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
-        self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
+        self.method_mapping = self.experiment_variables.method_mapping_str_to_number
 
 
     def loadData(self, participant_number):
@@ -306,9 +309,10 @@ class DataAnalysis(object):
 
 
     def plotExperimentData(self, *args, **kwargs):
+
         if "participant_number" in kwargs:
             participant_number = kwargs["participant_number"]
-            path = self.data_path + "participant_" + str(participant_number) + '/after_experiment/data.txt'
+            path = self.data_path + "participant_" + str(participant_number) + '/after_experiment/' + str(method) + '/data.txt'
         else:
             path = self.data_path + 'before_experiment/dishwasher2/data.txt'
 
@@ -375,7 +379,7 @@ class DataAnalysis(object):
             fig.subplots_adjust(top=0.88)
 
         if "participant_number" in kwargs:
-            path = self.figures_path + "participant_" + str(participant_number) + "/after_experiment/"
+            path = self.figures_path + "participant_" + str(participant_number) + "/after_experiment/" + str(method) + "/"
             if not os.path.exists(path):
                 os.makedirs(path)
             
@@ -386,26 +390,37 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = 19
+    number = sys.argv[1]
+    what_to_plot = sys.argv[2]
+
     data_analysis.loadData(number)
-    # data_analysis.plotPrediction(1, 4, 1, 1, 1)
-    # data_analysis.plotRefinement(1, 4, 1, 1, 1)
-    # print(data_analysis.getTime(1, 3, 1, 1, 1))
-    # data_analysis.calculateRefinementTime(1, 3, 1)
-    data_analysis.plotRefinementTime(number)
-    data_analysis.plotNumberOfRefinements(number)
 
-    data_analysis.plotSuccesfullPredictions(number)
-    data_analysis.plotSuccesfullRefinements(number)
+    if what_to_plot == 'experiment':
+        data_analysis.plotRefinementTime(number)
+        data_analysis.plotNumberOfRefinements(number)
 
-    data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
-    data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
+        data_analysis.plotSuccesfullPredictions(number)
+        data_analysis.plotSuccesfullRefinements(number)
 
-    data_analysis.plotNumberOfObjectMissed(number, 'refinement')
-    data_analysis.plotNumberOfObjectMissed(number, 'prediction')
+        data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
+        data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
 
-    data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
-    data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
+        data_analysis.plotNumberOfObjectMissed(number, 'refinement')
+        data_analysis.plotNumberOfObjectMissed(number, 'prediction')
 
-    # data_analysis.plotExperimentData()
-    # data_analysis.plotExperimentData(participant_number = number)
+        data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
+        data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
+        print('Figures of experiment stored')
+    
+    elif what_to_plot == 'after':
+        for method in data_analysis.experiment_variables.method_mapping_str_to_number:
+            try:
+                data_analysis.plotExperimentData(participant_number = number, method = method)   
+            except FileNotFoundError:
+                print('Data for method ' + str(method) + ' not found')
+                continue 
+            print('Figures after experiment stored')
+
+    elif what_to_plot == 'before':
+        data_analysis.plotExperimentData()
+        print('Figures before experiment stored')

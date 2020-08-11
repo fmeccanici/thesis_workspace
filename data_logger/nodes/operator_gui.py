@@ -2,6 +2,7 @@
 
 import rospy, os, sys, csv, rospkg, ast
 from data_logger_python.data_logger_python import ParticipantData
+from experiment_variables.experiment_variables import ExperimentVariables
 
 # import Qt stuff
 from PyQt5.QtWidgets import *
@@ -132,6 +133,7 @@ class OperatorGUI(QMainWindow):
         self.number_of_refinements_thread.number_of_refinements_signal.connect(self.updateNumberOfRefinements)
         self.number_of_refinements_thread.start()
 
+        self.experiment_variables = ExperimentVariables()
         self.initUI()
         self.show()
 
@@ -318,7 +320,7 @@ class OperatorGUI(QMainWindow):
             self.checkBox_3.setChecked(0)
 
     def updateNumberOfRefinements(self, number_of_refinements):
-        self.lineEdit_2.setText(str(number_of_refinements) + '/5 refinements used')
+        self.lineEdit_2.setText(str(number_of_refinements) + '/' + str(self.experiment_variables.max_refinements) + ' refinements used')
 
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)

@@ -2,6 +2,7 @@
 
 import rospy, copy, time, ast, roslaunch, rospkg, os
 from subprocess import call
+from experiment_variables.experiment_variables import ExperimentVariables
 
 from execution_failure_detection.srv import GetExecutionFailure
 from learning_from_demonstration.srv import ExecuteTrajectory, GoToPose, GetContext, MakePrediction
@@ -21,36 +22,32 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 
 from std_msgs.msg import Float32
+from sensor_msgs.msg import JointState
 
 class DataCreator(object):
     def __init__(self):
-        self.num_object_positions = 3
-        self.num_trials = 5
-        self.num_methods = 4
+        self.experiment_variables = ExperimentVariables()
+        self.num_object_positions = self.experiment_variables.num_object_positions
+        self.num_trials = self.experiment_variables.num_trials
+        self.num_methods = self.experiment_variables.num_methods
+        self.object_positions = self.experiment_variables.object_positions
+
         self.methods = {}
         self.parser = trajectoryParser()
         self.nodes = {}
         self._rospack = rospkg.RosPack()
-
-        # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
-        self.y_position_step_dict = {1: 0.0, 2: 0.1, 3: 2*0.1}
-
-        # self.object_positions = { 1: [0.8, 0.23 - self.y_position_step_dict[1], 0.7], 2: [0.8, 0.23 - self.y_position_step_dict[2], 0.7], 3: [0.8, 0.23 - self.y_position_step_dict[3], 0.7],
-        #                          4: [0.8, 0.23 - self.y_position_step_dict[4], 0.7], 5: [0.8, 0.23 - self.y_position_step_dict[5], 0.7], 6: [0.8, 0.23 - self.y_position_step_dict[6], 0.7]}
-
-        self.y0 = 0.2
-        self.object_positions = { 1: [0.8, self.y0 - self.y_position_step_dict[1], 0.7], 2: [0.8, self.y0 - self.y_position_step_dict[2], 0.7], 3: [0.8, self.y0 - self.y_position_step_dict[3], 0.7]}
-
-        # self.object_positions = { 1: [0.8, 0.25, 0.7]}
 
         self.trials = {}
         self.data = {}
 
         self.predicted_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False,'object_kicked_over': False,  'success': True}
         self.refined_trajectory = {'x': [], 'y': [], 'z': [], 'qx': [],'qy': [], 'qz': [], 'qw': [], 't': [], 'object_missed': False, 'obstacle_hit': False, 'object_kicked_over': False, 'success': True}
+        
         self.debug_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/'
 
         rospy.init_node('data_creator')
+        self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
+        self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
 
     def executeTrajectory(self, traj):
         rospy.wait_for_service('execute_trajectory', timeout=2.0)
@@ -256,7 +253,27 @@ class DataCreator(object):
 
     def openGripper(self):
         rc = call("/home/fmeccanici/Documents/thesis/thesis_workspace/src/teleop_control/scripts/gripper_opener.sh")
+    
+    def initializeHeadLiftJoint(self):
+        lift_goal = JointState()
+        head_goal = JointState()
 
+        lift_goal.name = ["torso_lift_joint"]
+        head_goal.name = ["head_2_joint", "head_1_joint"]
+
+        lift_goal.position = [0.3]
+
+        head_goal.position = [-0.9, 0.0]
+
+        head_goal.effort = [0.0, 0.0]
+        lift_goal.effort = [0.0]
+
+        head_goal.velocity = [0.0, 0.0]
+        lift_goal.velocity = [0.0]
+
+        self.lift_goal_pub.publish(lift_goal)
+        self.head_goal_pub.publish(head_goal)
+    
     def createDataBeforeExperiment(self):
 
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/before_experiment/dishwasher2/')
@@ -483,7 +500,7 @@ class DataCreator(object):
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number)+ '/')
 
         self.loadData()
-        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number) + '/after_experiment/'
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number) + '/after_experiment/' + str(self.experiment_variables.method_mapping_number_to_str[method]) + '/'
         
         if not os.path.exists(path):
             os.makedirs(path)
@@ -520,6 +537,8 @@ class DataCreator(object):
         # loop over the object positions again and make predictions
         for position in self.object_positions:
             for trial in range(1, self.num_trials+1):
+                self.openGripper()
+
                 self.current_object_position = position
                 print("object position: " + str(position))
                 print("trial: " + str(trial))
@@ -598,6 +617,8 @@ class DataCreator(object):
 
                 time.sleep(1)
     def run(self):
+        self.initializeHeadLiftJoint()
+
         participant_number = int(rospy.get_param('~participant_number'))
         method = int(rospy.get_param('~method')) # 3 = online + keyboard
         visualize = bool(rospy.get_param('~visualize'))

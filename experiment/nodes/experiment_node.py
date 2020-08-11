@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from subprocess import call
-import rospy, rospkg, roslaunch, time, random
+import rospy, rospkg, roslaunch, time, random, copy
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 from data_logger_python.text_updater import TextUpdater
 from pyquaternion import Quaternion
 import numpy as np
+from experiment_variables.experiment_variables import ExperimentVariables
 
 # import ros messages
 from sensor_msgs.msg import JointState
@@ -49,26 +50,27 @@ class ExperimentNode(object):
         self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
         self.number_of_refinements_updater.update(str(0))
 
+        self.experiment_variables = ExperimentVariables()
         self.nodes = {}
-        self.method_mapping = {'online+omni':1, 'offline+omni':2, 'online+pendant':3, 'offline+pendant':4}
+        self.method_mapping = self.experiment_variables.method_mapping_str_to_number
 
-        self.num_trials = 5
-        self.num_object_positions = 3
+        self.num_trials = self.experiment_variables.num_trials
+        self.num_object_positions = self.experiment_variables.num_object_positions
         self.trials = range(1,self.num_trials+1)
 
         self.object_positions = range(1,self.num_object_positions+1)
-        self.max_refinements = 5
+        self.max_refinements = self.experiment_variables.max_refinements
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
 
-        self.T_desired = 20.0
+        self.T_desired = self.experiment_variables.T_desired
         self.start_time = 0
         self.set_data = False
 
         self.current_trial = 1
         self.current_object_position = 1
         # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
-        self.y_position_step_dict = {1: 0.0, 2: 0.1, 3: 2*0.1}
+        self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
 
         # ros stuff
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
@@ -169,7 +171,8 @@ class ExperimentNode(object):
 
         del self.y_position_step_dict[random_object_position]
 
-        y0 = 0.2
+        y0 = self.experiment_variables.y0
+
         return y0 - step
 
     def setObjectPosition(self):
@@ -811,10 +814,13 @@ class ExperimentNode(object):
             
             self.number_of_refinements_updater.update(str(0))
             
+            print("number of refinements before adding to model")
+
             ####### update model #######
             if number_of_refinements == 0:
                 pass
             else:
+                print('adding refinement to model')
                 self.addToModel()
             
             self.stopTimer()
