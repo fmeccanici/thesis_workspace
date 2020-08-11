@@ -23,7 +23,7 @@ class SceneDrawer(object):
         ##### true size ######
         self.upper_basket_size_x = 0.52
         self.upper_basket_size_y = 0.5
-        self.upper_basket_size_z = 0.13
+        self.upper_basket_size_z = 0.11
         
         ##### size adapted for collision ######
         # x = 0.8
@@ -58,9 +58,10 @@ class SceneDrawer(object):
 
         if self.upper_basket_pose_counter == 0:
             color = 'red'
+
             self.upper_basket_pose.position.x = self.upper_basket_pose.position.x + 0.05
             self.upper_basket_pose.position.y = self.upper_basket_pose.position.y + self.upper_basket_size_y/2
-            self.upper_basket_pose.position.z = self.upper_basket_pose.position.z + self.upper_basket_size_z/2 + 0.01
+            self.upper_basket_pose.position.z = self.upper_basket_pose.position.z + self.upper_basket_size_z/2 + 0.025
             self.upper_basket_pose.orientation.x = 0
             self.upper_basket_pose.orientation.y = 0
             self.upper_basket_pose.orientation.z = 0

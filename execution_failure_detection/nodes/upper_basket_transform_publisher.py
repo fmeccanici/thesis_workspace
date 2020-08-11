@@ -13,10 +13,10 @@ class TableTransformPublisher(object):
         
         self.counter = 0
         ##### true size ######
-        self.upper_basket_size_x = 0.5
+        self.upper_basket_size_x = 0.52
         self.upper_basket_size_y = 0.5
         self.upper_basket_size_z = 0.11
-
+        
         self.upper_basket_pose = Pose()
         self.upper_basket_pose.orientation.x = 0
         self.upper_basket_pose.orientation.y = 0
@@ -27,17 +27,18 @@ class TableTransformPublisher(object):
 
     def linkStatesCallback(self, data):
         self.object_pose = data.pose[4]
-        self.upper_basket_pose = data.pose[3]
 
         if self.counter == 0:
-            self.upper_basket_pose.position.x = self.upper_basket_pose.position.x 
-            self.upper_basket_pose.position.y = self.upper_basket_pose.position.y + self.upper_basket_size_y/2
-            self.upper_basket_pose.position.z = self.upper_basket_pose.position.z + self.upper_basket_size_z/2 + 0.025
+            self.upper_basket_pose = data.pose[3]
+
+            self.upper_basket_pose.position.x = self.upper_basket_pose.position.x + 0.05
+            self.upper_basket_pose.position.y = self.upper_basket_pose.position.y
+            self.upper_basket_pose.position.z = self.upper_basket_pose.position.z + 0.025
             self.upper_basket_pose.orientation.x = 0
             self.upper_basket_pose.orientation.y = 0
             self.upper_basket_pose.orientation.z = 0
             self.upper_basket_pose.orientation.w = 1
-
+            
             self.counter = 1
 
     def run(self):
@@ -54,6 +55,8 @@ class TableTransformPublisher(object):
         z = vec_min_wrt_base_footprint[2]
 
         rospy.wait_for_message('/gazebo/link_states', LinkStates)
+        print(self.upper_basket_pose.position.z)
+
         for i in range(len(x)):
             for j in range(len(y)):
                 static_table_transform = TransformStamped()
@@ -61,9 +64,15 @@ class TableTransformPublisher(object):
 
                 static_table_transform.header.stamp = rospy.Time.now()
                 static_table_transform.child_frame_id = "upper_basket_bottom_" + str(i) + "_" + str(j)
-                static_table_transform.transform.translation.x = self.upper_basket_pose.position.x + x[i]
+                rospy.wait_for_message('/gazebo/link_states', LinkStates)
+                static_table_transform.transform.translation.x = self.upper_basket_pose.position.x + x[i] 
                 static_table_transform.transform.translation.y = self.upper_basket_pose.position.y + y[j]
+                
+                if i == 0 and j == 0:
+                    print(self.upper_basket_pose.position.z)
+
                 static_table_transform.transform.translation.z = self.upper_basket_pose.position.z + z
+
                 static_table_transform.transform.rotation.x = self.upper_basket_pose.orientation.x
                 static_table_transform.transform.rotation.y = self.upper_basket_pose.orientation.y
                 static_table_transform.transform.rotation.z = self.upper_basket_pose.orientation.z
@@ -115,7 +124,7 @@ class TableTransformPublisher(object):
                 static_table_transform.child_frame_id = "upper_basket_right_side_" + str(i) + "_" + str(j)
                 static_table_transform.transform.translation.x = self.upper_basket_pose.position.x + x[i]
                 static_table_transform.transform.translation.y = self.upper_basket_pose.position.y + y
-                static_table_transform.transform.translation.z = self.upper_basket_pose.position.z + z[j]
+                static_table_transform.transform.translation.z = self.upper_basket_pose.position.z + z[j] 
                 static_table_transform.transform.rotation.x = self.upper_basket_pose.orientation.x
                 static_table_transform.transform.rotation.y = self.upper_basket_pose.orientation.y
                 static_table_transform.transform.rotation.z = self.upper_basket_pose.orientation.z
