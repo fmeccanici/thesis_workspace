@@ -6,7 +6,8 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
                                 SetPrediction, SetPredictionResponse, SetObjectMissed, SetObjectMissedResponse,
                                 SetObstaclesHit, SetObstaclesHitResponse, ToCsv, ToCsvResponse,
                                 IncrementNumberOfRefinements, IncrementNumberOfRefinementsResponse,
-                                SetParameters, SetParametersResponse, SetTime, SetTimeResponse)
+                                SetParameters, SetParametersResponse, SetTime, SetTimeResponse, 
+                                SetNumberOfRefinements, SetNumberOfRefinementsResponse)
 
 from learning_from_demonstration.srv import GetContext
 import copy
@@ -25,6 +26,8 @@ class DataLoggerNode(object):
 
 
         self._increment_number_of_refinements_service = rospy.Service('increment_number_of_refinements', IncrementNumberOfRefinements, self._incrementNumberOfRefinements)
+        self._set_number_of_refinements_service = rospy.Service('set_number_of_refinements', SetNumberOfRefinements, self._setNumberOfRefinements)
+
         # self._set_number_of_updates_service = rospy.Service('set_number_of_updates', SetNumberOfUpdates, self._setNumberOfUpdates)
         self._to_csv_service = rospy.Service('to_csv', ToCsv, self._toCsv)
         self._set_time_service = rospy.Service('data_logger/set_time', SetTime, self._setTime)
@@ -156,6 +159,15 @@ class DataLoggerNode(object):
         self.data[number].incrementNumberOfRefinements()
 
         resp = IncrementNumberOfRefinementsResponse()
+        return resp
+
+    def _setNumberOfRefinements(self, req):
+        number = req.number.data 
+        number_of_refinements = req.number_of_refinements.data
+
+        self.data[number].setNumberOfRefinements(number_of_refinements)
+
+        resp = SetNumberOfRefinementsResponse()
         return resp
 
     # def _setNumberOfUpdates(self, req):

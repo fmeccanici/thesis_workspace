@@ -287,9 +287,9 @@ class OperatorGUI(QMainWindow):
         self.pushButton.setText(_translate("MainWindow", "Red"))
         self.pushButton_2.setText(_translate("MainWindow", "Green"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
-        self.checkBox.setText(_translate("MainWindow", "Reached"))
-        self.checkBox_2.setText(_translate("MainWindow", "Object kicked over"))
-        self.checkBox_3.setText(_translate("MainWindow", "Obstacle hit"))
+        self.checkBox.setText(_translate("MainWindow", "Within Reach"))
+        self.checkBox_2.setText(_translate("MainWindow", "Not kicked over"))
+        self.checkBox_3.setText(_translate("MainWindow", "No collision"))
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
 
 
@@ -302,21 +302,21 @@ class OperatorGUI(QMainWindow):
         self.pushButton_2.clicked.connect(self.onGreenClick)
     
     def updateObjectMissed(self, object_missed):
-        if object_missed:
+        if not object_missed:
             self.checkBox.setChecked(1)
-        elif not object_missed:
+        elif object_missed:
             self.checkBox.setChecked(0)
 
     def updateObjectKickedOver(self, object_kicked_over):
-        if object_kicked_over:
+        if not object_kicked_over:
             self.checkBox_2.setChecked(1)
-        elif not object_kicked_over:
+        elif object_kicked_over:
             self.checkBox_2.setChecked(0)
 
     def updateObstacleHit(self, obstacle_hit):
-        if obstacle_hit:
+        if not obstacle_hit:
             self.checkBox_3.setChecked(1)
-        elif not obstacle_hit:
+        elif obstacle_hit:
             self.checkBox_3.setChecked(0)
 
     def updateNumberOfRefinements(self, number_of_refinements):

@@ -167,7 +167,7 @@ class DataCreator(object):
 
             step = 0.1
             x = 0.8
-            y0 = self.y0
+            y0 = self.experiment_variables.y0
             
             # dishwasher moved backwards    
             if self.current_object_position == 1:
@@ -407,13 +407,8 @@ class DataCreator(object):
         
         r_object_wrt_ee = [context[0] / 10, context[1] / 10, context[2] / 10] 
         
-        print('obj wrt ee: ' + str(r_object_wrt_ee))
-
         # calculate object wrt base
         r_object_wrt_base = np.asarray(r_object_wrt_ee) + np.asarray([traj_wrt_base[0][0], traj_wrt_base[0][1], traj_wrt_base[0][2]])
-
-        print('obj wrt base: ' + str(r_object_wrt_base))
-
 
         # store data for debugging
         file_name = 'traj_wrt_base_trial_' + str(trial) + '.txt'
@@ -433,11 +428,12 @@ class DataCreator(object):
         with open(self.debug_path + file_name, 'w+') as f:
             f.write(str(traj_wrt_object))
 
+        print("Found refinement")
         return traj_wrt_object, context
 
     def addToModel(self, trajectory, context):
         # 2 was too much, later trajectories had too little influence
-        amount = 2
+        amount = self.experiment_variables.num_updates
 
         try:
             rospy.wait_for_service('welford_update', timeout=2.0)

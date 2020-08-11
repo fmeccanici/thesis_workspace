@@ -257,11 +257,11 @@ class ParticipantData(object):
 
     def incrementNumberOfRefinements(self):
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
-        print("method " + str(self.method))
-        print("object position " + str(self.object_position))
-        print("trial " + str(self.trial))
-        print("number of refinements incremented to " + str(self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
 
+    def setNumberOfRefinements(self, number_of_refinements):
+        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] = number_of_refinements
+        print('Set number of refinements to ' + str(self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
+    
     def incrementNumberOfUpdates(self, method):
         self.methods[method]['number_of_updates'] += 1
 

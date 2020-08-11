@@ -23,7 +23,7 @@ from teleop_control.msg import Keyboard
 from data_logger.srv import (CreateParticipant, AddRefinement,
                                 SetPrediction, ToCsv, SetObstaclesHit,
                                 SetObjectMissed, IncrementNumberOfRefinements,
-                                SetParameters, SetTime)
+                                SetParameters, SetTime, SetNumberOfRefinements)
 
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
@@ -80,12 +80,18 @@ class ExperimentNode(object):
 
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
 
+        self.stop_updating_flag = 0
+        self.collision_updating_flag = 0
+
     # failure detection callback
     def _executionFailureCallback(self, data):
-        self.object_missed_updater.update(str(not data.object_reached.data))
-        self.obstacle_hit_updater.update( str(data.obstacle_hit.data ))
+        if self.stop_updating_flag == 0:
+            self.object_missed_updater.update(str(not data.object_reached.data))
+            
+            if self.collision_updating_flag == 1:
+                self.obstacle_hit_updater.update( str(data.obstacle_hit.data ))
 
-        self.object_kicked_over_updater.update( str(data.object_kicked_over.data ))
+            self.object_kicked_over_updater.update( str(data.object_kicked_over.data ))
 
     def _operatorGuiInteraction(self, data):    
         if data.refine_prediction.data:
@@ -420,7 +426,6 @@ class ExperimentNode(object):
     def setDataLoggerParameters(self):
         number_msg = Byte(self.participant_number)
 
-
         method_msg = Byte(self.method_mapping[self.method])
 
         object_position_msg = Byte(self.current_object_position)
@@ -532,7 +537,7 @@ class ExperimentNode(object):
     
     def addToModel(self):
         # 2 was too much, later trajectories had too little influence
-        amount = 1
+        amount = self.experiment_variables.num_updates
 
         try:
             rospy.wait_for_service('welford_update', timeout=2.0)
@@ -646,6 +651,9 @@ class ExperimentNode(object):
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
+                
+                self.stop_updating_flag = 0
+
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
                 
                 if self.refine == 'prediction':
@@ -689,6 +697,8 @@ class ExperimentNode(object):
 
                 print("\n")
 
+                self.stop_updating_flag = 1
+
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
                     self.text_updater.update("FAILURE:")
@@ -706,12 +716,13 @@ class ExperimentNode(object):
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
-                # increment number of refinements
-                rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
-                
-                increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
-                increment_refinement(Byte(self.participant_number))
                 number_of_refinements += 1
+
+                # increment number of refinements
+                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
+                
+                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
+                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
@@ -734,7 +745,8 @@ class ExperimentNode(object):
                 time.sleep(3)
 
                 self.text_updater.update("START TEACHING")
-                
+                self.collision_updating_flag = 1
+
                 # we only need to start the timer if it is equal to zero, else just keep the timer running
                 if self.start_time == 0:
                     # start timer
@@ -758,13 +770,15 @@ class ExperimentNode(object):
                 resp = get_demo_pendant()
                 
                 self.stopNode('teach_pendant.launch')
-
+                
                 self.goToInitialPose()
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
                 self.visualize('both')
                 time.sleep(3)
+
+                self.collision_updating_flag = 0
 
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
                 
@@ -797,11 +811,11 @@ class ExperimentNode(object):
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
                 # increment number of refinements
-                rospy.wait_for_service('increment_number_of_refinements', timeout=2.0)
+                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
-                increment_refinement = rospy.ServiceProxy('increment_number_of_refinements', IncrementNumberOfRefinements)
-                increment_refinement(Byte(self.participant_number))
                 number_of_refinements += 1
+                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
+                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
@@ -812,33 +826,31 @@ class ExperimentNode(object):
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
 
             
-            self.number_of_refinements_updater.update(str(0))
-            
-            print("number of refinements before adding to model")
+        self.number_of_refinements_updater.update(str(0))
+        
+        ####### update model #######
+        if number_of_refinements == 0:
+            pass
+        else:
+            print('adding refinement to model')
+            self.addToModel()
+        
+        self.stopTimer()
+        
+        # store time
+        self.storeData(time=True)
+        
+        ###### save data ######
+        self.saveData()
+        self.zeroTimer()
 
-            ####### update model #######
-            if number_of_refinements == 0:
-                pass
-            else:
-                print('adding refinement to model')
-                self.addToModel()
-            
-            self.stopTimer()
-            
-            # store time
-            self.storeData(time=True)
-            
-            ###### save data ######
-            self.saveData()
-            self.zeroTimer()
+        self.current_trial += 1
 
-            self.current_trial += 1
-
-            if self.current_trial >= self.num_trials+1:
-                self.current_object_position += 1
-                self.current_trial = 1
-            
-            self.setDataLoggerParameters()
+        if self.current_trial >= self.num_trials+1:
+            self.current_object_position += 1
+            self.current_trial = 1
+        
+        self.setDataLoggerParameters()
 
 
     def start(self):

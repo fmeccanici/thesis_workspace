@@ -30,6 +30,7 @@ from learning_from_demonstration_python.learning_from_demonstration import learn
 from trajectory_visualizer_python.trajectory_visualizer_python import trajectoryVisualizer
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
+from data_logger_python.text_updater import TextUpdater
 
 # import other python classes
 from scipy.interpolate import interp1d
@@ -117,7 +118,8 @@ class lfdNode():
         self.initialize_lfd_model()
         
         self.nodes = {}
-    
+        self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
+
     def startTimer(self):
         t = time.time()
         self.stop_timer = False
@@ -298,6 +300,7 @@ class lfdNode():
         rospy.loginfo("Executing trajectory...")
         self.stop_execution = False
         self.obstacle_hit_once = False
+        self.obstacle_hit_updater.update(str(self.obstacle_hit_once))
 
         slave_goal = PoseStamped()
         for datapoint in traj:
@@ -324,7 +327,8 @@ class lfdNode():
 
             if self.obstacle_hit == True and self.obstacle_hit_once == False:
                 self.obstacle_hit_once = True
-            
+                self.obstacle_hit_updater.update(str(self.obstacle_hit_once))
+
             time.sleep(dt)
 
         rospy.wait_for_message('execution_failure', ExecutionFailure)

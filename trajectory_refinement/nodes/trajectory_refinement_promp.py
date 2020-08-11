@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
+from data_logger_python.text_updater import TextUpdater
 
 from pyquaternion import Quaternion
 from pynput.keyboard import Key, Listener, KeyCode
@@ -97,6 +98,8 @@ class trajectoryRefinement():
         # calibrate master pose
         self.calibrate_master_pose_for_normalization()
 
+        self.text_updater = TextUpdater()
+        self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
 
     def _get_parameters(self):
         self.button_source = rospy.get_param('~button_source')
@@ -146,6 +149,8 @@ class trajectoryRefinement():
             if self.white_button_toggle == 0:
                 self.white_button_toggle = 1
                 print("set button to " + str(self.white_button_toggle))
+                self.text_updater.update("STOPPED REFINEMENT")
+
             # else: self.white_button_toggle = 0
         # print(self.white_button_toggle)
     def _marker_detection_callback(self, data):
@@ -269,6 +274,7 @@ class trajectoryRefinement():
 
     def refineTrajectory(self, traj, dt):
         self.obstacle_hit_once = False
+        self.obstacle_hit_updater.update(str(self.obstacle_hit_once))
 
         traj_pos = self.parser.getCartesianPositions(traj)
         refined_traj = []
@@ -368,7 +374,8 @@ class trajectoryRefinement():
                 #     self.obstacle_hit = resp.obstacle_hit.data
                 if self.obstacle_hit == True and self.obstacle_hit_once == False:
                     self.obstacle_hit_once = True
-
+                    self.obstacle_hit_updater.update(str(True))
+                    
             except (rospy.ServiceException, rospy.ROSException) as e:
                 print("Service call failed: %s"%e)
 

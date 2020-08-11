@@ -286,6 +286,7 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Successfull predictions [%]")
+            plt.ylim([0,100])
             plt.tight_layout()
         
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/successful_predictions.pdf')
@@ -419,7 +420,7 @@ if __name__ == "__main__":
             except FileNotFoundError:
                 print('Data for method ' + str(method) + ' not found')
                 continue 
-            print('Figures after experiment stored')
+            print('Data for method ' + str(method) + ' plotted')
 
     elif what_to_plot == 'before':
         data_analysis.plotExperimentData()

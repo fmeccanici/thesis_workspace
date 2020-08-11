@@ -18,6 +18,7 @@
     ToCsv.srv
     SetPrediction.srv
     IncrementNumberOfRefinements.srv
+    SetNumberOfRefinements.srv
     SetParameters.srv
     SetTime.srv
   )
