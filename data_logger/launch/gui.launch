@@ -1,9 +1,10 @@
 
 <launch>
+    <arg name="method" default='online+pendant'/>
 
     <node pkg="data_logger" name="operator_gui" 
     type="operator_gui.py" output="screen">
- 
+        <param name="method" value="$(arg method)"/>
     </node>
 
 </launch>

@@ -79,13 +79,14 @@ class NumberOfRefinementsThread(QThread):
 
 class ImageWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, method):
         QWidget.__init__(self)
         self.title = 'PyQt5 image - pythonspot.com'
         self.left = 0
         self.top = 0
         self.width = 640
         self.height = 480
+        self.method = method
         self.initUI()
     
     def initUI(self):
@@ -95,7 +96,12 @@ class ImageWidget(QWidget):
         # Create widget
         label = QLabel(self)
         # pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/drawio/omni_instruction.png')
-        pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/keyboard_online_instructions2.png')
+        
+        if self.method == 'online+pendant':
+            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/keyboard_online_instructions2.png')
+        elif self.method == 'offline+pendant':
+            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_offline.png')
+
         pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
 
         label.setPixmap(pixmap)
@@ -134,7 +140,10 @@ class OperatorGUI(QMainWindow):
         self.number_of_refinements_thread.start()
 
         self.experiment_variables = ExperimentVariables()
+        
+        self.method = rospy.get_param('~method')
         self.initUI()
+
         self.show()
 
     def initUI(self):
@@ -191,18 +200,21 @@ class OperatorGUI(QMainWindow):
         self.groupBox_3.setGeometry(QRect(1355, 675, 500, 450))
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
-        self.pushButton = QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QRect(520, 850, 271, 101))
-        font = QFont()
-        font.setPointSize(40)
-        self.pushButton.setFont(font)
-        self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QPushButton(self.centralwidget)
-        self.pushButton_2.setGeometry(QRect(810, 850, 271, 101))
-        font = QFont()
-        font.setPointSize(40)
-        self.pushButton_2.setFont(font)
-        self.pushButton_2.setObjectName("pushButton_2")
+
+        if self.method == 'online+pendant':
+            self.pushButton = QPushButton(self.centralwidget)
+            self.pushButton.setGeometry(QRect(520, 850, 271, 101))
+            font = QFont()
+            font.setPointSize(40)
+            self.pushButton.setFont(font)
+            self.pushButton.setObjectName("pushButton")
+            self.pushButton_2 = QPushButton(self.centralwidget)
+            self.pushButton_2.setGeometry(QRect(810, 850, 271, 101))
+            font = QFont()
+            font.setPointSize(40)
+            self.pushButton_2.setFont(font)
+            self.pushButton_2.setObjectName("pushButton_2")
+
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QRect(20, 730, 1061, 81))
         font = QFont()
@@ -256,10 +268,10 @@ class OperatorGUI(QMainWindow):
         config_file1 = self._rospack.get_path('data_logger') + "/experiment1.rviz"
         config_file2 = self._rospack.get_path('data_logger') + "/experiment2.rviz"
 
-        self.rviz_widget1 = rvizPython(config_file1)
-        self.rviz_widget2 = rvizPython(config_file2)
+        self.rviz_widget1 = rvizPython(config_file1, 'side')
+        self.rviz_widget2 = rvizPython(config_file2, 'top')
 
-        self.image_widget = ImageWidget()
+        self.image_widget = ImageWidget(self.method)
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout2 = QHBoxLayout()
         self.horizontalLayout3 = QHBoxLayout()
@@ -285,22 +297,27 @@ class OperatorGUI(QMainWindow):
         self.label_3.setText(_translate("MainWindow", "Number"))
         self.radioButton.setText(_translate("MainWindow", "Ma&le"))
         self.radioButton_2.setText(_translate("MainWindow", "Female"))
-        self.pushButton.setText(_translate("MainWindow", "Red"))
-        self.pushButton_2.setText(_translate("MainWindow", "Green"))
+
+        if self.method == 'online+pendant':
+            self.pushButton.setText(_translate("MainWindow", "Red"))
+            self.pushButton_2.setText(_translate("MainWindow", "Green"))
+        
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
-        self.checkBox.setText(_translate("MainWindow", "Within Reach"))
+        self.checkBox.setText(_translate("MainWindow", "Within reach"))
         self.checkBox_2.setText(_translate("MainWindow", "Not kicked over"))
         self.checkBox_3.setText(_translate("MainWindow", "No collision"))
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
 
-
-        self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
-        self.pushButton_2.setStyleSheet("background-color: green; font: bold 40px; color: black")
+        if self.method == 'online+pendant':
+            self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
+            self.pushButton_2.setStyleSheet("background-color: green; font: bold 40px; color: black")
 
         self.buttonBox.accepted.connect(self.on_ok_click)
         self.radioButton.setChecked(1)
-        self.pushButton.clicked.connect(self.onRedClick)
-        self.pushButton_2.clicked.connect(self.onGreenClick)
+
+        if self.method == 'online+pendant':
+            self.pushButton.clicked.connect(self.onRedClick)
+            self.pushButton_2.clicked.connect(self.onGreenClick)
     
     def updateObjectMissed(self, object_missed):
         if not object_missed:

@@ -540,7 +540,16 @@ class ExperimentNode(object):
         amount = self.experiment_variables.num_updates
 
         try:
-            rospy.wait_for_service('welford_update', timeout=2.0)
+
+            if self.method == 'online+pendant':
+                rospy.wait_for_service('welford_update', timeout=2.0)
+                add_to_model = rospy.ServiceProxy('welford_update', WelfordUpdate)
+                logmessage = "Added " + str(amount) + " trajectories to model using Welford"
+            elif self.method == 'offline+pendant':
+                rospy.wait_for_service('add_demonstration', timeout=2.0)
+                add_to_model = rospy.ServiceProxy('add_demonstration', WelfordUpdate)
+                logmessage = "Added " + str(amount) + " trajectories to model using AddDemonstration"
+
             rospy.wait_for_service('get_object_position', timeout=2.0)
 
             reference_frame = String()
@@ -553,13 +562,12 @@ class ExperimentNode(object):
             refined_trajectory, dt = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
             refined_trajectory_wrt_object = self.parser.get_trajectory_wrt_context(refined_trajectory, self.parser.point_to_list(object_wrt_base))
 
-            welford_update = rospy.ServiceProxy('welford_update', WelfordUpdate)
             refined_trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(refined_trajectory_wrt_object, self.parser.point_to_list(self.context))
             
             for i in range(amount):
-                resp = welford_update(refined_trajectory_wrt_object_msg)
+                resp = add_to_model(refined_trajectory_wrt_object_msg)
             
-            rospy.loginfo("Added " + str(amount) + " trajectories to model using Welford")
+            rospy.loginfo(logmessage)
 
 
         except (AttributeError, ValueError) as e:

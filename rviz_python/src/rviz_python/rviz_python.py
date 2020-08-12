@@ -12,7 +12,7 @@ class rvizPython( QWidget ):
     ## Its constructor creates and configures all the component widgets:
     ## frame, thickness_slider, top_button, and side_button, and adds them
     ## to layouts.
-    def __init__(self, config_file):
+    def __init__(self, config_file, view):
         QWidget.__init__(self)
 
         ## rviz.VisualizationFrame is the main container widget of the
@@ -87,7 +87,8 @@ class rvizPython( QWidget ):
         top_button = QPushButton( "Top View" )
         top_button.clicked.connect( self.onTopButtonClick )
         h_layout.addWidget( top_button )
-        
+
+
         side_button = QPushButton( "Side View" )
         side_button.clicked.connect( self.onSideButtonClick )
         h_layout.addWidget( side_button )
@@ -95,6 +96,11 @@ class rvizPython( QWidget ):
         layout.addLayout( h_layout )
         
         self.setLayout( layout )
+        
+        # if view == 'top':
+        #     self.switchToView( "Top View" )
+        # elif view == 'side':
+        #     self.switchToView( "Side View" )
 
     ## Handle GUI events
     ## ^^^^^^^^^^^^^^^^^

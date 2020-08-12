@@ -6,8 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Camera1
-        - /Camera1/Visibility1
         - /TF1
         - /TF1/Frames1
         - /TF1/Tree1
@@ -34,7 +32,6 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Camera
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -58,44 +55,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/Camera
-      Enabled: true
-      Image Rendering: background and overlay
-      Image Topic: /xtion/rgb/image_raw
-      Name: Camera
-      Overlay Alpha: 0.5
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-      Visibility:
-        Camera: true
-        DepthCloud: false
-        Grid: false
-        MarkerArray: false
-        RobotModel: false
-        TF: true
-        Value: true
-      Zoom Factor: 1
-    - Class: rviz/Camera
-      Enabled: true
-      Image Rendering: background and overlay
-      Image Topic: /end_effector_cam/image_raw
-      Name: Camera
-      Overlay Alpha: 0.5
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-      Visibility:
-        Camera: true
-        DepthCloud: false
-        Grid: true
-        MarkerArray: false
-        RobotModel: false
-        TF: false
-        Value: true
-      Zoom Factor: 1
+
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -510,7 +470,7 @@ Visualization Manager:
         {}
       Queue Size: 96
       Value: true
-    - Alpha: 1
+    - Alpha: 0.5
       Auto Size:
         Auto Size Factor: 1
         Value: true
@@ -827,9 +787,7 @@ Visualization Manager:
   Tools:
     - Class: rviz/Interact
       Hide Inactive Objects: true
-    - Class: rviz/MoveCamera
     - Class: rviz/Select
-    - Class: rviz/FocusCamera
     - Class: rviz/Measure
     - Class: rviz/SetInitialPose
       Topic: /initialpose
@@ -944,8 +902,6 @@ Visualization Manager:
         Yaw: 4.71357727
 
 Window Geometry:
-  Camera:
-    collapsed: false
   Displays:
     collapsed: false
   Height: 993
