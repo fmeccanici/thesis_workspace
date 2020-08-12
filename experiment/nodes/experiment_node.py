@@ -34,7 +34,7 @@ from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
 from experiment.srv import SetText
-from teach_pendant.srv import GetTeachState, GetDemonstrationPendant, SetTeachState
+from teach_pendant.srv import GetTeachState, GetDemonstrationPendant, SetTeachState, AddWaypoint, ClearWaypoints
 
 class ExperimentNode(object):
     def __init__(self):
@@ -627,6 +627,7 @@ class ExperimentNode(object):
         
         self.setDataLoggerParameters()
         self.predict()
+        
         self.visualize('prediction')
         
         self.text_updater.update("AUTONOMOUS EXECUTION")
@@ -661,6 +662,8 @@ class ExperimentNode(object):
                 self.goToInitialPose()
                 self.setObjectPosition()
                 time.sleep(3)
+
+            
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
@@ -750,8 +753,14 @@ class ExperimentNode(object):
 
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 self.goToInitialPose()
+                time.sleep(5)
+
                 self.setObjectPosition()
-                time.sleep(3)
+                time.sleep(4)
+                
+                rospy.wait_for_service('/offline_pendant/add_waypoint', timeout=2.0)
+                add_waypoint = rospy.ServiceProxy('/offline_pendant/add_waypoint', AddWaypoint)
+                add_waypoint()
 
                 set_teach_state(Bool(True))
 
@@ -836,7 +845,10 @@ class ExperimentNode(object):
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-
+        
+            rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
+            clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
+            clear_waypoints()
             
         self.number_of_refinements_updater.update(str(0))
         

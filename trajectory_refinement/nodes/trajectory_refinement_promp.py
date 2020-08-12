@@ -151,8 +151,6 @@ class trajectoryRefinement():
                 print("set button to " + str(self.white_button_toggle))
                 self.text_updater.update("STOPPED REFINEMENT")
 
-            # else: self.white_button_toggle = 0
-        # print(self.white_button_toggle)
     def _marker_detection_callback(self, data):
         self.object_marker_pose = data.pose
 

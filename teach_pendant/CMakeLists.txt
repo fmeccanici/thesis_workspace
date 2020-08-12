@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
     GetTeachState.srv
     SetTeachState.srv
     GetEEPose.srv
+    AddWaypoint.srv
+    ClearWaypoints.srv
   )
   
 generate_messages(

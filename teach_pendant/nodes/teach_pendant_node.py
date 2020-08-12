@@ -13,9 +13,10 @@ from pyquaternion import Quaternion
 import numpy as np
 import time, stat
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSpline, UnivariateSpline, dfitpack
-from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext, GoToPose
+from learning_from_demonstration.srv import AddDemonstration, GetObjectPosition, GetContext, GoToPose
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
-from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse, GetTeachState, GetTeachStateResponse, SetTeachState, SetTeachStateResponse
+from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse, GetTeachState, GetTeachStateResponse, SetTeachState, SetTeachStateResponse, GetEEPose, AddWaypoint, AddWaypointResponse, ClearWaypoints, ClearWaypointsResponse
+
 from std_msgs.msg import String, Bool
 from os import listdir
 from os.path import isfile, join
@@ -33,6 +34,8 @@ class KeyboardControl():
         self._get_demonstration_service = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
         self._get_teach_state_service = rospy.Service('/offline_pendant/get_teach_state', GetTeachState, self._getTeachState)
         self._set_teach_state_service = rospy.Service('/offline_pendant/set_teach_state', SetTeachState, self._setTeachState)
+        self._add_waypoint_service = rospy.Service('/offline_pendant/add_waypoint', AddWaypoint, self._addWaypoint)
+        self._clear_waypoints_service = rospy.Service('/offline_pendant/clear_waypoints', ClearWaypoints, self._clearWaypoints)
 
         self.text_updater = TextUpdater()
 
@@ -81,7 +84,23 @@ class KeyboardControl():
         
         rospy.loginfo("You can start the teach pendant")
     
+    def _addWaypoint(self, req):
+        self.addWaypoint()
+        print(self.ee_pose)
+        resp = AddWaypointResponse()
+
+        return resp
+    
+    def _clearWaypoints(self, req):
+        self.clearWaypoints()
+
+        resp = ClearWaypointsResponse()
+
+        return resp
+
     def addWaypoint(self):
+        self.getEEPose()
+        time.sleep(2)
         ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
             self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
             self.ee_pose.orientation.w]
@@ -90,15 +109,10 @@ class KeyboardControl():
 
     def getEEPose(self):
         try:
-            rospy.wait_for_service('get_ee_pose', timeout=2.0)
-            get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+            rospy.wait_for_service('get_end_effector_pose', timeout=2.0)
+            get_ee_pose = rospy.ServiceProxy('get_end_effector_pose', GetEEPose)
             resp = get_ee_pose()
             self.ee_pose = resp.pose
-            
-            pose_publish = PoseStamped()
-            pose_publish.pose = self.ee_pose
-            pose_publish.header.stamp = rospy.Time.now()
-            pose_publish.header.frame_id = 'base_footprint'
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
@@ -140,12 +154,9 @@ class KeyboardControl():
     def _setTeachState(self, req):
         if req.teach_state.data == True:
             self.getEEPose()
-            self.addWaypoint()
-        else:
-            self.clearWaypoints()
 
         self.teach_state = req.teach_state.data
-        
+
         resp = SetTeachStateResponse()
 
         return resp
@@ -277,10 +288,7 @@ class KeyboardControl():
         pose_publish.header.stamp = rospy.Time.now()
         pose_publish.header.frame_id = 'base_footprint'
         
-        if self.keyboard.key.data == 'space' and self.keyboard_toggle == 1:
-            pass
-        else:
-            self.end_effector_goal_pub.publish(pose_publish)
+        self.end_effector_goal_pub.publish(pose_publish)
 
     # saving data in folder
     def _save_data(self, path, file_name):
@@ -345,21 +353,9 @@ class KeyboardControl():
 
                 if self.keyboard.key.data == 'space' and self.keyboard_toggle == 1:
 
-                    try:
-                        rospy.wait_for_service('get_ee_pose', timeout=2.0)
-                        get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
-                        resp = get_ee_pose()
-                        self.ee_pose = resp.pose
-                        ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
-                                    self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
-                                    self.ee_pose.orientation.w]
+                    self.addWaypoint()
+                    self.text_updater.update("STORED WAYPOINT " + str(len(self.waypoints)-1))
 
-                        self.waypoints.append(ee_pose)
-                        self.text_updater.update("STORED WAYPOINT " + str(len(self.waypoints)-1))
-
-                    except (rospy.ServiceException, rospy.ROSException) as e:
-                        print("Service call failed: %s" %e)
-                    
                     self.keyboard_toggle = 0
 
                 elif self.keyboard.key.data == 'space_released' and self.keyboard_toggle == 0:

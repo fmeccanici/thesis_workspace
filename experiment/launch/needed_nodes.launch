@@ -15,7 +15,10 @@
 
     <include file="$(find teach_pendant)/launch/teach_pendant.launch" 
     if="$(eval method == 'offline+pendant')"/>
-
+    
+    <include file="$(find teach_pendant)/launch/ee_pose_publisher.launch" 
+    if="$(eval method == 'offline+pendant')"/>
+    
     <include file="$(find data_logger)/launch/data_logging.launch"/> 
     <include file="$(find execution_failure_detection)/launch/execution_failure_detection_dishwasher.launch"/> 
     <!-- <include file="$(find execution_failure_detection)/launch/execution_failure_detection.launch"/>  -->
