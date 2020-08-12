@@ -184,7 +184,7 @@ class DataAnalysis(object):
                     # then the success has to be 1 but is zero by default since we have no refinement 
                     # it gives a key error thus reverts back to the default which is 0
                     # I only did experiment yet with method 3 on myself but this has to be done for all the methods
-                    if method == 3 and trajectory == 'refined_trajectory' and methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
+                    if method == 3 or method == 4 and trajectory == 'refined_trajectory' and methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
                         success += 1
                     else:
                         success += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['success'])

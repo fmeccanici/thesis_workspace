@@ -34,7 +34,7 @@ from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
 from experiment.srv import SetText
-from teach_pendant.srv import GetTeachState, GetDemonstrationPendant
+from teach_pendant.srv import GetTeachState, GetDemonstrationPendant, SetTeachState
 
 class ExperimentNode(object):
     def __init__(self):
@@ -610,6 +610,11 @@ class ExperimentNode(object):
         return Quaternion(w, x, y, z).normalised
 
     def startTrial(self):
+        if self.method == 'offline+pendant':
+            rospy.wait_for_service('/offline_pendant/set_teach_state', timeout=2.0)
+            set_teach_state = rospy.ServiceProxy('/offline_pendant/set_teach_state', SetTeachState)
+            set_teach_state(Bool(False))
+
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
         self.goToInitialPose()
@@ -742,15 +747,13 @@ class ExperimentNode(object):
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
         
         elif self.method == 'offline+pendant':
-            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
 
+            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 self.goToInitialPose()
                 self.setObjectPosition()
                 time.sleep(3)
 
-                if self.method == 'offline+pendant':
-                    self.startNode('teach_pendant', 'teach_pendant.launch')
-                time.sleep(3)
+                set_teach_state(Bool(True))
 
                 self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
@@ -774,10 +777,11 @@ class ExperimentNode(object):
                 
                 rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
                 get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
-                
                 resp = get_demo_pendant()
-                
-                self.stopNode('teach_pendant.launch')
+
+                set_teach_state(Bool(False))
+
+                # self.stopNode('teach_pendant.launch')
                 
                 self.goToInitialPose()
                 self.setObjectPosition()

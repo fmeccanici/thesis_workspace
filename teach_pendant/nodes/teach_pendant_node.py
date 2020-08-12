@@ -15,7 +15,7 @@ import time, stat
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline, CubicSpline, UnivariateSpline, dfitpack
 from learning_from_demonstration.srv import GetEEPose, AddDemonstration, GetObjectPosition, GetContext, GoToPose
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
-from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse, GetTeachState, GetTeachStateResponse
+from teach_pendant.srv import GetDemonstrationPendant, GetDemonstrationPendantResponse, GetTeachState, GetTeachStateResponse, SetTeachState, SetTeachStateResponse
 from std_msgs.msg import String, Bool
 from os import listdir
 from os.path import isfile, join
@@ -23,12 +23,17 @@ from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_visualizer.msg import TrajectoryVisualization
 from execution_failure_detection.msg import ExecutionFailure
 
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
+
 class KeyboardControl():
     def __init__(self):
         rospy.init_node('teach_pendant')
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self._get_demonstration_service = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
         self._get_teach_state_service = rospy.Service('/offline_pendant/get_teach_state', GetTeachState, self._getTeachState)
+        self._set_teach_state_service = rospy.Service('/offline_pendant/set_teach_state', SetTeachState, self._setTeachState)
+
         self.text_updater = TextUpdater()
 
         self.execution_failure_sub = rospy.Subscriber("/execution_failure", ExecutionFailure, self._executionFailureCallback)
@@ -44,29 +49,61 @@ class KeyboardControl():
         self.ee_pose = Pose()
         self._rospack = rospkg.RosPack()
 
-        self.teach_state = True
+        self.teach_state = False
+
+        # self.listener = tf.TransformListener()
 
         # get current ee pose
+        # try:
+        #     # (trans,rot) = self.listener.lookupTransform('base_footprint', 'arm_tool_link', rospy.Time(0))
+            
+        #     rospy.wait_for_service('get_ee_pose', timeout=2.0)
+        #     get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+        #     resp = get_ee_pose()
+        #     self.ee_pose = resp.pose
+            
+
+        #     ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
+        #     self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
+        #     self.ee_pose.orientation.w]
+            
+        #     # ee_pose = [trans[0], trans[1], trans[2], trans[3], trans[4], trans[5], trans[6]]
+
+        #     self.waypoints.append(ee_pose)
+        #     pose_publish = PoseStamped()
+        #     pose_publish.pose = self.ee_pose
+        #     pose_publish.header.stamp = rospy.Time.now()
+        #     pose_publish.header.frame_id = 'base_footprint'
+        #     # self.end_effector_goal_pub.publish(pose_publish)
+
+        # except (rospy.ServiceException, rospy.ROSException) as e:
+            # print("Service call failed: %s" %e)
+        
+        rospy.loginfo("You can start the teach pendant")
+    
+    def addWaypoint(self):
+        ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
+            self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
+            self.ee_pose.orientation.w]
+        
+        self.waypoints.append(ee_pose)
+
+    def getEEPose(self):
         try:
             rospy.wait_for_service('get_ee_pose', timeout=2.0)
             get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
             resp = get_ee_pose()
             self.ee_pose = resp.pose
-            ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
-            self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
-            self.ee_pose.orientation.w]
-            self.waypoints.append(ee_pose)
+            
             pose_publish = PoseStamped()
             pose_publish.pose = self.ee_pose
             pose_publish.header.stamp = rospy.Time.now()
             pose_publish.header.frame_id = 'base_footprint'
-            self.end_effector_goal_pub.publish(pose_publish)
-        
+
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
         
-        rospy.loginfo("You can start the teach pendant")
-    
+
     def _executionFailureCallback(self, data):
         self.object_reached = data.object_reached.data
         self.obstacle_hit = data.obstacle_hit.data
@@ -97,6 +134,22 @@ class KeyboardControl():
         resp.teach_state = Bool(self.teach_state)
         return resp
 
+    def clearWaypoints(self):
+        self.waypoints = []
+
+    def _setTeachState(self, req):
+        if req.teach_state.data == True:
+            self.getEEPose()
+            self.addWaypoint()
+        else:
+            self.clearWaypoints()
+
+        self.teach_state = req.teach_state.data
+        
+        resp = SetTeachStateResponse()
+
+        return resp
+
     def _get_demonstration(self, req):
 
         resp = GetDemonstrationPendantResponse()
@@ -114,19 +167,13 @@ class KeyboardControl():
         cartx = [data[0] for data in self.waypoints]
         carty = [data[1] for data in self.waypoints]
         cartz = [data[2] for data in self.waypoints]
-
+        # q = [ [data[3], data[4], data[5], data[6]] for data in self.waypoints]
         
         qstart = [self.waypoints[0][3], self.waypoints[0][4], 
                 self.waypoints[0][5], self.waypoints[0][6]]
 
         qend = [self.waypoints[-1][3], self.waypoints[-1][4], 
                 self.waypoints[-1][5], self.waypoints[-1][6]]
-
-        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/qstart.txt', 'w+') as f:
-            f.write(str(qstart))
-        
-        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/qend.txt', 'w+') as f:
-            f.write(str(qend))
 
         # splinex = InterpolatedUnivariateSpline(x, cartx)
         # spliney = InterpolatedUnivariateSpline(x, carty)
@@ -148,8 +195,15 @@ class KeyboardControl():
         carty_new = spliney(x_desired) 
         cartz_new = splinez(x_desired)
 
+        # slerp = Slerp(x, R.from_quat(q))
+        # interp_rots = slerp(x_desired)
+
         interpol_pred_traj = []
         self.EEtrajectory = []
+
+        # for i, data in enumerate(cartx):
+        #     demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat())
+        #     self.EEtrajectory.append( demo )
 
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, True)):
             try:
@@ -158,10 +212,6 @@ class KeyboardControl():
                 self.EEtrajectory.append(ynew)
             except IndexError:
                 continue
-        
-        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/teach_pendant/eval_traj.txt', 'w+') as f:
-            f.write(str(self.EEtrajectory))
-        # print(self.waypoints)
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
@@ -214,6 +264,7 @@ class KeyboardControl():
             # q_rotation = Quaternion(axis=np.array([0.0, 0.0, 1.0]), angle=-rotation)
 
             q_rotation = self.quaternion_rotation('z', -rotation)
+        
         q_rotated = q_current * q_rotation
         
         self.ee_pose.orientation.w = q_rotated[0]
@@ -225,7 +276,11 @@ class KeyboardControl():
         pose_publish.pose = self.ee_pose
         pose_publish.header.stamp = rospy.Time.now()
         pose_publish.header.frame_id = 'base_footprint'
-        self.end_effector_goal_pub.publish(pose_publish)
+        
+        if self.keyboard.key.data == 'space' and self.keyboard_toggle == 1:
+            pass
+        else:
+            self.end_effector_goal_pub.publish(pose_publish)
 
     # saving data in folder
     def _save_data(self, path, file_name):
@@ -284,58 +339,60 @@ class KeyboardControl():
         self.keyboard_toggle = 1
 
         while not rospy.is_shutdown():
-            self.teach_loop()
 
-            if self.keyboard.key.data == 'space' and self.keyboard_toggle == 1:
+            if self.teach_state == True:
+                self.teach_loop()
 
-                try:
-                    rospy.wait_for_service('get_ee_pose', timeout=2.0)
-                    get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
-                    resp = get_ee_pose()
-                    self.ee_pose = resp.pose
-                    ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
-                                self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
-                                self.ee_pose.orientation.w]
+                if self.keyboard.key.data == 'space' and self.keyboard_toggle == 1:
 
-                    self.waypoints.append(ee_pose)
-                    self.text_updater.update("STORED WAYPOINT " + str(len(self.waypoints)-1))
+                    try:
+                        rospy.wait_for_service('get_ee_pose', timeout=2.0)
+                        get_ee_pose = rospy.ServiceProxy('get_ee_pose', GetEEPose)
+                        resp = get_ee_pose()
+                        self.ee_pose = resp.pose
+                        ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
+                                    self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
+                                    self.ee_pose.orientation.w]
 
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e)
-                
-                self.keyboard_toggle = 0
+                        self.waypoints.append(ee_pose)
+                        self.text_updater.update("STORED WAYPOINT " + str(len(self.waypoints)-1))
 
-            elif self.keyboard.key.data == 'space_released' and self.keyboard_toggle == 0:
-                self.keyboard_toggle = 1
-
-            elif self.keyboard.key.data == 'enter':
-                self.text_updater.update("GENERATING TRAJECTORY")
-
-                # catch fitpack error
-                try:    
-                    dfitpack.sproot(-1, -1, -1)    
-                except Exception as e:
-                    dfitpack_error = type(e)
-                try:
-                    self.interpolate()
-                except dfitpack_error:
-                    print("Not enough waypoints")
-
-                try: 
-                    rospy.wait_for_service('get_context', timeout=2.0)
-                    get_context = rospy.ServiceProxy('get_context', GetContext)
-                    resp = get_context()
+                    except (rospy.ServiceException, rospy.ROSException) as e:
+                        print("Service call failed: %s" %e)
                     
-                    self.context = resp.context
+                    self.keyboard_toggle = 0
 
-                    # empty waypoints
-                    self.waypoints = []
+                elif self.keyboard.key.data == 'space_released' and self.keyboard_toggle == 0:
+                    self.keyboard_toggle = 1
 
-                    self.teach_state = False
+                elif self.keyboard.key.data == 'enter':
+                    self.text_updater.update("GENERATING TRAJECTORY")
 
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e) 
-                
+                    # catch fitpack error
+                    try:    
+                        dfitpack.sproot(-1, -1, -1)    
+                    except Exception as e:
+                        dfitpack_error = type(e)
+                    try:
+                        self.interpolate()
+                    except dfitpack_error:
+                        print("Not enough waypoints")
+
+                    try: 
+                        rospy.wait_for_service('get_context', timeout=2.0)
+                        get_context = rospy.ServiceProxy('get_context', GetContext)
+                        resp = get_context()
+                        
+                        self.context = resp.context
+
+                        # empty waypoints
+                        self.waypoints = []
+
+                        self.teach_state = False
+
+                    except (rospy.ServiceException, rospy.ROSException) as e:
+                        print("Service call failed: %s" %e) 
+                    
 
                 
             r.sleep()

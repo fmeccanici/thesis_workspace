@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="teach_pendant" name="ee_pub"
+    type="ee_publisher_node.py" output="screen" >
+    </node>
+</launch>

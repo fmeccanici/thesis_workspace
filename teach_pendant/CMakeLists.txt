@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
     FILES
     GetDemonstrationPendant.srv
     GetTeachState.srv
+    SetTeachState.srv
+    GetEEPose.srv
   )
   
 generate_messages(
