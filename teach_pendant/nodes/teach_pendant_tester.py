@@ -361,8 +361,9 @@ class TeachPendantTester(object):
         resp = get_demo_pendant()
 
         set_teach_state(Bool(False))
-        # self.goToInitialPose()
+        self.goToInitialPose()
         self.setObjectPosition()
+        time.sleep(5)
         self.refined_trajectory = resp.demo
 
         self.visualize('both')

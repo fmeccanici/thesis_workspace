@@ -227,11 +227,11 @@ class KeyboardControl():
         if include_endpoints == True:
             n_slerp = n - 2
 
-        with open(self.debug_path + 'cartz_new.txt', 'w+') as f:
-            f.write(str(cartz_new))
+        # with open(self.debug_path + 'cartz_new.txt', 'w+') as f:
+        #     f.write(str(cartz_new))
         
-        with open(self.debug_path + 'cartz.txt', 'w+') as f:
-            f.write(str(cartz))
+        # with open(self.debug_path + 'cartz.txt', 'w+') as f:
+        #     f.write(str(cartz))
 
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_slerp, include_endpoints)):
             # try:
@@ -242,11 +242,11 @@ class KeyboardControl():
             #     rospy.logwarn("Quaternion not correctly interpolated!")
             #     continue
         
-        with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
-            f.write(str(self.EEtrajectory))
+        # with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
+        #     f.write(str(self.EEtrajectory))
         
-        with open(self.debug_path + 'final_waypoints.txt', "w") as f:
-            f.write(str(self.waypoints))
+        # with open(self.debug_path + 'final_waypoints.txt', "w") as f:
+        #     f.write(str(self.waypoints))
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 
