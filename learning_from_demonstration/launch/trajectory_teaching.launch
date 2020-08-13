@@ -5,7 +5,7 @@ type="marker_wrt_ee_publisher.py" output="screen"/>
   -->
 
 <!-- this name is added to $(find learning_from_demonstration)/data/raw/ -->
-<arg name="raw_folder" default="dishwasher_moved_backwards"/>
+<arg name="raw_folder" default="dishwasher_move_tigher_around_basket"/>
 
 <arg name="button_source" default="omni"/>
 
