@@ -10,6 +10,9 @@
     <include file="$(find trajectory_refinement)/launch/trajectory_refinement_keyboard.launch"
     if="$(eval method == 'online+pendant')"/> 
     
+    <include file="$(find trajectory_refinement)/launch/trajectory_refinement.launch"
+    if="$(eval method == 'online+omni')"/> 
+    
     <include file="$(find teleop_control)/launch/keyboard_control.launch" 
     if="$(eval method == 'online+pendant')"/>
 

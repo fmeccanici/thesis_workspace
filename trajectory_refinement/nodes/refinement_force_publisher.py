@@ -3,6 +3,7 @@
 import rospy, tf
 from geometry_msgs.msg import WrenchStamped, PoseStamped, TransformStamped, TwistStamped
 from master_control.msg import ControlComm
+from std_msgs.msg import Int32
 
 class refinementForcePublisher():
     def __init__(self):
@@ -11,7 +12,9 @@ class refinementForcePublisher():
         # self.force_pub = rospy.Publisher('geo_control_effort_m', WrenchStamped, queue_size=10)
         self.force_pub = rospy.Publisher('refinement_force', WrenchStamped, queue_size=10)
         self.omni_pose_sub = rospy.Subscriber('geo_pos_state_m', PoseStamped, self._masterPoseCallback)
-        self.omni_pose_sub = rospy.Subscriber('geo_vel_state_m', TwistStamped, self._masterTwistCallback)
+        self.omni_vel_sub = rospy.Subscriber('geo_vel_state_m', TwistStamped, self._masterTwistCallback)
+
+        self.master_enable_haptic_pub = rospy.Publisher("/geo_enable_haptic_m", Int32, queue_size=10)
 
         self.omni_pose = PoseStamped()
         self.omni_vel = TwistStamped()
@@ -32,8 +35,8 @@ class refinementForcePublisher():
     def initMasterNormalizePose(self):
         self.firstMasterPose = PoseStamped()
         self.firstMasterPose.pose.position.x = 1.84095811844
-        self.firstMasterPose.pose.position.y = -9.72242450714
-        self.firstMasterPose.pose.position.z = 10.7256994247
+        self.firstMasterPose.pose.position.y = -42
+        self.firstMasterPose.pose.position.z = -32
         self.firstMasterPose.pose.orientation.x = -0.256295394356
         self.firstMasterPose.pose.orientation.y = -0.0436300096622
         self.firstMasterPose.pose.orientation.z = -0.118351057412
@@ -71,6 +74,7 @@ class refinementForcePublisher():
 
             F = self.determineForce(norm_pose)
             self.force_pub.publish(F)
+            # self.master_enable_haptic_pub.publish(Int32(1))
             r.sleep()
 
 if __name__ == "__main__":
