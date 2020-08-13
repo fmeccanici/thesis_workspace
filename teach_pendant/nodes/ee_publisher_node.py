@@ -13,13 +13,13 @@ class EEPublisherNode():
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self.end_effector_sub = rospy.Subscriber("end_effector_pose", PoseStamped, self._eePoseCallback)
 
-        # self.x_offset = 0.0002
-        # self.y_offset = -0.00045
-        # self.z_offset = 0.0101
+        self.x_offset = 0.0002
+        self.y_offset = -0.00045
+        self.z_offset = 0.0101
         
-        self.x_offset = 0
-        self.y_offset = 0
-        self.z_offset = 0
+        # self.x_offset = 0
+        # self.y_offset = 0
+        # self.z_offset = 0
 
     def _eePoseCallback(self, data):
         self.ee_pose = data.pose

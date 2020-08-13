@@ -645,6 +645,7 @@ class ExperimentNode(object):
         else:
             self.text_updater.update("SUCCESS!")
 
+    
         if obstacle_hit:
             self.text_updater.append("OBSTACLE HIT")
         if not object_reached:

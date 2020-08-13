@@ -88,7 +88,6 @@ class KeyboardControl():
     def _addWaypoint(self, req):
         self.addWaypoint()
         time.sleep(2)
-        print(self.ee_pose)
         resp = AddWaypointResponse()
 
         return resp
@@ -238,11 +237,11 @@ class KeyboardControl():
         #     self.EEtrajectory.append(ynew)
 
         
-        with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
-            f.write(str(self.EEtrajectory))
+        # with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
+        #     f.write(str(self.EEtrajectory))
         
-        with open(self.debug_path + 'final_waypoints.txt', "w") as f:
-            f.write(str(self.waypoints))
+        # with open(self.debug_path + 'final_waypoints.txt', "w") as f:
+        #     f.write(str(self.waypoints))
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 

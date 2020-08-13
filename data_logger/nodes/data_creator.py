@@ -13,7 +13,7 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
-from learning_from_demonstration.srv import WelfordUpdate
+from learning_from_demonstration.srv import WelfordUpdate, AddDemonstration
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
 import numpy as np
 import random
@@ -436,15 +436,21 @@ class DataCreator(object):
         amount = self.experiment_variables.num_updates
 
         try:
-            rospy.wait_for_service('welford_update', timeout=2.0)
-
-            welford_update = rospy.ServiceProxy('welford_update', WelfordUpdate)
+            if self.method == 3:
+                rospy.wait_for_service('welford_update', timeout=2.0)
+                add_to_model = rospy.ServiceProxy('welford_update', WelfordUpdate)
+                logmessage = "Added " + str(amount) + " trajectories to model using Welford"
+            elif self.method == 4:
+                rospy.wait_for_service('add_demonstration', timeout=2.0)
+                add_to_model = rospy.ServiceProxy('add_demonstration', AddDemonstration)
+                logmessage = "Added " + str(amount) + " trajectories to model using AddDemonstration"
+                
             trajectory_wrt_object_msg = self.parser.predicted_trajectory_to_prompTraj_message(trajectory, context)
             
             for i in range(amount):
-                resp = welford_update(trajectory_wrt_object_msg)
+                resp = add_to_model(trajectory_wrt_object_msg)
             
-            rospy.loginfo("Added " + str(amount) + " trajectories to model using Welford")
+            rospy.loginfo(logmessage)
 
 
         except (AttributeError, ValueError) as e:
@@ -617,6 +623,7 @@ class DataCreator(object):
 
         participant_number = int(rospy.get_param('~participant_number'))
         method = int(rospy.get_param('~method')) # 3 = online + keyboard
+        self.method = method
         visualize = bool(rospy.get_param('~visualize'))
         before_or_after_experiment = rospy.get_param('~before_or_after')
         

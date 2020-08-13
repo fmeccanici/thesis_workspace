@@ -10,6 +10,9 @@ matplotlib.use('Agg')
 from data_logger_python.text_updater import TextUpdater
 
 from pyquaternion import Quaternion
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
+
 from pynput.keyboard import Key, Listener, KeyCode
 
 # import ros messages
@@ -312,6 +315,9 @@ class trajectoryRefinement():
                 vnew = np.add(p, traj_pos[i])
             else:
                 vnew = np.add(p, traj_pos[-1])
+            
+            # needed to prevent the first data point being thrown away
+            # but now it causes a jump ??
             if i == 0:
                 vnew = traj_pos[i]
             # print('vnew = ' + str(vnew))
@@ -398,9 +404,12 @@ class trajectoryRefinement():
         # quaternions used for interpolation
         qstart = pred_traj[0][3:7]
         qend = pred_traj[-1][3:7]  
-        
+        q = [ [data[3], data[4], data[5], data[6]] for data in pred_traj]
+
         T_refined = self.parser.get_total_time(refined_traj)
         T_pred = self.parser.get_total_time(pred_traj)
+
+        slerp = Slerp(np.linspace(0.0, T_pred, len(pred_traj)), R.from_quat(q))
 
         # resample so their n matches
         y_pred, y_ref = self.resampler.match_refined_predicted(pred_traj, refined_traj)
@@ -430,21 +439,39 @@ class trajectoryRefinement():
         t_refined = np.linspace(0.0, T_refined, n)
         t_pred = np.linspace(0.0, T_pred, n)
 
-        for i,q in enumerate(self.resampler.interpolate_quaternions(qstart, qend, n, False)):
+        
+        interp_rots = slerp(t_pred)
+
+        for i, data in enumerate(y_refined_aligned):
             ref_pos = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2]]
-            ref_ori = [q[1], q[2], q[3], q[0]]
+            ref_ori = list(interp_rots[i].as_quat())
             ref_t = [t_refined[i]]
             refined_traj = ref_pos + ref_ori + ref_t
-
+            
             pred_pos = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2]]
             pred_ori = [q[1], q[2], q[3], q[0]]
             pred_t = [t_pred[i]]
             
-
             pred_traj = pred_pos + pred_ori + pred_t
 
             # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
             new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
+        
+        # for i,q in enumerate(self.resampler.interpolate_quaternions(qstart, qend, n, False)):
+        #     ref_pos = [list(y_refined_aligned[i])[0], list(y_refined_aligned[i])[1], list(y_refined_aligned[i])[2]]
+        #     ref_ori = [q[1], q[2], q[3], q[0]]
+        #     ref_t = [t_refined[i]]
+        #     refined_traj = ref_pos + ref_ori + ref_t
+
+        #     pred_pos = [list(y_pred_aligned[i])[0], list(y_pred_aligned[i])[1], list(y_pred_aligned[i])[2]]
+        #     pred_ori = [q[1], q[2], q[3], q[0]]
+        #     pred_t = [t_pred[i]]
+            
+
+        #     pred_traj = pred_pos + pred_ori + pred_t
+
+        #     # tau_D^new = tau_D^old + alpha * (tau_HR - tau_R)
+        #     new_trajectory.append(list(np.add(np.asarray(pred_pos), alpha * (np.subtract(np.asarray(ref_pos), np.asarray(pred_pos)) ))) + refined_traj[3:])
         
         dt_new = t_refined[1]
         # print( "new_traj time = " + str([ x[-1] for x in new_trajectory]))
