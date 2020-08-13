@@ -268,8 +268,8 @@ class OperatorGUI(QMainWindow):
         config_file1 = self._rospack.get_path('data_logger') + "/experiment1.rviz"
         config_file2 = self._rospack.get_path('data_logger') + "/experiment2.rviz"
 
-        self.rviz_widget1 = rvizPython(config_file1, 'side')
-        self.rviz_widget2 = rvizPython(config_file2, 'top')
+        self.rviz_widget1 = rvizPython(config_file1)
+        self.rviz_widget2 = rvizPython(config_file2)
 
         self.image_widget = ImageWidget(self.method)
         self.horizontalLayout = QHBoxLayout()

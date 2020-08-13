@@ -30,6 +30,7 @@ from scipy.spatial.transform import Slerp
 class KeyboardControl():
     def __init__(self):
         rospy.init_node('teach_pendant')
+        self.debug_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/'
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
         self._get_demonstration_service = rospy.Service('get_demonstration_pendant', GetDemonstrationPendant, self._get_demonstration)
         self._get_teach_state_service = rospy.Service('/offline_pendant/get_teach_state', GetTeachState, self._getTeachState)
@@ -86,6 +87,7 @@ class KeyboardControl():
     
     def _addWaypoint(self, req):
         self.addWaypoint()
+        time.sleep(2)
         print(self.ee_pose)
         resp = AddWaypointResponse()
 
@@ -100,10 +102,14 @@ class KeyboardControl():
 
     def addWaypoint(self):
         self.getEEPose()
-        time.sleep(2)
+
         ee_pose = [self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z,
             self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z,
             self.ee_pose.orientation.w]
+        
+        if len(self.waypoints) == 0:
+            with open(self.debug_path + 'initial_waypoint.txt', 'w+') as f:
+                f.write(str(ee_pose))
         
         self.waypoints.append(ee_pose)
 
@@ -194,13 +200,13 @@ class KeyboardControl():
         # spliney = CubicSpline(x, carty)
         # splinez = CubicSpline(x, cartz)
 
-        # splinex = interp1d(x, cartx, kind='quadratic')
-        # spliney = interp1d(x, carty, kind='quadratic')
-        # splinez = interp1d(x, cartz, kind='quadratic')
+        splinex = interp1d(x, cartx, kind='quadratic')
+        spliney = interp1d(x, carty, kind='quadratic')
+        splinez = interp1d(x, cartz, kind='quadratic')
 
-        splinex = UnivariateSpline(x, cartx)
-        spliney = UnivariateSpline(x, carty)
-        splinez = UnivariateSpline(x, cartz)
+        # splinex = UnivariateSpline(x, cartx)
+        # spliney = UnivariateSpline(x, carty)
+        # splinez = UnivariateSpline(x, cartz)
 
         cartx_new = splinex(x_desired)
         carty_new = spliney(x_desired) 
@@ -216,13 +222,31 @@ class KeyboardControl():
         #     demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat())
         #     self.EEtrajectory.append( demo )
 
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, True)):
-            try:
-                pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-                ynew = pose + [x_desired[i]]
-                self.EEtrajectory.append(ynew)
-            except IndexError:
-                continue
+        include_endpoints = True
+
+        if include_endpoints == True:
+            n_slerp = n - 2
+
+        with open(self.debug_path + 'cartz_new.txt', 'w+') as f:
+            f.write(str(cartz_new))
+        
+        with open(self.debug_path + 'cartz.txt', 'w+') as f:
+            f.write(str(cartz))
+
+        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_slerp, include_endpoints)):
+            # try:
+            pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
+            ynew = pose + [x_desired[i]]
+            self.EEtrajectory.append(ynew)
+            # except IndexError:
+            #     rospy.logwarn("Quaternion not correctly interpolated!")
+            #     continue
+        
+        with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
+            f.write(str(self.EEtrajectory))
+        
+        with open(self.debug_path + 'final_waypoints.txt', "w") as f:
+            f.write(str(self.waypoints))
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 

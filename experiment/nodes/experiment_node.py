@@ -28,7 +28,7 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory, 
-                                                GetEEPose)
+                                                GetEEPose, AddDemonstration)
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
@@ -547,7 +547,7 @@ class ExperimentNode(object):
                 logmessage = "Added " + str(amount) + " trajectories to model using Welford"
             elif self.method == 'offline+pendant':
                 rospy.wait_for_service('add_demonstration', timeout=2.0)
-                add_to_model = rospy.ServiceProxy('add_demonstration', WelfordUpdate)
+                add_to_model = rospy.ServiceProxy('add_demonstration', AddDemonstration)
                 logmessage = "Added " + str(amount) + " trajectories to model using AddDemonstration"
 
             rospy.wait_for_service('get_object_position', timeout=2.0)

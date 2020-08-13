@@ -12,7 +12,7 @@ class rvizPython( QWidget ):
     ## Its constructor creates and configures all the component widgets:
     ## frame, thickness_slider, top_button, and side_button, and adds them
     ## to layouts.
-    def __init__(self, config_file, view):
+    def __init__(self, config_file):
         QWidget.__init__(self)
 
         ## rviz.VisualizationFrame is the main container widget of the

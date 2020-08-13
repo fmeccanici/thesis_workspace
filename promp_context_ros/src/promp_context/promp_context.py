@@ -234,6 +234,7 @@ class ProMPContext(object):
             
             with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/x.txt', 'a') as f:
                 f.write(str(list(self.x)) + '&')
+
             # calculate weights of Mth demonstration: refinement
             # (size N, N=num_basis, M=num_demonstrations)
             w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T
@@ -299,7 +300,12 @@ class ProMPContext(object):
                 self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
 
                 # self.plot_counter += 1
-
+            
+            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/' + str(self.output_name[0]) + '.txt', 'a') as f:
+                f.write(str(list(stretched_demo)) + '&')
+            
+            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/x.txt', 'a') as f:
+                f.write(str(list(self.x)) + '&')
             # stack Y matrix vertically with this variable
             self.Y = np.vstack((self.Y, stretched_demo))
 
