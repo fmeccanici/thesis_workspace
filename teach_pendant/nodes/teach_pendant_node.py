@@ -184,7 +184,7 @@ class KeyboardControl():
         cartx = [data[0] for data in self.waypoints]
         carty = [data[1] for data in self.waypoints]
         cartz = [data[2] for data in self.waypoints]
-        # q = [ [data[3], data[4], data[5], data[6]] for data in self.waypoints]
+        q = [ [data[3], data[4], data[5], data[6]] for data in self.waypoints]
         
         qstart = [self.waypoints[0][3], self.waypoints[0][4], 
                 self.waypoints[0][5], self.waypoints[0][6]]
@@ -212,20 +212,19 @@ class KeyboardControl():
         carty_new = spliney(x_desired) 
         cartz_new = splinez(x_desired)
 
-        # slerp = Slerp(x, R.from_quat(q))
-        # interp_rots = slerp(x_desired)
+        slerp = Slerp(x, R.from_quat(q))
+        interp_rots = slerp(x_desired)
 
-        interpol_pred_traj = []
         self.EEtrajectory = []
 
-        # for i, data in enumerate(cartx):
-        #     demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat())
-        #     self.EEtrajectory.append( demo )
+        for i, data in enumerate(cartx_new):
+            demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat())
+            self.EEtrajectory.append( demo )
 
-        include_endpoints = True
+        # include_endpoints = True
 
-        if include_endpoints == True:
-            n_slerp = n - 2
+        # if include_endpoints == True:
+        #     n_slerp = n - 2
 
         # with open(self.debug_path + 'cartz_new.txt', 'w+') as f:
         #     f.write(str(cartz_new))
@@ -233,20 +232,17 @@ class KeyboardControl():
         # with open(self.debug_path + 'cartz.txt', 'w+') as f:
         #     f.write(str(cartz))
 
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_slerp, include_endpoints)):
-            # try:
-            pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-            ynew = pose + [x_desired[i]]
-            self.EEtrajectory.append(ynew)
-            # except IndexError:
-            #     rospy.logwarn("Quaternion not correctly interpolated!")
-            #     continue
+        # for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_slerp, include_endpoints)):
+        #     pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
+        #     ynew = pose + [x_desired[i]]
+        #     self.EEtrajectory.append(ynew)
+
         
-        # with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
-        #     f.write(str(self.EEtrajectory))
+        with open(self.debug_path + 'interp_waypoints.txt', "w") as f:
+            f.write(str(self.EEtrajectory))
         
-        # with open(self.debug_path + 'final_waypoints.txt', "w") as f:
-        #     f.write(str(self.waypoints))
+        with open(self.debug_path + 'final_waypoints.txt', "w") as f:
+            f.write(str(self.waypoints))
 
     def teach_loop(self):
         q_current = Quaternion(self.ee_pose.orientation.w, self.ee_pose.orientation.x, 

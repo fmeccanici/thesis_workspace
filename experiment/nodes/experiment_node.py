@@ -278,6 +278,8 @@ class ExperimentNode(object):
             rospy.wait_for_service('go_to_pose', timeout=2.0)
             go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
             resp = go_to_pose(pose)
+            resp = go_to_pose(pose)
+            resp = go_to_pose(pose)
 
             # table
             """
