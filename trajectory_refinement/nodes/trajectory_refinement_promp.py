@@ -267,10 +267,6 @@ class trajectoryRefinement():
         
         # do not normalize the orientation
         normalized_pose.pose.orientation = pose.orientation
-
-        print(pose)
-        print()
-        print(self.firstMasterPose.pose)
         return normalized_pose
 
     @classmethod
@@ -292,7 +288,7 @@ class trajectoryRefinement():
         i = 0
         t = 0
 
-        master_pose_scaling = 0.4
+        master_pose_scaling = 0.3
 
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
