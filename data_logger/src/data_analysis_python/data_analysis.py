@@ -417,7 +417,7 @@ if __name__ == "__main__":
         for method in data_analysis.experiment_variables.method_mapping_str_to_number:
             try:
                 data_analysis.plotExperimentData(participant_number = number, method = method)   
-            except FileNotFoundError:
+            except Exception:
                 print('Data for method ' + str(method) + ' not found')
                 continue 
             print('Data for method ' + str(method) + ' plotted')
