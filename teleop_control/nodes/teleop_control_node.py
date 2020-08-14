@@ -4,6 +4,7 @@ import rospy, time, tf
 
 import rospy
 from geometry_msgs.msg import PoseStamped, WrenchStamped
+from teleop_control.srv import SetPartToPublish, SetPartToPublishResponse
 
 class teleopControl():
     def __init__(self):
@@ -20,12 +21,14 @@ class teleopControl():
         self.geo_effort_sub = rospy.Subscriber("/geo_control_effort_m_dummy", WrenchStamped, self._effort_callback)
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-    #     self.set_part_to_publish_service = rospy.Service('/set_part_to_publish', SetPartToPublish, self._setPartToPublish)
-    
-    # def _setPartToPublish(self, req):
-    #     if req.data.part_to_publish = 'position':
-    #         self.part_to_publish = 'position'
         
+        self.set_part_to_publish_service = rospy.Service('/set_part_to_publish', SetPartToPublish, self._setPartToPublish)
+    
+    def _setPartToPublish(self, req):
+        self.part_to_publish = req.data.part_to_publish
+
+        resp = SetPartToPublishResponse()
+        return resp        
     
     def _end_effector_pose_callback(self, data):
         self.current_slave_pose = data.pose

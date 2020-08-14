@@ -13,6 +13,10 @@ add_message_files(
    Keyboard.msg
  )
 
+add_service_files(
+  FILES
+  SetPartToPublish.srv
+)
 
 generate_messages(
   DEPENDENCIES

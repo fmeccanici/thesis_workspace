@@ -21,7 +21,13 @@
     
     <include file="$(find teach_pendant)/launch/ee_pose_publisher.launch" 
     if="$(eval method == 'offline+pendant')"/>
-    
+
+    <group if="$(eval method == 'offline+omni')">
+        <include file="$(find teleop_control)/launch/teleop_control.launch">
+            <arg name="part_to_publish" value="none"/>    
+        </include>
+    </group>
+
     <include file="$(find data_logger)/launch/data_logging.launch"/> 
     <include file="$(find execution_failure_detection)/launch/execution_failure_detection_dishwasher.launch"/> 
     <!-- <include file="$(find execution_failure_detection)/launch/execution_failure_detection.launch"/>  -->
