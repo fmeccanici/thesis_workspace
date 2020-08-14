@@ -105,6 +105,8 @@ class trajectoryRefinement():
         self.text_updater = TextUpdater()
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
 
+        self.initMasterNormalizePose()
+
     def _get_parameters(self):
         self.button_source = rospy.get_param('~button_source')
         print("Button source set to: " + str(self.button_source))
@@ -238,7 +240,9 @@ class trajectoryRefinement():
     def initMasterNormalizePose(self):
         self.firstMasterPose = PoseStamped()
         
-        self.firstMasterPose.pose.position.x = 0.412058425026
+        # self.firstMasterPose.pose.position.x = 0.412058425026
+        self.firstMasterPose.pose.position.x = 0.548425702896
+
         self.firstMasterPose.pose.position.y = -0.00570407599211
 
         # for some reason the minus sign disappeared or ee axis is flipped 180deg
@@ -247,7 +251,8 @@ class trajectoryRefinement():
         # self.firstMasterPose.pose.position.z = -0.169880290808
         # self.firstMasterPose.pose.position.z = -0.327476944265
         # self.firstMasterPose.pose.position.z = -0.510984332781
-        self.firstMasterPose.pose.position.z = -0.457386247644
+        # self.firstMasterPose.pose.position.z = -0.457386247644
+        self.firstMasterPose.pose.position.z = -0.643346683038
         
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
@@ -263,6 +268,9 @@ class trajectoryRefinement():
         # do not normalize the orientation
         normalized_pose.pose.orientation = pose.orientation
 
+        print(pose)
+        print()
+        print(self.firstMasterPose.pose)
         return normalized_pose
 
     @classmethod
@@ -275,6 +283,20 @@ class trajectoryRefinement():
     def moveEEto(self, pose):
         self.end_effector_goal_pub.publish(pose)
 
+
+    def getRefinedPosition(self, pos_next_wrt_current):
+        master_pose_scaling_x = 0.5
+        master_pose_scaling_y = 0.5
+        master_pose_scaling_z = 0.5
+
+        refinement_correction = self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))
+
+        pos_next_wrt_current[0] += refinement_correction[0] * master_pose_scaling_x
+        pos_next_wrt_current[1] += refinement_correction[0] * master_pose_scaling_y
+        pos_next_wrt_current[2] += refinement_correction[0] * master_pose_scaling_z
+
+        return pos_next_wrt_current
+        
     def refineTrajectory(self, traj, dt):
         self.obstacle_hit_once = False
         self.obstacle_hit_updater.update(str(self.obstacle_hit_once))
@@ -289,13 +311,11 @@ class trajectoryRefinement():
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
 
-        # print('traj pos[0] = ' + str(traj_pos[0]))
         # -2 because traj_pos[i+1] is called and i starts at 0
         while self.white_button_toggle == 0:
 
             slave_goal = PoseStamped()
 
-            # calculate next pose wrt current pose
             if i <= len(traj_pos)-2:
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[i+1]), np.array(traj_pos[i]))
 
@@ -303,11 +323,8 @@ class trajectoryRefinement():
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[-1]), np.array(traj_pos[-2]))
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
-            pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
-        
-            # print('self.normalizeMasterPose(self.master_pose) = ' + str(self.normalizeMasterPose(self.master_pose)))
-            # print('pos_next_wrt_pos_current = ' + str(pos_next_wrt_pos_current))
-
+            # pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
+            pos_next_wrt_pos_current = self.getRefinedPosition(pos_next_wrt_pos_current)
 
             ## transform this pose to base_footprint
             p = list(pos_next_wrt_pos_current)
