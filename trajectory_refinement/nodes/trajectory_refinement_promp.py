@@ -283,20 +283,6 @@ class trajectoryRefinement():
     def moveEEto(self, pose):
         self.end_effector_goal_pub.publish(pose)
 
-
-    def getRefinedPosition(self, pos_next_wrt_current):
-        master_pose_scaling_x = 0.5
-        master_pose_scaling_y = 0.5
-        master_pose_scaling_z = 0.5
-
-        refinement_correction = self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))
-
-        pos_next_wrt_current[0] += refinement_correction[0] * master_pose_scaling_x
-        pos_next_wrt_current[1] += refinement_correction[0] * master_pose_scaling_y
-        pos_next_wrt_current[2] += refinement_correction[0] * master_pose_scaling_z
-
-        return pos_next_wrt_current
-        
     def refineTrajectory(self, traj, dt):
         self.obstacle_hit_once = False
         self.obstacle_hit_updater.update(str(self.obstacle_hit_once))
@@ -323,8 +309,7 @@ class trajectoryRefinement():
                 pos_next_wrt_pos_current = np.subtract(np.array(traj_pos[-1]), np.array(traj_pos[-2]))
 
             # add normalized master pose to the next pose wrt current pose to calculate refined pose
-            # pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
-            pos_next_wrt_pos_current = self.getRefinedPosition(pos_next_wrt_pos_current)
+            pos_next_wrt_pos_current += [x*master_pose_scaling for x in self.PoseStampedToCartesianPositionList(self.normalizeMasterPose(self.master_pose))]
 
             ## transform this pose to base_footprint
             p = list(pos_next_wrt_pos_current)
