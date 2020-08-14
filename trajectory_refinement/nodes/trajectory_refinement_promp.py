@@ -241,7 +241,7 @@ class trajectoryRefinement():
         self.firstMasterPose = PoseStamped()
         
         # self.firstMasterPose.pose.position.x = 0.412058425026
-        self.firstMasterPose.pose.position.x = 0.548425702896
+        self.firstMasterPose.pose.position.x = 0.717338981781
 
         self.firstMasterPose.pose.position.y = -0.00570407599211
 
@@ -252,7 +252,7 @@ class trajectoryRefinement():
         # self.firstMasterPose.pose.position.z = -0.327476944265
         # self.firstMasterPose.pose.position.z = -0.510984332781
         # self.firstMasterPose.pose.position.z = -0.457386247644
-        self.firstMasterPose.pose.position.z = -0.643346683038
+        self.firstMasterPose.pose.position.z = -0.71511555747
         
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
@@ -292,7 +292,7 @@ class trajectoryRefinement():
         i = 0
         t = 0
 
-        master_pose_scaling = 0.5
+        master_pose_scaling = 0.4
 
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0

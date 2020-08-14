@@ -1,6 +1,6 @@
 <launch>
 
-<arg name="refinement_stiffness" default="0.05"/>
+<arg name="refinement_stiffness" default="0.08"/>
 <arg name="refinement_damping_coefficient" default="0.001"/>
 <arg name="button_source" default="omni"/>
 
