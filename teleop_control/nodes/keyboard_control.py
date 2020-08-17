@@ -56,6 +56,10 @@ class KeyboardControl():
             self.keyboard.key.data = 'space'
         elif key == Key.enter:
             self.keyboard.key.data = 'enter'
+        elif key == Key.left:
+            self.keyboard.key.data = 'left'
+        elif key == Key.right:
+            self.keyboard.key.data = 'right'
 
     def on_release(self, key):
 
@@ -86,6 +90,10 @@ class KeyboardControl():
         elif key == Key.space:
             self.keyboard.key.data = ''
         elif key == Key.enter:
+            self.keyboard.key.data = ''
+        elif key == Key.left:
+            self.keyboard.key.data = ''
+        elif key == Key.right:
             self.keyboard.key.data = ''
 
         elif key == Key.ctrl_r:

@@ -80,9 +80,19 @@ class ExperimentNode(object):
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
 
         self.stop_updating_flag = 0
         self.collision_updating_flag = 0
+
+        self.pressed_key = ""
+
+    def isStringEmpty(self, string):
+        return string == ""
+
+    def _keyboardCallback(self, data):
+        if not self.isStringEmpty(data.key.data):
+            self.pressed_key = data.key.data
 
     # failure detection callback
     def _executionFailureCallback(self, data):
@@ -580,7 +590,6 @@ class ExperimentNode(object):
             
             rospy.loginfo(logmessage)
 
-
         except (AttributeError, ValueError) as e:
                 rospy.loginfo("Problem with adding trajectory: %s" %e)
 
@@ -619,6 +628,21 @@ class ExperimentNode(object):
             z = np.sin(angle/2)
               
         return Quaternion(w, x, y, z).normalised
+
+    def refinePrediction(self):
+        return self.pressed_key == 'left'
+
+    def refineRefinement(self):
+        return self.pressed_key == 'right'
+
+    def waitForKeyPress(self):
+        self.resetKeyPressed()
+        while True:
+            if self.pressed_key != "":
+                return
+
+    def resetKeyPressed(self):
+        self.pressed_key = ""
 
     def startTrial(self):
         if self.method == 'offline+pendant':
@@ -678,13 +702,15 @@ class ExperimentNode(object):
             
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
-                rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
-                
+                # rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
+                # rospy.wait_for_message('keyboard_control', Keyboard)
+                self.waitForKeyPress()
+
                 self.stop_updating_flag = 0
 
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
                 
-                if self.refine == 'prediction':
+                if self.refinePrediction():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -694,7 +720,7 @@ class ExperimentNode(object):
 
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
-                elif self.refine == 'refinement':
+                elif self.refineRefinement():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -813,7 +839,9 @@ class ExperimentNode(object):
 
                 self.collision_updating_flag = 0
 
+                self.stopTimer()
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                self.startTimer()
                 
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
