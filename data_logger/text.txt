@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 REFINE RED OR GREEN?
+=======
+AUTONOMOUS EXECUTION
+>>>>>>> fix-offline-omni

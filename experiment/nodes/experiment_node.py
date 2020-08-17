@@ -18,6 +18,7 @@ from gazebo_msgs.msg import ModelState
 from trajectory_visualizer.msg import TrajectoryVisualization
 from execution_failure_detection.msg import ExecutionFailure
 from teleop_control.msg import Keyboard
+from teleop_control.srv import SetPartToPublish, SetPartToPublishResponse
 
 # import ros services
 from data_logger.srv import (CreateParticipant, AddRefinement,
@@ -86,8 +87,11 @@ class ExperimentNode(object):
 
         self.pressed_key = ""
 
+    def isStringEmpty(self, string):
+        return string == ""
+
     def _keyboardCallback(self, data):
-        if data.key.data != '':
+        if not self.isStringEmpty(data.key.data):
             self.pressed_key = data.key.data
 
     # failure detection callback
@@ -586,7 +590,6 @@ class ExperimentNode(object):
             
             rospy.loginfo(logmessage)
 
-
         except (AttributeError, ValueError) as e:
                 rospy.loginfo("Problem with adding trajectory: %s" %e)
 
@@ -635,11 +638,11 @@ class ExperimentNode(object):
     def waitForKeyPress(self):
         self.resetKeyPressed()
         while True:
-            if self.pressed_key != '':
+            if self.pressed_key != "":
                 return
 
     def resetKeyPressed(self):
-        self.pressed_key == ''
+        self.pressed_key = ""
 
     def startTrial(self):
         if self.method == 'offline+pendant':
@@ -699,16 +702,15 @@ class ExperimentNode(object):
             
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
-                
+                # rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
                 # rospy.wait_for_message('keyboard_control', Keyboard)
-                # self.waitForKeyPress()
-                rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
+                self.waitForKeyPress()
 
                 self.stop_updating_flag = 0
 
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
                 
-                if self.refine == 'prediction':
+                if self.refinePrediction():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -718,7 +720,7 @@ class ExperimentNode(object):
 
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
-                elif self.refine == 'refinement':
+                elif self.refineRefinement():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -837,7 +839,9 @@ class ExperimentNode(object):
 
                 self.collision_updating_flag = 0
 
+                self.stopTimer()
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                self.startTimer()
                 
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
@@ -979,7 +983,108 @@ class ExperimentNode(object):
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
+        
+        elif self.method == 'offline+omni':
+
+            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+                self.goToInitialPose()
+                time.sleep(5)
+
+                self.setObjectPosition()
+                time.sleep(4)
+                
+                rospy.wait_for_service('/set_part_to_publish', timeout=2.0)
+                set_part_to_publish = rospy.ServiceProxy('/set_part_to_publish', SetPartToPublish)
+                set_part_to_publish()
+
+                set_teach_state(String('both'))
+
+                self.text_updater.update("START TEACHING")
+                self.collision_updating_flag = 1
+
+                # we only need to start the timer if it is equal to zero, else just keep the timer running
+                if self.start_time == 0:
+                    # start timer
+                    self.startTimer()
+                else: pass
+
+                rospy.wait_for_service('offline_pendant/get_teach_state', timeout=2.0)
+                get_teach_state = rospy.ServiceProxy('offline_pendant/get_teach_state', GetTeachState)
+                resp = get_teach_state()
+                isTeachingOffline = resp.teach_state.data      
+                
+                # use teach_pendant node to teach offline
+                while isTeachingOffline:
+                    resp = get_teach_state()
+                    isTeachingOffline = resp.teach_state.data        
+
+                
+                rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
+                get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
+                resp = get_demo_pendant()
+
+                set_teach_state(Bool(False))
+
+                # self.stopNode('teach_pendant.launch')
+                
+                self.goToInitialPose()
+                self.setObjectPosition()
+
+                self.refined_trajectory = resp.demo
+                self.visualize('both')
+                time.sleep(3)
+
+                self.collision_updating_flag = 0
+
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                
+                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
+                    f.write(str(self.refined_trajectory))
                     
+                print("\n")
+
+                rospy.loginfo("object missed: " + str(not object_reached))
+                rospy.loginfo("obstacle hit: " + str(obstacle_hit))
+                rospy.loginfo("object kicked over: " + str(object_kicked_over))
+
+                print("\n")
+
+                # update text in operator gui
+                if obstacle_hit or not object_reached or object_kicked_over:
+                    self.text_updater.update("FAILURE:")
+                else:
+                    self.text_updater.update("SUCCESS!")
+
+                if obstacle_hit:
+                    self.text_updater.append("OBSTACLE HIT")
+                if not object_reached:
+                    self.text_updater.append("OBJECT MISSED")
+                if object_kicked_over:
+                    self.text_updater.append("OBJECT KICKED OVER")
+
+                time.sleep(2)
+                # store refinement along with if it failed or not
+                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
+               
+                # increment number of refinements
+                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
+                
+                number_of_refinements += 1
+                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
+                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
+
+                rospy.loginfo("Got a refined trajectory")
+
+                print("number of refinement = " + str(number_of_refinements))
+                self.number_of_refinements_updater.update(str(number_of_refinements))
+
+                if number_of_refinements >= self.max_refinements:
+                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
+        
+            rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
+            clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
+            clear_waypoints()
+        
         self.number_of_refinements_updater.update(str(0))
         
         ####### update model #######

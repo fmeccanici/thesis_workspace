@@ -72,11 +72,14 @@ class NumberOfRefinementsThread(QThread):
     
     def run(self):
         while True:
-
+            
             with open(self.number_of_refinements_file, 'r') as f:
-                self.number_of_refinements_signal.emit(ast.literal_eval(f.read()))
+                try:
+                    self.number_of_refinements_signal.emit(ast.literal_eval(f.read()))
+                except SyntaxError:
+                    self.number_of_refinements_signal.emit("0")
                 self.sleep(1)
-
+            
 class ImageWidget(QWidget):
 
     def __init__(self, method):

@@ -100,12 +100,15 @@ class trajectoryRefinement():
         self.master_pose = Pose()
 
         # calibrate master pose
-        self.calibrate_master_pose_for_normalization()
+        # self.calibrate_master_pose_for_normalization()
 
         self.text_updater = TextUpdater()
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
 
-        self.initMasterNormalizePose()
+        if self.button_source == "omni":
+            self.initMasterNormalizePoseOmni()
+        elif self.button_source == "keyboard":
+            self.initMasterNormalizePoseKeyboard()
 
     def _get_parameters(self):
         self.button_source = rospy.get_param('~button_source')
@@ -217,12 +220,12 @@ class trajectoryRefinement():
         z = self.object_marker_pose.position.z - self.current_slave_pose.position.z 
 
     def _calibrate_master_pose(self, req):
-        self.calibrate_master_pose_for_normalization()
+        self.initMasterNormalizePoseKeyboard()
         response = CalibrateMasterPoseResponse()
 
         return response
 
-    def calibrate_master_pose_for_normalization(self):
+    def initMasterNormalizePoseKeyboard(self):
         # rospy.wait_for_message('/master_control_comm', ControlComm, timeout=5.0)
         self.firstMasterPose = PoseStamped()
         self.firstMasterPose.pose.position.x = self.master_pose.position.x
@@ -237,7 +240,7 @@ class trajectoryRefinement():
 
         rospy.loginfo('Calibrated master pose for refinement')
 
-    def initMasterNormalizePose(self):
+    def initMasterNormalizePoseOmni(self):
         self.firstMasterPose = PoseStamped()
         
         # self.firstMasterPose.pose.position.x = 0.412058425026
