@@ -79,9 +79,16 @@ class ExperimentNode(object):
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
 
         self.stop_updating_flag = 0
         self.collision_updating_flag = 0
+
+        self.pressed_key = ""
+
+    def _keyboardCallback(self, data):
+        if data.key.data != '':
+            self.pressed_key = data.key.data
 
     # failure detection callback
     def _executionFailureCallback(self, data):
@@ -619,6 +626,21 @@ class ExperimentNode(object):
               
         return Quaternion(w, x, y, z).normalised
 
+    def refinePrediction(self):
+        return self.pressed_key == 'left'
+
+    def refineRefinement(self):
+        return self.pressed_key == 'right'
+
+    def waitForKeyPress(self):
+        self.resetKeyPressed()
+        while True:
+            if self.pressed_key != '':
+                return
+
+    def resetKeyPressed(self):
+        self.pressed_key == ''
+
     def startTrial(self):
         if self.method == 'offline+pendant':
             rospy.wait_for_service('/offline_pendant/set_teach_state', timeout=2.0)
@@ -677,8 +699,11 @@ class ExperimentNode(object):
             
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
-                rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
                 
+                # rospy.wait_for_message('keyboard_control', Keyboard)
+                # self.waitForKeyPress()
+                rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
+
                 self.stop_updating_flag = 0
 
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)

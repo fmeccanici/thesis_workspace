@@ -113,7 +113,7 @@ class trajectoryRefinement():
 
     def _executionFailureCallback(self, data):
         self.object_reached = data.object_reached.data
-        self.obstacle_hit = data.obstacle_hit.data
+        self.obstacle_hit = data.obstacle_hit.data        
 
     def _keyboard_callback(self, data):
 

@@ -315,10 +315,11 @@ class OperatorGUI(QMainWindow):
         self.buttonBox.accepted.connect(self.on_ok_click)
         self.radioButton.setChecked(1)
 
+        
         if self.method == 'online+pendant':
             self.pushButton.clicked.connect(self.onRedClick)
             self.pushButton_2.clicked.connect(self.onGreenClick)
-    
+        
     def updateObjectMissed(self, object_missed):
         if not object_missed:
             self.checkBox.setChecked(1)
