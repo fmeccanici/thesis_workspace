@@ -88,7 +88,7 @@ class ExperimentNode(object):
         self.pressed_key = ""
 
     def isStringEmpty(self, string):
-        return string == ""
+        return string == "" or string == ''
 
     def _keyboardCallback(self, data):
         if not self.isStringEmpty(data.key.data):
@@ -638,7 +638,8 @@ class ExperimentNode(object):
     def waitForKeyPress(self):
         self.resetKeyPressed()
         while True:
-            if self.pressed_key != "":
+            if not self.isStringEmpty(self.pressed_key):
+                print(str(self.pressed_key) + " key presssed")
                 return
 
     def resetKeyPressed(self):
