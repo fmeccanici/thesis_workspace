@@ -630,10 +630,13 @@ class ExperimentNode(object):
     def refineRefinement(self):
         return self.pressed_key == 'right'
 
+    def isKeyPressedLeftOrRight(self, key):
+        return key == 'left' or key == 'right'
+
     def waitForKeyPress(self):
         self.resetKeyPressed()
         while True:
-            if not self.isStringEmpty(self.pressed_key):
+            if self.isKeyPressedLeftOrRight(self.pressed_key):
                 print(str(self.pressed_key) + " key presssed")
                 return
 
