@@ -203,21 +203,6 @@ class OperatorGUI(QMainWindow):
         self.groupBox_3.setGeometry(QRect(1355, 675, 500, 450))
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
-
-        if self.method == 'online+pendant':
-            self.pushButton = QPushButton(self.centralwidget)
-            self.pushButton.setGeometry(QRect(520, 850, 271, 101))
-            font = QFont()
-            font.setPointSize(40)
-            self.pushButton.setFont(font)
-            self.pushButton.setObjectName("pushButton")
-            self.pushButton_2 = QPushButton(self.centralwidget)
-            self.pushButton_2.setGeometry(QRect(810, 850, 271, 101))
-            font = QFont()
-            font.setPointSize(40)
-            self.pushButton_2.setFont(font)
-            self.pushButton_2.setObjectName("pushButton_2")
-
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QRect(20, 730, 1061, 81))
         font = QFont()
@@ -300,10 +285,6 @@ class OperatorGUI(QMainWindow):
         self.label_3.setText(_translate("MainWindow", "Number"))
         self.radioButton.setText(_translate("MainWindow", "Ma&le"))
         self.radioButton_2.setText(_translate("MainWindow", "Female"))
-
-        if self.method == 'online+pendant':
-            self.pushButton.setText(_translate("MainWindow", "Red"))
-            self.pushButton_2.setText(_translate("MainWindow", "Green"))
         
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
         self.checkBox.setText(_translate("MainWindow", "Within reach"))
@@ -311,17 +292,8 @@ class OperatorGUI(QMainWindow):
         self.checkBox_3.setText(_translate("MainWindow", "No collision"))
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
 
-        if self.method == 'online+pendant':
-            self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
-            self.pushButton_2.setStyleSheet("background-color: green; font: bold 40px; color: black")
-
         self.buttonBox.accepted.connect(self.on_ok_click)
         self.radioButton.setChecked(1)
-
-        
-        if self.method == 'online+pendant':
-            self.pushButton.clicked.connect(self.onRedClick)
-            self.pushButton_2.clicked.connect(self.onGreenClick)
         
     def updateObjectMissed(self, object_missed):
         if not object_missed:
@@ -346,20 +318,6 @@ class OperatorGUI(QMainWindow):
 
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)
-
-    def onRedClick(self):
-        operator_gui_interaction = OperatorGUIinteraction()
-        operator_gui_interaction.refine_prediction = Bool(1)
-        operator_gui_interaction.refine_refinement = Bool(0)
-
-        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
-
-    def onGreenClick(self):
-        operator_gui_interaction = OperatorGUIinteraction()
-        operator_gui_interaction.refine_prediction = Bool(0)
-        operator_gui_interaction.refine_refinement = Bool(1)
-
-        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
 
     def on_ok_click(self):
         operator_gui_interaction = OperatorGUIinteraction()
