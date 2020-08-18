@@ -4,5 +4,3 @@ std_msgs/Byte age
 std_msgs/Byte teleop_experience
 std_msgs/Byte keyboard_experience
 std_msgs/Bool left_right_handed
-
----

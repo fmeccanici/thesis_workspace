@@ -105,16 +105,8 @@ class ExperimentNode(object):
             self.object_kicked_over_updater.update( str(data.object_kicked_over.data ))
 
     def _operatorGuiInteraction(self, data):    
-        if data.refine_prediction.data:
-            self.refine = 'prediction'
-        elif data.refine_refinement.data:
-            self.refine = 'refinement'
-        
-        if self.set_data == False:
-            self.participant_number = data.number.data
-            self.age = data.age.data
-            self.gender = data.gender.data
-            self.set_data = True
+        self.participant_number = data.number.data
+        print("Participant number is " + str(self.participant_number))
 
     def _getParameters(self):
         self.method = rospy.get_param('~method')            
@@ -455,25 +447,28 @@ class ExperimentNode(object):
         set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
         resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg)
 
-    def loadOrCreateParticipant(self):
+    def loadParticipant(self):
         try: 
             rospy.wait_for_service('create_participant', timeout=2.0)
             create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
             number_msg = Byte()
             
             # wait until we have operator interaction
-            text = "FILL IN FORM"
+            text = "FILL IN PARTICIPANT NUMBER"
             self.text_updater.update(text)
             
             rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
             number_msg.data = self.participant_number
             self.text_updater.empty()
 
-            # dummy variable names --> not necessary when data exists
-            gender_msg = Bool(self.gender)
-            age_msg = Byte(self.age)
+            # dummy variable names --> not necessary when data exists --> data logger loads this automatically instead of writing it
+            gender_msg = Bool(0)
+            age_msg = Byte(1)
+            teleop_experience_msg = Byte(1)
+            keyboard_experience_msg = Byte(1)
+            left_right_handed_msg = Bool(1)
 
-            resp = create_participant(number_msg, gender_msg, age_msg)     
+            resp = create_participant(number_msg, gender_msg, age_msg, teleop_experience_msg, keyboard_experience_msg, left_right_handed_msg)     
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
@@ -1114,7 +1109,7 @@ class ExperimentNode(object):
 
 
     def start(self):
-        self.loadOrCreateParticipant()
+        self.loadParticipant()
         self.initializeHeadLiftJoint()
 
         for object_position in self.object_positions:

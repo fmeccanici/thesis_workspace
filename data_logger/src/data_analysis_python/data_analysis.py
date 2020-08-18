@@ -20,7 +20,9 @@ class DataAnalysis(object):
 
 
     def loadData(self, participant_number):
-        participant = ParticipantData(participant_number, 0, 0)
+
+        # dummy variables zeros --> data gets loaded in participantData class nonetheless
+        participant = ParticipantData(participant_number, 0, 0, 0, 0, 0)
         self.data[participant_number] = participant        
 
         # check if path exists, create if not

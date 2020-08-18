@@ -5,8 +5,8 @@ import pandas as pd
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
 class ParticipantData(object):
-    def __init__(self, number, gender, age, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
-
+    def __init__(self, number, gender, age, teleop_experience, keyboard_experience, left_right_handed, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
+        
         self.number = number
         self.num_methods = 4
         self.methods = {}
@@ -21,6 +21,9 @@ class ParticipantData(object):
             os.makedirs(self.path)
             self.gender = gender
             self.age = age
+            self.teleop_experience = teleop_experience
+            self.keyboard_experience = keyboard_experience
+            self.left_right_handed = left_right_handed
 
             self.initData()
 
@@ -30,6 +33,10 @@ class ParticipantData(object):
         else:
             self.gender = gender
             self.age = age
+            self.teleop_experience = teleop_experience
+            self.keyboard_experience = keyboard_experience
+            self.left_right_handed = left_right_handed
+            
             self.initData()
 
         # parameters used to fill the methods dictionary
@@ -82,10 +89,13 @@ class ParticipantData(object):
         with open(data_path, "r") as infile:
             outfile = ast.literal_eval(infile.read())
 
-            self.gender = outfile['gender']
             self.number = outfile['number']
+            self.gender = outfile['gender']
             self.age = outfile['age']
-            
+            self.teleop_experience = outfile['teleop_experience']
+            self.keyboard_experience = outfile['keyboard_experience']
+            self.left_right_handed = outfile['left_right_handed']
+
             for i in range(self.num_methods):
                 self.methods[i+1] = outfile['method'][i+1]
 
@@ -269,7 +279,7 @@ class ParticipantData(object):
         self.methods[method]['number_of_updates'] = value
     
     def toCSV(self):
-        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'method': self.methods}
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:
             f.write(str(data))
             
