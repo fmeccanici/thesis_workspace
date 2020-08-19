@@ -35,6 +35,7 @@ from trajectory_visualizer_python.trajectory_visualizer_python import trajectory
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 from learning_from_demonstration_python.dynamic_time_warping import DTW
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from data_logger_python.text_updater import TextUpdater
 
 
 class trajectoryStorageVariables():
@@ -50,7 +51,8 @@ class trajectoryRefinement():
     def __init__(self):
         rospy.init_node("refinement_node")
         self.rospack = rospkg.RosPack()
-        
+        self.text_updater = TextUpdater()
+
         # initialize button parameters
         self.grey_button = 0
         self.grey_button_prev = 0
@@ -79,7 +81,6 @@ class trajectoryRefinement():
         elif self.button_source == "keyboard":
             # self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
             self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboard_callback)
-
 
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
@@ -241,10 +242,11 @@ class trajectoryRefinement():
         rospy.loginfo('Calibrated master pose for refinement')
 
     def initMasterNormalizePoseOmni(self):
+        print("Normalized pose for omni")
         self.firstMasterPose = PoseStamped()
         
         # self.firstMasterPose.pose.position.x = 0.412058425026
-        self.firstMasterPose.pose.position.x = 0.529729088974
+        self.firstMasterPose.pose.position.x = 0.536848848877
 
         self.firstMasterPose.pose.position.y = -0.00570407599211
 
@@ -255,7 +257,7 @@ class trajectoryRefinement():
         # self.firstMasterPose.pose.position.z = -0.327476944265
         # self.firstMasterPose.pose.position.z = -0.510984332781
         # self.firstMasterPose.pose.position.z = -0.457386247644
-        self.firstMasterPose.pose.position.z = 0.0679753754089
+        self.firstMasterPose.pose.position.z = -0.831800173182
         
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
@@ -291,7 +293,7 @@ class trajectoryRefinement():
         i = 0
         t = 0
 
-        master_pose_scaling = 0.3
+        master_pose_scaling = 0.5
 
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
@@ -500,6 +502,7 @@ class trajectoryRefinement():
         # print("time vector = " + str([x[-1] for x in prediction]))
 
         refined_prediction = self.refineTrajectory(prediction, dt)
+        self.text_updater.update("STOPPED REFINING")
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
         new_traj = self.resampler.resample_time(new_traj, self.parser.get_total_time(prediction))

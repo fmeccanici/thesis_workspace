@@ -14,7 +14,7 @@
     if="$(eval method == 'online+omni')"/> 
     
     <include file="$(find teleop_control)/launch/keyboard_control.launch" 
-    if="$(eval method == 'online+pendant')"/>
+    if="$(eval method == 'online+pendant' or method == 'online+omni')"/>
 
     <include file="$(find teach_pendant)/launch/teach_pendant.launch" 
     if="$(eval method == 'offline+pendant')"/>

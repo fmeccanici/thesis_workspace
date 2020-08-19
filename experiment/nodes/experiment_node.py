@@ -900,13 +900,13 @@ class ExperimentNode(object):
             
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
-                rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
-                
+                self.waitForKeyPress()
+
                 self.stop_updating_flag = 0
 
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
                 
-                if self.refine == 'prediction':
+                if self.refinePrediction():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -916,7 +916,7 @@ class ExperimentNode(object):
 
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
-                elif self.refine == 'refinement':
+                elif self.refineRefinement():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
