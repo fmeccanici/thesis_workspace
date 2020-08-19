@@ -244,7 +244,7 @@ class trajectoryRefinement():
         self.firstMasterPose = PoseStamped()
         
         # self.firstMasterPose.pose.position.x = 0.412058425026
-        self.firstMasterPose.pose.position.x = 0.717338981781
+        self.firstMasterPose.pose.position.x = 0.529729088974
 
         self.firstMasterPose.pose.position.y = -0.00570407599211
 
@@ -255,7 +255,7 @@ class trajectoryRefinement():
         # self.firstMasterPose.pose.position.z = -0.327476944265
         # self.firstMasterPose.pose.position.z = -0.510984332781
         # self.firstMasterPose.pose.position.z = -0.457386247644
-        self.firstMasterPose.pose.position.z = -0.71511555747
+        self.firstMasterPose.pose.position.z = 0.0679753754089
         
         self.firstMasterPose.pose.orientation.x = 0.97947135287
         self.firstMasterPose.pose.orientation.y = 0.0146418957782
