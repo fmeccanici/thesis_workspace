@@ -29,7 +29,9 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory, 
-                                                GetEEPose, AddDemonstration, SetTeachStateOmni)
+                                                GetEEPose, AddDemonstration, SetTeachStateOmni,
+                                                ClearTrajectory, GetTrajectory)
+
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
@@ -1016,15 +1018,14 @@ class ExperimentNode(object):
                 resp = get_teach_state()
                 isTeachingOffline = resp.teach_state.data      
                 
-                print("teach state = " + str(isTeachingOffline))
                 # use teach_pendant node to teach offline
                 while isTeachingOffline:
                     resp = get_teach_state()
                     isTeachingOffline = resp.teach_state.data      
-                    print("teach state = " + str(isTeachingOffline))
+                self.text_updater.update("STOPPED TEACHING")
 
                 rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
-                get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetDemonstrationPendant)
+                get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetTrajectory)
                 resp = get_demo()
 
                 set_teach_state(Bool(False))
@@ -1042,6 +1043,7 @@ class ExperimentNode(object):
 
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
                 
+
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
                     
@@ -1081,6 +1083,10 @@ class ExperimentNode(object):
 
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
+                
+                rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
+                clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
+                resp = clear_trajectory()
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")

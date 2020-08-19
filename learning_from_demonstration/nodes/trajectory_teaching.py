@@ -134,7 +134,7 @@ class trajectoryTeaching():
     def _clearTrajectory(self, req):
         resp = ClearTrajectoryResponse()
 
-        del self.EEtrajectory
+        self.EEtrajectory = []
 
         return resp
 
