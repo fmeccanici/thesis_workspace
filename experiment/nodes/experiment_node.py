@@ -29,7 +29,7 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory, 
-                                                GetEEPose, AddDemonstration)
+                                                GetEEPose, AddDemonstration, SetTeachStateOmni)
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
@@ -648,6 +648,10 @@ class ExperimentNode(object):
             rospy.wait_for_service('/offline_pendant/set_teach_state', timeout=2.0)
             set_teach_state = rospy.ServiceProxy('/offline_pendant/set_teach_state', SetTeachState)
             set_teach_state(Bool(False))
+        elif self.method == 'offline+omni':
+            rospy.wait_for_service('/trajectory_teaching/set_teach_state', timeout=2.0)
+            set_teach_state = rospy.ServiceProxy('/trajectory_teaching/set_teach_state', SetTeachStateOmni)
+            set_teach_state(Bool(False))
 
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
@@ -994,9 +998,9 @@ class ExperimentNode(object):
                 
                 rospy.wait_for_service('/set_part_to_publish', timeout=2.0)
                 set_part_to_publish = rospy.ServiceProxy('/set_part_to_publish', SetPartToPublish)
-                set_part_to_publish()
+                set_part_to_publish(String('both'))
 
-                set_teach_state(String('both'))
+                set_teach_state(Bool(True))
 
                 self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
@@ -1007,20 +1011,21 @@ class ExperimentNode(object):
                     self.startTimer()
                 else: pass
 
-                rospy.wait_for_service('offline_pendant/get_teach_state', timeout=2.0)
-                get_teach_state = rospy.ServiceProxy('offline_pendant/get_teach_state', GetTeachState)
+                rospy.wait_for_service('trajectory_teaching/get_teach_state', timeout=2.0)
+                get_teach_state = rospy.ServiceProxy('trajectory_teaching/get_teach_state', GetTeachState)
                 resp = get_teach_state()
                 isTeachingOffline = resp.teach_state.data      
                 
+                print("teach state = " + str(isTeachingOffline))
                 # use teach_pendant node to teach offline
                 while isTeachingOffline:
                     resp = get_teach_state()
-                    isTeachingOffline = resp.teach_state.data        
+                    isTeachingOffline = resp.teach_state.data      
+                    print("teach state = " + str(isTeachingOffline))
 
-                
-                rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
-                get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
-                resp = get_demo_pendant()
+                rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
+                get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetDemonstrationPendant)
+                resp = get_demo()
 
                 set_teach_state(Bool(False))
 
@@ -1080,9 +1085,9 @@ class ExperimentNode(object):
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
         
-            rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
-            clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
-            clear_waypoints()
+            rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
+            clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
+            clear_trajectory()
         
         self.number_of_refinements_updater.update(str(0))
         

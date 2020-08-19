@@ -71,7 +71,6 @@ class learningFromDemonstration():
         T = self.parser.get_total_time(traj)
         object_positions = traj[0][7:10]
 
-        # T doesnt work properly --> chose dt as output
         for data in traj:
             ee_pose = data[0:7]
             traj_relevant_data.append(ee_pose + object_positions + [T] )

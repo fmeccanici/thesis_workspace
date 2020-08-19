@@ -25,7 +25,12 @@
     SetPath.srv
     GetDemonstration.srv
     GetTimer.srv
+    SetTeachStateOmni.srv
+    GetTeachStateOmni.srv
+    GetTrajectory.srv
+    ClearTrajectory.srv
   )
+
 catkin_python_setup()
 
 generate_messages(

@@ -13,6 +13,7 @@ class ExperimentVariables(object):
         self.object_positions = { 1: [0.8, self.y0 - self.y_position_step_dict[1], 0.7], 2: [0.8, self.y0 - self.y_position_step_dict[2], 0.7], 3: [0.8, self.y0 - self.y_position_step_dict[3], 0.7]}
         self.max_refinements = 5
         self.num_updates = 1
+        self.desired_datapoints = 75
         
 if __name__ == "__main__":
     experiment_variabes = ExperimentVariables()
