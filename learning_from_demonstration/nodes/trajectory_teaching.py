@@ -35,6 +35,7 @@ class trajectoryTeaching():
         self.grey_button_toggle_previous = 0
         self.white_button_toggle = 0
         self.white_button_toggle_previous = 0
+        self.teach_state = False
 
         self.EEtrajectory = []
         self.parser = trajectoryParser()
@@ -63,7 +64,6 @@ class trajectoryTeaching():
         self._get_trajectory_service = rospy.Service('trajectory_teaching/get_trajectory', GetTrajectory, self._getTrajectory)
         self._clear_trajectory_service = rospy.Service('trajectory_teaching/clear_trajectory', ClearTrajectory, self._clearTrajectory)
 
-        self.teach_state = False
 
     def is_correct_raw_format(self, raw_traj):
         if len(raw_traj[0]) == 15:
@@ -141,17 +141,17 @@ class trajectoryTeaching():
     def _getTeachState(self, req):
         resp = GetTeachStateOmniResponse()
         resp.teach_state.data = self.teach_state
-
+        print(self.teach_state)
         return resp
 
     def _setTeachState(self, req):
         self.teach_state = bool(req.teach_state.data)
-        self.white_button_previous = self.white_button
-        self.white_button = req.teach_state.data
+        # self.white_button_previous = self.white_button
+        # self.white_button = req.teach_state.data
 
-        if (self.white_button != self.white_button_previous) and (self.white_button == 1):
-            self.white_button_toggle = not self.white_button_toggle
-            self.white_button_toggle_previous = not self.white_button_toggle
+        # if (self.white_button != self.white_button_previous) and (self.white_button == 1):
+        #     self.white_button_toggle = not self.white_button_toggle
+        #     self.white_button_toggle_previous = not self.white_button_toggle
         
         resp = SetTeachStateOmniResponse()
 
@@ -175,11 +175,18 @@ class trajectoryTeaching():
                 self.marker_pose = marker.pose.pose
             else: continue
 
-    def _end_effector_pose_callback(self, data):
-        self.current_slave_pose = data.pose
-        
+    def setTeachState(self):
         if self.white_button_toggle_previous == 0 and self.white_button_toggle == 1:
             self.teach_state = True
+
+        elif self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
+            self.teach_state = False    
+
+    def _end_effector_pose_callback(self, data):
+        self.current_slave_pose = data.pose
+        self.setTeachState()
+        
+        if self.teach_state == True:
 
             # print("Appending trajectory")
             data.header.stamp = rospy.Time.now()
@@ -190,9 +197,6 @@ class trajectoryTeaching():
              self.marker_pose.position.y, self.marker_pose.position.x, self.marker_pose.position.z,
              self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w, 
              data.header.stamp.secs, data.header.stamp.nsecs])
-
-        elif self.white_button_toggle_previous == 1 and self.white_button_toggle == 0:
-            self.teach_state = False
     
     def set_aruco_position(self, x=0.7, y=-0.43, z=1):
         state_msg = ModelState()
