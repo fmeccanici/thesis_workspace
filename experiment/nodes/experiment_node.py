@@ -19,6 +19,8 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from execution_failure_detection.msg import ExecutionFailure
 from teleop_control.msg import Keyboard
 from teleop_control.srv import SetPartToPublish, SetPartToPublishResponse
+from slave_control.msg import ControlState
+
 
 # import ros services
 from data_logger.srv import (CreateParticipant, AddRefinement,
@@ -81,6 +83,8 @@ class ExperimentNode(object):
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
+        self.slave_control_state_sub = rospy.Subscriber('slave_control_state', ControlState, self._slaveControlStateCallback)
+
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
         self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
 
@@ -89,13 +93,16 @@ class ExperimentNode(object):
 
         self.pressed_key = ""
 
+    def _slaveControlStateCallback(self, data):
+        self.en_arm = data.en_arm.data
+
     def isStringEmpty(self, string):
         return string == "" or string == ''
 
     def _keyboardCallback(self, data):
         if not self.isStringEmpty(data.key.data):
             self.pressed_key = data.key.data
-
+            
     # failure detection callback
     def _executionFailureCallback(self, data):
         if self.stop_updating_flag == 0:
@@ -642,6 +649,9 @@ class ExperimentNode(object):
                 print(str(self.pressed_key) + " key presssed")
                 return
 
+    def isArmEnabled(self):
+        return self.en_arm == 1
+
     def resetKeyPressed(self):
         self.pressed_key = ""
 
@@ -1002,9 +1012,6 @@ class ExperimentNode(object):
                 set_part_to_publish = rospy.ServiceProxy('/set_part_to_publish', SetPartToPublish)
                 set_part_to_publish(String('both'))
 
-                set_teach_state(Bool(True))
-
-                self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
 
                 # we only need to start the timer if it is equal to zero, else just keep the timer running
@@ -1018,10 +1025,18 @@ class ExperimentNode(object):
                 resp = get_teach_state()
                 isTeachingOffline = resp.teach_state.data      
                 
+                while not isTeachingOffline:
+                    self.text_updater.update("PRESS WHITE BUTTON TO START TEACHING")
+                    resp = get_teach_state()
+                    isTeachingOffline = resp.teach_state.data 
+
                 # use teach_pendant node to teach offline
                 while isTeachingOffline:
-                    resp = get_teach_state()
-                    isTeachingOffline = resp.teach_state.data      
+                    self.text_updater.update("PRESS WHITE BUTTON TO STOP TEACHING")
+
+                    resp = get_teach_state()                
+                    isTeachingOffline = resp.teach_state.data 
+
                 self.text_updater.update("STOPPED TEACHING")
 
                 rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
@@ -1030,8 +1045,11 @@ class ExperimentNode(object):
 
                 set_teach_state(Bool(False))
 
-                # self.stopNode('teach_pendant.launch')
+                while self.isArmEnabled():
+                    self.text_updater.update("PRESS GREY BUTTON")
                 
+                self.text_updater.update("GREY BUTTON PRESSED")
+
                 self.goToInitialPose()
                 self.setObjectPosition()
 
