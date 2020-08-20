@@ -56,7 +56,6 @@ class ExecutionFailureNode(object):
         self.expected_object_pose = Pose()
         self.execution_failure_pub = rospy.Publisher('execution_failure', ExecutionFailure, queue_size=10)
 
-
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
         self.q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
