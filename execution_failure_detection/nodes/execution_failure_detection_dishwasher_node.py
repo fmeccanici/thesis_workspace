@@ -56,6 +56,12 @@ class ExecutionFailureNode(object):
         self.expected_object_pose = Pose()
         self.execution_failure_pub = rospy.Publisher('execution_failure', ExecutionFailure, queue_size=10)
 
+        self.gripper_collision = False
+        self.gripper_collision_sub = rospy.Subscriber('gripper_collision', Bool, self._gripperCollisionCallback)
+
+    def _gripperCollisionCallback(self, data):
+        self.gripper_collision = data.data
+
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
         self.q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
@@ -122,6 +128,7 @@ class ExecutionFailureNode(object):
 
     def isObstacleHit(self):
 
+        """
         number_of_evaluations = 5
         
         for i in range(number_of_evaluations):
@@ -196,8 +203,13 @@ class ExecutionFailureNode(object):
                 except Exception as e:
                     print(e)
                     continue
-        
-        return False
+        """
+        if self.gripper_collision:
+            self.broadcaster.sendTransform((self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z),
+                                    (0, 0, 0, 1),
+                                    rospy.Time.now(), "collision", "base_footprint")
+                                    
+        return self.gripper_collision
     
     def isObjectKickedOver(self):
         threshold = 0.15
