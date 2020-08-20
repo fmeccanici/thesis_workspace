@@ -187,7 +187,7 @@ class DataAnalysis(object):
                     # it gives a key error thus reverts back to the default which is 0
                     # I only did experiment yet with method 3 on myself but this has to be done for all the methods
                     
-                    if (method == 3) and trajectory == 'refined_trajectory' and methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
+                    if trajectory == 'refined_trajectory' and methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
                         success += 1
                     else:
                         success += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['success'])
@@ -211,7 +211,7 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Refinement time [s]")
-            plt.ylim((0,250))
+            plt.ylim((0,500))
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/refinement_time.pdf')

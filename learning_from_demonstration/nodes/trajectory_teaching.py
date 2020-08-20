@@ -141,7 +141,6 @@ class trajectoryTeaching():
     def _getTeachState(self, req):
         resp = GetTeachStateOmniResponse()
         resp.teach_state.data = self.teach_state
-        print(self.teach_state)
         return resp
 
     def _setTeachState(self, req):

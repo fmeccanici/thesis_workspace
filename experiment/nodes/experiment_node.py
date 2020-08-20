@@ -193,6 +193,36 @@ class ExperimentNode(object):
 
         return y0 - step
 
+    def setDishwasherPosition(self):
+        try:
+            dishwasher = ModelState()
+            dishwasher.model_name = 'dishwasher'
+
+            dishwasher.pose.position.x = 1.75
+            dishwasher.pose.position.y = 0.336
+
+            dishwasher.pose.position.z = 0.098
+
+            dishwasher.pose.orientation.x = 0
+            dishwasher.pose.orientation.y = 0
+            dishwasher.pose.orientation.z = -0.6995
+            dishwasher.pose.orientation.w = 0.7146
+            
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+            resp = set_object(dishwasher)
+
+            return resp.success
+
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
+
     def setObjectPosition(self):
         try:
             object_position = ModelState()
@@ -670,7 +700,9 @@ class ExperimentNode(object):
         self.goToInitialPose()
         time.sleep(5)
 
+        self.setDishwasherPosition()
         self.setObjectPosition()
+        
         time.sleep(4)
 
         self.getContext()
@@ -917,6 +949,7 @@ class ExperimentNode(object):
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 self.waitForKeyPress()
+                self.text_updater.update("PRESS WHITE BUTTON TO STOP REFINING?")
 
                 self.stop_updating_flag = 0
 
