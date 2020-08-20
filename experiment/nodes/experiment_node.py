@@ -19,6 +19,8 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from execution_failure_detection.msg import ExecutionFailure
 from teleop_control.msg import Keyboard
 from teleop_control.srv import SetPartToPublish, SetPartToPublishResponse
+from slave_control.msg import ControlState
+
 
 # import ros services
 from data_logger.srv import (CreateParticipant, AddRefinement,
@@ -29,7 +31,9 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory, 
-                                                GetEEPose, AddDemonstration)
+                                                GetEEPose, AddDemonstration, SetTeachStateOmni,
+                                                ClearTrajectory, GetTrajectory)
+
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
@@ -79,6 +83,8 @@ class ExperimentNode(object):
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
+        self.slave_control_state_sub = rospy.Subscriber('slave_control_state', ControlState, self._slaveControlStateCallback)
+
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
         self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
 
@@ -87,13 +93,16 @@ class ExperimentNode(object):
 
         self.pressed_key = ""
 
+    def _slaveControlStateCallback(self, data):
+        self.en_arm = data.en_arm.data
+
     def isStringEmpty(self, string):
         return string == "" or string == ''
 
     def _keyboardCallback(self, data):
         if not self.isStringEmpty(data.key.data):
             self.pressed_key = data.key.data
-
+            
     # failure detection callback
     def _executionFailureCallback(self, data):
         if self.stop_updating_flag == 0:
@@ -183,6 +192,36 @@ class ExperimentNode(object):
         y0 = self.experiment_variables.y0
 
         return y0 - step
+
+    def setDishwasherPosition(self):
+        try:
+            dishwasher = ModelState()
+            dishwasher.model_name = 'dishwasher'
+
+            dishwasher.pose.position.x = 1.75
+            dishwasher.pose.position.y = 0.336
+
+            dishwasher.pose.position.z = 0.098
+
+            dishwasher.pose.orientation.x = 0
+            dishwasher.pose.orientation.y = 0
+            dishwasher.pose.orientation.z = -0.6995
+            dishwasher.pose.orientation.w = 0.7146
+            
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+            resp = set_object(dishwasher)
+
+            return resp.success
+
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
 
     def setObjectPosition(self):
         try:
@@ -640,6 +679,9 @@ class ExperimentNode(object):
                 print(str(self.pressed_key) + " key presssed")
                 return
 
+    def isArmEnabled(self):
+        return self.en_arm == 1
+
     def resetKeyPressed(self):
         self.pressed_key = ""
 
@@ -648,13 +690,19 @@ class ExperimentNode(object):
             rospy.wait_for_service('/offline_pendant/set_teach_state', timeout=2.0)
             set_teach_state = rospy.ServiceProxy('/offline_pendant/set_teach_state', SetTeachState)
             set_teach_state(Bool(False))
+        elif self.method == 'offline+omni':
+            rospy.wait_for_service('/trajectory_teaching/set_teach_state', timeout=2.0)
+            set_teach_state = rospy.ServiceProxy('/trajectory_teaching/set_teach_state', SetTeachStateOmni)
+            set_teach_state(Bool(False))
 
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
         self.goToInitialPose()
         time.sleep(5)
 
+        self.setDishwasherPosition()
         self.setObjectPosition()
+        
         time.sleep(4)
 
         self.getContext()
@@ -901,6 +949,7 @@ class ExperimentNode(object):
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 self.waitForKeyPress()
+                self.text_updater.update("PRESS WHITE BUTTON TO STOP REFINING?")
 
                 self.stop_updating_flag = 0
 
@@ -994,11 +1043,8 @@ class ExperimentNode(object):
                 
                 rospy.wait_for_service('/set_part_to_publish', timeout=2.0)
                 set_part_to_publish = rospy.ServiceProxy('/set_part_to_publish', SetPartToPublish)
-                set_part_to_publish()
+                set_part_to_publish(String('both'))
 
-                set_teach_state(String('both'))
-
-                self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
 
                 # we only need to start the timer if it is equal to zero, else just keep the timer running
@@ -1007,25 +1053,36 @@ class ExperimentNode(object):
                     self.startTimer()
                 else: pass
 
-                rospy.wait_for_service('offline_pendant/get_teach_state', timeout=2.0)
-                get_teach_state = rospy.ServiceProxy('offline_pendant/get_teach_state', GetTeachState)
+                rospy.wait_for_service('trajectory_teaching/get_teach_state', timeout=2.0)
+                get_teach_state = rospy.ServiceProxy('trajectory_teaching/get_teach_state', GetTeachState)
                 resp = get_teach_state()
                 isTeachingOffline = resp.teach_state.data      
                 
+                while not isTeachingOffline:
+                    self.text_updater.update("PRESS WHITE BUTTON TO START TEACHING")
+                    resp = get_teach_state()
+                    isTeachingOffline = resp.teach_state.data 
+
                 # use teach_pendant node to teach offline
                 while isTeachingOffline:
-                    resp = get_teach_state()
-                    isTeachingOffline = resp.teach_state.data        
+                    self.text_updater.update("PRESS WHITE BUTTON TO STOP TEACHING")
 
-                
-                rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
-                get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
-                resp = get_demo_pendant()
+                    resp = get_teach_state()                
+                    isTeachingOffline = resp.teach_state.data 
+
+                self.text_updater.update("STOPPED TEACHING")
+
+                rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
+                get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetTrajectory)
+                resp = get_demo()
 
                 set_teach_state(Bool(False))
 
-                # self.stopNode('teach_pendant.launch')
+                while self.isArmEnabled():
+                    self.text_updater.update("PRESS GREY BUTTON")
                 
+                self.text_updater.update("GREY BUTTON PRESSED")
+
                 self.goToInitialPose()
                 self.setObjectPosition()
 
@@ -1037,6 +1094,7 @@ class ExperimentNode(object):
 
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
                 
+
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
                     
@@ -1076,13 +1134,17 @@ class ExperimentNode(object):
 
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
+                
+                rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
+                clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
+                resp = clear_trajectory()
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
         
-            rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
-            clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
-            clear_waypoints()
+            rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
+            clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
+            clear_trajectory()
         
         self.number_of_refinements_updater.update(str(0))
         

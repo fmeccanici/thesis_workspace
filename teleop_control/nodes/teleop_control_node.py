@@ -21,11 +21,10 @@ class teleopControl():
         self.geo_effort_sub = rospy.Subscriber("/geo_control_effort_m_dummy", WrenchStamped, self._effort_callback)
         self._end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
 
-        
         self.set_part_to_publish_service = rospy.Service('/set_part_to_publish', SetPartToPublish, self._setPartToPublish)
     
     def _setPartToPublish(self, req):
-        self.part_to_publish = req.data.part_to_publish
+        self.part_to_publish = req.part_to_publish.data
 
         resp = SetPartToPublishResponse()
         return resp        
