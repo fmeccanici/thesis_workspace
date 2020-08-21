@@ -111,7 +111,7 @@ class SceneDrawer(object):
                     # size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
                     # size_wrt_ee = q_ee.rotate(size_wrt_ee)
                     
-                    size_wrt_base = [0.15, 0.2, 0.1]
+                    size_wrt_base = [0.1, 0.13, 0.1]
 
                     self.reaching_ellipsoid_size_x = size_wrt_base[0]
                     self.reaching_ellipsoid_size_y = size_wrt_base[1]
@@ -158,7 +158,7 @@ class SceneDrawer(object):
             self.collision_ellipsoid_origin.position.y += r_ellipsoid_wrt_base[1]
             self.collision_ellipsoid_origin.position.z += r_ellipsoid_wrt_base[2]
             
-            r_ellipsoid_wrt_ee = [0.11, 0, 0]
+            r_ellipsoid_wrt_ee = [0.13, 0, 0]
             r_ellipsoid_wrt_base = q_ee.rotate(r_ellipsoid_wrt_ee)
 
             self.reaching_ellipsoid_origin.position.x += r_ellipsoid_wrt_base[0]
@@ -331,9 +331,9 @@ class SceneDrawer(object):
         while not rospy.is_shutdown():
             self.setEllipsoidOrigin(ellipsoid_type='all')
 
-            """
-            self.addEllipsoid(ellipsoid_type='collision')
-            """
+            
+            self.addEllipsoid(ellipsoid_type='reaching')
+            
             self.visualizeModels()
             self.broadcastFrames(ellipsoid_type='all')
             

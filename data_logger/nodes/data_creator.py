@@ -273,7 +273,36 @@ class DataCreator(object):
 
         self.lift_goal_pub.publish(lift_goal)
         self.head_goal_pub.publish(head_goal)
-    
+
+    def setDishwasherPosition(self):
+        try:
+            dishwasher = ModelState()
+            dishwasher.model_name = 'dishwasher'
+
+            dishwasher.pose.position.x = 1.75
+            dishwasher.pose.position.y = 0.336
+
+            dishwasher.pose.position.z = 0.098
+
+            dishwasher.pose.orientation.x = 0
+            dishwasher.pose.orientation.y = 0
+            dishwasher.pose.orientation.z = -0.6995
+            dishwasher.pose.orientation.w = 0.7146
+            
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+            resp = set_object(dishwasher)
+
+            return resp.success
+
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
     def createDataBeforeExperiment(self):
 
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/before_experiment/dishwasher2/')
@@ -298,8 +327,9 @@ class DataCreator(object):
                 self.goToInitialPose()
 
                 # wait until arm is not in the way of the object
+                self.setDishwasherPosition()
+
                 time.sleep(2)
-                
                 self.setObjectPosition()
                 
                 time.sleep(2)
@@ -549,8 +579,9 @@ class DataCreator(object):
                 self.goToInitialPose()
 
                 # wait until arm is not in the way of the object
+                self.setDishwasherPosition()
                 time.sleep(2)
-                
+
                 self.setObjectPosition()
                 
                 time.sleep(2)
