@@ -16,6 +16,8 @@ from geometry_msgs.msg import Point
 import matplotlib.pyplot as plt
 from math import floor
 
+from contact_sensor.msg import GripperCollision
+
 class ExecutionFailureNode(object):
     def __init__(self, model_path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/models/'):
         rospy.init_node('execution_failure_detection_node')
@@ -56,11 +58,12 @@ class ExecutionFailureNode(object):
         self.expected_object_pose = Pose()
         self.execution_failure_pub = rospy.Publisher('execution_failure', ExecutionFailure, queue_size=10)
 
-        self.gripper_collision = False
-        self.gripper_collision_sub = rospy.Subscriber('gripper_collision', Bool, self._gripperCollisionCallback)
+        self.gripper_collision_msg = GripperCollision()
+
+        self.gripper_collision_sub = rospy.Subscriber('gripper_collision', GripperCollision, self._gripperCollisionCallback)
 
     def _gripperCollisionCallback(self, data):
-        self.gripper_collision = data.data
+        self.gripper_collision_msg = data
 
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
@@ -204,12 +207,12 @@ class ExecutionFailureNode(object):
                     print(e)
                     continue
         """
-        if self.gripper_collision:
-            self.broadcaster.sendTransform((self.ee_pose.position.x, self.ee_pose.position.y, self.ee_pose.position.z),
+        if self.gripper_collision_msg.collision.data:
+            self.broadcaster.sendTransform((self.gripper_collision_msg.position.x, self.gripper_collision_msg.position.y, self.gripper_collision_msg.position.z),
                                     (0, 0, 0, 1),
                                     rospy.Time.now(), "collision", "base_footprint")
                                     
-        return self.gripper_collision
+        return self.gripper_collision_msg.collision.data
     
     def isObjectKickedOver(self):
         threshold = 0.15

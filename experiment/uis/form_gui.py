@@ -146,7 +146,7 @@ class FormGUI(QMainWindow):
         self.label_5.setText(_translate("MainWindow", "Left/right handed"))
         self.radioButton_13.setText(_translate("MainWindow", "Left"))
         self.radioButton_14.setText(_translate("MainWindow", "Right"))
-        self.label_6.setText(_translate("MainWindow", "Keyboard experience"))
+        self.label_6.setText(_translate("MainWindow", "Gaming (WASD) experience"))
         self.radioButton_15.setText(_translate("MainWindow", "1"))
         self.radioButton_16.setText(_translate("MainWindow", "2"))
         self.radioButton_17.setText(_translate("MainWindow", "3"))
