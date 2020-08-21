@@ -48,6 +48,12 @@ class SceneDrawer(object):
         self.listener = tf.TransformListener()
         self.static_broadcaster = tf2_ros.StaticTransformBroadcaster()
         self.static_upper_basket_transform = TransformStamped()
+        
+        self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+        self.object_reached = False
+
+    def _executionFailureCallback(self, data):
+        self.object_reached = data.object_reached.data
 
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
@@ -75,42 +81,21 @@ class SceneDrawer(object):
         self.addCube(self.object_size_x, self.object_size_y, self.object_size_z, self.object_pose, color, 2)
 
     # set size of ellipsoid wrt base frame
-    def setEllipsoidSize(self, ellipsoid_type='collision'):
+    def setEllipsoidSize(self, ellipsoid_type='all'):
 
         while True:    
             try:
                 rospy.wait_for_message('end_effector_pose', PoseStamped)
                 q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
 
-                if ellipsoid_type == 'collision':
-                    size_wrt_ee = [0.4, 0.35, -0.04]
-                    size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-
-                    self.collision_ellipsoid_size_x = size_wrt_base[0]
-                    self.collision_ellipsoid_size_y = size_wrt_base[1]
-                    self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
-
-                elif ellipsoid_type == 'reaching':
-                    # size_wrt_ee = [0.15, 0.2, 0.1]
-                    # size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-                    size_wrt_base = [0.075, 0.2, 0.1]
+                if ellipsoid_type == 'reaching':
+                    size_wrt_base = [0.1, 0.13, 0.1]
 
                     self.reaching_ellipsoid_size_x = size_wrt_base[0]
                     self.reaching_ellipsoid_size_y = size_wrt_base[1]
                     self.reaching_ellipsoid_size_z = size_wrt_base[2] 
 
                 elif ellipsoid_type == 'all':
-                    # size_wrt_ee = [0.4, 0.2, 0.1]
-                    # size_wrt_ee = q_ee.rotate(size_wrt_ee)
-                    size_wrt_base = [0.33, 0.2, 0.1]
-                    self.collision_ellipsoid_size_x = size_wrt_base[0]
-                    self.collision_ellipsoid_size_y = size_wrt_base[1]
-                    self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
-                    
-                    # size_wrt_ee = [-0.15, 0.1, 0.1]
-                    # size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-                    # size_wrt_ee = q_ee.rotate(size_wrt_ee)
-                    
                     size_wrt_base = [0.1, 0.13, 0.1]
 
                     self.reaching_ellipsoid_size_x = size_wrt_base[0]
@@ -254,7 +239,10 @@ class SceneDrawer(object):
         elif ellipsoid_type == 'reaching':
             id = 1000
 
-            color=ColorRGBA(r=1, g=0, b=1, a=1)
+            if not self.object_reached:
+                color=ColorRGBA(r=1, g=0, b=0, a=0.5)
+            else:
+                color=ColorRGBA(r=0, g=1, b=0, a=0.5)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
                                             frame_id=self.frame_id),
@@ -266,8 +254,7 @@ class SceneDrawer(object):
                                             action=Marker.ADD)
 
             self.models[id] = cube
-            # self.deleteEllipsoid(ellipsoid_type='collision')
-        
+
         elif ellipsoid_type == 'all':
             id = 999
             
