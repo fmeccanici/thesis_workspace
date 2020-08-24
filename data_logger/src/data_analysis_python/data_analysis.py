@@ -398,13 +398,91 @@ class DataAnalysis(object):
         else:
             plt.savefig(self.figures_path + "/before_experiment/success.pdf")
 
+    def generateBoxPlots(self):
+
+        for participant_data in self.data:
+            for method in range(1, self.num_methods):
+                
+        object_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
+        
+        with open(path, "r") as infile:
+            outfile = ast.literal_eval(infile.read())
+            data_before_experiment = outfile
+
+            success_list = []
+            object_missed_list = []
+            obstacle_hit_list = []
+            object_kicked_over_list = []
+
+            for position in range(1,self.num_object_positions+1):
+                success = 0
+                object_missed = 0
+                obstacle_hit = 0
+                object_kicked_over = 0
+
+                for trial in range(1,self.num_trials+1):
+                    success += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
+                    object_missed += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
+                    obstacle_hit += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
+                    object_kicked_over += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
+                
+                success_list.append(success)
+                object_missed_list.append(object_missed)
+                obstacle_hit_list.append(obstacle_hit)
+                object_kicked_over_list.append(object_kicked_over)
+            
+            fig = plt.figure()
+            
+            if "participant_number" in kwargs:
+                fig.suptitle("Model after experiment")
+            else:
+                fig.suptitle("Initial model")
+
+            plt.subplot(1,4,1)
+            plt.bar(object_labels, np.asarray(success_list)/self.num_trials*100)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Success [True/False]")
+            plt.ylim([0,100])
+
+            plt.subplot(1,4,2)
+            plt.bar(object_labels, np.asarray(object_missed_list)/self.num_trials * 100)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Object missed [True/False]")
+            plt.ylim([0,100])
+
+            plt.subplot(1,4,3)
+            plt.bar(object_labels, np.asarray(obstacle_hit_list)/self.num_trials * 100)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Obstacle hit [True/False]")
+            plt.ylim([0,100])
+
+            plt.subplot(1,4,4)
+            plt.bar(object_labels, np.asarray(object_kicked_over_list)/self.num_trials * 100)
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Object kicked over [True/False]")
+            plt.ylim([0,100])
+
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        if "participant_number" in kwargs:
+            path = self.figures_path + "participant_" + str(participant_number) + "/after_experiment/" + str(method) + "/"
+            if not os.path.exists(path):
+                os.makedirs(path)
+            
+            plt.savefig(path + "success.pdf")            
+        
+        else:
+            plt.savefig(self.figures_path + "/before_experiment/success.pdf")
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    number = sys.argv[1]
+    numbers = sys.argv[1]
     what_to_plot = sys.argv[2]
+    numbers = ast.literal_eval(numbers)
+    for number in numbers:
+        data_analysis.loadData(number)
 
-    data_analysis.loadData(number)
-
+    """
     if what_to_plot == 'experiment':
         data_analysis.plotRefinementTime(number)
         data_analysis.plotNumberOfRefinements(number)
@@ -434,3 +512,4 @@ if __name__ == "__main__":
     elif what_to_plot == 'before':
         data_analysis.plotExperimentData()
         print('Figures before experiment stored')
+    """
