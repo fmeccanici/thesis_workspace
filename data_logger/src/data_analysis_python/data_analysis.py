@@ -18,7 +18,6 @@ class DataAnalysis(object):
         self.object_positions_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
         self.method_mapping = self.experiment_variables.method_mapping_str_to_number
 
-
     def loadData(self, participant_number):
 
         # dummy variables zeros --> data gets loaded in participantData class nonetheless
