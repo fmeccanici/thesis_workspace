@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from experiment_variables.experiment_variables import ExperimentVariables
 import seaborn as sns
+import copy
+import pandas as pd
 
 class DataAnalysis(object):
     def __init__(self):
@@ -400,18 +402,40 @@ class DataAnalysis(object):
             plt.savefig(self.figures_path + "/before_experiment/success.pdf")
 
     def generateBoxPlots(self):
-        refinement_time = {1: [], 2: [], 3: [], 4: []}
-        fig, axs = plt.subplots(2,2)
-        axs = axs.ravel()
+        obj_dict = {}
+        method_dict = {}
+        for i in range(1,self.num_object_positions+1):
+            obj_dict[i] = []
+        
+        for i in range(1,self.num_methods+1):
+            method_dict[i] = copy.deepcopy(obj_dict)
+
+        refinement_time = copy.deepcopy(method_dict)
+
+        # fig, axs = plt.subplots(2,2)
+        # axs = axs.ravel()
 
         for number in self.data:
             participant_data = self.data[number]
-            for method in range(1,self.num_methods+1):
-                refinement_time[method].append(self.calculateRefinementTime(participant_data.getNumber(), method)[0])
+            for method in range(1,self.num_methods + 1):
+                time_per_object = self.calculateRefinementTime(participant_data.getNumber(), method)[1]
+                for obj in range(1, self.num_object_positions + 1):
+                    refinement_time[method][obj].append(time_per_object[obj-1])
         
-        for method in range(1,self.num_methods+1):
-            axs[method-1] = sns.boxplot(x = refinement_time[method], orient='v')
-        
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for j in range(1,self.num_object_positions+1):
+                to_plot.append(refinement_time[i][j])
+            
+
+            plt.subplot(2,2,i)
+            plt.boxplot(to_plot)
+            plt.title(self.methods_labels[i-1])
+            plt.ylabel('Time [s]')
+            plt.xlabel('Object position [-]')
+            plt.tight_layout()
+
         plt.show()        
 
 if __name__ == "__main__":
