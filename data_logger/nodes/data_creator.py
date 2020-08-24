@@ -274,12 +274,16 @@ class DataCreator(object):
         self.lift_goal_pub.publish(lift_goal)
         self.head_goal_pub.publish(head_goal)
 
-    def setDishwasherPosition(self):
+    def setDishwasherPosition(self, before_or_after='after'):
         try:
             dishwasher = ModelState()
             dishwasher.model_name = 'dishwasher'
 
-            dishwasher.pose.position.x = 1.75
+            if before_or_after == 'after':
+                dishwasher.pose.position.x = 1.75
+            elif before_or_after == 'before':
+                dishwasher.pose.position.x = 1.7
+
             dishwasher.pose.position.y = 0.336
 
             dishwasher.pose.position.z = 0.098
@@ -305,7 +309,7 @@ class DataCreator(object):
 
     def createDataBeforeExperiment(self):
 
-        self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/before_experiment/dishwasher2/')
+        self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/before_experiment/dishwasher1/')
         
         for i in range(self.num_trials + 1):
             self.trials[i+1] = {
@@ -327,7 +331,7 @@ class DataCreator(object):
                 self.goToInitialPose()
 
                 # wait until arm is not in the way of the object
-                self.setDishwasherPosition()
+                self.setDishwasherPosition(before_or_after='before')
 
                 time.sleep(2)
                 self.setObjectPosition()
@@ -466,11 +470,11 @@ class DataCreator(object):
         amount = self.experiment_variables.num_updates
 
         try:
-            if self.method == 3:
+            if self.method == 3 or self.method == 1:
                 rospy.wait_for_service('welford_update', timeout=2.0)
                 add_to_model = rospy.ServiceProxy('welford_update', WelfordUpdate)
                 logmessage = "Added " + str(amount) + " trajectories to model using Welford"
-            elif self.method == 4:
+            elif self.method == 4 or self.method == 2:
                 rospy.wait_for_service('add_demonstration', timeout=2.0)
                 add_to_model = rospy.ServiceProxy('add_demonstration', AddDemonstration)
                 logmessage = "Added " + str(amount) + " trajectories to model using AddDemonstration"
@@ -579,7 +583,7 @@ class DataCreator(object):
                 self.goToInitialPose()
 
                 # wait until arm is not in the way of the object
-                self.setDishwasherPosition()
+                self.setDishwasherPosition(before_or_after='after')
                 time.sleep(2)
 
                 self.setObjectPosition()

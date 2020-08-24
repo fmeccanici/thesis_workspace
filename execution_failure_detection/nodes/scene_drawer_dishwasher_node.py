@@ -39,6 +39,9 @@ class SceneDrawer(object):
         self.model_path = model_path
         self.models = {}
 
+        self.object_reached = False
+        self.object_kicked_over = False
+
         self.model_pub = rospy.Publisher('execution_failure_detection/model_visualization', MarkerArray, queue_size=10)
         self.ee_sub = rospy.Subscriber('end_effector_pose', PoseStamped, self._endEffectorPoseCallback)
         self.link_states_sub = rospy.Subscriber('/gazebo/link_states', LinkStates, self.linkStatesCallback)
@@ -48,12 +51,14 @@ class SceneDrawer(object):
         self.listener = tf.TransformListener()
         self.static_broadcaster = tf2_ros.StaticTransformBroadcaster()
         self.static_upper_basket_transform = TransformStamped()
-        
+
+
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
-        self.object_reached = False
+
 
     def _executionFailureCallback(self, data):
         self.object_reached = data.object_reached.data
+        self.object_kicked_over = data.object_kicked_over.data
 
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
@@ -77,7 +82,11 @@ class SceneDrawer(object):
             """
             self.addCube(self.upper_basket_size_x, self.upper_basket_size_y, self.upper_basket_size_z, self.upper_basket_pose, color, 1)
             """
-        color = 'blue'
+        if not self.object_kicked_over:
+            color = 'green'
+        else:
+            color = 'red'
+
         self.addCube(self.object_size_x, self.object_size_y, self.object_size_z, self.object_pose, color, 2)
 
     # set size of ellipsoid wrt base frame
@@ -288,9 +297,11 @@ class SceneDrawer(object):
             
     def addCube(self, x, y, z, pose, color, id):
         if color == 'red':
-            color=ColorRGBA(r=1, g=0, b=0, a=0.5)
+            color=ColorRGBA(r=1, g=0, b=0, a=0.75)
         elif color == 'blue':
-            color=ColorRGBA(r=0, g=0, b=1, a=0.5)
+            color=ColorRGBA(r=0, g=0, b=1, a=0.75)
+        elif color == 'green':
+            color=ColorRGBA(r=0, g=1, b=0, a=0.75)
 
         cube = Marker(header=Header(stamp=rospy.Time.now(),
                                         frame_id=self.frame_id),
