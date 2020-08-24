@@ -414,6 +414,7 @@ class DataAnalysis(object):
 
         # fig, axs = plt.subplots(2,2)
         # axs = axs.ravel()
+        fig = plt.figure()
 
         for number in self.data:
             participant_data = self.data[number]
@@ -435,9 +436,130 @@ class DataAnalysis(object):
             plt.ylabel('Time [s]')
             plt.xlabel('Object position [-]')
             plt.tight_layout()
+            plt.ylim([0,500])
+            fig.subplots_adjust(top=0.88)
 
-        plt.show()        
+        plt.suptitle("Refinement time")
+        
+        number_of_refinements = copy.deepcopy(method_dict)
+        fig = plt.figure()
 
+        for number in self.data:
+            participant_data = self.data[number]
+            for method in range(1,self.num_methods + 1):
+                number_of_refinements_per_object = self.getNumberOfRefinements(participant_data.getNumber(), method)
+
+                for obj in range(1, self.num_object_positions + 1):
+                    number_of_refinements[method][obj].append(number_of_refinements_per_object[obj-1])
+        
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for j in range(1,self.num_object_positions+1):
+                to_plot.append(number_of_refinements[i][j])
+            
+
+            plt.subplot(2,2,i)
+            plt.boxplot(to_plot)
+            plt.title(self.methods_labels[i-1])
+            plt.ylabel('Amount [-]')
+            plt.xlabel('Object position [-]')
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        plt.suptitle("Number of refinements")
+
+        time_per_refinement = copy.deepcopy(method_dict)
+        fig = plt.figure()
+
+        for number in self.data:
+            participant_data = self.data[number]
+            for method in range(1,self.num_methods + 1):
+                number_of_refinements = np.asarray(self.getNumberOfRefinements(participant_data.getNumber(), method))
+                time = np.asarray(self.calculateRefinementTime(participant_data.getNumber(), method)[1])
+                time_per_refinement_per_object = time / number_of_refinements 
+
+                for obj in range(1, self.num_object_positions + 1):
+                    if number_of_refinements[obj-1] != 0:
+                        time_per_refinement[method][obj].append(time_per_refinement_per_object[obj-1])
+                    else: 
+                        time_per_refinement[method][obj].append(0.0)
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for j in range(1,self.num_object_positions+1):
+                to_plot.append(time_per_refinement[i][j])
+            
+
+            plt.subplot(2,2,i)
+            plt.boxplot(to_plot)
+            plt.title(self.methods_labels[i-1])
+            plt.ylabel('Time [s]')
+            plt.xlabel('Object position [-]')
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        plt.suptitle("Time per refinement")
+
+        correct_predictions = copy.deepcopy(method_dict)
+        fig = plt.figure()
+
+        for number in self.data:
+            participant_data = self.data[number]
+            for method in range(1,self.num_methods + 1):
+                correct_predictions_per_object = np.asarray(self.getSuccessfulTrials('prediction', participant_data.getNumber(), method)) / self.experiment_variables.num_trials * 100
+
+                for obj in range(1, self.num_object_positions + 1):
+                    correct_predictions[method][obj].append(correct_predictions_per_object[obj-1])
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for j in range(1,self.num_object_positions+1):
+                to_plot.append(correct_predictions[i][j])
+            
+
+            plt.subplot(2,2,i)
+            plt.boxplot(to_plot)
+            plt.title(self.methods_labels[i-1])
+            plt.ylabel('Amount [%]')
+            plt.xlabel('Object position [-]')
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        plt.suptitle("Correct predictions")
+
+
+        correct_refinements = copy.deepcopy(method_dict)
+        fig = plt.figure()
+
+        for number in self.data:
+            participant_data = self.data[number]
+            for method in range(1,self.num_methods + 1):
+                correct_refinements_per_object = np.asarray(self.getSuccessfulTrials('refinement', participant_data.getNumber(), method)) / self.experiment_variables.num_trials * 100
+
+                for obj in range(1, self.num_object_positions + 1):
+                    correct_refinements[method][obj].append(correct_refinements_per_object[obj-1])
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for j in range(1,self.num_object_positions+1):
+                to_plot.append(correct_refinements[i][j])
+            
+
+            plt.subplot(2,2,i)
+            plt.boxplot(to_plot)
+            plt.title(self.methods_labels[i-1])
+            plt.ylabel('Amount [%]')
+            plt.xlabel('Object position [-]')
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        plt.suptitle("Correct refinements")
+
+        plt.show()
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
     numbers = sys.argv[1]
