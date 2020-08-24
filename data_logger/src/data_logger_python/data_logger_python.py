@@ -151,6 +151,9 @@ class ParticipantData(object):
         time = kwargs["time"]
 
         self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = copy.deepcopy(time)
+    
+    def getNumber(self):
+        return self.number
 
     def setRefinedTrajectory(self, *args, **kwargs):
 
