@@ -6,9 +6,9 @@ from experiment_variables.experiment_variables import ExperimentVariables
 
 from execution_failure_detection.srv import GetExecutionFailure
 from learning_from_demonstration.srv import ExecuteTrajectory, GoToPose, GetContext, MakePrediction
-from gazebo_msgs.msg import ModelState 
+from gazebo_msgs.msg import ModelState, LinkState
 from geometry_msgs.msg import Pose
-from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.srv import SetModelState, SetLinkState
 from trajectory_visualizer.msg import TrajectoryVisualization
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
@@ -160,13 +160,19 @@ class DataCreator(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
 
-    def setObjectPosition(self):
+    def setObjectPosition(self, before_or_after):
         try:
             object_position = ModelState()
             object_position.model_name = 'aruco_cube'
 
             step = 0.1
-            x = 0.8
+
+            if before_or_after == 'after':
+                x = 0.8 
+            elif before_or_after == 'before':
+                # 0.81 when dishwasher1
+                x = 0.8
+
             y0 = self.experiment_variables.y0
             
             # dishwasher moved backwards    
@@ -282,7 +288,8 @@ class DataCreator(object):
             if before_or_after == 'after':
                 dishwasher.pose.position.x = 1.75
             elif before_or_after == 'before':
-                dishwasher.pose.position.x = 1.7
+                # 1.7 when dishwasher1
+                dishwasher.pose.position.x = 1.75
 
             dishwasher.pose.position.y = 0.336
 
@@ -299,6 +306,22 @@ class DataCreator(object):
 
             resp = set_object(dishwasher)
 
+            rospy.wait_for_service('/gazebo/set_link_state')
+
+            # if before_or_after == 'before':
+            #     set_link_state = rospy.ServiceProxy('/gazebo/set_link_state', SetLinkState)
+            #     upper_basket = LinkState()
+            #     upper_basket.link_name = 'upper_basket_link'
+            #     upper_basket.pose.position.x = 0.961216312766
+            #     upper_basket.pose.position.y = -0.185586276876
+            #     upper_basket.pose.position.z = 0.523004713851
+            #     upper_basket.pose.orientation.x = 0.505285214303
+            #     upper_basket.pose.orientation.y = -0.49466017036
+            #     upper_basket.pose.orientation.z = -0.494658398524
+            #     upper_basket.pose.orientation.w = 0.505283323331
+
+            #     resp = set_link_state(upper_basket)
+
             return resp.success
 
         except ValueError:
@@ -309,7 +332,7 @@ class DataCreator(object):
 
     def createDataBeforeExperiment(self):
 
-        self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/before_experiment/dishwasher1/')
+        self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/before_experiment/dishwasher2/')
         
         for i in range(self.num_trials + 1):
             self.trials[i+1] = {
@@ -334,7 +357,7 @@ class DataCreator(object):
                 self.setDishwasherPosition(before_or_after='before')
 
                 time.sleep(2)
-                self.setObjectPosition()
+                self.setObjectPosition('before')
                 
                 time.sleep(2)
 
@@ -586,7 +609,7 @@ class DataCreator(object):
                 self.setDishwasherPosition(before_or_after='after')
                 time.sleep(2)
 
-                self.setObjectPosition()
+                self.setObjectPosition('after')
                 
                 time.sleep(2)
 
