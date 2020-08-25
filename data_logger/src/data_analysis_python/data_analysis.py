@@ -13,6 +13,7 @@ class DataAnalysis(object):
         self.data_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'
         self.figures_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/figures/'
         self.data = {}
+        self.df = {}
         self.num_methods = self.experiment_variables.num_methods
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.num_trials = self.experiment_variables.num_trials
@@ -27,14 +28,24 @@ class DataAnalysis(object):
         participant = ParticipantData(participant_number, 0, 0, 0, 0, 0)
         self.data[participant_number] = participant        
 
-        # check if path exists, create if not
-        path = self.figures_path + 'participant_' + str(participant_number) + '/'
-        if not os.path.exists(path):
-            os.makedirs(path)
+    def createFiguresPaths(self, participant_number):
+        path = self.getFiguresPathParticipant(participant_number)
+
+        if not self.isPath(path):
+            self.createPath(path)
 
         for method in self.methods_labels:
-            if not os.path.exists(path):
-                os.makedirs(path + '/' + str(method) + '/')
+            if not self.isPath(path):
+                self.createPath(path + '/' + str(method) + '/')
+
+    def getFiguresPathParticipant(self, participant_number):
+        return self.figures_path + 'participant_' + str(participant_number) + '/'
+
+    def isPath(self, path):
+        return os.path.exists(path)
+
+    def createPath(self, path):
+        os.makedirs(path)
 
     def plotPrediction(self, participant_number, method, object_position, trial):
         methods = self.data[participant_number].getMethods()
@@ -566,9 +577,10 @@ if __name__ == "__main__":
     what_to_plot = sys.argv[2]
     numbers = ast.literal_eval(numbers)
     for number in numbers:
+        data_analysis.createFiguresPaths(number)
         data_analysis.loadData(number)
 
-    data_analysis.generateBoxPlots()
+    # data_analysis.generateBoxPlots()
     """
     if what_to_plot == 'experiment':
         data_analysis.plotRefinementTime(number)
