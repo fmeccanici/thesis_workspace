@@ -440,12 +440,13 @@ class DataAnalysis(object):
             plt.subplot(2, 2, method)
             number_of_success = self.getSuccessfulTrials(participant_number=participant_number, refinement_or_prediction='prediction', method=method)
             time_per_succesfull_prediction = np.asarray(self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]) / np.asarray(number_of_success)
-            
+                
+
             plt.bar(self.object_positions_labels, time_per_succesfull_prediction)
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Time [s]")
-            plt.ylim([0,100])
+            plt.ylim([0,1000])
             plt.tight_layout()
         
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/time_per_successful_prediction.pdf')
