@@ -99,6 +99,12 @@ class ParticipantData(object):
             for i in range(self.num_methods):
                 self.methods[i+1] = outfile['method'][i+1]
 
+    def getTeleopExperience(self):
+        return self.teleop_experience
+    
+    def getKeyboardExperience(self):
+        return self.keyboard_experience
+
     def getMethods(self):
         return self.methods
 
@@ -117,7 +123,7 @@ class ParticipantData(object):
     def setAge(self, age):
         self.age = age
 
-    def getAge(self, age):
+    def getAge(self):
         return self.age
 
     def setStoragePath(self, path):
@@ -285,7 +291,10 @@ class ParticipantData(object):
         data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:
             f.write(str(data))
-            
+
+    def getDict(self):
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
+        return data     
             
 if __name__ == "__main__":
     participant1_data = ParticipantData(1, 'm', 26)
