@@ -79,7 +79,7 @@ class trajectoryResampler():
         traj_pos_x = (np.asarray(self.parser.getXpositions(traj_pose)).reshape(len(traj_time), 1))
         traj_pos_y = (np.asarray(self.parser.getYpositions(traj_pose)).reshape(len(traj_time), 1))
         traj_pos_z = (np.asarray(self.parser.getZpositions(traj_pose)).reshape(len(traj_time), 1))
-        q = [ [data[3], data[4], data[5], data[6]] for data in traj_pose]
+        q = [ [data[3], data[4], data[5], data[6]] for data in raw_traj]
 
         yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
         yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
