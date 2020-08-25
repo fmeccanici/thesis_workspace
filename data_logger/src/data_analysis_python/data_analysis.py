@@ -42,14 +42,17 @@ class DataAnalysis(object):
         self.object_kicked_over_after_experiment_data = copy.deepcopy(self.data_template)
         self.obstacle_hit_after_experiment_data = copy.deepcopy(self.data_template)
 
-    def loadData(self, participant_number):
+    def loadData(self, participant_number, what_to_plot):
         
         # dummy variables zeros --> data gets loaded in participantData class nonetheless
         participant = ParticipantData(participant_number, 0, 0, 0, 0, 0)
         self.data[participant_number] = participant        
 
-        self.parseDataExperiment(participant_number)
-        self.parseDataAfterExperiment(participant_number)
+        if what_to_plot == 'experiment':
+            self.parseDataExperiment(participant_number)
+        elif what_to_plot == 'after':
+            self.parseDataAfterExperiment(participant_number)
+        
         self.fillCompleteDataTemplate()
 
     def parseDataAfterExperiment(self, participant_number):
@@ -431,6 +434,22 @@ class DataAnalysis(object):
 
         plt.figure()
 
+    def plotTimePerSuccesfullPredictions(self, participant_number):
+        plt.figure()
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_success = self.getSuccessfulTrials(participant_number=participant_number, refinement_or_prediction='prediction', method=method)
+            time_per_succesfull_prediction = np.asarray(self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]) / np.asarray(number_of_success)
+            
+            plt.bar(self.object_positions_labels, time_per_succesfull_prediction)
+            plt.title(self.methods_labels[method-1])
+            plt.xlabel("Object position [-]")
+            plt.ylabel("Time [s]")
+            plt.ylim([0,100])
+            plt.tight_layout()
+        
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/time_per_successful_prediction.pdf')
+
     def plotSuccesfullRefinements(self, participant_number):
         plt.figure()
         for method in range(1, self.num_methods+1):
@@ -741,39 +760,45 @@ if __name__ == "__main__":
     numbers = sys.argv[1]
     what_to_plot = sys.argv[2]
     numbers = ast.literal_eval(numbers)
+
+    if isinstance(numbers, int):
+        numbers = [numbers]
+
     for number in numbers:
+
         data_analysis.createFiguresPaths(number)
-        data_analysis.loadData(number)
-
-    data_analysis.generateBoxPlots()
-    """
-    if what_to_plot == 'experiment':
-        data_analysis.plotRefinementTime(number)
-        data_analysis.plotNumberOfRefinements(number)
-
-        data_analysis.plotSuccesfullPredictions(number)
-        data_analysis.plotSuccesfullRefinements(number)
-
-        data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
-        data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
-
-        data_analysis.plotNumberOfObjectMissed(number, 'refinement')
-        data_analysis.plotNumberOfObjectMissed(number, 'prediction')
-
-        data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
-        data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
-        print('Figures of experiment stored')
+        data_analysis.loadData(number, what_to_plot)
+        data_analysis.generateBoxPlots()
     
-    elif what_to_plot == 'after':
-        for method in data_analysis.experiment_variables.method_mapping_str_to_number:
-            try:
-                data_analysis.plotExperimentData(participant_number = number, method = method)   
-            except Exception:
-                print('Data for method ' + str(method) + ' not found')
-                continue 
-            print('Data for method ' + str(method) + ' plotted')
+        if what_to_plot == 'experiment':
+            data_analysis.plotRefinementTime(number)
+            data_analysis.plotNumberOfRefinements(number)
 
-    elif what_to_plot == 'before':
-        data_analysis.plotExperimentData()
-        print('Figures before experiment stored')
-    """
+            data_analysis.plotSuccesfullPredictions(number)
+            data_analysis.plotSuccesfullRefinements(number)
+
+            data_analysis.plotNumberOfObstaclesHit(number, 'refinement')
+            data_analysis.plotNumberOfObstaclesHit(number, 'prediction')
+
+            data_analysis.plotNumberOfObjectMissed(number, 'refinement')
+            data_analysis.plotNumberOfObjectMissed(number, 'prediction')
+
+            data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
+            data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
+            data_analysis.plotTimePerSuccesfullPredictions(number)
+
+            print('Figures of experiment stored')
+        
+        elif what_to_plot == 'after':
+            for method in data_analysis.experiment_variables.method_mapping_str_to_number:
+                try:
+                    data_analysis.plotExperimentData(participant_number = number, method = method)   
+                except Exception:
+                    print('Data for method ' + str(method) + ' not found')
+                    continue 
+                print('Data for method ' + str(method) + ' plotted')
+
+        elif what_to_plot == 'before':
+            data_analysis.plotExperimentData()
+            print('Figures before experiment stored')
+    
