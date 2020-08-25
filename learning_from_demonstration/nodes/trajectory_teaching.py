@@ -168,7 +168,6 @@ class trajectoryTeaching():
         print("is_experiment set to " + str(self.is_experiment))
 
     def _marker_detection_callback(self, data):
-        
         for marker in data.markers:
             if marker.id == 582:
                 self.marker_pose = marker.pose.pose

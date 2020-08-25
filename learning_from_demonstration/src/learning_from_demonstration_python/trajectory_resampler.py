@@ -4,6 +4,8 @@ from learning_from_demonstration_python.trajectory_parser import *
 import numpy as np
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from pyquaternion import Quaternion
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
 
 class trajectoryResampler():
     def __init__(self):
@@ -39,6 +41,7 @@ class trajectoryResampler():
         cartx = [data[0] for data in pred_traj]
         carty = [data[1] for data in pred_traj]
         cartz = [data[2] for data in pred_traj]
+        q = [ [data[3], data[4], data[5], data[6]] for data in pred_traj]
 
         splinex = InterpolatedUnivariateSpline(x, cartx)
         spliney = InterpolatedUnivariateSpline(x, carty)
@@ -54,12 +57,13 @@ class trajectoryResampler():
         qstart = pred_traj[0][3:7]
         qend = pred_traj[-1][3:7]
 
-        interpol_pred_traj = []
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_desired, False)):
-            pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
-            ynew = pose + [xdesired[i]]
+        slerp = Slerp(x, R.from_quat(q))
+        interp_rots = slerp(xdesired)
 
-            interpol_pred_traj.append(ynew)
+        interpol_pred_traj = []
+        for i, data in enumerate(cartx_new):
+            demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat())
+            interpol_pred_traj.append( demo )
 
         return interpol_pred_traj
 
@@ -75,6 +79,7 @@ class trajectoryResampler():
         traj_pos_x = (np.asarray(self.parser.getXpositions(traj_pose)).reshape(len(traj_time), 1))
         traj_pos_y = (np.asarray(self.parser.getYpositions(traj_pose)).reshape(len(traj_time), 1))
         traj_pos_z = (np.asarray(self.parser.getZpositions(traj_pose)).reshape(len(traj_time), 1))
+        q = [ [data[3], data[4], data[5], data[6]] for data in traj_pose]
 
         yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
         yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
@@ -87,13 +92,14 @@ class trajectoryResampler():
         qstart = raw_traj[0][3:7]
         qend = raw_traj[-1][3:7]
 
+        slerp = Slerp(traj_time, R.from_quat(q))
+        interp_rots = slerp(xvals)
+
         interpol_traj = []
 
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
-            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-            ynew = pos + object_pose + [xvals[i]]
-
-            interpol_traj.append(ynew)
+        for i, data in enumerate(y_new_x):
+            demo = [y_new_x[i], y_new_y[i], y_new_z[i]] + list(interp_rots[i].as_quat())
+            interpol_traj.append( demo )
 
 
         return interpol_traj
@@ -110,6 +116,7 @@ class trajectoryResampler():
         traj_pos_x = (np.asarray(self.parser.getXpositions(traj_pos)).reshape(len(traj_time), 1))
         traj_pos_y = (np.asarray(self.parser.getYpositions(traj_pos)).reshape(len(traj_time), 1))
         traj_pos_z = (np.asarray(self.parser.getZpositions(traj_pos)).reshape(len(traj_time), 1))
+        q = [ [data[3], data[4], data[5], data[6]] for data in traj]
 
         yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
         yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
@@ -121,14 +128,15 @@ class trajectoryResampler():
 
         qstart = traj[0][3:7]
         qend = traj[-1][3:7]
-
+        
+        slerp = Slerp(traj_time, R.from_quat(q))
+        interp_rots = slerp(xvals)
+        
         interpol_traj = []
-
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
-            pose = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-            ynew = pose + [xvals[i]]
-            interpol_traj.append(ynew)
-
+        
+        for i, data in enumerate(y_new_x):
+            demo = [y_new_x[i], y_new_y[i], y_new_z[i]] + list(interp_rots[i].as_quat())
+            interpol_traj.append( demo )
 
         return interpol_traj
 
