@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
+
 from subprocess import call
 import rospy, rospkg, roslaunch, time, random, copy
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser

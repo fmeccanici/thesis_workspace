@@ -151,6 +151,7 @@ class trajectoryParser():
         # calculate relative vectors
         for data in traj_wrt_base:
             ee_wrt_base = data[0:3]
+
             ee_wrt_object = list(self.ee_wrt_object(ee_wrt_base, object_wrt_base))            
             ee_ori =  list(data[3:7])
             dt = [data[-1]]

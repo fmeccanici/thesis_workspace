@@ -62,7 +62,7 @@ class trajectoryResampler():
 
         interpol_pred_traj = []
         for i, data in enumerate(cartx_new):
-            demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat())
+            demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat() + [xdesired[i]])
             interpol_pred_traj.append( demo )
 
         return interpol_pred_traj
@@ -97,10 +97,18 @@ class trajectoryResampler():
 
         interpol_traj = []
 
-        for i, data in enumerate(y_new_x):
-            demo = [y_new_x[i], y_new_y[i], y_new_z[i]] + list(interp_rots[i].as_quat())
+        for i, data in enumerate(y_new_x[0]):
+            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i]]
+            ori = list(interp_rots[i].as_quat()) 
+            t = [xvals[i]]
+            demo = pos + ori + object_pose + t
+            # print(pos)
+            # print(ori)
+            # print(t)
+            # print()
+            # print(demo)
+            # print()
             interpol_traj.append( demo )
-
 
         return interpol_traj
 
@@ -134,8 +142,8 @@ class trajectoryResampler():
         
         interpol_traj = []
         
-        for i, data in enumerate(y_new_x):
-            demo = [y_new_x[i], y_new_y[i], y_new_z[i]] + list(interp_rots[i].as_quat())
+        for i, data in enumerate(y_new_x[0]):
+            demo = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i]] + list(interp_rots[i].as_quat() + [xvals[i]])
             interpol_traj.append( demo )
 
         return interpol_traj
