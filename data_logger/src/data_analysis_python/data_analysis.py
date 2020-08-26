@@ -146,6 +146,12 @@ class DataAnalysis(object):
 
         self.data_template = method_dict
 
+        tlx_dict = {'mental demand': 0, 'physical_demant': 0, 'temporal_demand': 0, 'performance': 0, 'effort': 0, 'frustration': 0}
+        for i in range(1,self.num_methods+1):
+            method_dict[i] = copy.deepcopy(tlx_dict)
+        
+        self.tlx_data_template = method_dict
+
     def createFiguresPaths(self, participant_number):
         path = self.getFiguresPathParticipant(participant_number)
 

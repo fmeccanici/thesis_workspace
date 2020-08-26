@@ -99,6 +99,10 @@ class ParticipantData(object):
             for i in range(self.num_methods):
                 self.methods[i+1] = outfile['method'][i+1]
 
+    def readTlx(self):
+        tlx_file = self.path + 'tlx.csv'
+        self.tlx_data = pd.read_csv(tlx_file)
+
     def getTeleopExperience(self):
         return self.teleop_experience
     

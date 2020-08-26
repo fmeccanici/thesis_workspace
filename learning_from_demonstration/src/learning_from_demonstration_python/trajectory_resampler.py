@@ -61,8 +61,15 @@ class trajectoryResampler():
         interp_rots = slerp(xdesired)
 
         interpol_pred_traj = []
+        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_desired, False)):
+            pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
+            ynew = pose + [xdesired[i]]
+
         for i, data in enumerate(cartx_new):
-            demo = [cartx_new[i], carty_new[i], cartz_new[i]] + list(interp_rots[i].as_quat() + [xdesired[i]])
+            pos = [cartx_new[i], carty_new[i], cartz_new[i]]
+            ori = list(interp_rots[i].as_quat())
+            t = [xdesired[i]]
+            demo = pos + ori + t
             interpol_pred_traj.append( demo )
 
         return interpol_pred_traj
@@ -143,7 +150,10 @@ class trajectoryResampler():
         interpol_traj = []
         
         for i, data in enumerate(y_new_x[0]):
-            demo = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i]] + list(interp_rots[i].as_quat() + [xvals[i]])
+            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i]]
+            ori = list(interp_rots[i].as_quat())
+            t = [xvals[i]]
+            demo = pos + ori + t
             interpol_traj.append( demo )
 
         return interpol_traj
