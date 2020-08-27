@@ -48,14 +48,14 @@ class DataAnalysis(object):
         participant = ParticipantData(participant_number, 0, 0, 0, 0, 0)
         self.data[participant_number] = participant        
 
-        """
+        
         if what_to_plot == 'experiment':
             self.parseDataExperiment(participant_number)
         elif what_to_plot == 'after':
             self.parseDataAfterExperiment(participant_number)
         
         self.fillCompleteDataTemplate()
-        """
+        
     def parseDataAfterExperiment(self, participant_number):
         for i, method_str in enumerate(self.methods_labels):
             path = self.data_path + "participant_" + str(participant_number) + "/after_experiment/"
@@ -89,23 +89,22 @@ class DataAnalysis(object):
             
             number_of_refinements = np.asarray(self.getNumberOfRefinements(self.data[participant_number].getNumber(), method))
             time = np.asarray(self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1])
+
             time_per_refinement_per_object = time / number_of_refinements 
             correct_predictions_per_object = np.asarray(self.getSuccessfulTrials('prediction', self.data[participant_number].getNumber(), method))
-            correct_refinements_per_object = np.asarray(self.getSuccessfulTrials('refinement', self.data[participant_number].getNumber(), method))
+            correct_refinements_per_object = np.asarray(self.getSuccessfulTrials('refinement', self.data[participant_number].getNumber(), method))            
 
             time_per_correct_prediction = time / correct_predictions_per_object
             time_per_correct_refinement = time / correct_refinements_per_object
 
-            correct_predictions_per_object = correct_predictions_per_object / self.experiment_variables.num_trials * 100
-            correct_refinements_per_object = correct_refinements_per_object / self.experiment_variables.num_trials * 100
+            correct_predictions_per_object = correct_predictions_per_object
+            correct_refinements_per_object = correct_refinements_per_object
 
             teleop_experience = self.data[participant_number].getTeleopExperience()
             keyboard_experience = self.data[participant_number].getKeyboardExperience()
             age = self.data[participant_number].getAge()
 
             for obj in range(1, self.num_object_positions + 1):
-                print(time_per_object[obj-1])
-
                 self.refinement_time_data[method][obj].append(time_per_object[obj-1])
                 self.number_of_refinements_data[method][obj].append(number_of_refinements_per_object[obj-1])
 
@@ -127,11 +126,12 @@ class DataAnalysis(object):
                 else:
                     self.time_per_correct_refinement_data[method][obj].append(0.0)
 
+                self.time_data[method][obj].append(time[obj-1])
 
             self.teleop_experience_data.append(teleop_experience)
             self.keyboard_experience_data.append(keyboard_experience)
             self.age_data.append(age)
-
+            
     def fillCompleteDataTemplate(self):
         self.parsed_for_statistics_data = {'refinement_time':self.refinement_time_data,
         'number_of_refinement': self.number_of_refinements_data, 'time': self.time_data,
@@ -147,13 +147,13 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             method_dict[i] = copy.deepcopy(obj_dict)
 
-        self.data_template = method_dict
+        self.data_template = copy.deepcopy(method_dict)
 
         tlx_dict = {'mental demand': 0, 'physical_demant': 0, 'temporal_demand': 0, 'performance': 0, 'effort': 0, 'frustration': 0}
         for i in range(1,self.num_methods+1):
             method_dict[i] = copy.deepcopy(tlx_dict)
         
-        self.tlx_data_template = method_dict
+        self.tlx_data_template = copy.deepcopy(method_dict)
 
     def createFiguresPaths(self, participant_number):
         path = self.getFiguresPathParticipant(participant_number)
@@ -563,14 +563,14 @@ class DataAnalysis(object):
 
             for j in range(1,self.num_object_positions+1):
                 to_plot.append(self.refinement_time_data[i][j])
-            
+
             plt.subplot(2,2,i)
             plt.boxplot(to_plot)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Time [s]')
             plt.xlabel('Object position [-]')
             plt.tight_layout()
-            plt.ylim([0,500])
+            plt.ylim([0,750])
             fig.subplots_adjust(top=0.88)
 
         plt.suptitle("Refinement time")
@@ -626,7 +626,7 @@ class DataAnalysis(object):
             
 
             plt.subplot(2,2,i)
-            plt.boxplot(to_plot)
+            plt.boxplot(np.asarray(to_plot) / self.experiment_variables.num_trials * 100)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Amount [%]')
             plt.xlabel('Object position [-]')
@@ -646,7 +646,7 @@ class DataAnalysis(object):
             
 
             plt.subplot(2,2,i)
-            plt.boxplot(to_plot)
+            plt.boxplot(np.asarray(to_plot) / self.experiment_variables.num_trials * 100)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Amount [%]')
             plt.xlabel('Object position [-]')
@@ -662,7 +662,6 @@ class DataAnalysis(object):
             for j in range(1,self.num_object_positions+1):
                 to_plot.append(self.success_after_experiment_data[i][j])
 
-            print(to_plot)
             plt.subplot(2,2,i)
             plt.boxplot(to_plot)
             plt.title(self.methods_labels[i-1])
@@ -714,6 +713,68 @@ class DataAnalysis(object):
         plt.tight_layout()
         plt.savefig(path+'time_per_succesfull_prediction_per_method.pdf')
 
+
+        fig = plt.figure()
+
+        to_plot_mean = []
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for object_position in self.time_data[i]:
+                to_plot.append(np.sum(self.time_data[i][object_position])/60)
+
+            to_plot_mean.append(to_plot)
+        
+        plt.boxplot(to_plot_mean, labels=self.methods_labels)
+        plt.title("Refinement time")
+        plt.ylabel('Time [min]')
+        plt.ylim([0,30])
+        plt.tight_layout()
+        plt.savefig(path+'time_per_method.pdf')
+
+
+        fig = plt.figure()
+
+        to_plot_mean = []
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for object_position in self.number_of_refinements_data[i]:
+                to_plot.append(np.sum(self.number_of_refinements_data[i][object_position]))
+
+            to_plot_mean.append(to_plot)
+        
+        plt.boxplot(to_plot_mean, labels=self.methods_labels)
+        plt.title("Amount of refinements")
+        plt.ylabel('Amount [-]')
+        plt.ylim([0,30])
+        plt.tight_layout()
+        plt.savefig(path+'amount_of_refinements_per_method.pdf')
+
+        fig = plt.figure()
+
+        to_plot_mean = []
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for object_position in self.correct_predictions_data[i]:
+                to_plot.append(np.sum(self.correct_predictions_data[i][object_position]))
+
+            to_plot_mean.append(to_plot)
+        
+        to_plot_mean = np.asarray(to_plot_mean) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100
+        to_plot_mean = [list(x) for x in to_plot_mean]
+
+        plt.boxplot(to_plot_mean, labels=self.methods_labels)
+        plt.title("Correct predictions")
+        plt.ylabel('Amount [-]')
+        plt.ylim([0,100])
+        plt.tight_layout()
+        plt.savefig(path+'correct_predictions_per_method.pdf')
+
         fig = plt.figure()
 
         to_plot_mean = []
@@ -763,7 +824,7 @@ class DataAnalysis(object):
         fig.subplots_adjust(top=0.88)
         plt.savefig(path+'teleop_keyboard_experience_age.pdf')
 
-        plt.show()
+        # plt.show()
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
@@ -778,9 +839,8 @@ if __name__ == "__main__":
 
         data_analysis.createFiguresPaths(number)
         data_analysis.loadData(number, what_to_plot)
-        """
-        data_analysis.generateBoxPlots()
-        """
+
+        """      
         if what_to_plot == 'experiment':
             data_analysis.plotRefinementTime(number)
             data_analysis.plotNumberOfRefinements(number)
@@ -812,4 +872,5 @@ if __name__ == "__main__":
         elif what_to_plot == 'before':
             data_analysis.plotExperimentData()
             print('Figures before experiment stored')
-    
+        """
+    data_analysis.generateBoxPlots()
