@@ -73,10 +73,30 @@ class trajectoryResampler():
             interpol_pred_traj.append( demo )
 
         return interpol_pred_traj
+    
+    def isStrictlyIncreasing(self, t0, t1):
+        return t1 > t0
 
+    def makeStrictlyIncreasing(self, raw_traj):
+        traj_time = self.parser.get_time_vector_float(raw_traj)
+        res = []
+
+        for i in range(len(traj_time)):
+            try:
+                if self.isStrictlyIncreasing(traj_time[i], traj_time[i+1]):
+                    res.append(raw_traj[i])
+            except IndexError:
+                break
+        
+        return res
+            
     def interpolate_raw_trajectory(self, raw_traj, n):
+
+        raw_traj = self.makeStrictlyIncreasing(raw_traj)
+
         traj_pose = self.parser.getCartesianPositions(raw_traj)
         traj_time = self.parser.get_time_vector_float(raw_traj)
+
         T = self.parser.get_total_time(raw_traj)
 
         object_pose = self.parser.get_object_pose(raw_traj)
@@ -98,6 +118,13 @@ class trajectoryResampler():
 
         qstart = raw_traj[0][3:7]
         qend = raw_traj[-1][3:7]
+        
+        # using zip() + all() 
+        # to check for strictly increasing list 
+        res = all(i < j for i, j in zip([round(x,3) for x in traj_time], [round(x,3) for x in traj_time][1:])) 
+
+        # printing result 
+        print ("Is list strictly increasing ? : " + str(res)) 
 
         slerp = Slerp(traj_time, R.from_quat(q))
         interp_rots = slerp(xvals)

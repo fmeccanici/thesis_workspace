@@ -48,13 +48,14 @@ class DataAnalysis(object):
         participant = ParticipantData(participant_number, 0, 0, 0, 0, 0)
         self.data[participant_number] = participant        
 
+        """
         if what_to_plot == 'experiment':
             self.parseDataExperiment(participant_number)
         elif what_to_plot == 'after':
             self.parseDataAfterExperiment(participant_number)
         
         self.fillCompleteDataTemplate()
-
+        """
     def parseDataAfterExperiment(self, participant_number):
         for i, method_str in enumerate(self.methods_labels):
             path = self.data_path + "participant_" + str(participant_number) + "/after_experiment/"
@@ -103,6 +104,8 @@ class DataAnalysis(object):
             age = self.data[participant_number].getAge()
 
             for obj in range(1, self.num_object_positions + 1):
+                print(time_per_object[obj-1])
+
                 self.refinement_time_data[method][obj].append(time_per_object[obj-1])
                 self.number_of_refinements_data[method][obj].append(number_of_refinements_per_object[obj-1])
 
@@ -348,7 +351,7 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Refinement time [s]")
-            plt.ylim((0,500))
+            plt.ylim((0,1000))
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/refinement_time.pdf')
@@ -364,7 +367,7 @@ class DataAnalysis(object):
             plt.title(self.methods_labels[method-1])
             plt.xlabel("Object position [-]")
             plt.ylabel("Number of refinements [-]")
-            plt.ylim((0,10))
+            plt.ylim((0,20))
 
             plt.tight_layout()
 
@@ -775,8 +778,9 @@ if __name__ == "__main__":
 
         data_analysis.createFiguresPaths(number)
         data_analysis.loadData(number, what_to_plot)
+        """
         data_analysis.generateBoxPlots()
-    
+        """
         if what_to_plot == 'experiment':
             data_analysis.plotRefinementTime(number)
             data_analysis.plotNumberOfRefinements(number)
