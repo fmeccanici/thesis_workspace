@@ -1,7 +1,21 @@
 import sys
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-                             QMenu, QPushButton, QRadioButton, QVBoxLayout, QWidget, QSlider, QLabel)
+                             QMenu, QPushButton, QRadioButton, QVBoxLayout, QHBoxLayout, QWidget, QSlider, QLabel)
+
+from random import randint
+
+class Slider(QSlider):
+    minimumChanged = pyqtSignal(int)
+    maximumChanged = pyqtSignal(int)
+
+    def setMinimum(self, minimum):
+        self.minimumChanged.emit(minimum)
+        super(Slider, self).setMinimum(minimum)
+
+    def setMaximum(self, maximum):
+        self.maximumChanged.emit(maximum)
+        super(Slider, self).setMaximum(maximum)
 
 class NASATLX(QWidget):
     def __init__(self, parent=None):
@@ -20,22 +34,42 @@ class NASATLX(QWidget):
 
     def createSlider(self, label):
         groupBox = QGroupBox("")
-
         label1 = QLabel(label)
 
-        slider = QSlider(Qt.Horizontal)
-        slider.setFocusPolicy(Qt.StrongFocus)
-        slider.setTickPosition(QSlider.TicksBothSides)
-        slider.setMinimum(1)
-        slider.setMaximum(21)
-        slider.setTickInterval(1)
-        
-        slider.setSingleStep(1)
+        self.label = QLabel(alignment=Qt.AlignCenter)
 
-        vbox = QVBoxLayout()
+        self.slider = Slider(tickPosition=QSlider.TicksLeft,
+            orientation=Qt.Horizontal)
+            
+        slider_vbox = QVBoxLayout()
+        slider_hbox = QHBoxLayout()
+        slider_hbox.setContentsMargins(0, 0, 0, 0)
+        slider_vbox.setContentsMargins(0, 0, 0, 0)
+        slider_vbox.setSpacing(0)
+
+        label_minimum = QLabel(alignment=Qt.AlignLeft)
+        self.slider.minimumChanged.connect(label_minimum.setNum)
+        label_maximum = QLabel(alignment=Qt.AlignRight)
+        self.slider.maximumChanged.connect(label_maximum.setNum)
+        slider_vbox.addWidget(self.slider)
+        slider_vbox.addLayout(slider_hbox)
+        slider_hbox.addWidget(label_minimum, Qt.AlignLeft)
+        slider_hbox.addWidget(label_maximum, Qt.AlignRight)
+        slider_vbox.addStretch()
+
+        self.slider.setMinimum(1)
+        self.slider.setMaximum(21)
+        self.slider.setValue(randint(1,21))
+        self.slider.setTickInterval(1)
+        self.slider.setSingleStep(1)
+
+        vbox = QVBoxLayout(self)
         vbox.addWidget(label1)
-        vbox.addWidget(slider)
-        vbox.addStretch(1)
+        vbox.addLayout(slider_vbox)
+        vbox.addWidget(self.label)
+        self.setGeometry(300, 300, 300, 150)
+        self.slider.valueChanged.connect(self.label.setNum)
+
         groupBox.setLayout(vbox)
 
         return groupBox
