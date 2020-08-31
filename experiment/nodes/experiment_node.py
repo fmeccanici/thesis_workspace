@@ -8,6 +8,7 @@ from data_logger_python.text_updater import TextUpdater
 from pyquaternion import Quaternion
 import numpy as np
 from experiment_variables.experiment_variables import ExperimentVariables
+from traffic_light.traffic_light_updater import TrafficLightUpdater
 
 # import ros messages
 from sensor_msgs.msg import JointState
@@ -55,6 +56,8 @@ class ExperimentNode(object):
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
         self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
         self.number_of_refinements_updater.update(str(0))
+        self.traffic_light_updater = TrafficLightUpdater()
+        self.traffic_light_updater.update('red')
 
         self.experiment_variables = ExperimentVariables()
         self.nodes = {}
@@ -713,6 +716,7 @@ class ExperimentNode(object):
         
         self.visualize('prediction')
         
+        self.traffic_light_updater.update('red')
         self.text_updater.update("AUTONOMOUS EXECUTION")
         obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
         
@@ -747,7 +751,7 @@ class ExperimentNode(object):
                 self.setObjectPosition()
                 time.sleep(3)
 
-            
+                self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 # rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
@@ -778,6 +782,7 @@ class ExperimentNode(object):
 
                     resp = refine_trajectory(self.refined_trajectory, self.T_desired)
 
+                self.traffic_light_updater.update('red')
 
                 self.refined_trajectory = resp.refined_trajectory
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
@@ -850,6 +855,8 @@ class ExperimentNode(object):
 
                 set_teach_state(Bool(True))
 
+                self.traffic_light_updater.update('green')
+
                 self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
 
@@ -868,6 +875,8 @@ class ExperimentNode(object):
                 while isTeachingOffline:
                     resp = get_teach_state()
                     isTeachingOffline = resp.teach_state.data        
+
+                self.traffic_light_updater.update('red')
 
                 
                 rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
@@ -946,7 +955,7 @@ class ExperimentNode(object):
                 self.setObjectPosition()
                 time.sleep(3)
 
-            
+                self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 self.waitForKeyPress()
@@ -975,6 +984,8 @@ class ExperimentNode(object):
                     else: pass
 
                     resp = refine_trajectory(self.refined_trajectory, self.T_desired)
+                
+                self.traffic_light_updater.update('red')
 
 
                 self.refined_trajectory = resp.refined_trajectory
@@ -1059,6 +1070,8 @@ class ExperimentNode(object):
                 resp = get_teach_state()
                 isTeachingOffline = resp.teach_state.data      
                 
+                self.traffic_light_updater.update('green')
+
                 while not isTeachingOffline:
                     self.text_updater.update("PRESS WHITE BUTTON TO START TEACHING")
                     resp = get_teach_state()
@@ -1070,6 +1083,8 @@ class ExperimentNode(object):
 
                     resp = get_teach_state()                
                     isTeachingOffline = resp.teach_state.data 
+
+                self.traffic_light_updater.update('red')
 
                 self.text_updater.update("STOPPED TEACHING")
 

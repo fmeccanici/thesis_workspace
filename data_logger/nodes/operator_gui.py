@@ -3,6 +3,8 @@
 import rospy, os, sys, csv, rospkg, ast
 from data_logger_python.data_logger_python import ParticipantData
 from experiment_variables.experiment_variables import ExperimentVariables
+from traffic_light.traffic_light import TrafficLight
+from traffic_light.traffic_light_updater import TrafficLightUpdater
 
 # import Qt stuff
 from PyQt5.QtWidgets import *
@@ -17,6 +19,19 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
 from std_msgs.msg import UInt32, Bool, Byte, String
 from data_logger.msg import OperatorGUIinteraction
 from experiment.srv import SetText, SetTextResponse
+
+class TrafficLightThread(QThread):
+    lightSignal = pyqtSignal(str)
+    def __init__(self, parent=None):
+        super(TrafficLightThread, self).__init__(parent=parent)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
+        self.text_file = self.text_path + 'light.txt'
+
+    def run(self):
+        while True:
+            with open(self.text_file, 'r') as f:
+                self.lightSignal.emit(f.read())
+                self.sleep(1)
 
 class TextThread(QThread):
     textSignal = pyqtSignal(str)
@@ -142,6 +157,10 @@ class OperatorGUI(QMainWindow):
         self.number_of_refinements_thread.number_of_refinements_signal.connect(self.updateNumberOfRefinements)
         self.number_of_refinements_thread.start()
 
+        self.traffic_light_thread = TrafficLightThread(self)
+        self.traffic_light_thread.lightSignal.connect(self.updateLight)
+        self.traffic_light_thread.start()
+
         self.experiment_variables = ExperimentVariables()
         
         self.method = rospy.get_param('~method')
@@ -213,6 +232,10 @@ class OperatorGUI(QMainWindow):
         font.setPointSize(21)
         self.lineEdit_2.setFont(font)
         self.lineEdit_2.setObjectName("lineEdit_2")
+        self.groupBox_5 = QGroupBox(self.centralwidget)
+        self.groupBox_5.setGeometry(QRect(1770, 0, 151, 621))
+        self.groupBox_5.setTitle("")
+        self.groupBox_5.setObjectName("groupBox_5")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1820, 25))
@@ -235,6 +258,7 @@ class OperatorGUI(QMainWindow):
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout2 = QHBoxLayout()
         self.horizontalLayout3 = QHBoxLayout()
+        self.verticalLayout = QVBoxLayout()
 
         self.groupBox.setLayout(self.horizontalLayout)
         self.groupBox_6.setLayout(self.horizontalLayout3)
@@ -245,6 +269,11 @@ class OperatorGUI(QMainWindow):
         self.groupBox_3.setLayout(self.horizontalLayout2)
         
         self.horizontalLayout2.addWidget(self.image_widget)
+
+        self.traffic_light_widget = TrafficLight()
+        self.groupBox_5.setLayout(self.verticalLayout)
+        self.verticalLayout.addWidget(self.traffic_light_widget)
+        
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
@@ -292,6 +321,8 @@ class OperatorGUI(QMainWindow):
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)
 
+    def updateLight(self, light):
+        self.traffic_light_widget.set_color(light)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
