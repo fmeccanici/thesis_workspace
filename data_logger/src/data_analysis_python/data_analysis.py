@@ -14,11 +14,14 @@ class DataAnalysis(object):
         self.figures_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/figures/'
         self.data = {}
         self.num_methods = self.experiment_variables.num_methods
+        self.num_models = self.experiment_variables.num_models
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.num_trials = self.experiment_variables.num_trials
 
         self.methods_labels = ['online+omni', 'offline+omni', 'online+pendant', 'offline+pendant']
-        self.object_positions_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
+        self.models_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
+        self.models_labels = [ str(int(x)) for x in range(1, self.num_models+1) ]
+
         self.method_mapping = self.experiment_variables.method_mapping_str_to_number
 
         self.createDataTemplate()
@@ -198,9 +201,9 @@ class DataAnalysis(object):
         plt.legend()
         plt.grid()
 
-    def getTime(self, participant_number, method, object_position, trial):
+    def getTime(self, participant_number, method, model, object_position, trial):
         methods = self.data[participant_number].getMethods()
-        time = methods[method]['object_position'][object_position]['trial'][trial]['time']
+        time = methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['time']
         return time
 
     def calculateRefinementTime(self, participant_number, method):
@@ -209,31 +212,37 @@ class DataAnalysis(object):
         total_adaptation_time = 0
         adaptation_time = []
 
-        for object_position in methods[method]['object_position']:
+        for model in methods[method]['model']:
             time = 0
-            for trial in methods[method]['object_position'][object_position]['trial']:
-                
-                time += self.getTime(participant_number, method, object_position, trial)
+            for object_position in methods[method]['model'][model]['object_position']:
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
+                    
+                    time += self.getTime(participant_number, method, model, object_position, trial)
 
             adaptation_time.append(time)
 
-        total_adaptation_time = sum(adaptation_time)
+        total_adaptation_time = np.mean(adaptation_time)
 
         return total_adaptation_time, adaptation_time
 
     def getNumberOfRefinements(self, participant_number, method):
         methods = self.data[participant_number].getMethods()
         refinements_per_object_position = []
+        refinements_per_model = []
 
-        for object_position in methods[method]['object_position']:
+        for model in methods[method]['model']:
             refinements = 0
 
-            for trial in methods[method]['object_position'][object_position]['trial']:
-                refinements += methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements']
+            for object_position in methods[method]['model'][model]['object_position']:
 
-            refinements_per_object_position.append(refinements)
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
+                    refinements += methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['number_of_refinements']
 
-        return refinements_per_object_position
+                refinements_per_object_position.append(refinements)
+            
+            refinements_per_model.append(refinements)
+
+        return refinements_per_model
 
     def getNumberOfObjectMissed(self,refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
@@ -243,21 +252,24 @@ class DataAnalysis(object):
         elif refinement_or_prediction == 'prediction':
             trajectory = 'predicted_trajectory'
 
-        object_missed_per_object_position = []
+        object_missed_per_model = []
 
-        for object_position in methods[method]['object_position']:
-            object_missed = 0
+        for model in methods[method]['model']:
+            for object_position in methods[method]['model'][model]['object_position']:
+                object_missed = 0
 
-            for trial in methods[method]['object_position'][object_position]['trial']:
-                try:
-                    object_missed += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['object_missed'])
-                except KeyError as e:
-                    # print("Key not available: " + str(e))
-                    continue
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
+                    try:
+                        object_missed += int(methods[method]['model'][model]['object_position'][object_position]['trial'][trial][trajectory]['object_missed'])
+                    except KeyError as e:
+                        # print("Key not available: " + str(e))
+                        continue
 
-            object_missed_per_object_position.append(object_missed)
+            object_missed_per_model.append(object_missed)
+        
+        # print(object_missed_per_model)
 
-        return object_missed_per_object_position
+        return object_missed_per_model
 
     def getNumberOfObjectKickedOver(self, refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
@@ -267,21 +279,22 @@ class DataAnalysis(object):
         elif refinement_or_prediction == 'prediction':
             trajectory = 'predicted_trajectory'
 
-        object_kicked_over_per_object_position = []
+        object_kicked_over_per_model = []
 
-        for object_position in methods[method]['object_position']:
-            object_kicked_over = 0
+        for model in methods[method]['model']:
+            for object_position in methods[method]['model'][model]['object_position']:
+                object_kicked_over = 0
 
-            for trial in methods[method]['object_position'][object_position]['trial']:
-                try:
-                    object_kicked_over += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['object_kicked_over'])
-                except KeyError as e:
-                    # print("Key not available: " + str(e))
-                    continue
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
+                    try:
+                        object_kicked_over += int(methods[method]['model'][model]['object_position'][object_position]['trial'][trial][trajectory]['object_kicked_over'])
+                    except KeyError as e:
+                        # print("Key not available: " + str(e))
+                        continue
 
-            object_kicked_over_per_object_position.append(object_kicked_over)
+            object_kicked_over_per_model.append(object_kicked_over)
 
-        return object_kicked_over_per_object_position
+        return object_kicked_over_per_model
 
     def getNumberOfObstaclesHit(self, refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
@@ -291,21 +304,45 @@ class DataAnalysis(object):
         elif refinement_or_prediction == 'prediction':
             trajectory = 'predicted_trajectory'
 
-        obstacle_hit_per_object_position = []
+        obstacle_hit_per_model = []
 
-        for object_position in methods[method]['object_position']:
-            obstacle_hit = 0
+        for model in methods[method]['model']:
+            for object_position in methods[method]['model'][model]['object_position']:
+                obstacle_hit = 0
 
-            for trial in methods[method]['object_position'][object_position]['trial']:
-                
-                try:
-                    obstacle_hit += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['obstacle_hit'])
-                except KeyError as e:
-                    # print("Key not available: " + str(e))
-                    continue
-            obstacle_hit_per_object_position.append(obstacle_hit)
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
+                    
+                    try:
+                        if methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['number_of_refinements'] != 0:
+                            obstacle_hit += int(methods[method]['model'][model]['object_position'][object_position]['trial'][trial][trajectory]['obstacle_hit'])
+                        else:
+                            obstacle_hit += 0
 
-        return obstacle_hit_per_object_position
+                    except KeyError as e:
+                        # print("Key not available: " + str(e))
+                        continue
+            
+            obstacle_hit_per_model.append(obstacle_hit)
+        
+        # print(obstacle_hit_per_model)
+        return obstacle_hit_per_model
+
+    def getNumberOfUpdates(self, participant_number, method):
+        methods = self.data[participant_number].getMethods()
+
+        number_of_updates_per_model = []
+
+        for model in methods[method]['model']:
+            number_of_updates = 0
+
+            for object_position in methods[method]['model'][model]['object_position']:
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
+                    if methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['number_of_refinements'] != 0:
+                        number_of_updates += 1
+            
+            number_of_updates_per_model.append(number_of_updates)
+
+        return number_of_updates_per_model
 
     def getSuccessfulTrials(self, refinement_or_prediction, participant_number, method):
         methods = self.data[participant_number].getMethods()
@@ -314,31 +351,51 @@ class DataAnalysis(object):
         elif refinement_or_prediction == 'prediction':
             trajectory = 'predicted_trajectory'
 
-        success_per_object_position = []
+        success_per_model = []
         
-        for object_position in methods[method]['object_position']:
+        for model in methods[method]['model']:
             success = 0
+            for object_position in methods[method]['model'][model]['object_position']:
 
-            for trial in methods[method]['object_position'][object_position]['trial']:
+                for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
 
-                try:
-                    # if number of refinement is zero, we had a successful prediction and no refinement was necessary
-                    # then the success has to be 1 but is zero by default since we have no refinement 
-                    # it gives a key error thus reverts back to the default which is 0
-                    # I only did experiment yet with method 3 on myself but this has to be done for all the methods
-                    
-                    if trajectory == 'refined_trajectory' and methods[method]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
-                        success += 1
-                    else:
-                        success += int(methods[method]['object_position'][object_position]['trial'][trial][trajectory]['success'])
+                    try:
+                        # if number of refinement is zero, we had a successful prediction and no refinement was necessary
+                        # then the success has to be 1 but is zero by default since we have no refinement 
+                        # it gives a key error thus reverts back to the default which is 0
+                        # I only did experiment yet with method 3 on myself but this has to be done for all the methods
+                        if methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['number_of_refinements'] == 0:
+                            success += 1
+                        else:
+                            
+                            success += int(methods[method]['model'][model]['object_position'][object_position]['trial'][trial][trajectory]['success'])
 
-                except KeyError as e:
-                    # print("Key not available: " + str(e))
-                    continue
+                    except KeyError as e:
+                        print("Key not available: " + str(e))
+                        continue
 
-            success_per_object_position.append(success)
+                # success_per_object_position.append(success)
 
-        return success_per_object_position
+            success_per_model.append(success)
+
+        return success_per_model
+    
+    def plotNumberOfUpdates(self, participant_number):
+        plt.figure()
+
+        for method in range(1, self.num_methods+1):
+            plt.subplot(2, 2, method)
+            number_of_updates = self.getNumberOfUpdates(participant_number, method)
+
+            plt.bar(self.models_labels, number_of_updates)
+            plt.title(self.methods_labels[method-1])
+            plt.xlabel("Model [-]")
+            plt.ylabel("Number of updates [s]")
+            plt.ylim((0,10))
+            plt.tight_layout()
+
+        plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/number_of_updates.pdf')
+    
 
     def plotRefinementTime(self, participant_number):
         plt.figure()
@@ -346,12 +403,13 @@ class DataAnalysis(object):
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
             refinement_times = self.calculateRefinementTime(participant_number, method)[1]
+
             print('adaptation times for plotting: ' + str(refinement_times))
-            plt.bar(self.object_positions_labels, refinement_times)
+            plt.bar(self.models_labels, refinement_times)
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Refinement time [s]")
-            plt.ylim((0,1000))
+            plt.ylim((0,500))
             plt.tight_layout()
 
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/refinement_time.pdf')
@@ -363,11 +421,11 @@ class DataAnalysis(object):
             plt.subplot(2, 2, method)
 
             number_of_refinements = self.getNumberOfRefinements(participant_number, method)
-            plt.bar(self.object_positions_labels, number_of_refinements)
+            plt.bar(self.models_labels, number_of_refinements)
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Number of refinements [-]")
-            plt.ylim((0,20))
+            plt.ylim((0,10))
 
             plt.tight_layout()
 
@@ -378,10 +436,10 @@ class DataAnalysis(object):
         plt.figure()
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
-            number_of_object_missed = self.getNumberOfObjectKickedOver(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
-            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_object_missed ] )
+            number_of_objects_kicked_over = self.getNumberOfObjectKickedOver(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
+            plt.bar(self.models_labels, [ x / (self.num_trials * self.num_object_positions) * 100 for x in number_of_objects_kicked_over ] )
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Object kicked over [%]")
             plt.ylim((0,100))
 
@@ -397,9 +455,9 @@ class DataAnalysis(object):
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
             number_of_object_missed = self.getNumberOfObjectMissed(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
-            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_object_missed ] )
+            plt.bar(self.models_labels, [ x / (self.num_trials * self.num_object_positions) * 100 for x in number_of_object_missed ] )
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Object missed [%]")
             plt.ylim((0,100))
 
@@ -415,9 +473,9 @@ class DataAnalysis(object):
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
             number_of_obstacles_hit = self.getNumberOfObstaclesHit(participant_number=participant_number, refinement_or_prediction=refinement_or_prediction, method=method)
-            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_obstacles_hit ] )
+            plt.bar(self.models_labels, [ x / (self.num_trials * self.num_object_positions) * 100 for x in number_of_obstacles_hit ] )
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Obstacles hit [%]")
             plt.ylim((0,100))
 
@@ -432,11 +490,12 @@ class DataAnalysis(object):
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
             number_of_success = self.getSuccessfulTrials(participant_number=participant_number, refinement_or_prediction='prediction', method=method)
-            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_success ] )
+            # print("number of success = " + str(number_of_success))
+            plt.bar(self.models_labels, [ x / (self.num_object_positions * self.num_trials) * 100 for x in number_of_success ] )
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Successfull predictions [%]")
-            plt.ylim([0,100])
+            plt.ylim([0,110])
             plt.tight_layout()
         
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/successful_predictions.pdf')
@@ -451,9 +510,9 @@ class DataAnalysis(object):
             time_per_succesfull_prediction = np.asarray(self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]) / np.asarray(number_of_success)
                 
 
-            plt.bar(self.object_positions_labels, time_per_succesfull_prediction)
+            plt.bar(self.models_labels, time_per_succesfull_prediction)
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Time [s]")
             plt.ylim([0,1000])
             plt.tight_layout()
@@ -465,10 +524,11 @@ class DataAnalysis(object):
         for method in range(1, self.num_methods+1):
             plt.subplot(2, 2, method)
             number_of_success = self.getSuccessfulTrials(participant_number=participant_number, refinement_or_prediction='refinement', method=method)
-            plt.bar(self.object_positions_labels, [ x / self.num_trials * 100 for x in number_of_success ] )
+            plt.bar(self.models_labels, [ x / (self.num_trials * self.num_object_positions) * 100 for x in number_of_success ] )
             plt.title(self.methods_labels[method-1])
-            plt.xlabel("Object position [-]")
+            plt.xlabel("Model [-]")
             plt.ylabel("Successfull refinements [%]")
+            plt.ylim([0,110])
             plt.tight_layout()
         
         plt.savefig(self.figures_path + 'participant_' + str(participant_number) + '/successful_refinements.pdf')
@@ -840,7 +900,7 @@ if __name__ == "__main__":
         data_analysis.createFiguresPaths(number)
         data_analysis.loadData(number, what_to_plot)
 
-        """      
+             
         if what_to_plot == 'experiment':
             data_analysis.plotRefinementTime(number)
             data_analysis.plotNumberOfRefinements(number)
@@ -857,7 +917,7 @@ if __name__ == "__main__":
             data_analysis.plotNumberOfObjectKickedOver(number, 'refinement')
             data_analysis.plotNumberOfObjectKickedOver(number, 'prediction')
             data_analysis.plotTimePerSuccesfullPredictions(number)
-
+            data_analysis.plotNumberOfUpdates(number)
             print('Figures of experiment stored')
         
         elif what_to_plot == 'after':
@@ -872,5 +932,5 @@ if __name__ == "__main__":
         elif what_to_plot == 'before':
             data_analysis.plotExperimentData()
             print('Figures before experiment stored')
-        """
+        
     data_analysis.generateBoxPlots()
