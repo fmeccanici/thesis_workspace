@@ -34,7 +34,7 @@ from learning_from_demonstration.srv import (GoToPose, MakePrediction,
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory, 
                                                 GetEEPose, AddDemonstration, SetTeachStateOmni,
-                                                ClearTrajectory, GetTrajectory)
+                                                ClearTrajectory, GetTrajectory, BuildInitialModel)
 
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
@@ -63,11 +63,14 @@ class ExperimentNode(object):
         self.nodes = {}
         self.method_mapping = self.experiment_variables.method_mapping_str_to_number
 
+        self.num_models = self.experiment_variables.num_models
         self.num_trials = self.experiment_variables.num_trials
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.trials = range(1,self.num_trials+1)
 
         self.object_positions = range(1,self.num_object_positions+1)
+        self.models = range(1,self.num_models+1)
+
         self.max_refinements = self.experiment_variables.max_refinements
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
@@ -78,6 +81,8 @@ class ExperimentNode(object):
 
         self.current_trial = 1
         self.current_object_position = 1
+        self.current_model = 1
+
         # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
         self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
 
@@ -474,6 +479,7 @@ class ExperimentNode(object):
     def setDataLoggerParameters(self):
         number_msg = Byte(self.participant_number)
 
+        model_msg = Byte(self.current_model)
         method_msg = Byte(self.method_mapping[self.method])
 
         object_position_msg = Byte(self.current_object_position)
@@ -486,9 +492,11 @@ class ExperimentNode(object):
             return -1
         trial_msg = Byte(self.current_trial)
 
+
         rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
+        
         set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
-        resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg)
+        resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg, model_msg)
 
     def loadParticipant(self):
         try: 
@@ -729,7 +737,30 @@ class ExperimentNode(object):
             self.text_updater.update("FAILURE:")
         else:
             self.text_updater.update("SUCCESS!")
+            
+            # last object position reached
+            if self.current_object_position >= self.num_object_positions:
+                # build initial model again
+                try:
+                    rospy.wait_for_service('build_initial_model', timeout=2.0)
+                    build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                    build_init_model()
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+                
+                # shift to next model
+                # 1st object, 1st trial
+                self.current_model += 1
+                self.current_object_position = 1
+                self.current_trial = 1
+            
+            # last position not reached
+            else:
+                self.current_object_position += 1
+                self.current_trial = 1
 
+            # for going to the next loop iteration in start() function
+            return 1
     
         if obstacle_hit:
             self.text_updater.append("OBSTACLE HIT")
@@ -1182,27 +1213,59 @@ class ExperimentNode(object):
 
         self.current_trial += 1
 
+        # logic to go to next model and object position
+        # last trial reached
         if self.current_trial >= self.num_trials+1:
-            self.current_object_position += 1
-            self.current_trial = 1
-        
-        self.setDataLoggerParameters()
 
+            # last object position reached
+            if self.current_object_position >= self.num_object_positions:
+                
+                if not self.current_model = self.num_models:
+                    # build initial model again 
+                    try:
+                        rospy.wait_for_service('build_initial_model', timeout=2.0)
+                        build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                        build_init_model()
+                    except (rospy.ServiceException, rospy.ROSException) as e:
+                        print("Service call failed: %s" %e)
+                    
+                    # shift to next model
+                    # 1st object, 1st trial
+                    self.current_model += 1
+                    self.current_object_position = 1
+                    self.current_trial = 1
+            
+            # last position not reached
+            else:
+                self.current_object_position += 1
+                self.current_trial = 1
+
+        self.setDataLoggerParameters()
+        
+        return 0
 
     def start(self):
         self.loadParticipant()
         self.initializeHeadLiftJoint()
 
-        for object_position in self.object_positions:
-            self.getContext()
-            self.setDataLoggerParameters()
-            self.y_position = self.determineYPosition()
+        for model in self.models:
+            print('model = ' + str(model))
+            for object_position in self.object_positions:
+                self.getContext()
+                self.setDataLoggerParameters()
+                self.y_position = self.determineYPosition()
 
-            for trial in self.trials:
-                print('object position = ' + str(object_position))
-                print('trial = ' + str(trial))
+                for trial in self.trials:
+                    print('object position = ' + str(object_position))
+                    print('trial = ' + str(trial))
 
-                self.startTrial()
+                    success = self.startTrial()
+                    if success:
+                        break
+
+
+            # reset y position after adapting a model
+            self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
 
 
 if __name__ == "__main__":

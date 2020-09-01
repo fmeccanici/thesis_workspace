@@ -60,12 +60,15 @@ class DataLoggerNode(object):
         object_position = req.object_position.data
         trial = req.trial.data
         method = req.method.data
+        model = req.model.data
 
         self.data[number].setMethod(method)
         self.data[number].setTrial(trial)
         self.data[number].setObjectPosition(object_position)
+        self.data[number].setModel(model)
 
         rospy.loginfo("Data logger parameters set to: ")
+        rospy.loginfo("model " + str(model))
         rospy.loginfo("method " + str(method))
         rospy.loginfo("object position " + str(object_position))
         rospy.loginfo("trial " + str(trial))

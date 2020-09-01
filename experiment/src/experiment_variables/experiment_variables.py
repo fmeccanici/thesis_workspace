@@ -8,6 +8,8 @@ class ExperimentVariables(object):
         self.num_object_positions = 2
         self.num_trials = 3
         self.num_methods = 4
+        self.num_models = 3
+        
         self.y_position_step_dict = {1: 0.0, 2: 2*0.1}
 
         self.y0 = 0.2
