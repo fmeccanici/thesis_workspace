@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
+
 from subprocess import call
 import rospy, rospkg, roslaunch, time, random, copy
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
@@ -7,6 +8,7 @@ from data_logger_python.text_updater import TextUpdater
 from pyquaternion import Quaternion
 import numpy as np
 from experiment_variables.experiment_variables import ExperimentVariables
+from traffic_light.traffic_light_updater import TrafficLightUpdater
 
 # import ros messages
 from sensor_msgs.msg import JointState
@@ -19,6 +21,8 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from execution_failure_detection.msg import ExecutionFailure
 from teleop_control.msg import Keyboard
 from teleop_control.srv import SetPartToPublish, SetPartToPublishResponse
+from slave_control.msg import ControlState
+
 
 # import ros services
 from data_logger.srv import (CreateParticipant, AddRefinement,
@@ -29,7 +33,9 @@ from data_logger.srv import (CreateParticipant, AddRefinement,
 from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
                                                 GetContext, GetObjectPosition,
                                                 WelfordUpdate, ExecuteTrajectory, 
-                                                GetEEPose, AddDemonstration)
+                                                GetEEPose, AddDemonstration, SetTeachStateOmni,
+                                                ClearTrajectory, GetTrajectory, BuildInitialModel)
+
 from gazebo_msgs.srv import SetModelState, SetModelConfiguration
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
@@ -50,16 +56,21 @@ class ExperimentNode(object):
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
         self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
         self.number_of_refinements_updater.update(str(0))
+        self.traffic_light_updater = TrafficLightUpdater()
+        self.traffic_light_updater.update('red')
 
         self.experiment_variables = ExperimentVariables()
         self.nodes = {}
         self.method_mapping = self.experiment_variables.method_mapping_str_to_number
 
+        self.num_models = self.experiment_variables.num_models
         self.num_trials = self.experiment_variables.num_trials
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.trials = range(1,self.num_trials+1)
 
         self.object_positions = range(1,self.num_object_positions+1)
+        self.models = range(1,self.num_models+1)
+
         self.max_refinements = self.experiment_variables.max_refinements
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
@@ -70,6 +81,8 @@ class ExperimentNode(object):
 
         self.current_trial = 1
         self.current_object_position = 1
+        self.current_model = 1
+
         # self.y_position_step_dict = {1: 0.0, 2: 0.066, 3: 2*0.066, 4: 3*0.066, 5: 4*0.066, 6: 5*0.066}
         self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
 
@@ -79,6 +92,8 @@ class ExperimentNode(object):
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
         # self.operator_gui_text_pub = rospy.Publisher('/operator_gui/text', String, queue_size=10)
 
+        self.slave_control_state_sub = rospy.Subscriber('slave_control_state', ControlState, self._slaveControlStateCallback)
+
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
         self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
 
@@ -87,13 +102,16 @@ class ExperimentNode(object):
 
         self.pressed_key = ""
 
+    def _slaveControlStateCallback(self, data):
+        self.en_arm = data.en_arm.data
+
     def isStringEmpty(self, string):
         return string == "" or string == ''
 
     def _keyboardCallback(self, data):
         if not self.isStringEmpty(data.key.data):
             self.pressed_key = data.key.data
-
+            
     # failure detection callback
     def _executionFailureCallback(self, data):
         if self.stop_updating_flag == 0:
@@ -105,16 +123,8 @@ class ExperimentNode(object):
             self.object_kicked_over_updater.update( str(data.object_kicked_over.data ))
 
     def _operatorGuiInteraction(self, data):    
-        if data.refine_prediction.data:
-            self.refine = 'prediction'
-        elif data.refine_refinement.data:
-            self.refine = 'refinement'
-        
-        if self.set_data == False:
-            self.participant_number = data.number.data
-            self.age = data.age.data
-            self.gender = data.gender.data
-            self.set_data = True
+        self.participant_number = data.number.data
+        print("Participant number is " + str(self.participant_number))
 
     def _getParameters(self):
         self.method = rospy.get_param('~method')            
@@ -191,6 +201,37 @@ class ExperimentNode(object):
         y0 = self.experiment_variables.y0
 
         return y0 - step
+
+    def setDishwasherPosition(self):
+        try:
+            dishwasher = ModelState()
+            dishwasher.model_name = 'dishwasher'
+
+            dishwasher.pose.position.x = 1.75
+            dishwasher.pose.position.y = 0.336
+
+            dishwasher.pose.position.z = 0.098
+
+            dishwasher.pose.orientation.x = 0
+            dishwasher.pose.orientation.y = 0
+            dishwasher.pose.orientation.z = -0.6995
+            dishwasher.pose.orientation.w = 0.7146
+            
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+            resp = set_object(dishwasher)
+
+            rospy.loginfo("Reset dishwasher pose")
+            return resp.success
+
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
 
     def setObjectPosition(self):
         try:
@@ -439,6 +480,7 @@ class ExperimentNode(object):
     def setDataLoggerParameters(self):
         number_msg = Byte(self.participant_number)
 
+        model_msg = Byte(self.current_model)
         method_msg = Byte(self.method_mapping[self.method])
 
         object_position_msg = Byte(self.current_object_position)
@@ -451,29 +493,34 @@ class ExperimentNode(object):
             return -1
         trial_msg = Byte(self.current_trial)
 
-        rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
-        set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
-        resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg)
 
-    def loadOrCreateParticipant(self):
+        rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
+        
+        set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
+        resp = set_parameters(number_msg, object_position_msg, trial_msg, method_msg, model_msg)
+
+    def loadParticipant(self):
         try: 
             rospy.wait_for_service('create_participant', timeout=2.0)
             create_participant = rospy.ServiceProxy('create_participant', CreateParticipant)
             number_msg = Byte()
             
             # wait until we have operator interaction
-            text = "FILL IN FORM"
+            text = "FILL IN PARTICIPANT NUMBER"
             self.text_updater.update(text)
             
             rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
             number_msg.data = self.participant_number
             self.text_updater.empty()
 
-            # dummy variable names --> not necessary when data exists
-            gender_msg = Bool(self.gender)
-            age_msg = Byte(self.age)
+            # dummy variable names --> not necessary when data exists --> data logger loads this automatically instead of writing it
+            gender_msg = Bool(0)
+            age_msg = Byte(1)
+            teleop_experience_msg = Byte(1)
+            keyboard_experience_msg = Byte(1)
+            left_right_handed_msg = Bool(1)
 
-            resp = create_participant(number_msg, gender_msg, age_msg)     
+            resp = create_participant(number_msg, gender_msg, age_msg, teleop_experience_msg, keyboard_experience_msg, left_right_handed_msg)     
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
@@ -635,12 +682,18 @@ class ExperimentNode(object):
     def refineRefinement(self):
         return self.pressed_key == 'right'
 
+    def isKeyPressedLeftOrRight(self, key):
+        return key == 'left' or key == 'right'
+
     def waitForKeyPress(self):
         self.resetKeyPressed()
         while True:
-            if not self.isStringEmpty(self.pressed_key):
+            if self.isKeyPressedLeftOrRight(self.pressed_key):
                 print(str(self.pressed_key) + " key presssed")
                 return
+
+    def isArmEnabled(self):
+        return self.en_arm == 1
 
     def resetKeyPressed(self):
         self.pressed_key = ""
@@ -650,13 +703,19 @@ class ExperimentNode(object):
             rospy.wait_for_service('/offline_pendant/set_teach_state', timeout=2.0)
             set_teach_state = rospy.ServiceProxy('/offline_pendant/set_teach_state', SetTeachState)
             set_teach_state(Bool(False))
+        elif self.method == 'offline+omni':
+            rospy.wait_for_service('/trajectory_teaching/set_teach_state', timeout=2.0)
+            set_teach_state = rospy.ServiceProxy('/trajectory_teaching/set_teach_state', SetTeachStateOmni)
+            set_teach_state(Bool(False))
 
         # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
         self.goToInitialPose()
         time.sleep(5)
 
+        self.setDishwasherPosition()
         self.setObjectPosition()
+        
         time.sleep(4)
 
         self.getContext()
@@ -666,6 +725,7 @@ class ExperimentNode(object):
         
         self.visualize('prediction')
         
+        self.traffic_light_updater.update('red')
         self.text_updater.update("AUTONOMOUS EXECUTION")
         obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
         
@@ -678,7 +738,30 @@ class ExperimentNode(object):
             self.text_updater.update("FAILURE:")
         else:
             self.text_updater.update("SUCCESS!")
+            
+            # last object position reached
+            if self.current_object_position >= self.num_object_positions:
+                # build initial model again
+                try:
+                    rospy.wait_for_service('build_initial_model', timeout=2.0)
+                    build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                    build_init_model()
+                except (rospy.ServiceException, rospy.ROSException) as e:
+                    print("Service call failed: %s" %e)
+                
+                # shift to next model
+                # 1st object, 1st trial
+                self.current_model += 1
+                self.current_object_position = 1
+                self.current_trial = 1
+            
+            # last position not reached
+            else:
+                self.current_object_position += 1
+                self.current_trial = 1
 
+            # for going to the next loop iteration in start() function
+            return 1
     
         if obstacle_hit:
             self.text_updater.append("OBSTACLE HIT")
@@ -697,10 +780,11 @@ class ExperimentNode(object):
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
-                self.setObjectPosition()
+                self.setDishwasherPosition()
                 time.sleep(3)
+                self.setObjectPosition()
 
-            
+                self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 # rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
@@ -731,6 +815,7 @@ class ExperimentNode(object):
 
                     resp = refine_trajectory(self.refined_trajectory, self.T_desired)
 
+                self.traffic_light_updater.update('red')
 
                 self.refined_trajectory = resp.refined_trajectory
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
@@ -792,16 +877,17 @@ class ExperimentNode(object):
 
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 self.goToInitialPose()
-                time.sleep(5)
-
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
-                time.sleep(4)
-                
+
                 rospy.wait_for_service('/offline_pendant/add_waypoint', timeout=2.0)
                 add_waypoint = rospy.ServiceProxy('/offline_pendant/add_waypoint', AddWaypoint)
                 add_waypoint()
 
                 set_teach_state(Bool(True))
+
+                self.traffic_light_updater.update('green')
 
                 self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
@@ -822,6 +908,8 @@ class ExperimentNode(object):
                     resp = get_teach_state()
                     isTeachingOffline = resp.teach_state.data        
 
+                self.traffic_light_updater.update('red')
+
                 
                 rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
                 get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
@@ -832,6 +920,8 @@ class ExperimentNode(object):
                 # self.stopNode('teach_pendant.launch')
                 
                 self.goToInitialPose()
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
@@ -896,19 +986,21 @@ class ExperimentNode(object):
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
-                self.setObjectPosition()
+                self.setDishwasherPosition()
                 time.sleep(3)
+                self.setObjectPosition()
 
-            
+                self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
-                rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
-                
+                self.waitForKeyPress()
+                self.text_updater.update("PRESS WHITE BUTTON TO STOP REFINING")
+
                 self.stop_updating_flag = 0
 
                 refine_trajectory = rospy.ServiceProxy('refine_trajectory', RefineTrajectory)
                 
-                if self.refine == 'prediction':
+                if self.refinePrediction():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -918,7 +1010,7 @@ class ExperimentNode(object):
 
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
-                elif self.refine == 'refinement':
+                elif self.refineRefinement():
 
                     # we only need to start the timer if it is equal to zero, else just keep the timer running
                     if self.start_time == 0:
@@ -927,6 +1019,8 @@ class ExperimentNode(object):
                     else: pass
 
                     resp = refine_trajectory(self.refined_trajectory, self.T_desired)
+                
+                self.traffic_light_updater.update('red')
 
 
                 self.refined_trajectory = resp.refined_trajectory
@@ -989,18 +1083,14 @@ class ExperimentNode(object):
 
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 self.goToInitialPose()
-                time.sleep(5)
-
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
-                time.sleep(4)
-                
+
                 rospy.wait_for_service('/set_part_to_publish', timeout=2.0)
                 set_part_to_publish = rospy.ServiceProxy('/set_part_to_publish', SetPartToPublish)
-                set_part_to_publish()
+                set_part_to_publish(String('both'))
 
-                set_teach_state(String('both'))
-
-                self.text_updater.update("START TEACHING")
                 self.collision_updating_flag = 1
 
                 # we only need to start the timer if it is equal to zero, else just keep the timer running
@@ -1009,26 +1099,43 @@ class ExperimentNode(object):
                     self.startTimer()
                 else: pass
 
-                rospy.wait_for_service('offline_pendant/get_teach_state', timeout=2.0)
-                get_teach_state = rospy.ServiceProxy('offline_pendant/get_teach_state', GetTeachState)
+                rospy.wait_for_service('trajectory_teaching/get_teach_state', timeout=2.0)
+                get_teach_state = rospy.ServiceProxy('trajectory_teaching/get_teach_state', GetTeachState)
                 resp = get_teach_state()
                 isTeachingOffline = resp.teach_state.data      
                 
+                self.traffic_light_updater.update('green')
+
+                while not isTeachingOffline:
+                    self.text_updater.update("PRESS WHITE BUTTON TO START TEACHING")
+                    resp = get_teach_state()
+                    isTeachingOffline = resp.teach_state.data 
+
                 # use teach_pendant node to teach offline
                 while isTeachingOffline:
-                    resp = get_teach_state()
-                    isTeachingOffline = resp.teach_state.data        
+                    self.text_updater.update("PRESS WHITE BUTTON TO STOP TEACHING")
 
-                
-                rospy.wait_for_service('get_demonstration_pendant', timeout=2.0)
-                get_demo_pendant = rospy.ServiceProxy('get_demonstration_pendant', GetDemonstrationPendant)
-                resp = get_demo_pendant()
+                    resp = get_teach_state()                
+                    isTeachingOffline = resp.teach_state.data 
+
+                self.traffic_light_updater.update('red')
+
+                self.text_updater.update("STOPPED TEACHING")
+
+                rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
+                get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetTrajectory)
+                resp = get_demo()
 
                 set_teach_state(Bool(False))
 
-                # self.stopNode('teach_pendant.launch')
+                while self.isArmEnabled():
+                    self.text_updater.update("PRESS GREY BUTTON")
                 
+                self.text_updater.update("GREY BUTTON PRESSED")
+
                 self.goToInitialPose()
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
@@ -1039,6 +1146,7 @@ class ExperimentNode(object):
 
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
                 
+
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
                     
@@ -1078,13 +1186,17 @@ class ExperimentNode(object):
 
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
+                
+                rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
+                clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
+                resp = clear_trajectory()
 
                 if number_of_refinements >= self.max_refinements:
                     self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
         
-            rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
-            clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
-            clear_waypoints()
+            rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
+            clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
+            clear_trajectory()
         
         self.number_of_refinements_updater.update(str(0))
         
@@ -1106,27 +1218,59 @@ class ExperimentNode(object):
 
         self.current_trial += 1
 
+        # logic to go to next model and object position
+        # last trial reached
         if self.current_trial >= self.num_trials+1:
-            self.current_object_position += 1
-            self.current_trial = 1
-        
-        self.setDataLoggerParameters()
 
+            # last object position reached
+            if self.current_object_position >= self.num_object_positions:
+                
+                if not self.current_model == self.num_models:
+                    # build initial model again 
+                    try:
+                        rospy.wait_for_service('build_initial_model', timeout=2.0)
+                        build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                        build_init_model()
+                    except (rospy.ServiceException, rospy.ROSException) as e:
+                        print("Service call failed: %s" %e)
+                    
+                    # shift to next model
+                    # 1st object, 1st trial
+                    self.current_model += 1
+                    self.current_object_position = 1
+                    self.current_trial = 1
+            
+            # last position not reached
+            else:
+                self.current_object_position += 1
+                self.current_trial = 1
+
+        self.setDataLoggerParameters()
+        
+        return 0
 
     def start(self):
-        self.loadOrCreateParticipant()
+        self.loadParticipant()
         self.initializeHeadLiftJoint()
 
-        for object_position in self.object_positions:
-            self.getContext()
-            self.setDataLoggerParameters()
-            self.y_position = self.determineYPosition()
+        for model in self.models:
+            print('model = ' + str(model))
+            for object_position in self.object_positions:
+                self.getContext()
+                self.setDataLoggerParameters()
+                self.y_position = self.determineYPosition()
 
-            for trial in self.trials:
-                print('object position = ' + str(object_position))
-                print('trial = ' + str(trial))
+                for trial in self.trials:
+                    print('object position = ' + str(object_position))
+                    print('trial = ' + str(trial))
 
-                self.startTrial()
+                    success = self.startTrial()
+                    if success:
+                        break
+
+
+            # reset y position after adapting a model
+            self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
 
 
 if __name__ == "__main__":

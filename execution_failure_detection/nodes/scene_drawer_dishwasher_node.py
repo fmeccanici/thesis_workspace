@@ -39,6 +39,9 @@ class SceneDrawer(object):
         self.model_path = model_path
         self.models = {}
 
+        self.object_reached = False
+        self.object_kicked_over = False
+
         self.model_pub = rospy.Publisher('execution_failure_detection/model_visualization', MarkerArray, queue_size=10)
         self.ee_sub = rospy.Subscriber('end_effector_pose', PoseStamped, self._endEffectorPoseCallback)
         self.link_states_sub = rospy.Subscriber('/gazebo/link_states', LinkStates, self.linkStatesCallback)
@@ -48,6 +51,14 @@ class SceneDrawer(object):
         self.listener = tf.TransformListener()
         self.static_broadcaster = tf2_ros.StaticTransformBroadcaster()
         self.static_upper_basket_transform = TransformStamped()
+
+
+        self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+
+
+    def _executionFailureCallback(self, data):
+        self.object_reached = data.object_reached.data
+        self.object_kicked_over = data.object_kicked_over.data
 
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
@@ -71,47 +82,30 @@ class SceneDrawer(object):
             """
             self.addCube(self.upper_basket_size_x, self.upper_basket_size_y, self.upper_basket_size_z, self.upper_basket_pose, color, 1)
             """
-        color = 'blue'
+        if not self.object_kicked_over:
+            color = 'green'
+        else:
+            color = 'red'
+
         self.addCube(self.object_size_x, self.object_size_y, self.object_size_z, self.object_pose, color, 2)
 
     # set size of ellipsoid wrt base frame
-    def setEllipsoidSize(self, ellipsoid_type='collision'):
+    def setEllipsoidSize(self, ellipsoid_type='all'):
 
         while True:    
             try:
                 rospy.wait_for_message('end_effector_pose', PoseStamped)
                 q_ee = Quaternion(copy.deepcopy([self.ee_pose.orientation.w, self.ee_pose.orientation.x, self.ee_pose.orientation.y, self.ee_pose.orientation.z]))
 
-                if ellipsoid_type == 'collision':
-                    size_wrt_ee = [0.4, 0.35, -0.04]
-                    size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-
-                    self.collision_ellipsoid_size_x = size_wrt_base[0]
-                    self.collision_ellipsoid_size_y = size_wrt_base[1]
-                    self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
-
-                elif ellipsoid_type == 'reaching':
-                    # size_wrt_ee = [0.15, 0.2, 0.1]
-                    # size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-                    size_wrt_base = [0.075, 0.2, 0.1]
+                if ellipsoid_type == 'reaching':
+                    size_wrt_base = [0.1, 0.13, 0.1]
 
                     self.reaching_ellipsoid_size_x = size_wrt_base[0]
                     self.reaching_ellipsoid_size_y = size_wrt_base[1]
                     self.reaching_ellipsoid_size_z = size_wrt_base[2] 
 
                 elif ellipsoid_type == 'all':
-                    # size_wrt_ee = [0.4, 0.2, 0.1]
-                    # size_wrt_ee = q_ee.rotate(size_wrt_ee)
-                    size_wrt_base = [0.33, 0.2, 0.1]
-                    self.collision_ellipsoid_size_x = size_wrt_base[0]
-                    self.collision_ellipsoid_size_y = size_wrt_base[1]
-                    self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
-                    
-                    # size_wrt_ee = [-0.15, 0.1, 0.1]
-                    # size_wrt_base = q_ee.inverse.rotate(size_wrt_ee)
-                    # size_wrt_ee = q_ee.rotate(size_wrt_ee)
-                    
-                    size_wrt_base = [0.15, 0.2, 0.1]
+                    size_wrt_base = [0.1, 0.13, 0.1]
 
                     self.reaching_ellipsoid_size_x = size_wrt_base[0]
                     self.reaching_ellipsoid_size_y = size_wrt_base[1]
@@ -158,7 +152,7 @@ class SceneDrawer(object):
             self.collision_ellipsoid_origin.position.y += r_ellipsoid_wrt_base[1]
             self.collision_ellipsoid_origin.position.z += r_ellipsoid_wrt_base[2]
             
-            r_ellipsoid_wrt_ee = [0.11, 0, 0]
+            r_ellipsoid_wrt_ee = [0.13, 0, 0]
             r_ellipsoid_wrt_base = q_ee.rotate(r_ellipsoid_wrt_ee)
 
             self.reaching_ellipsoid_origin.position.x += r_ellipsoid_wrt_base[0]
@@ -254,7 +248,10 @@ class SceneDrawer(object):
         elif ellipsoid_type == 'reaching':
             id = 1000
 
-            color=ColorRGBA(r=1, g=0, b=1, a=1)
+            if not self.object_reached:
+                color=ColorRGBA(r=1, g=0, b=0, a=0.5)
+            else:
+                color=ColorRGBA(r=0, g=1, b=0, a=0.5)
 
             cube = Marker(header=Header(stamp=rospy.Time.now(),
                                             frame_id=self.frame_id),
@@ -266,8 +263,7 @@ class SceneDrawer(object):
                                             action=Marker.ADD)
 
             self.models[id] = cube
-            # self.deleteEllipsoid(ellipsoid_type='collision')
-        
+
         elif ellipsoid_type == 'all':
             id = 999
             
@@ -301,9 +297,11 @@ class SceneDrawer(object):
             
     def addCube(self, x, y, z, pose, color, id):
         if color == 'red':
-            color=ColorRGBA(r=1, g=0, b=0, a=0.5)
+            color=ColorRGBA(r=1, g=0, b=0, a=0.75)
         elif color == 'blue':
-            color=ColorRGBA(r=0, g=0, b=1, a=0.5)
+            color=ColorRGBA(r=0, g=0, b=1, a=0.75)
+        elif color == 'green':
+            color=ColorRGBA(r=0, g=1, b=0, a=0.75)
 
         cube = Marker(header=Header(stamp=rospy.Time.now(),
                                         frame_id=self.frame_id),
@@ -331,9 +329,9 @@ class SceneDrawer(object):
         while not rospy.is_shutdown():
             self.setEllipsoidOrigin(ellipsoid_type='all')
 
-            """
-            self.addEllipsoid(ellipsoid_type='collision')
-            """
+            
+            self.addEllipsoid(ellipsoid_type='reaching')
+            
             self.visualizeModels()
             self.broadcastFrames(ellipsoid_type='all')
             

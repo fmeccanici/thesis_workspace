@@ -3,15 +3,18 @@
 import os, csv, ast, copy
 import pandas as pd
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from experiment_variables.experiment_variables import ExperimentVariables
 
 class ParticipantData(object):
-    def __init__(self, number, gender, age, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
+    def __init__(self, number, gender, age, teleop_experience, keyboard_experience, left_right_handed, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
+        self.experiment_variables = ExperimentVariables()        
         self.number = number
-        self.num_methods = 4
+        self.num_methods = self.experiment_variables.num_methods
+        self.num_models = self.experiment_variables.num_models
         self.methods = {}
-        self.num_object_positions = num_object_positions
-        self.num_trials = num_trials
+        self.num_object_positions = self.experiment_variables.num_object_positions
+        self.num_trials = self.experiment_variables.num_trials
 
         self.parser = trajectoryParser()
 
@@ -21,6 +24,9 @@ class ParticipantData(object):
             os.makedirs(self.path)
             self.gender = gender
             self.age = age
+            self.teleop_experience = teleop_experience
+            self.keyboard_experience = keyboard_experience
+            self.left_right_handed = left_right_handed
 
             self.initData()
 
@@ -30,6 +36,10 @@ class ParticipantData(object):
         else:
             self.gender = gender
             self.age = age
+            self.teleop_experience = teleop_experience
+            self.keyboard_experience = keyboard_experience
+            self.left_right_handed = left_right_handed
+            
             self.initData()
 
         # parameters used to fill the methods dictionary
@@ -55,8 +65,7 @@ class ParticipantData(object):
         self.object_positions = {}
         self.methods = {}
         self.trials = {}
-
-        self.num_methods = 4
+        self.models = {}
 
         for i in range(self.num_trials):
             self.trials[i+1] = {
@@ -71,23 +80,40 @@ class ParticipantData(object):
             'trial': copy.deepcopy(self.trials)
             }
         
+        for i in range(self.num_models):
+            self.models[i+1] = {
+                'object_position': copy.deepcopy(self.object_positions)
+            }
+
         for i in range(self.num_methods):
             self.methods[i+1] = {
-                'object_position': copy.deepcopy(self.object_positions)            }
+                'model': copy.deepcopy(self.models)            }
 
     def loadData(self):
         data_path = self.path + 'data.txt'
-        print(data_path)
         
         with open(data_path, "r") as infile:
             outfile = ast.literal_eval(infile.read())
 
-            self.gender = outfile['gender']
             self.number = outfile['number']
+            self.gender = outfile['gender']
             self.age = outfile['age']
-            
+            self.teleop_experience = outfile['teleop_experience']
+            self.keyboard_experience = outfile['keyboard_experience']
+            self.left_right_handed = outfile['left_right_handed']
+
             for i in range(self.num_methods):
                 self.methods[i+1] = outfile['method'][i+1]
+        
+    def readTlx(self):
+        tlx_file = self.path + 'tlx.csv'
+        self.tlx_data = pd.read_csv(tlx_file)
+
+    def getTeleopExperience(self):
+        return self.teleop_experience
+    
+    def getKeyboardExperience(self):
+        return self.keyboard_experience
 
     def getMethods(self):
         return self.methods
@@ -107,7 +133,7 @@ class ParticipantData(object):
     def setAge(self, age):
         self.age = age
 
-    def getAge(self, age):
+    def getAge(self):
         return self.age
 
     def setStoragePath(self, path):
@@ -134,13 +160,19 @@ class ParticipantData(object):
     def setObjectPosition(self, object_position):
         self.object_position = object_position
 
+    def setModel(self, model):
+        self.model = model
+
     def setMethod(self, method):
         self.method = method
 
     def setTime(self, *args, **kwargs):
         time = kwargs["time"]
 
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = copy.deepcopy(time)
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['time'] = copy.deepcopy(time)
+    
+    def getNumber(self):
+        return self.number
 
     def setRefinedTrajectory(self, *args, **kwargs):
 
@@ -184,7 +216,7 @@ class ParticipantData(object):
             self.refined_trajectory['success'] = success
         
             trajectory = copy.deepcopy(self.refined_trajectory)
-            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
+            self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['refined_trajectory'] = trajectory
 
             return 0
                 
@@ -236,31 +268,31 @@ class ParticipantData(object):
 
             
 
-            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
-            self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
-            # self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
+            self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['predicted_trajectory'] = trajectory
+            self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['context'] = context
+            # self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['time'] = time
 
             print("Prediction stored in dictionary")
             
     def setObstaclesHit(self):
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['obstacle_hit'] = True
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 
         # self.methods[method]['obstacles_hit'] += 1
  
     def setObjectMissed(self):
 
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['object_missed'] = True
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['object_missed'] = True
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['success'] = False
 
         # self.methods[method]['object_missed'] += 1
 
     def incrementNumberOfRefinements(self):
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] += 1
 
     def setNumberOfRefinements(self, number_of_refinements):
-        self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] = number_of_refinements
-        print('Set number of refinements to ' + str(self.methods[self.method]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
+        self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements'] = number_of_refinements
+        print('Set number of refinements to ' + str(self.methods[self.method]['model'][self.model]['object_position'][self.object_position]['trial'][self.trial]['number_of_refinements']))
     
     def incrementNumberOfUpdates(self, method):
         self.methods[method]['number_of_updates'] += 1
@@ -269,10 +301,13 @@ class ParticipantData(object):
         self.methods[method]['number_of_updates'] = value
     
     def toCSV(self):
-        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'method': self.methods}
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:
             f.write(str(data))
-            
+
+    def getDict(self):
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
+        return data     
             
 if __name__ == "__main__":
     participant1_data = ParticipantData(1, 'm', 26)

@@ -34,9 +34,9 @@ class refinementForcePublisher():
 
     def initMasterNormalizePose(self):
         self.firstMasterPose = PoseStamped()
-        self.firstMasterPose.pose.position.x = 3.3
-        self.firstMasterPose.pose.position.y = -20
-        self.firstMasterPose.pose.position.z = -75
+        self.firstMasterPose.pose.position.x = 3.08933091164
+        self.firstMasterPose.pose.position.y = -56.4136123657
+        self.firstMasterPose.pose.position.z = -21.058172226
         self.firstMasterPose.pose.orientation.x = -0.256295394356
         self.firstMasterPose.pose.orientation.y = -0.0436300096622
         self.firstMasterPose.pose.orientation.z = -0.118351057412

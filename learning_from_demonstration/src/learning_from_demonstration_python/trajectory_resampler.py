@@ -4,6 +4,8 @@ from learning_from_demonstration_python.trajectory_parser import *
 import numpy as np
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from pyquaternion import Quaternion
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
 
 class trajectoryResampler():
     def __init__(self):
@@ -39,6 +41,7 @@ class trajectoryResampler():
         cartx = [data[0] for data in pred_traj]
         carty = [data[1] for data in pred_traj]
         cartz = [data[2] for data in pred_traj]
+        q = [ [data[3], data[4], data[5], data[6]] for data in pred_traj]
 
         splinex = InterpolatedUnivariateSpline(x, cartx)
         spliney = InterpolatedUnivariateSpline(x, carty)
@@ -54,18 +57,46 @@ class trajectoryResampler():
         qstart = pred_traj[0][3:7]
         qend = pred_traj[-1][3:7]
 
+        slerp = Slerp(x, R.from_quat(q))
+        interp_rots = slerp(xdesired)
+
         interpol_pred_traj = []
         for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n_desired, False)):
             pose = [cartx_new[i], carty_new[i], cartz_new[i], q[1], q[2], q[3], q[0]]
             ynew = pose + [xdesired[i]]
 
-            interpol_pred_traj.append(ynew)
+        for i, data in enumerate(cartx_new):
+            pos = [cartx_new[i], carty_new[i], cartz_new[i]]
+            ori = list(interp_rots[i].as_quat())
+            t = [xdesired[i]]
+            demo = pos + ori + t
+            interpol_pred_traj.append( demo )
 
         return interpol_pred_traj
+    
+    def isStrictlyIncreasing(self, t0, t1):
+        return t1 > t0
 
+    def makeStrictlyIncreasing(self, raw_traj):
+        traj_time = self.parser.get_time_vector_float(raw_traj)
+        res = []
+
+        for i in range(len(traj_time)):
+            try:
+                if self.isStrictlyIncreasing(traj_time[i], traj_time[i+1]):
+                    res.append(raw_traj[i])
+            except IndexError:
+                break
+        
+        return res
+            
     def interpolate_raw_trajectory(self, raw_traj, n):
+
+        raw_traj = self.makeStrictlyIncreasing(raw_traj)
+
         traj_pose = self.parser.getCartesianPositions(raw_traj)
         traj_time = self.parser.get_time_vector_float(raw_traj)
+
         T = self.parser.get_total_time(raw_traj)
 
         object_pose = self.parser.get_object_pose(raw_traj)
@@ -75,6 +106,7 @@ class trajectoryResampler():
         traj_pos_x = (np.asarray(self.parser.getXpositions(traj_pose)).reshape(len(traj_time), 1))
         traj_pos_y = (np.asarray(self.parser.getYpositions(traj_pose)).reshape(len(traj_time), 1))
         traj_pos_z = (np.asarray(self.parser.getZpositions(traj_pose)).reshape(len(traj_time), 1))
+        q = [ [data[3], data[4], data[5], data[6]] for data in raw_traj]
 
         yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
         yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
@@ -86,15 +118,31 @@ class trajectoryResampler():
 
         qstart = raw_traj[0][3:7]
         qend = raw_traj[-1][3:7]
+        
+        # using zip() + all() 
+        # to check for strictly increasing list 
+        res = all(i < j for i, j in zip([round(x,3) for x in traj_time], [round(x,3) for x in traj_time][1:])) 
+
+        # printing result 
+        print ("Is list strictly increasing ? : " + str(res)) 
+
+        slerp = Slerp(traj_time, R.from_quat(q))
+        interp_rots = slerp(xvals)
 
         interpol_traj = []
 
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
-            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-            ynew = pos + object_pose + [xvals[i]]
-
-            interpol_traj.append(ynew)
-
+        for i, data in enumerate(y_new_x[0]):
+            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i]]
+            ori = list(interp_rots[i].as_quat()) 
+            t = [xvals[i]]
+            demo = pos + ori + object_pose + t
+            # print(pos)
+            # print(ori)
+            # print(t)
+            # print()
+            # print(demo)
+            # print()
+            interpol_traj.append( demo )
 
         return interpol_traj
 
@@ -110,6 +158,7 @@ class trajectoryResampler():
         traj_pos_x = (np.asarray(self.parser.getXpositions(traj_pos)).reshape(len(traj_time), 1))
         traj_pos_y = (np.asarray(self.parser.getYpositions(traj_pos)).reshape(len(traj_time), 1))
         traj_pos_z = (np.asarray(self.parser.getZpositions(traj_pos)).reshape(len(traj_time), 1))
+        q = [ [data[3], data[4], data[5], data[6]] for data in traj]
 
         yinterp_x = interp1d((traj_time), np.transpose(traj_pos_x), axis=1, fill_value="extrapolate")
         yinterp_y = interp1d((traj_time), np.transpose(traj_pos_y), axis=1, fill_value="extrapolate")
@@ -121,14 +170,18 @@ class trajectoryResampler():
 
         qstart = traj[0][3:7]
         qend = traj[-1][3:7]
-
+        
+        slerp = Slerp(traj_time, R.from_quat(q))
+        interp_rots = slerp(xvals)
+        
         interpol_traj = []
-
-        for i,q in enumerate(self.interpolate_quaternions(qstart, qend, n, False)):
-            pose = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i], q[1], q[2], q[3], q[0]]
-            ynew = pose + [xvals[i]]
-            interpol_traj.append(ynew)
-
+        
+        for i, data in enumerate(y_new_x[0]):
+            pos = [y_new_x[0][i], y_new_y[0][i], y_new_z[0][i]]
+            ori = list(interp_rots[i].as_quat())
+            t = [xvals[i]]
+            demo = pos + ori + t
+            interpol_traj.append( demo )
 
         return interpol_traj
 

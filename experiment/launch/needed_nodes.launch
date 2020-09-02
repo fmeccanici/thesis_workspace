@@ -3,7 +3,7 @@
     <arg name="method" default="online+pendant"/>
 
     <include file="$(find learning_from_demonstration)/launch/learning_from_demonstration.launch">
-        <arg name="raw_folder" value="dishwasher_move_tigher_around_basket"/>
+        <arg name="raw_folder" value="dishwasher_move_tigher_around_basket3"/>
         <!-- <arg name="raw_folder" value="complete_model_situation3"/> -->
     </include>
 
@@ -14,7 +14,7 @@
     if="$(eval method == 'online+omni')"/> 
     
     <include file="$(find teleop_control)/launch/keyboard_control.launch" 
-    if="$(eval method == 'online+pendant')"/>
+    if="$(eval method == 'online+pendant' or method == 'online+omni')"/>
 
     <include file="$(find teach_pendant)/launch/teach_pendant.launch" 
     if="$(eval method == 'offline+pendant')"/>
@@ -24,7 +24,9 @@
 
     <group if="$(eval method == 'offline+omni')">
         <include file="$(find teleop_control)/launch/teleop_control.launch">
-            <arg name="part_to_publish" value="none"/>    
+        </include>
+        <include file="$(find learning_from_demonstration)/launch/trajectory_teaching.launch">
+            <arg name="is_experiment" value="1"/>    
         </include>
     </group>
 

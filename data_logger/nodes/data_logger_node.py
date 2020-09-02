@@ -41,10 +41,13 @@ class DataLoggerNode(object):
         number = req.number.data
         age = req.age.data
         gender = req.gender.data
+        teleop_experience = req.teleop_experience.data
+        keyboard_experience = req.keyboard_experience.data
+        left_right_handed = req.left_right_handed.data
 
         num_objects = 3
 
-        self.participant_data = ParticipantData(number, gender, age, num_objects)
+        self.participant_data = ParticipantData(number, gender, age, teleop_experience, keyboard_experience, left_right_handed, num_objects)
         self.data[number] = copy.deepcopy(self.participant_data)
 
         resp = CreateParticipantResponse()
@@ -57,12 +60,15 @@ class DataLoggerNode(object):
         object_position = req.object_position.data
         trial = req.trial.data
         method = req.method.data
+        model = req.model.data
 
         self.data[number].setMethod(method)
         self.data[number].setTrial(trial)
         self.data[number].setObjectPosition(object_position)
+        self.data[number].setModel(model)
 
         rospy.loginfo("Data logger parameters set to: ")
+        rospy.loginfo("model " + str(model))
         rospy.loginfo("method " + str(method))
         rospy.loginfo("object position " + str(object_position))
         rospy.loginfo("trial " + str(trial))

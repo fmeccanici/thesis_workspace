@@ -16,6 +16,8 @@ from geometry_msgs.msg import Point
 import matplotlib.pyplot as plt
 from math import floor
 
+from contact_sensor.msg import GripperCollision
+
 class ExecutionFailureNode(object):
     def __init__(self, model_path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/execution_failure_detection/models/'):
         rospy.init_node('execution_failure_detection_node')
@@ -56,6 +58,12 @@ class ExecutionFailureNode(object):
         self.expected_object_pose = Pose()
         self.execution_failure_pub = rospy.Publisher('execution_failure', ExecutionFailure, queue_size=10)
 
+        self.gripper_collision_msg = GripperCollision()
+
+        self.gripper_collision_sub = rospy.Subscriber('gripper_collision', GripperCollision, self._gripperCollisionCallback)
+
+    def _gripperCollisionCallback(self, data):
+        self.gripper_collision_msg = data
 
     def _endEffectorPoseCallback(self, data):
         self.ee_pose = data.pose
@@ -123,6 +131,7 @@ class ExecutionFailureNode(object):
 
     def isObstacleHit(self):
 
+        """
         number_of_evaluations = 5
         
         for i in range(number_of_evaluations):
@@ -197,8 +206,13 @@ class ExecutionFailureNode(object):
                 except Exception as e:
                     print(e)
                     continue
-        
-        return False
+        """
+        if self.gripper_collision_msg.collision.data:
+            self.broadcaster.sendTransform((self.gripper_collision_msg.position.x, self.gripper_collision_msg.position.y, self.gripper_collision_msg.position.z),
+                                    (0, 0, 0, 1),
+                                    rospy.Time.now(), "collision", "base_footprint")
+                                    
+        return self.gripper_collision_msg.collision.data
     
     def isObjectKickedOver(self):
         threshold = 0.15
@@ -289,7 +303,7 @@ class ExecutionFailureNode(object):
                 self.collision_ellipsoid_size_y = size_wrt_base[1]
                 self.collision_ellipsoid_size_z = size_wrt_base[2] # 0.1 is best
                 
-                size_wrt_base = [0.15, 0.2, 0.1]
+                size_wrt_base = [0.1, 0.13, 0.1]
 
                 self.reaching_ellipsoid_size_x = size_wrt_base[0]
                 self.reaching_ellipsoid_size_y = size_wrt_base[1]

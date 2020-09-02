@@ -3,6 +3,8 @@
 import rospy, os, sys, csv, rospkg, ast
 from data_logger_python.data_logger_python import ParticipantData
 from experiment_variables.experiment_variables import ExperimentVariables
+from traffic_light.traffic_light import TrafficLight
+from traffic_light.traffic_light_updater import TrafficLightUpdater
 
 # import Qt stuff
 from PyQt5.QtWidgets import *
@@ -17,6 +19,19 @@ from data_logger.srv import (CreateParticipant, CreateParticipantResponse, AddRe
 from std_msgs.msg import UInt32, Bool, Byte, String
 from data_logger.msg import OperatorGUIinteraction
 from experiment.srv import SetText, SetTextResponse
+
+class TrafficLightThread(QThread):
+    lightSignal = pyqtSignal(str)
+    def __init__(self, parent=None):
+        super(TrafficLightThread, self).__init__(parent=parent)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
+        self.text_file = self.text_path + 'light.txt'
+
+    def run(self):
+        while True:
+            with open(self.text_file, 'r') as f:
+                self.lightSignal.emit(f.read())
+                self.sleep(1)
 
 class TextThread(QThread):
     textSignal = pyqtSignal(str)
@@ -105,7 +120,7 @@ class ImageWidget(QWidget):
         elif self.method == 'offline+pendant':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_offline.png')
 
-        pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
+        pixmap = pixmap.scaled(700, 700, Qt.KeepAspectRatio)
 
         label.setPixmap(pixmap)
         self.resize(pixmap.width(),pixmap.height())
@@ -142,6 +157,10 @@ class OperatorGUI(QMainWindow):
         self.number_of_refinements_thread.number_of_refinements_signal.connect(self.updateNumberOfRefinements)
         self.number_of_refinements_thread.start()
 
+        self.traffic_light_thread = TrafficLightThread(self)
+        self.traffic_light_thread.lightSignal.connect(self.updateLight)
+        self.traffic_light_thread.start()
+
         self.experiment_variables = ExperimentVariables()
         
         self.method = rospy.get_param('~method')
@@ -155,107 +174,68 @@ class OperatorGUI(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(10, 0, 1071, 701))
+        self.groupBox.setGeometry(QRect(10, 0, 1071, 621))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(10, 830, 251, 151))
+        self.groupBox_2.setGeometry(QRect(10, 850, 251, 101))
         self.groupBox_2.setObjectName("groupBox_2")
-        self.buttonBox = QDialogButtonBox(self.groupBox_2)
-        self.buttonBox.setGeometry(QRect(10, 110, 176, 27))
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
-        self.label = QLabel(self.groupBox_2)
-        self.label.setGeometry(QRect(10, 80, 67, 17))
-        self.label.setObjectName("label")
-        self.label_2 = QLabel(self.groupBox_2)
-        self.label_2.setGeometry(QRect(10, 50, 67, 17))
-        self.label_2.setObjectName("label_2")
         self.label_3 = QLabel(self.groupBox_2)
         self.label_3.setGeometry(QRect(10, 20, 67, 17))
         self.label_3.setObjectName("label_3")
         self.lineEdit = QLineEdit(self.groupBox_2)
         self.lineEdit.setGeometry(QRect(80, 20, 113, 27))
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit_3 = QLineEdit(self.groupBox_2)
-        self.lineEdit_3.setGeometry(QRect(80, 80, 113, 27))
-        self.lineEdit_3.setObjectName("lineEdit_3")
-        self.radioButton = QRadioButton(self.groupBox_2)
-        self.radioButton.setGeometry(QRect(80, 50, 117, 22))
-        self.radioButton.setObjectName("radioButton")
-        self.radioButton_2 = QRadioButton(self.groupBox_2)
-        self.radioButton_2.setGeometry(QRect(160, 50, 117, 22))
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.frame = QFrame(self.groupBox_2)
-        self.frame.setGeometry(QRect(0, 0, 251, 151))
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.frame.raise_()
-        self.buttonBox.raise_()
-        self.label.raise_()
-        self.label_2.raise_()
-        self.label_3.raise_()
-        self.lineEdit.raise_()
-        self.lineEdit_3.raise_()
-        self.radioButton.raise_()
-        self.radioButton_2.raise_()
+        self.pushButton = QPushButton(self.groupBox_2)
+        self.pushButton.setGeometry(QRect(10, 50, 181, 41))
+        self.pushButton.setObjectName("pushButton")
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1355, 675, 500, 450))
+        self.groupBox_3.setGeometry(QRect(1100, 600, 700, 450))
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
-
-        if self.method == 'online+pendant':
-            self.pushButton = QPushButton(self.centralwidget)
-            self.pushButton.setGeometry(QRect(520, 850, 271, 101))
-            font = QFont()
-            font.setPointSize(40)
-            self.pushButton.setFont(font)
-            self.pushButton.setObjectName("pushButton")
-            self.pushButton_2 = QPushButton(self.centralwidget)
-            self.pushButton_2.setGeometry(QRect(810, 850, 271, 101))
-            font = QFont()
-            font.setPointSize(40)
-            self.pushButton_2.setFont(font)
-            self.pushButton_2.setObjectName("pushButton_2")
-
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
-        self.plainTextEdit.setGeometry(QRect(20, 730, 1061, 81))
+        self.plainTextEdit.setGeometry(QRect(20, 620, 1061, 151))
         font = QFont()
         font.setPointSize(40)
         self.plainTextEdit.setFont(font)
         self.plainTextEdit.setObjectName("plainTextEdit")
         self.groupBox_4 = QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QRect(1090, 730, 291, 281))
-        self.groupBox_4.setTitle("")
+        self.groupBox_4.setGeometry(QRect(330, 780, 441, 171))
+        font = QFont()
+        font.setPointSize(22)
+        self.groupBox_4.setFont(font)
         self.groupBox_4.setObjectName("groupBox_4")
         self.checkBox = QCheckBox(self.groupBox_4)
-        self.checkBox.setGeometry(QRect(20, 10, 201, 31))
+        self.checkBox.setGeometry(QRect(40, 40, 221, 31))
         font = QFont()
         font.setPointSize(20)
         self.checkBox.setFont(font)
         self.checkBox.setObjectName("checkBox")
         self.checkBox_2 = QCheckBox(self.groupBox_4)
-        self.checkBox_2.setGeometry(QRect(20, 60, 261, 41))
+        self.checkBox_2.setGeometry(QRect(40, 80, 311, 41))
         font = QFont()
         font.setPointSize(20)
         self.checkBox_2.setFont(font)
         self.checkBox_2.setObjectName("checkBox_2")
         self.checkBox_3 = QCheckBox(self.groupBox_4)
-        self.checkBox_3.setGeometry(QRect(20, 120, 261, 41))
+        self.checkBox_3.setGeometry(QRect(40, 130, 261, 41))
         font = QFont()
         font.setPointSize(20)
         self.checkBox_3.setFont(font)
         self.checkBox_3.setObjectName("checkBox_3")
-        self.lineEdit_2 = QLineEdit(self.groupBox_4)
-        self.lineEdit_2.setGeometry(QRect(0, 180, 291, 61))
+        self.groupBox_6 = QGroupBox(self.centralwidget)
+        self.groupBox_6.setGeometry(QRect(1075, 0, 671, 621))
+        self.groupBox_6.setTitle("")
+        self.groupBox_6.setObjectName("groupBox_6")
+        self.lineEdit_2 = QLineEdit(self.centralwidget)
+        self.lineEdit_2.setGeometry(QRect(20, 780, 291, 61))
         font = QFont()
         font.setPointSize(21)
         self.lineEdit_2.setFont(font)
         self.lineEdit_2.setObjectName("lineEdit_2")
-        self.groupBox_6 = QGroupBox(self.centralwidget)
-        self.groupBox_6.setGeometry(QRect(1075, 0, 671, 701))
-        self.groupBox_6.setTitle("")
-        self.groupBox_6.setObjectName("groupBox_6")
+        self.groupBox_5 = QGroupBox(self.centralwidget)
+        self.groupBox_5.setGeometry(QRect(1770, 0, 151, 621))
+        self.groupBox_5.setTitle("")
+        self.groupBox_5.setObjectName("groupBox_5")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1820, 25))
@@ -278,6 +258,7 @@ class OperatorGUI(QMainWindow):
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout2 = QHBoxLayout()
         self.horizontalLayout3 = QHBoxLayout()
+        self.verticalLayout = QVBoxLayout()
 
         self.groupBox.setLayout(self.horizontalLayout)
         self.groupBox_6.setLayout(self.horizontalLayout3)
@@ -288,41 +269,34 @@ class OperatorGUI(QMainWindow):
         self.groupBox_3.setLayout(self.horizontalLayout2)
         
         self.horizontalLayout2.addWidget(self.image_widget)
+
+        self.traffic_light_widget = TrafficLight()
+        self.groupBox_5.setLayout(self.verticalLayout)
+        self.verticalLayout.addWidget(self.traffic_light_widget)
+        
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
-        self.groupBox_2.setTitle(_translate("MainWindow", "Form"))
-        self.label.setText(_translate("MainWindow", "Age"))
-        self.label_2.setText(_translate("MainWindow", "Sex"))
+        self.groupBox_2.setTitle(_translate("MainWindow", ""))
         self.label_3.setText(_translate("MainWindow", "Number"))
-        self.radioButton.setText(_translate("MainWindow", "Ma&le"))
-        self.radioButton_2.setText(_translate("MainWindow", "Female"))
-
-        if self.method == 'online+pendant':
-            self.pushButton.setText(_translate("MainWindow", "Red"))
-            self.pushButton_2.setText(_translate("MainWindow", "Green"))
-        
+        self.pushButton.setText(_translate("MainWindow", "START EXPERIMENT"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
-        self.checkBox.setText(_translate("MainWindow", "Within reach"))
-        self.checkBox_2.setText(_translate("MainWindow", "Not kicked over"))
+        self.groupBox_4.setTitle(_translate("MainWindow", "Success?"))
+        self.checkBox.setText(_translate("MainWindow", "Object reached"))
+        self.checkBox_2.setText(_translate("MainWindow", "Object not kicked over"))
         self.checkBox_3.setText(_translate("MainWindow", "No collision"))
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
 
-        if self.method == 'online+pendant':
-            self.pushButton.setStyleSheet("background-color: red; font: bold 40px; color: black")
-            self.pushButton_2.setStyleSheet("background-color: green; font: bold 40px; color: black")
+        self.pushButton.clicked.connect(self.onStartExperimentClick)
 
-        self.buttonBox.accepted.connect(self.on_ok_click)
-        self.radioButton.setChecked(1)
+    def onStartExperimentClick(self):
+        participant_number_msg = Byte(int(self.lineEdit.text()))
 
-        
-        if self.method == 'online+pendant':
-            self.pushButton.clicked.connect(self.onRedClick)
-            self.pushButton_2.clicked.connect(self.onGreenClick)
-        
+        self._operator_gui_interaction_pub.publish(participant_number_msg)
+
     def updateObjectMissed(self, object_missed):
         if not object_missed:
             self.checkBox.setChecked(1)
@@ -347,31 +321,8 @@ class OperatorGUI(QMainWindow):
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)
 
-    def onRedClick(self):
-        operator_gui_interaction = OperatorGUIinteraction()
-        operator_gui_interaction.refine_prediction = Bool(1)
-        operator_gui_interaction.refine_refinement = Bool(0)
-
-        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
-
-    def onGreenClick(self):
-        operator_gui_interaction = OperatorGUIinteraction()
-        operator_gui_interaction.refine_prediction = Bool(0)
-        operator_gui_interaction.refine_refinement = Bool(1)
-
-        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
-
-    def on_ok_click(self):
-        operator_gui_interaction = OperatorGUIinteraction()
-        operator_gui_interaction.number = Byte(int(self.lineEdit.text()))
-        operator_gui_interaction.age = Byte(int(self.lineEdit_3.text()))
-        if self.radioButton.isChecked():
-            gender = 1
-        else:
-            gender = 0
-        operator_gui_interaction.gender = Bool(gender)
-
-        self._operator_gui_interaction_pub.publish(operator_gui_interaction)
+    def updateLight(self, light):
+        self.traffic_light_widget.set_color(light)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

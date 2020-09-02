@@ -8,6 +8,11 @@
     message_generation
   )
 
+  add_message_files(
+    FILES
+    FormGUIinteraction.msg
+  )
+
   add_service_files(
     FILES
     SetText.srv
