@@ -60,29 +60,34 @@ class DataAnalysis(object):
         
     def parseDataAfterExperiment(self, participant_number):
         for i, method_str in enumerate(self.methods_labels):
-            path = self.data_path + "participant_" + str(participant_number) + "/after_experiment/"
-            path += method_str + "/data.txt" 
+            for j in range(1, self.num_models + 1):
+                path = self.data_path + "participant_" + str(participant_number) + "/after_experiment/"
+                path += method_str + "/model_" + str(j) + "/data.txt" 
+                try:
 
-            with open(path, "r") as infile:
-                outfile = ast.literal_eval(infile.read())
-                data_after_experiment = outfile
+                    with open(path, "r") as infile:
+                        outfile = ast.literal_eval(infile.read())
+                        data_after_experiment = outfile
 
-                for position in range(1,self.num_object_positions+1):
-                    success = 0
-                    object_missed = 0
-                    obstacle_hit = 0
-                    object_kicked_over = 0
+                        for position in range(1,self.num_object_positions+1):
+                            success = 0
+                            object_missed = 0
+                            obstacle_hit = 0
+                            object_kicked_over = 0
 
-                    for trial in range(1,self.num_trials+1):
-                        success += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
-                        object_missed += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
-                        obstacle_hit += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
-                        object_kicked_over += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
-                    
-                    self.success_after_experiment_data[i+1][position].append(success)
-                    self.object_missed_after_experiment_data[i+1][position].append(object_missed)
-                    self.object_kicked_over_after_experiment_data[i+1][position].append(object_kicked_over)
-                    self.obstacle_hit_after_experiment_data[i+1][position].append(obstacle_hit)
+                            for trial in range(1,self.num_trials+1):
+                                success += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
+                                object_missed += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
+                                obstacle_hit += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
+                                object_kicked_over += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
+                            
+                        self.success_after_experiment_data[i+1][position].append(success)
+                        self.object_missed_after_experiment_data[i+1][position].append(object_missed)
+                        self.object_kicked_over_after_experiment_data[i+1][position].append(object_kicked_over)
+                        self.obstacle_hit_after_experiment_data[i+1][position].append(obstacle_hit)
+                except FileNotFoundError:
+                    print("Error loading data for method " + method_str)
+                    continue
 
     def parseDataExperiment(self, participant_number):
         for method in range(1,self.num_methods + 1):
@@ -532,74 +537,79 @@ class DataAnalysis(object):
         plt.figure()
 
     def plotExperimentData(self, *args, **kwargs):
+        success_list = []
+        object_missed_list = []
+        obstacle_hit_list = []
+        object_kicked_over_list = []
 
-        if "participant_number" in kwargs:
-            participant_number = kwargs["participant_number"]
-            path = self.data_path + "participant_" + str(participant_number) + '/after_experiment/' + str(method) + '/data.txt'
-        else:
-            path = self.data_path + 'before_experiment/dishwasher2/data.txt'
-
-        object_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
-        
-        with open(path, "r") as infile:
-            outfile = ast.literal_eval(infile.read())
-            data_before_experiment = outfile
-
-            success_list = []
-            object_missed_list = []
-            obstacle_hit_list = []
-            object_kicked_over_list = []
-
-            for position in range(1,self.num_object_positions+1):
-                success = 0
-                object_missed = 0
-                obstacle_hit = 0
-                object_kicked_over = 0
-
-                for trial in range(1,self.num_trials+1):
-                    success += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
-                    object_missed += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
-                    obstacle_hit += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
-                    object_kicked_over += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
-                
-                success_list.append(success)
-                object_missed_list.append(object_missed)
-                obstacle_hit_list.append(obstacle_hit)
-                object_kicked_over_list.append(object_kicked_over)
-            
-            fig = plt.figure()
-            
+        for model in range(1, self.num_models+1):
             if "participant_number" in kwargs:
-                fig.suptitle("Model after experiment")
+                participant_number = kwargs["participant_number"]
+                path = self.data_path + "participant_" + str(participant_number) + '/after_experiment/' + str(method) + "/"
+                path += "model_" + str(model) + "/data.txt"
+
             else:
-                fig.suptitle("Initial model")
+                path = self.data_path + 'before_experiment/dishwasher2/data.txt'
+     
+            success = 0
+            object_missed = 0
+            obstacle_hit = 0
+            object_kicked_over = 0
 
-            plt.subplot(1,4,1)
-            plt.bar(object_labels, np.asarray(success_list)/self.num_trials*100)
-            plt.xlabel("Object position [-]")
-            plt.ylabel("Success [True/False]")
-            plt.ylim([0,100])
+            with open(path, "r") as infile:
+                print("Opened " + str(path))
+                outfile = ast.literal_eval(infile.read())
+                data_before_experiment = outfile
 
-            plt.subplot(1,4,2)
-            plt.bar(object_labels, np.asarray(object_missed_list)/self.num_trials * 100)
-            plt.xlabel("Object position [-]")
-            plt.ylabel("Object missed [True/False]")
-            plt.ylim([0,100])
+                for position in range(1,self.num_object_positions+1):
 
-            plt.subplot(1,4,3)
-            plt.bar(object_labels, np.asarray(obstacle_hit_list)/self.num_trials * 100)
-            plt.xlabel("Object position [-]")
-            plt.ylabel("Obstacle hit [True/False]")
-            plt.ylim([0,100])
+                    for trial in range(1,self.num_trials+1):
+                        success += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
+                        object_missed += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
+                        obstacle_hit += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
+                        object_kicked_over += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
+                            
 
-            plt.subplot(1,4,4)
-            plt.bar(object_labels, np.asarray(object_kicked_over_list)/self.num_trials * 100)
-            plt.xlabel("Object position [-]")
-            plt.ylabel("Object kicked over [True/False]")
-            plt.ylim([0,100])
 
-            plt.tight_layout()
-            fig.subplots_adjust(top=0.88)
+            success_list.append(success)
+            object_missed_list.append(object_missed)
+            obstacle_hit_list.append(obstacle_hit)
+            object_kicked_over_list.append(object_kicked_over)
+        
+        fig = plt.figure()
+        
+        if "participant_number" in kwargs:
+            fig.suptitle("Model after experiment")
+        else:
+            fig.suptitle("Initial model")
+
+        print(success_list)
+        plt.subplot(1,4,1)
+        plt.bar(self.models_labels, np.asarray(success_list)/(self.num_trials * self.num_object_positions) *100)
+        plt.xlabel("Object position [-]")
+        plt.ylabel("Success [True/False]")
+        plt.ylim([0,100])
+
+        plt.subplot(1,4,2)
+        plt.bar(self.models_labels, np.asarray(object_missed_list)/(self.num_trials * self.num_object_positions) * 100)
+        plt.xlabel("Object position [-]")
+        plt.ylabel("Object missed [True/False]")
+        plt.ylim([0,100])
+
+        plt.subplot(1,4,3)
+        plt.bar(self.models_labels, np.asarray(obstacle_hit_list)/(self.num_trials * self.num_object_positions) * 100)
+        plt.xlabel("Object position [-]")
+        plt.ylabel("Obstacle hit [True/False]")
+        plt.ylim([0,100])
+
+        plt.subplot(1,4,4)
+        plt.bar(self.models_labels, np.asarray(object_kicked_over_list)/(self.num_trials * self.num_object_positions) * 100)
+        plt.xlabel("Object position [-]")
+        plt.ylabel("Object kicked over [True/False]")
+        plt.ylim([0,100])
+
+        plt.tight_layout()
+        fig.subplots_adjust(top=0.88)
 
         if "participant_number" in kwargs:
             path = self.figures_path + "participant_" + str(participant_number) + "/after_experiment/" + str(method) + "/"
@@ -918,15 +928,17 @@ if __name__ == "__main__":
         
         elif what_to_plot == 'after':
             for method in data_analysis.experiment_variables.method_mapping_str_to_number:
+                
                 try:
                     data_analysis.plotExperimentData(participant_number = number, method = method)   
-                except Exception:
-                    print('Data for method ' + str(method) + ' not found')
+                except FileNotFoundError as e:
+                    print('Data for method ' + str(method) + ' not found: ' + str(e))
                     continue 
+                
                 print('Data for method ' + str(method) + ' plotted')
 
         elif what_to_plot == 'before':
             data_analysis.plotExperimentData()
             print('Figures before experiment stored')
         
-    data_analysis.generateBoxPlots()
+    # data_analysis.generateBoxPlots()
