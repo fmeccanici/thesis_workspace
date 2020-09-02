@@ -3,7 +3,7 @@
     <arg name="method" default="online+pendant"/>
 
     <include file="$(find learning_from_demonstration)/launch/learning_from_demonstration.launch">
-        <arg name="raw_folder" value="dishwasher_move_tigher_around_basket2"/>
+        <arg name="raw_folder" value="dishwasher_move_tigher_around_basket3"/>
         <!-- <arg name="raw_folder" value="complete_model_situation3"/> -->
     </include>
 

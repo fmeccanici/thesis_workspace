@@ -1220,7 +1220,7 @@ class ExperimentNode(object):
             # last object position reached
             if self.current_object_position >= self.num_object_positions:
                 
-                if not self.current_model = self.num_models:
+                if not self.current_model == self.num_models:
                     # build initial model again 
                     try:
                         rospy.wait_for_service('build_initial_model', timeout=2.0)

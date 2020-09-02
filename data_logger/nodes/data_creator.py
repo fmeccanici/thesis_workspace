@@ -13,7 +13,7 @@ from trajectory_visualizer.msg import TrajectoryVisualization
 from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 
-from learning_from_demonstration.srv import WelfordUpdate, AddDemonstration
+from learning_from_demonstration.srv import WelfordUpdate, AddDemonstration, BuildInitialModel
 from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
 import numpy as np
 import random
@@ -31,6 +31,7 @@ class DataCreator(object):
         self.num_trials = self.experiment_variables.num_trials
         self.num_methods = self.experiment_variables.num_methods
         self.object_positions = self.experiment_variables.object_positions
+        self.num_models = self.experiment_variables.num_models
 
         self.methods = {}
         self.parser = trajectoryParser()
@@ -451,16 +452,16 @@ class DataCreator(object):
 
         return trajectory_list
 
-    def getTrajectory(self, which, participant_number, method, object_position, trial):
+    def getTrajectory(self, which, participant_number, method, model, object_position, trial):
 
         if which == 'refinement':
             trajectory = 'refined_trajectory'
         elif which == 'prediction':
             trajectory == 'predicted_trajectory'
 
-        traj_wrt_base = copy.deepcopy(self.methods[method]['object_position'][object_position]['trial'][trial][trajectory])
+        traj_wrt_base = copy.deepcopy(self.methods[method]['model'][model]['object_position'][object_position]['trial'][trial][trajectory])
         traj_wrt_base = self.dictToList(traj_wrt_base)
-        context = copy.deepcopy(self.methods[method]['object_position'][object_position]['trial'][trial]['context'])
+        context = copy.deepcopy(self.methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['context'])
         
         r_object_wrt_ee = [context[0] / 10, context[1] / 10, context[2] / 10] 
         
@@ -516,7 +517,7 @@ class DataCreator(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)  
 
-    def visualizeExperimentData(self, participant_number, method):
+    def visualizeExperimentData(self, participant_number, method, model):
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number)+ '/')
         self.loadData()
         
@@ -527,9 +528,9 @@ class DataCreator(object):
                 # get trajectory wrt context
                 try:
                     # trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, object_position, trial)
-                    traj_wrt_base = self.methods[method]['object_position'][object_position]['trial'][trial]['refined_trajectory']
+                    traj_wrt_base = self.methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['refined_trajectory']
                     traj_wrt_base = self.dictToList(traj_wrt_base)
-                    context = self.methods[method]['object_position'][object_position]['trial'][trial]['context']
+                    context = self.methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['context']
                     
                     # print("context = " + str(context))                    
 
@@ -552,14 +553,14 @@ class DataCreator(object):
                 except KeyError:
                     continue
     
-    def createDataAfterExperiment(self, participant_number, method):
+    def createDataAfterExperiment(self, participant_number, method, model):
         # voor elke trial moet ik de refined trajectory uitlezen samen met de bijbehorende context
         # dan update ik het model met deze context en trajectory
 
         self.setPath('/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number)+ '/')
 
         self.loadData()
-        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number) + '/after_experiment/' + str(self.experiment_variables.method_mapping_number_to_str[method]) + '/'
+        path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/participant_' + str(participant_number) + '/after_experiment/' + str(self.experiment_variables.method_mapping_number_to_str[method]) + '/model_' + str(model) + '/'
         
         if not os.path.exists(path):
             os.makedirs(path)
@@ -572,7 +573,7 @@ class DataCreator(object):
                 
                 # get trajectory wrt context
                 try:
-                    trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, object_position, trial)
+                    trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, model, object_position, trial)
                     file_name = 'traj_for_learning_' + str(trial) + '.txt'
 
                     with open(self.debug_path + file_name, 'w+') as f:
@@ -607,11 +608,11 @@ class DataCreator(object):
 
                 # wait until arm is not in the way of the object
                 self.setDishwasherPosition(before_or_after='after')
-                time.sleep(2)
+                time.sleep(5)
 
                 self.setObjectPosition('after')
                 
-                time.sleep(2)
+                time.sleep(5)
 
                 # get new context
                 self.getContext()
@@ -685,14 +686,22 @@ class DataCreator(object):
         visualize = bool(rospy.get_param('~visualize'))
         before_or_after_experiment = rospy.get_param('~before_or_after')
         
-        if before_or_after_experiment == 'before':
-            self.createDataBeforeExperiment()        
-        elif before_or_after_experiment == 'after' and visualize == True:
-            self.visualizeExperimentData(participant_number, method)
-            self.createDataAfterExperiment(participant_number, method)
-        elif before_or_after_experiment == 'after' and visualize == False:
-            self.createDataAfterExperiment(participant_number, method)
-
+        for model in range(1, self.num_models+1):
+            if before_or_after_experiment == 'before':
+                self.createDataBeforeExperiment()        
+            elif before_or_after_experiment == 'after' and visualize == True:
+                self.visualizeExperimentData(participant_number, method, model)
+                self.createDataAfterExperiment(participant_number, method, model)
+            elif before_or_after_experiment == 'after' and visualize == False:
+                self.createDataAfterExperiment(participant_number, method, model)
+            
+            try:
+                rospy.wait_for_service('build_initial_model', timeout=2.0)
+                build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                build_init_model()
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+                
 if __name__ == "__main__":
     data_creator = DataCreator()
     data_creator.run()

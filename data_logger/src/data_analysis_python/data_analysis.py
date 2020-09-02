@@ -19,7 +19,6 @@ class DataAnalysis(object):
         self.num_trials = self.experiment_variables.num_trials
 
         self.methods_labels = ['online+omni', 'offline+omni', 'online+pendant', 'offline+pendant']
-        self.models_labels = [ str(int(x)) for x in range(1, self.num_object_positions+1) ]
         self.models_labels = [ str(int(x)) for x in range(1, self.num_models+1) ]
 
         self.method_mapping = self.experiment_variables.method_mapping_str_to_number
@@ -267,8 +266,6 @@ class DataAnalysis(object):
 
             object_missed_per_model.append(object_missed)
         
-        # print(object_missed_per_model)
-
         return object_missed_per_model
 
     def getNumberOfObjectKickedOver(self, refinement_or_prediction, participant_number, method):
@@ -324,7 +321,6 @@ class DataAnalysis(object):
             
             obstacle_hit_per_model.append(obstacle_hit)
         
-        # print(obstacle_hit_per_model)
         return obstacle_hit_per_model
 
     def getNumberOfUpdates(self, participant_number, method):
