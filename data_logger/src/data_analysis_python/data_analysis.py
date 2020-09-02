@@ -91,49 +91,50 @@ class DataAnalysis(object):
 
     def parseDataExperiment(self, participant_number):
         for method in range(1,self.num_methods + 1):
-            time_per_object = self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]
-            number_of_refinements_per_object = self.getNumberOfRefinements(self.data[participant_number].getNumber(), method)
+            time_per_model = self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]
+            
+            number_of_refinements_per_model = self.getNumberOfRefinements(self.data[participant_number].getNumber(), method)
             
             number_of_refinements = np.asarray(self.getNumberOfRefinements(self.data[participant_number].getNumber(), method))
             time = np.asarray(self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1])
 
-            time_per_refinement_per_object = time / number_of_refinements 
-            correct_predictions_per_object = np.asarray(self.getSuccessfulTrials('prediction', self.data[participant_number].getNumber(), method))
-            correct_refinements_per_object = np.asarray(self.getSuccessfulTrials('refinement', self.data[participant_number].getNumber(), method))            
+            time_per_refinement_per_model = time / number_of_refinements 
+            correct_predictions_per_model = np.asarray(self.getSuccessfulTrials('prediction', self.data[participant_number].getNumber(), method))
+            correct_refinements_per_model = np.asarray(self.getSuccessfulTrials('refinement', self.data[participant_number].getNumber(), method))            
 
-            time_per_correct_prediction = time / correct_predictions_per_object
-            time_per_correct_refinement = time / correct_refinements_per_object
+            time_per_correct_prediction = time / correct_predictions_per_model
+            time_per_correct_refinement = time / correct_refinements_per_model
 
-            correct_predictions_per_object = correct_predictions_per_object
-            correct_refinements_per_object = correct_refinements_per_object
+            correct_predictions_per_model = correct_predictions_per_model
+            correct_refinements_per_model = correct_refinements_per_model
 
             teleop_experience = self.data[participant_number].getTeleopExperience()
             keyboard_experience = self.data[participant_number].getKeyboardExperience()
             age = self.data[participant_number].getAge()
 
-            for obj in range(1, self.num_object_positions + 1):
-                self.refinement_time_data[method][obj].append(time_per_object[obj-1])
-                self.number_of_refinements_data[method][obj].append(number_of_refinements_per_object[obj-1])
+            for model in range(1, self.num_models + 1):
+                self.refinement_time_data[method][model].append(time_per_model[model-1])
+                self.number_of_refinements_data[method][model].append(number_of_refinements_per_model[model-1])
 
-                if number_of_refinements[obj-1] != 0:
-                    self.time_per_refinement_data[method][obj].append(time_per_refinement_per_object[obj-1])
+                if number_of_refinements[model-1] != 0:
+                    self.time_per_refinement_data[method][model].append(time_per_refinement_per_model[model-1])
                 else: 
-                    self.time_per_refinement_data[method][obj].append(0.0)
+                    self.time_per_refinement_data[method][model].append(0.0)
 
-                self.correct_predictions_data[method][obj].append(correct_predictions_per_object[obj-1])
-                self.correct_refinements_data[method][obj].append(correct_refinements_per_object[obj-1])
+                self.correct_predictions_data[method][model].append(correct_predictions_per_model[model-1])
+                self.correct_refinements_data[method][model].append(correct_refinements_per_model[model-1])
                 
-                if correct_predictions_per_object[obj-1] != 0:
-                    self.time_per_correct_prediction_data[method][obj].append(time_per_correct_prediction[obj-1])
+                if correct_predictions_per_model[model-1] != 0:
+                    self.time_per_correct_prediction_data[method][model].append(time_per_correct_prediction[model-1])
                 else:
-                    self.time_per_correct_prediction_data[method][obj].append(0.0)
+                    self.time_per_correct_prediction_data[method][model].append(0.0)
 
-                if correct_refinements_per_object[obj-1] != 0:
-                    self.time_per_correct_refinement_data[method][obj].append(time_per_correct_refinement[obj-1])
+                if correct_refinements_per_model[model-1] != 0:
+                    self.time_per_correct_refinement_data[method][model].append(time_per_correct_refinement[model-1])
                 else:
-                    self.time_per_correct_refinement_data[method][obj].append(0.0)
+                    self.time_per_correct_refinement_data[method][model].append(0.0)
 
-                self.time_data[method][obj].append(time[obj-1])
+                self.time_data[method][model].append(time[model-1])
 
             self.teleop_experience_data.append(teleop_experience)
             self.keyboard_experience_data.append(keyboard_experience)
@@ -146,13 +147,13 @@ class DataAnalysis(object):
         'correct_refinements': self.correct_refinements_data}
 
     def createDataTemplate(self):
-        obj_dict = {}
+        model_dict = {}
         method_dict = {}
-        for i in range(1,self.num_object_positions+1):
-            obj_dict[i] = []
+        for i in range(1,self.num_models+1):
+            model_dict[i] = []
         
         for i in range(1,self.num_methods+1):
-            method_dict[i] = copy.deepcopy(obj_dict)
+            method_dict[i] = copy.deepcopy(model_dict)
 
         self.data_template = copy.deepcopy(method_dict)
 
@@ -222,7 +223,7 @@ class DataAnalysis(object):
                 for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
                     
                     time += self.getTime(participant_number, method, model, object_position, trial)
-
+            # print("Model " + str(model))
             adaptation_time.append(time)
 
         total_adaptation_time = np.mean(adaptation_time)
@@ -579,32 +580,32 @@ class DataAnalysis(object):
         fig = plt.figure()
         
         if "participant_number" in kwargs:
-            fig.suptitle("Model after experiment")
+            fig.suptitle("Models after experiment")
         else:
             fig.suptitle("Initial model")
 
         print(success_list)
         plt.subplot(1,4,1)
         plt.bar(self.models_labels, np.asarray(success_list)/(self.num_trials * self.num_object_positions) *100)
-        plt.xlabel("Object position [-]")
+        plt.xlabel("Model [-]")
         plt.ylabel("Success [True/False]")
         plt.ylim([0,100])
 
         plt.subplot(1,4,2)
         plt.bar(self.models_labels, np.asarray(object_missed_list)/(self.num_trials * self.num_object_positions) * 100)
-        plt.xlabel("Object position [-]")
+        plt.xlabel("Model [-]")
         plt.ylabel("Object missed [True/False]")
         plt.ylim([0,100])
 
         plt.subplot(1,4,3)
         plt.bar(self.models_labels, np.asarray(obstacle_hit_list)/(self.num_trials * self.num_object_positions) * 100)
-        plt.xlabel("Object position [-]")
+        plt.xlabel("Model [-]")
         plt.ylabel("Obstacle hit [True/False]")
         plt.ylim([0,100])
 
         plt.subplot(1,4,4)
         plt.bar(self.models_labels, np.asarray(object_kicked_over_list)/(self.num_trials * self.num_object_positions) * 100)
-        plt.xlabel("Object position [-]")
+        plt.xlabel("Model [-]")
         plt.ylabel("Object kicked over [True/False]")
         plt.ylim([0,100])
 
@@ -627,28 +628,28 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.refinement_time_data[i][j])
 
             plt.subplot(2,2,i)
             plt.boxplot(to_plot)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Time [s]')
-            plt.xlabel('Object position [-]')
+            plt.xlabel('Model [-]')
             plt.tight_layout()
             plt.ylim([0,750])
             fig.subplots_adjust(top=0.88)
 
         plt.suptitle("Refinement time")
         
-        plt.savefig(path+'refinement_time_per_object_per_method.pdf')
+        plt.savefig(path+'refinement_time_per_model_per_method.pdf')
 
         fig = plt.figure()
 
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.number_of_refinements_data[i][j])
 
             plt.subplot(2,2,i)
@@ -660,14 +661,14 @@ class DataAnalysis(object):
             fig.subplots_adjust(top=0.88)
 
         plt.suptitle("Number of refinements")
-        plt.savefig(path+'number_of_refinements_per_object_per_method.pdf')
+        plt.savefig(path+'number_of_refinements_per_model_per_method.pdf')
 
         fig = plt.figure()
 
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.time_per_refinement_data[i][j])
             
 
@@ -675,44 +676,45 @@ class DataAnalysis(object):
             plt.boxplot(to_plot)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Time [s]')
-            plt.xlabel('Object position [-]')
+            plt.xlabel('Model [-]')
             plt.tight_layout()
             fig.subplots_adjust(top=0.88)
 
         plt.suptitle("Time per refinement")
-        plt.savefig(path+'time_per_refinement_per_object_per_method.pdf')
+        plt.savefig(path+'time_per_refinement_per_model_per_method.pdf')
 
         fig = plt.figure()
 
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.correct_predictions_data[i][j])
             
 
             plt.subplot(2,2,i)
-            plt.boxplot(np.asarray(to_plot) / self.experiment_variables.num_trials * 100)
+
+            plt.boxplot(np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Amount [%]')
-            plt.xlabel('Object position [-]')
+            plt.xlabel('Model [-]')
             plt.tight_layout()
             fig.subplots_adjust(top=0.88)
 
         plt.suptitle("Correct predictions")
-        plt.savefig(path+'correct_predictions_per_object_per_method.pdf')
+        plt.savefig(path+'correct_predictions_per_model_per_method.pdf')
 
         fig = plt.figure()
 
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.correct_refinements_data[i][j])
             
 
             plt.subplot(2,2,i)
-            plt.boxplot(np.asarray(to_plot) / self.experiment_variables.num_trials * 100)
+            plt.boxplot(np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100)
             plt.title(self.methods_labels[i-1])
             plt.ylabel('Amount [%]')
             plt.xlabel('Object position [-]')
@@ -720,12 +722,12 @@ class DataAnalysis(object):
             fig.subplots_adjust(top=0.88)
 
         plt.suptitle("Correct refinements")
-        plt.savefig(path+'correct_refinements_per_object_per_method.pdf')
+        plt.savefig(path+'correct_refinements_per_model_per_method.pdf')
 
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.success_after_experiment_data[i][j])
 
             plt.subplot(2,2,i)
@@ -744,7 +746,7 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for j in range(1,self.num_object_positions+1):
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.time_per_correct_prediction_data[i][j])
             
             plt.subplot(2,2,i)
@@ -767,8 +769,8 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for object_position in self.time_per_correct_prediction_data[i]:
-                to_plot.append(np.mean(self.time_per_correct_prediction_data[i][object_position]))
+            for model in self.time_per_correct_prediction_data[i]:
+                to_plot.append(np.mean(self.time_per_correct_prediction_data[i][model]))
 
             to_plot_mean.append(to_plot)
         
@@ -787,8 +789,8 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for object_position in self.time_data[i]:
-                to_plot.append(np.sum(self.time_data[i][object_position])/60)
+            for model in self.time_data[i]:
+                to_plot.append(np.sum(self.time_data[i][model])/60)
 
             to_plot_mean.append(to_plot)
         
@@ -797,7 +799,7 @@ class DataAnalysis(object):
         plt.ylabel('Time [min]')
         plt.ylim([0,30])
         plt.tight_layout()
-        plt.savefig(path+'time_per_method.pdf')
+        plt.savefig(path+'refinement_time_per_method.pdf')
 
 
         fig = plt.figure()
@@ -807,8 +809,8 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for object_position in self.number_of_refinements_data[i]:
-                to_plot.append(np.sum(self.number_of_refinements_data[i][object_position]))
+            for model in self.number_of_refinements_data[i]:
+                to_plot.append(np.sum(self.number_of_refinements_data[i][model]))
 
             to_plot_mean.append(to_plot)
         
@@ -826,8 +828,8 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for object_position in self.correct_predictions_data[i]:
-                to_plot.append(np.sum(self.correct_predictions_data[i][object_position]))
+            for model in self.correct_predictions_data[i]:
+                to_plot.append(np.sum(self.correct_predictions_data[i][model]))
 
             to_plot_mean.append(to_plot)
         
@@ -848,8 +850,8 @@ class DataAnalysis(object):
         for i in range(1,self.num_methods+1):
             to_plot = []
 
-            for object_position in self.time_per_correct_prediction_data[i]:
-                to_plot.append(np.mean(self.time_per_correct_refinement_data[i][object_position]))
+            for model in self.time_per_correct_prediction_data[i]:
+                to_plot.append(np.mean(self.time_per_correct_refinement_data[i][model]))
 
             to_plot_mean.append(to_plot)
 
@@ -941,4 +943,4 @@ if __name__ == "__main__":
             data_analysis.plotExperimentData()
             print('Figures before experiment stored')
         
-    # data_analysis.generateBoxPlots()
+    data_analysis.generateBoxPlots()
