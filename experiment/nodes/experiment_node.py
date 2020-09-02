@@ -223,6 +223,7 @@ class ExperimentNode(object):
 
             resp = set_object(dishwasher)
 
+            rospy.loginfo("Reset dishwasher pose")
             return resp.success
 
         except ValueError:
@@ -779,8 +780,9 @@ class ExperimentNode(object):
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
-                self.setObjectPosition()
+                self.setDishwasherPosition()
                 time.sleep(3)
+                self.setObjectPosition()
 
                 self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
@@ -875,11 +877,10 @@ class ExperimentNode(object):
 
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 self.goToInitialPose()
-                time.sleep(5)
-
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
-                time.sleep(4)
-                
+
                 rospy.wait_for_service('/offline_pendant/add_waypoint', timeout=2.0)
                 add_waypoint = rospy.ServiceProxy('/offline_pendant/add_waypoint', AddWaypoint)
                 add_waypoint()
@@ -919,6 +920,8 @@ class ExperimentNode(object):
                 # self.stopNode('teach_pendant.launch')
                 
                 self.goToInitialPose()
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
@@ -983,8 +986,9 @@ class ExperimentNode(object):
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
-                self.setObjectPosition()
+                self.setDishwasherPosition()
                 time.sleep(3)
+                self.setObjectPosition()
 
                 self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
@@ -1079,11 +1083,10 @@ class ExperimentNode(object):
 
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 self.goToInitialPose()
-                time.sleep(5)
-
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
-                time.sleep(4)
-                
+
                 rospy.wait_for_service('/set_part_to_publish', timeout=2.0)
                 set_part_to_publish = rospy.ServiceProxy('/set_part_to_publish', SetPartToPublish)
                 set_part_to_publish(String('both'))
@@ -1131,6 +1134,8 @@ class ExperimentNode(object):
                 self.text_updater.update("GREY BUTTON PRESSED")
 
                 self.goToInitialPose()
+                self.setDishwasherPosition()
+                time.sleep(3)
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
