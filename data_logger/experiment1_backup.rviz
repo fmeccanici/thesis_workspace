@@ -36,6 +36,44 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
+    - Class: rviz/Camera
+      Enabled: true
+      Image Rendering: background and overlay
+      Image Topic: /xtion/rgb/image_raw
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+      Visibility:
+        Camera: true
+        DepthCloud: false
+        Grid: false
+        MarkerArray: false
+        RobotModel: false
+        TF: true
+        Value: true
+      Zoom Factor: 1
+    - Class: rviz/Camera
+      Enabled: true
+      Image Rendering: background and overlay
+      Image Topic: /end_effector_cam/image_raw
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+      Visibility:
+        Camera: true
+        DepthCloud: false
+        Grid: true
+        MarkerArray: false
+        RobotModel: false
+        TF: false
+        Value: true
+      Zoom Factor: 1
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -565,25 +603,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.03866124
+      Distance: 3.23467493
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.766568601
-        Y: 0.0536101982
-        Z: 0.666449845
+        X: 0.917645156
+        Y: 1.86848676
+        Z: 0.878159285
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.27479684
+      Pitch: -0.0802027807
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.71357727
+      Yaw: 4.64357805
     Saved:
       - Class: rviz/Orbit
         Distance: 4.23803568
