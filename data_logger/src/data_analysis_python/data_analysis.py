@@ -27,6 +27,8 @@ class DataAnalysis(object):
 
         self.refinement_time_data = copy.deepcopy(self.data_template)
         self.number_of_refinements_data = copy.deepcopy(self.data_template)
+        self.number_of_updates_data = copy.deepcopy(self.data_template)
+
         self.time_data = copy.deepcopy(self.data_template)
         self.time_per_refinement_data = copy.deepcopy(self.data_template)
         self.correct_predictions_data = copy.deepcopy(self.data_template)
@@ -61,6 +63,11 @@ class DataAnalysis(object):
     def parseDataAfterExperiment(self, participant_number):
         for i, method_str in enumerate(self.methods_labels):
             for j in range(1, self.num_models + 1):
+                success = 0
+                object_missed = 0
+                obstacle_hit = 0
+                object_kicked_over = 0
+                
                 path = self.data_path + "participant_" + str(participant_number) + "/after_experiment/"
                 path += method_str + "/model_" + str(j) + "/data.txt" 
                 try:
@@ -70,21 +77,19 @@ class DataAnalysis(object):
                         data_after_experiment = outfile
 
                         for position in range(1,self.num_object_positions+1):
-                            success = 0
-                            object_missed = 0
-                            obstacle_hit = 0
-                            object_kicked_over = 0
+
 
                             for trial in range(1,self.num_trials+1):
                                 success += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['success'])
                                 object_missed += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
                                 obstacle_hit += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
                                 object_kicked_over += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
-                            
-                        self.success_after_experiment_data[i+1][position].append(success)
-                        self.object_missed_after_experiment_data[i+1][position].append(object_missed)
-                        self.object_kicked_over_after_experiment_data[i+1][position].append(object_kicked_over)
-                        self.obstacle_hit_after_experiment_data[i+1][position].append(obstacle_hit)
+
+                        self.success_after_experiment_data[i+1][j].append(success)
+                        self.object_missed_after_experiment_data[i+1][j].append(object_missed)
+                        self.object_kicked_over_after_experiment_data[i+1][j].append(object_kicked_over)
+                        self.obstacle_hit_after_experiment_data[i+1][j].append(obstacle_hit)
+
                 except FileNotFoundError:
                     print("Error loading data for method " + method_str)
                     continue
@@ -94,7 +99,8 @@ class DataAnalysis(object):
             time_per_model = self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]
             
             number_of_refinements_per_model = self.getNumberOfRefinements(self.data[participant_number].getNumber(), method)
-            
+            number_of_updates_per_model = self.getNumberOfUpdates(self.data[participant_number].getNumber(), method)
+
             number_of_refinements = np.asarray(self.getNumberOfRefinements(self.data[participant_number].getNumber(), method))
             time = np.asarray(self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1])
 
@@ -115,6 +121,7 @@ class DataAnalysis(object):
             for model in range(1, self.num_models + 1):
                 self.refinement_time_data[method][model].append(time_per_model[model-1])
                 self.number_of_refinements_data[method][model].append(number_of_refinements_per_model[model-1])
+                self.number_of_updates_data[method][model].append(number_of_updates_per_model[model-1])
 
                 if number_of_refinements[model-1] != 0:
                     self.time_per_refinement_data[method][model].append(time_per_refinement_per_model[model-1])
@@ -570,8 +577,6 @@ class DataAnalysis(object):
                         obstacle_hit += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
                         object_kicked_over += int(data_before_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
                             
-
-
             success_list.append(success)
             object_missed_list.append(object_missed)
             obstacle_hit_list.append(obstacle_hit)
@@ -689,6 +694,27 @@ class DataAnalysis(object):
             to_plot = []
 
             for j in range(1,self.num_models+1):
+                to_plot.append(self.number_of_updates_data[i][j])
+            
+
+            plt.subplot(2,2,i)
+            plt.boxplot(to_plot)
+            plt.title(self.methods_labels[i-1])
+            plt.ylabel('Time [s]')
+            plt.xlabel('Model [-]')
+            plt.tight_layout()
+            fig.subplots_adjust(top=0.88)
+
+        plt.suptitle("Amount of updates")
+        plt.savefig(path+'amount_of_updates_per_model_per_method.pdf')
+
+        """
+        fig = plt.figure()
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for j in range(1,self.num_models+1):
                 to_plot.append(self.correct_predictions_data[i][j])
             
 
@@ -703,6 +729,7 @@ class DataAnalysis(object):
 
         plt.suptitle("Correct predictions")
         plt.savefig(path+'correct_predictions_per_model_per_method.pdf')
+        
 
         fig = plt.figure()
 
@@ -737,9 +764,11 @@ class DataAnalysis(object):
             plt.xlabel('Object position [-]')
             plt.tight_layout()
             fig.subplots_adjust(top=0.88)
+        
 
         plt.suptitle("Success after experiment")
         plt.savefig(path+'success_after_experiment_per_object_per_method.pdf')
+        """
 
         fig = plt.figure()
 
@@ -801,7 +830,25 @@ class DataAnalysis(object):
         plt.tight_layout()
         plt.savefig(path+'refinement_time_per_method.pdf')
 
+        fig = plt.figure()
 
+        to_plot_mean = []
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for model in self.success_after_experiment_data[i]:
+                to_plot.append(np.sum(self.success_after_experiment_data[i][model]))
+
+            to_plot_mean.append(np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100)
+        
+        plt.boxplot(to_plot_mean, labels=self.methods_labels)
+        plt.title("Successfully adapted models")
+        plt.ylabel('Success [%]')
+        plt.ylim([0,110])
+        plt.tight_layout()
+        plt.savefig(path+'success_after_experiment_per_method.pdf')
+        
         fig = plt.figure()
 
         to_plot_mean = []
@@ -820,6 +867,25 @@ class DataAnalysis(object):
         plt.ylim([0,30])
         plt.tight_layout()
         plt.savefig(path+'amount_of_refinements_per_method.pdf')
+
+        fig = plt.figure()
+
+        to_plot_mean = []
+
+        for i in range(1,self.num_methods+1):
+            to_plot = []
+
+            for model in self.number_of_updates_data[i]:
+                to_plot.append(np.sum(self.number_of_updates_data[i][model]))
+
+            to_plot_mean.append(to_plot)
+        
+        plt.boxplot(to_plot_mean, labels=self.methods_labels)
+        plt.title("Amount of updates")
+        plt.ylabel('Amount [-]')
+        plt.ylim([0,30])
+        plt.tight_layout()
+        plt.savefig(path+'amount_of_updates_per_method.pdf')
 
         fig = plt.figure()
 
