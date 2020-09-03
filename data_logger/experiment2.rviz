@@ -83,6 +83,14 @@ Visualization Manager:
           Value: false
         end_effector_cam_optical_frame:
           Value: false
+        object_wrt_reaching_ellipsoid:
+          Value: false 
+        object:
+          Value: true
+        collision_ellipsoid:
+          Value: false
+        reaching_ellipsoid:
+          Value: false
         gripper_body_link:
           Value: false
         gripper_camera_mount_link:
@@ -123,6 +131,210 @@ Visualization Manager:
           Value: false
         torso_lift_link:
           Value: false
+
+        collision:
+          Value: true
+        upper_basket_bottom_0_0:
+          Value: false
+        upper_basket_bottom_0_1:
+          Value: false
+        upper_basket_bottom_0_2:
+          Value: false
+        upper_basket_bottom_0_3:
+          Value: false
+        upper_basket_bottom_0_4:
+          Value: false
+        upper_basket_bottom_1_0:
+          Value: false
+        upper_basket_bottom_1_1:
+          Value: false
+        upper_basket_bottom_1_2:
+          Value: false
+        upper_basket_bottom_1_3:
+          Value: false
+        upper_basket_bottom_1_4:
+          Value: false
+        upper_basket_bottom_2_0:
+          Value: false
+        upper_basket_bottom_2_1:
+          Value: false
+        upper_basket_bottom_2_2:
+          Value: false
+        upper_basket_bottom_2_3:
+          Value: false
+        upper_basket_bottom_2_4:
+          Value: false
+        upper_basket_bottom_3_0:
+          Value: false
+        upper_basket_bottom_3_1:
+          Value: false
+        upper_basket_bottom_3_2:
+          Value: false
+        upper_basket_bottom_3_3:
+          Value: false
+        upper_basket_bottom_3_4:
+          Value: false
+        upper_basket_bottom_4_0:
+          Value: false
+        upper_basket_bottom_4_1:
+          Value: false
+        upper_basket_bottom_4_2:
+          Value: false
+        upper_basket_bottom_4_3:
+          Value: false
+        upper_basket_bottom_4_4:
+          Value: false
+        upper_basket_frontal_0_0:
+          Value: false
+        upper_basket_frontal_0_1:
+          Value: false
+        upper_basket_frontal_0_2:
+          Value: false
+        upper_basket_frontal_0_3:
+          Value: false
+        upper_basket_frontal_0_4:
+          Value: false
+        upper_basket_frontal_1_0:
+          Value: false
+        upper_basket_frontal_1_1:
+          Value: false
+        upper_basket_frontal_1_2:
+          Value: false
+        upper_basket_frontal_1_3:
+          Value: false
+        upper_basket_frontal_1_4:
+          Value: false
+        upper_basket_frontal_2_0:
+          Value: false
+        upper_basket_frontal_2_1:
+          Value: false
+        upper_basket_frontal_2_2:
+          Value: false
+        upper_basket_frontal_2_3:
+          Value: false
+        upper_basket_frontal_2_4:
+          Value: false
+        upper_basket_frontal_3_0:
+          Value: false
+        upper_basket_frontal_3_1:
+          Value: false
+        upper_basket_frontal_3_2:
+          Value: false
+        upper_basket_frontal_3_3:
+          Value: false
+        upper_basket_frontal_3_4:
+          Value: false
+        upper_basket_frontal_4_0:
+          Value: false
+        upper_basket_frontal_4_1:
+          Value: false
+        upper_basket_frontal_4_2:
+          Value: false
+        upper_basket_frontal_4_3:
+          Value: false
+        upper_basket_frontal_4_4:
+          Value: false
+        upper_basket_left_side_0_0:
+          Value: false
+        upper_basket_left_side_0_1:
+          Value: false
+        upper_basket_left_side_0_2:
+          Value: false
+        upper_basket_left_side_0_3:
+          Value: false
+        upper_basket_left_side_0_4:
+          Value: false
+        upper_basket_left_side_1_0:
+          Value: false
+        upper_basket_left_side_1_1:
+          Value: false
+        upper_basket_left_side_1_2:
+          Value: false
+        upper_basket_left_side_1_3:
+          Value: false
+        upper_basket_left_side_1_4:
+          Value: false
+        upper_basket_left_side_2_0:
+          Value: false
+        upper_basket_left_side_2_1:
+          Value: false
+        upper_basket_left_side_2_2:
+          Value: false
+        upper_basket_left_side_2_3:
+          Value: false
+        upper_basket_left_side_2_4:
+          Value: false
+        upper_basket_left_side_3_0:
+          Value: false
+        upper_basket_left_side_3_1:
+          Value: false
+        upper_basket_left_side_3_2:
+          Value: false
+        upper_basket_left_side_3_3:
+          Value: false
+        upper_basket_left_side_3_4:
+          Value: false
+        upper_basket_left_side_4_0:
+          Value: false
+        upper_basket_left_side_4_1:
+          Value: false
+        upper_basket_left_side_4_2:
+          Value: false
+        upper_basket_left_side_4_3:
+          Value: false
+        upper_basket_left_side_4_4:
+          Value: false
+        upper_basket_right_side_0_0:
+          Value: false
+        upper_basket_right_side_0_1:
+          Value: false
+        upper_basket_right_side_0_2:
+          Value: false
+        upper_basket_right_side_0_3:
+          Value: false
+        upper_basket_right_side_0_4:
+          Value: false
+        upper_basket_right_side_1_0:
+          Value: false
+        upper_basket_right_side_1_1:
+          Value: false
+        upper_basket_right_side_1_2:
+          Value: false
+        upper_basket_right_side_1_3:
+          Value: false
+        upper_basket_right_side_1_4:
+          Value: false
+        upper_basket_right_side_2_0:
+          Value: false
+        upper_basket_right_side_2_1:
+          Value: false
+        upper_basket_right_side_2_2:
+          Value: false
+        upper_basket_right_side_2_3:
+          Value: false
+        upper_basket_right_side_2_4:
+          Value: false
+        upper_basket_right_side_3_0:
+          Value: false
+        upper_basket_right_side_3_1:
+          Value: false
+        upper_basket_right_side_3_2:
+          Value: false
+        upper_basket_right_side_3_3:
+          Value: false
+        upper_basket_right_side_3_4:
+          Value: false
+        upper_basket_right_side_4_0:
+          Value: false
+        upper_basket_right_side_4_1:
+          Value: false
+        upper_basket_right_side_4_2:
+          Value: false
+        upper_basket_right_side_4_3:
+          Value: false
+        upper_basket_right_side_4_4:
+          Value: false
+
         wheel_left_link:
           Value: false
         wheel_right_link:
@@ -149,7 +361,7 @@ Visualization Manager:
       Name: TF
       Show Arrows: false
       Show Axes: true
-      Show Names: false
+      Show Names: true
       Tree:
         world:
           base_footprint:
