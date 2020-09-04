@@ -219,7 +219,7 @@ class NASATLX(QWidget):
         slider.setMinimum(0)
         slider.setMaximum(100)
         slider.setValue(choice([0, 20, 40, 60, 80, 100]))
-        slider.setTickInterval(20)
+        slider.setTickInterval(5)
         slider.setSingleStep(100/20)
 
         vbox = QVBoxLayout(self)
