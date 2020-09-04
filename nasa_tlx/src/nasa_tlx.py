@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
                              QMenu, QPushButton, QRadioButton, QVBoxLayout, QHBoxLayout, QWidget, QSlider, QLabel,
                              QLineEdit)
 
-from random import randint
+from random import randint, choice
 
 class Slider(QSlider):
     minimumChanged = pyqtSignal(int)
@@ -27,6 +27,12 @@ class NASATLX(QWidget):
         self.methods_radio_buttons = []
 
         self.labels = ['Mental Demand', 'Physical Demand', 'Temporal Demand', 'Performance', 'Effort', 'Frustration']
+        self.rating_labels_with_description = ['Mental Demand                How mentally demanding was the task?',
+                                               'Physical Demand              How physically demanding was the task?',
+                                               'Temporal Demand              How hurried or rushed was the pace of the task?',
+                                               'Performance                  How successful were you in accomplishing what you were asked to do?',
+                                               'Effort                       How hard did you have to work to accomplish your level of performance?',
+                                               'Frustration                  How insecure, discouraged, irritated, stressed and annoyed were you?']
 
         self.comparison_pairs = [('Effort', 'Performance'), ('Temporal Demand', 'Frustration'), ('Temporal Demand', 'Effort'),
                                 ('Physical Demand', 'Frustration'), ('Performance', 'Frustration'), ('Physical Demand', 'Temporal Demand'),
@@ -38,7 +44,8 @@ class NASATLX(QWidget):
         self.rating_sliders = []
 
         self.data = {'Ratings': {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
-                    "Comparisons": {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0}}
+                    "Comparisons": {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
+                    "Workload": 0}
 
 
         self.grid_rating_sheet = QGridLayout()
@@ -72,28 +79,72 @@ class NASATLX(QWidget):
         
         if not os.path.isdir(path):
             os.makedirs(path)
-        
-        with open(path, 'w+') as f:
+
+        self.data_path = path
+
+    def storeData(self):
+        with open(self.data_path + 'data.txt', 'w+') as f:
             f.write(str(self.data))
     
     def onResetClick(self):
         for slider in self.rating_sliders:
-            slider.setValue(randint(1,21))
+            slider.setValue(choice([0, 20, 40, 60, 80, 100]))
 
         for radio_button_pair in self.comparison_pairs_radio_buttons:
             position = randint(0,1)
             radio_button_pair[position].setChecked(True)
+        
+        self.data = {'Ratings': {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
+                    "Comparisons": {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
+                    "Workload": 0}
+
+    def isValidScore(self):
+        total_count = 0
+        for label in self.labels:
+            if self.data["Comparisons"][label] > 5:
+                return False
+            total_count += self.data["Comparisons"][label]
+
+        if total_count == 15:
+            return True
+        else:
+            print("Count = " + str(total_count))
+            return False
+
+    def calculateWorkload(self):
+        sum_adjusted_ratings = 0
+        for label in self.labels:
+            sum_adjusted_ratings += self.data["Ratings"][label] * self.data["Comparisons"][label] 
+
+        return sum_adjusted_ratings / 15
 
     def onStoreClick(self):
-        self.setDataPath()
-        for i, pair in enumerate(self.comparison_pairs):
-            if self.comparison_pairs_radio_buttons[i][0].isChecked():
-                self.data["Comparisons"][self.comparison_pairs[0]] += 1
-            elif self.comparison_pairs_radio_buttons[i][1].isChecked():
-                self.data["Comparisons"][self.comparison_pairs[1]] += 1
+        try:
+            self.setDataPath()
+            for i, pair in enumerate(self.comparison_pairs):
+                if self.comparison_pairs_radio_buttons[i][0].isChecked():
+                    self.data["Comparisons"][self.comparison_pairs[i][0]] += 1
+                elif self.comparison_pairs_radio_buttons[i][1].isChecked():
+                    self.data["Comparisons"][self.comparison_pairs[i][1]] += 1
 
-        for i, label in enumerate(self.labels):
-            self.data["Ratings"][label] = self.rating_sliders[i].value()
+            for i, label in enumerate(self.labels):
+                self.data["Ratings"][label] = self.rating_sliders[i].value()
+
+            if not self.isValidScore():
+                print("No valid sources of workload score!")
+            else:
+                workload = self.calculateWorkload()
+                print("Workload = " + str(workload))
+                self.data["Workload"] = workload
+
+                self.storeData()
+
+                self.data = {'Ratings': {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
+                    "Comparisons": {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
+                    "Workload": 0}
+
+        except Exception as e:
+            print("Storing failure: " + str(e))
 
     def createDataStoreSheet(self):
         groupBox = QGroupBox("Store data")
@@ -118,7 +169,7 @@ class NASATLX(QWidget):
         self.grid_rating_sheet.addWidget(groupBox)
 
     def createRatingSheet(self):
-        for i,label in enumerate(self.labels):
+        for i,label in enumerate(self.rating_labels_with_description):
             self.grid_rating_sheet.addWidget(self.createSlider(label), i, 0)
 
     def createComparisonCards(self):
@@ -165,11 +216,11 @@ class NASATLX(QWidget):
         slider_hbox.addWidget(label_maximum, Qt.AlignRight)
         slider_vbox.addStretch()
 
-        slider.setMinimum(1)
-        slider.setMaximum(21)
-        slider.setValue(randint(1,21))
-        slider.setTickInterval(1)
-        slider.setSingleStep(1)
+        slider.setMinimum(0)
+        slider.setMaximum(100)
+        slider.setValue(choice([0, 20, 40, 60, 80, 100]))
+        slider.setTickInterval(20)
+        slider.setSingleStep(100/20)
 
         vbox = QVBoxLayout(self)
         vbox.addWidget(label1)
