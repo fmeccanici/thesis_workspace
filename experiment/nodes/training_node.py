@@ -1,6 +1,48 @@
-import rospy
+#!/usr/bin/env python3.5
+
+from subprocess import call
+import rospy, rospkg, roslaunch, time, random, copy
+from learning_from_demonstration_python.trajectory_parser import trajectoryParser
+from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
+from data_logger_python.text_updater import TextUpdater
+from pyquaternion import Quaternion
 import numpy as np
+from experiment_variables.experiment_variables import ExperimentVariables
+from traffic_light.traffic_light_updater import TrafficLightUpdater
 from collections import deque
+
+# import ros messages
+from sensor_msgs.msg import JointState
+from data_logger.msg import TrajectoryData, OperatorGUIinteraction
+from std_msgs.msg import Byte, Bool, Float32, String, Float64
+from geometry_msgs.msg import Point, Pose, PoseStamped
+
+from gazebo_msgs.msg import ModelState 
+from trajectory_visualizer.msg import TrajectoryVisualization
+from execution_failure_detection.msg import ExecutionFailure
+from teleop_control.msg import Keyboard
+from teleop_control.srv import SetPartToPublish, SetPartToPublishResponse
+from slave_control.msg import ControlState
+
+
+# import ros services
+from data_logger.srv import (CreateParticipant, AddRefinement,
+                                SetPrediction, ToCsv, SetObstaclesHit,
+                                SetObjectMissed, IncrementNumberOfRefinements,
+                                SetParameters, SetTime, SetNumberOfRefinements)
+
+from learning_from_demonstration.srv import (GoToPose, MakePrediction, 
+                                                GetContext, GetObjectPosition,
+                                                WelfordUpdate, ExecuteTrajectory, 
+                                                GetEEPose, AddDemonstration, SetTeachStateOmni,
+                                                ClearTrajectory, GetTrajectory, BuildInitialModel)
+
+from gazebo_msgs.srv import SetModelState, SetModelConfiguration
+from trajectory_visualizer.srv import VisualizeTrajectory, ClearTrajectories
+from trajectory_refinement.srv import RefineTrajectory, CalibrateMasterPose
+from execution_failure_detection.srv import GetExecutionFailure, SetExpectedObjectPosition
+from experiment.srv import SetText
+from teach_pendant.srv import GetTeachState, GetDemonstrationPendant, SetTeachState, AddWaypoint, ClearWaypoints
 
 class TrainingNode(object):
     def __init__(self):
@@ -9,17 +51,302 @@ class TrainingNode(object):
 
         self.training_scores = deque([0,0,0,0])
 
+        self.rospack = rospkg.RosPack()
+        self.parser = trajectoryParser()
+        self.resampler = trajectoryResampler()
+        self.text_updater = TextUpdater()
+        self.object_missed_updater = TextUpdater(text_file='object_missed.txt')
+        self.object_kicked_over_updater = TextUpdater(text_file='object_kicked_over.txt')
+        self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
+        self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
+        self.number_of_refinements_updater.update(str(0))
+        self.traffic_light_updater = TrafficLightUpdater()
+        self.traffic_light_updater.update('red')
+
+        self.experiment_variables = ExperimentVariables()
+        self.T_desired = self.experiment_variables.T_desired
+
+
     def _getRosParameters(self):
         self.method = rospy.get_param('~method')            
+    
+    def openGripper(self):
+        rc = call("/home/fmeccanici/Documents/thesis/thesis_workspace/src/teleop_control/scripts/gripper_opener.sh")
 
-    def startTrial(self):
+    def getContext(self):
+        try:
+            rospy.wait_for_service('get_context', timeout=2.0)
+
+            get_context = rospy.ServiceProxy('get_context', GetContext)
+            resp = get_context()
+            self.context = resp.context
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)  
+
+    def executeTrajectory(self, traj):
+        rospy.wait_for_service('execute_trajectory', timeout=2.0)
+        execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
+        resp = execute_trajectory(traj, self.T_desired)
+
+        return resp.obstacle_hit.data, resp.object_reached.data, resp.object_kicked_over.data
+    
+    def setObjectPosition(self):
+        try:
+            object_position = ModelState()
+            object_position.model_name = 'aruco_cube'
+
+            object_position.pose.position.x = 0.8
+
+            # get random y value
+            y = self.y_position
+
+            object_position.pose.position.y = y
+
+            object_position.pose.position.z = 0.7
+
+            object_position.pose.orientation.x = 0
+            object_position.pose.orientation.y = 0
+            object_position.pose.orientation.z = 0
+            object_position.pose.orientation.w = 1
+            
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+            resp = set_object(object_position)
+
+            rospy.wait_for_service('/set_expected_object_position')
+
+            set_expected_object_pose = rospy.ServiceProxy('/set_expected_object_position', SetExpectedObjectPosition)
+            set_expected_object_pose(object_position.pose)
+
+            return resp.success
+
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
+    def setDishwasherPosition(self):
+        try:
+            dishwasher = ModelState()
+            dishwasher.model_name = 'dishwasher'
+
+            dishwasher.pose.position.x = 1.75
+            dishwasher.pose.position.y = 0.336
+
+            dishwasher.pose.position.z = 0.098
+
+            dishwasher.pose.orientation.x = 0
+            dishwasher.pose.orientation.y = 0
+            dishwasher.pose.orientation.z = -0.6995
+            dishwasher.pose.orientation.w = 0.7146
+            
+            rospy.wait_for_service('/gazebo/set_model_state')
+
+            set_object = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+
+            resp = set_object(dishwasher)
+
+            rospy.loginfo("Reset dishwasher pose")
+            return resp.success
+
+        except ValueError:
+            rospy.loginfo("Invalid value for position!")
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s"%e)
+
+    def goToInitialPose(self):
+        pose = Pose()
+        try:
+
+            # first waypoint for dishwasher
+            pose.position.x = 0.445
+            pose.position.y = 0.013
+            pose.position.z = 0.877
+
+            pose.orientation.x = 0.982
+            pose.orientation.y = 0.009
+            pose.orientation.z = -0.189
+            pose.orientation.w = 0.009
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+
+            # second waypoint for dishwasher
+            pose.position.x = 0.482
+            pose.position.y = -0.373
+            pose.position.z = 0.866
+
+            pose.orientation.x = 0.989
+            pose.orientation.y = -0.021
+            pose.orientation.z = -0.096
+            pose.orientation.w = 0.109
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+
+            # third waypoint for dishwasher
+            pose.position.x = 0.394
+            pose.position.y = -0.305
+            pose.position.z = 0.46
+
+            pose.orientation.x = 0.886
+            pose.orientation.y = -0.219
+            pose.orientation.z = -0.407
+            pose.orientation.w = -0.037
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+            
+            # initial pose dishwasher moved backwards2
+            pose.position.x = 0.537
+            pose.position.y = 0.083
+            pose.position.z = 0.444
+
+            pose.orientation.x = 0.944
+            pose.orientation.y = -0.007
+            pose.orientation.z = -0.329
+            pose.orientation.w = 0.02
+
+            rospy.wait_for_service('go_to_pose', timeout=2.0)
+            go_to_pose = rospy.ServiceProxy('go_to_pose', GoToPose)
+            resp = go_to_pose(pose)
+            resp = go_to_pose(pose)
+            resp = go_to_pose(pose)
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+    def predict(self):
+        try:
+            rospy.wait_for_service('make_prediction', timeout=2.0)
+
+            make_prediction = rospy.ServiceProxy('make_prediction', MakePrediction)
+            resp = make_prediction(self.context)
+            self.prediction = resp.prediction
+        
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+        
+        except AttributeError:
+            rospy.loginfo("Context not yet extracted!")
+
+    def visualize(self, which):
+        try:
+            rospy.wait_for_service('visualize_trajectory', timeout=2.0)
+
+            visualize_trajectory = rospy.ServiceProxy('visualize_trajectory', VisualizeTrajectory)
+            visualization_msg = TrajectoryVisualization()
+
+            rospy.wait_for_service('clear_trajectories', timeout=2.0)
+            clear_trajectories = rospy.ServiceProxy('clear_trajectories', ClearTrajectories)
+
+            resp = clear_trajectories()
+
+            if which == 'both':
+                visualization_msg.pose_array = self.refined_trajectory.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+                resp = visualize_trajectory(visualization_msg)
+
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                refined_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+                refined_traj_keypoints = self.resampler.interpolate_learned_keypoints(refined_traj_keypoints[0], n_keypoints)
+                refined_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(refined_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = refined_traj_keypoints.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+
+                resp = visualize_trajectory(visualization_msg)
+                
+                visualization_msg.pose_array = self.prediction.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 0.0
+
+                resp = visualize_trajectory(visualization_msg)
+                
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                prediction_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.prediction)
+                prediction_traj_keypoints = self.resampler.interpolate_learned_keypoints(prediction_traj_keypoints[0], n_keypoints)
+                prediction_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(prediction_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = prediction_traj_keypoints.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 1.0
+                resp = visualize_trajectory(visualization_msg)
+                
+            elif which == 'refinement':
+                visualization_msg.pose_array = self.refined_trajectory.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+                resp = visualize_trajectory(visualization_msg)
+                
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                refined_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.refined_trajectory)
+                refined_traj_keypoints = self.resampler.interpolate_learned_keypoints(refined_traj_keypoints[0], n_keypoints)
+                refined_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(refined_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = refined_traj_keypoints.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 1.0
+                visualization_msg.b = 0.0
+                resp = visualize_trajectory(visualization_msg)
+
+            elif which == 'prediction':
+
+                visualization_msg.pose_array = self.prediction.poses
+                visualization_msg.r = 1.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 0.0                
+                resp = visualize_trajectory(visualization_msg)
+
+                # visualize keypoints used for the promp model
+                n_keypoints = 10
+                prediction_traj_keypoints = self.parser.promptraj_msg_to_execution_format(self.prediction)
+                prediction_traj_keypoints = self.resampler.interpolate_learned_keypoints(prediction_traj_keypoints[0], n_keypoints)
+                prediction_traj_keypoints = self.parser.predicted_trajectory_to_prompTraj_message(prediction_traj_keypoints, self.parser.point_to_list(self.context))
+                
+                visualization_msg.pose_array = prediction_traj_keypoints.poses
+                visualization_msg.r = 0.0
+                visualization_msg.g = 0.0
+                visualization_msg.b = 1.0
+                resp = visualize_trajectory(visualization_msg)
+
+            elif 'clear':
+                pass
+
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            print("Service call failed: %s" %e)
+
+        except AttributeError as e:
+            rospy.loginfo("No prediction made yet!:")
+            rospy.loginfo(str(e))
+
+    def startTraining(self):
+
+        self.y_position = 0.05
+
         self.openGripper()
         self.goToInitialPose()
         self.setDishwasherPosition()
         self.setObjectPosition()
         time.sleep(4)
         self.getContext()
-        self.setDataLoggerParameters()
         self.predict()
         self.visualize('prediction')
         self.traffic_light_updater.update('red')
@@ -27,8 +354,6 @@ class TrainingNode(object):
         obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
         
         # store prediction along with failure
-        self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
-        self.saveData()
         
         # update text in operator gui
         if obstacle_hit or not object_reached or object_kicked_over:
@@ -480,3 +805,8 @@ class TrainingNode(object):
         self.current_trial += 1
 
     def run(self):
+        self.startTraining()
+
+if __name__ == "__main__":
+    training_node = TrainingNode()
+    training_node.startTraining()

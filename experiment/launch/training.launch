@@ -1,0 +1,10 @@
+<launch>
+
+<arg name="method" default="online+pendant"/>
+
+<node pkg="experiment" name="training" 
+type="training_node.py" output="screen">
+    <param name="method" value="$(arg method)"/>
+</node>
+
+</launch>
