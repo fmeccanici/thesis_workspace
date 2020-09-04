@@ -66,8 +66,8 @@ class ExperimentNode(object):
         self.num_models = self.experiment_variables.num_models
         self.num_trials = self.experiment_variables.num_trials
         self.num_object_positions = self.experiment_variables.num_object_positions
-        self.trials = range(1,self.num_trials+1)
 
+        self.trials = range(1,self.num_trials+1)
         self.object_positions = range(1,self.num_object_positions+1)
         self.models = range(1,self.num_models+1)
 
