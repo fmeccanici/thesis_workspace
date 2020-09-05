@@ -1,1 +1,1 @@
-SUCCESS!: Score = 50%
+END TRAINING: Final score = 50%
