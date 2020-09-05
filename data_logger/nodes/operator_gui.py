@@ -309,11 +309,18 @@ class OperatorGUI(QMainWindow):
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
 
         self.pushButton.clicked.connect(self.onStartExperimentClick)
+        self.pushButton_2.clicked.connect(self.onStartTrainingClick)
 
     def onStartExperimentClick(self):
         participant_number_msg = Byte(int(self.lineEdit.text()))
 
         self._operator_gui_interaction_pub.publish(participant_number_msg)
+
+    def onStartTrainingClick(self):
+        participant_number_msg = Byte(int(self.lineEdit.text()))
+        
+        self._operator_gui_interaction_pub.publish(participant_number_msg)
+
 
     def updateObjectMissed(self, object_missed):
         if not object_missed:

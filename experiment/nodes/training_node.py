@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.5
 
 from subprocess import call
-import rospy, rospkg, roslaunch, time, random, copy
+import rospy, rospkg, roslaunch, time, random, copy, os
 from learning_from_demonstration_python.trajectory_parser import trajectoryParser
 from learning_from_demonstration_python.trajectory_resampler import trajectoryResampler
 from data_logger_python.text_updater import TextUpdater
@@ -50,6 +50,9 @@ class TrainingNode(object):
         self._getRosParameters()
 
         self.training_scores = deque([0,0,0,0])
+        self.stop_updating_flag = 0
+        self.collision_updating_flag = 0
+        self.pressed_key = ""
 
         self.rospack = rospkg.RosPack()
         self.parser = trajectoryParser()
@@ -65,11 +68,60 @@ class TrainingNode(object):
 
         self.experiment_variables = ExperimentVariables()
         self.T_desired = self.experiment_variables.T_desired
+        self.start_time = 0
+        self.elapsed_time = 0
+        self.elapsed_time_prev = 0
+
+        self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
+        self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
+        self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
+
+        self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
+        self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
 
 
     def _getRosParameters(self):
         self.method = rospy.get_param('~method')            
+
+    def isStringEmpty(self, string):
+        return string == "" or string == ''
+
+    def _keyboardCallback(self, data):
+        if not self.isStringEmpty(data.key.data):
+            self.pressed_key = data.key.data
     
+    def _operatorGuiInteraction(self, data):    
+        self.participant_number = data.number.data
+        print("Participant number is " + str(self.participant_number))
+
+    def startTimer(self):
+        self.start_time = time.time()
+    
+    def stopTimer(self):
+        rospy.loginfo("Stopped timer")
+        
+        if self.start_time == 0:
+            self.elapsed_time = 0
+        else:
+            self.elapsed_time = self.elapsed_time_prev + (time.time() - self.start_time)
+        rospy.loginfo("time = " + str(self.elapsed_time))
+        self.elapsed_time_prev = self.elapsed_time
+    
+    def zeroTimer(self):
+        self.elapsed_time = 0
+        self.elapsed_time_prev = 0
+        self.start_time = 0
+
+    # failure detection callback
+    def _executionFailureCallback(self, data):
+        if self.stop_updating_flag == 0:
+            self.object_missed_updater.update(str(not data.object_reached.data))
+            
+            if self.collision_updating_flag == 1:
+                self.obstacle_hit_updater.update( str(data.obstacle_hit.data ))
+
+            self.object_kicked_over_updater.update( str(data.object_kicked_over.data ))
+
     def openGripper(self):
         rc = call("/home/fmeccanici/Documents/thesis/thesis_workspace/src/teleop_control/scripts/gripper_opener.sh")
 
@@ -158,6 +210,22 @@ class TrainingNode(object):
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s"%e)
+
+    def refinePrediction(self):
+        return self.pressed_key == 'left' or self.pressed_key == 'right'
+
+    def isKeyPressedLeftOrRight(self, key):
+        return key == 'left' or key == 'right'
+
+    def waitForKeyPress(self):
+        self.resetKeyPressed()
+        while True:
+            if self.isKeyPressedLeftOrRight(self.pressed_key):
+                print(str(self.pressed_key) + " key presssed")
+                return
+    
+    def resetKeyPressed(self):
+        self.pressed_key = ""
 
     def goToInitialPose(self):
         pose = Pose()
@@ -337,8 +405,29 @@ class TrainingNode(object):
             rospy.loginfo("No prediction made yet!:")
             rospy.loginfo(str(e))
 
+    def saveData(self):
+        path = self.experiment_variables.data_path + 'participant_' + str(self.participant_number) + '/training/' + str(self.method) + '/'
+
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
+        data = {'moving_average': list(self.training_scores), 'time': self.elapsed_time}
+        
+        with open(path + 'data.txt', 'w+') as f:
+            f.write(str(data))
+
+    def storeData(self, success):
+        self.training_scores.rotate()
+        self.training_scores[0] = success
+        print(self.training_scores)
+    
     def startTraining(self):
 
+        text = "FILL IN PARTICIPANT NUMBER"
+        self.text_updater.update(text)
+            
+        rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
+        
         self.y_position = 0.05
 
         self.openGripper()
@@ -368,9 +457,12 @@ class TrainingNode(object):
         if object_kicked_over:
             self.text_updater.append("OBJECT KICKED OVER")
 
+
+        number_of_refinements = 0
+
         if self.method == 'online+pendant':
-            while np.mean(list(self.training_scores)) < 2: 
-                print("Trajectory failure!")
+            while np.mean(list(self.training_scores)) < 1/2: 
+                print(np.mean(list(self.training_scores)))
 
                 self.goToInitialPose()
                 self.setDishwasherPosition()
@@ -398,16 +490,6 @@ class TrainingNode(object):
 
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
-                elif self.refineRefinement():
-
-                    # we only need to start the timer if it is equal to zero, else just keep the timer running
-                    if self.start_time == 0:
-                        # start timer
-                        self.startTimer()
-                    else: pass
-
-                    resp = refine_trajectory(self.refined_trajectory, self.T_desired)
-
                 self.traffic_light_updater.update('red')
 
                 self.refined_trajectory = resp.refined_trajectory
@@ -435,8 +517,10 @@ class TrainingNode(object):
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
                     self.text_updater.update("FAILURE:")
+                    success = 0
                 else:
                     self.text_updater.update("SUCCESS!")
+                    success = 1
 
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
@@ -447,28 +531,18 @@ class TrainingNode(object):
 
                 time.sleep(2)
                 # store refinement along with if it failed or not
-                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
+                self.storeData(success)
                
                 number_of_refinements += 1
-
-                # increment number of refinements
-                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
-                
-                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
-
                 rospy.loginfo("Got a refined trajectory")
 
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
         elif self.method == 'offline+pendant':
 
-            while np.mean(list(self.training_scores)) < 2: 
+            while np.mean(list(self.training_scores)) < 1/2: 
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 time.sleep(3)
@@ -575,7 +649,7 @@ class TrainingNode(object):
             clear_waypoints()
         
         elif self.method == 'online+omni':
-            while np.mean(list(self.training_scores)) < 2: 
+            while np.mean(list(self.training_scores)) < 1/2: 
                 print("Trajectory failure!")
 
                 self.goToInitialPose()
@@ -674,7 +748,7 @@ class TrainingNode(object):
         
         elif self.method == 'offline+omni':
 
-            while np.mean(list(self.training_scores)) < 2: 
+            while np.mean(list(self.training_scores)) < 1/2: 
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 time.sleep(3)
@@ -795,14 +869,9 @@ class TrainingNode(object):
         
         self.stopTimer()
         
-        # store time
-        self.storeData(time=True)
-        
         ###### save data ######
         self.saveData()
         self.zeroTimer()
-
-        self.current_trial += 1
 
     def run(self):
         self.startTraining()

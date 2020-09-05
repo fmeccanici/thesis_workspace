@@ -15,6 +15,8 @@ class ParticipantData(object):
         self.methods = {}
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.num_trials = self.experiment_variables.num_trials
+        
+        self.num_training_trials = self.experiment_variables.num_training_trials
 
         self.parser = trajectoryParser()
 

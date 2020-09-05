@@ -101,6 +101,8 @@ class ExperimentNode(object):
         self.collision_updating_flag = 0
 
         self.pressed_key = ""
+        
+
 
     def _slaveControlStateCallback(self, data):
         self.en_arm = data.en_arm.data
