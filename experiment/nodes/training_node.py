@@ -516,11 +516,14 @@ class TrainingNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
                     success = 0
+                    self.storeData(success)
+                    self.text_updater.update("FAILURE: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
+
                 else:
-                    self.text_updater.update("SUCCESS!")
                     success = 1
+                    self.storeData(success)
+                    self.text_updater.update("SUCCESS!: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
 
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
@@ -531,7 +534,6 @@ class TrainingNode(object):
 
                 time.sleep(2)
                 # store refinement along with if it failed or not
-                self.storeData(success)
                
                 number_of_refinements += 1
                 rospy.loginfo("Got a refined trajectory")
@@ -873,6 +875,7 @@ class TrainingNode(object):
         self.saveData()
         self.zeroTimer()
 
+        self.text_updater.update("END TRAINING: Final score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
     def run(self):
         self.startTraining()
 
