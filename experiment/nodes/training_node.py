@@ -616,9 +616,13 @@ class TrainingNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    success = 0
+                    self.storeData(success)
+                    self.text_updater.update("FAILURE: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
                 else:
-                    self.text_updater.update("SUCCESS!")
+                    success = 1
+                    self.storeData(success)
+                    self.text_updater.update("SUCCESS!: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
 
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
@@ -643,9 +647,6 @@ class TrainingNode(object):
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
             rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
             clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
             clear_waypoints()
@@ -716,9 +717,13 @@ class TrainingNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    success = 0
+                    self.storeData(success)
+                    self.text_updater.update("FAILURE: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
                 else:
-                    self.text_updater.update("SUCCESS!")
+                    success = 1
+                    self.storeData(success)
+                    self.text_updater.update("SUCCESS!: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
 
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
@@ -829,9 +834,13 @@ class TrainingNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    success = 0
+                    self.storeData(success)
+                    self.text_updater.update("FAILURE: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
                 else:
-                    self.text_updater.update("SUCCESS!")
+                    success = 1
+                    self.storeData(success)
+                    self.text_updater.update("SUCCESS!: Score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
 
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
@@ -876,6 +885,7 @@ class TrainingNode(object):
         self.zeroTimer()
 
         self.text_updater.update("END TRAINING: Final score = " + str(int(np.mean(list(self.training_scores)) * 100)) + '%')
+    
     def run(self):
         self.startTraining()
 
