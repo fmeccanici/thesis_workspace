@@ -194,7 +194,7 @@ class NASATLX(QWidget):
 
             groupbox.setLayout(comparison_radio_hbox)
             
-            self.grid_comparison_cards.addWidget(groupbox, i, 1)
+            self.grid_comparison_cards.addWidget(groupbox, i+1, 1)
 
     def createSlider(self, label):
         groupBox = QGroupBox("")

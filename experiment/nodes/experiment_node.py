@@ -516,11 +516,12 @@ class ExperimentNode(object):
             # dummy variable names --> not necessary when data exists --> data logger loads this automatically instead of writing it
             gender_msg = Bool(0)
             age_msg = Byte(1)
+            field_of_study_msg = String("")
             teleop_experience_msg = Byte(1)
             keyboard_experience_msg = Byte(1)
             left_right_handed_msg = Bool(1)
 
-            resp = create_participant(number_msg, gender_msg, age_msg, teleop_experience_msg, keyboard_experience_msg, left_right_handed_msg)     
+            resp = create_participant(number_msg, gender_msg, age_msg, field_of_study_msg, teleop_experience_msg, keyboard_experience_msg, left_right_handed_msg)     
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
