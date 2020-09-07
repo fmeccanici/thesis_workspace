@@ -65,6 +65,8 @@ class NASATLX(QWidget):
         self.reset_button.clicked.connect(self.onResetClick)
         self.store_button.clicked.connect(self.onStoreClick)
 
+        self.setRandomValues()
+
         self.setWindowTitle("NASA TLX")
         self.resize(400, 300)
 
@@ -86,7 +88,7 @@ class NASATLX(QWidget):
         with open(self.data_path + 'data.txt', 'w+') as f:
             f.write(str(self.data))
     
-    def onResetClick(self):
+    def setRandomValues(self):
         for slider in self.rating_sliders:
             slider.setValue(choice([0, 20, 40, 60, 80, 100]))
 
@@ -97,6 +99,9 @@ class NASATLX(QWidget):
         self.data = {'Ratings': {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
                     "Comparisons": {"Effort": 0, "Performance": 0, "Temporal Demand": 0, "Frustration": 0, "Physical Demand": 0, "Mental Demand": 0},
                     "Workload": 0}
+
+    def onResetClick(self):
+        self.setRandomValues()
 
     def isValidScore(self):
         total_count = 0
