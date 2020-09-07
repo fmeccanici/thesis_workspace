@@ -3,11 +3,11 @@
 <arg name="method" default="online+pendant"/>
 
 <include file="$(find data_logger)/launch/gui.launch">
-    <param name="method" value="$(arg method)"/>
+    <arg name="method" value="$(arg method)"/>
 </include>
 
 <include file="$(find experiment)/launch/needed_nodes.launch">
-    <param name="method" value="$(arg method)"/>
+    <arg name="method" value="$(arg method)"/>
 </include>
 
 <node pkg="experiment" name="experiment" 

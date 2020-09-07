@@ -75,6 +75,7 @@ class TrainingNode(object):
         self.execution_failure_sub = rospy.Subscriber('execution_failure', ExecutionFailure, self._executionFailureCallback)
         self.keyboard_sub = rospy.Subscriber('keyboard_control', Keyboard, self._keyboardCallback)
         self.operator_gui_interaction_sub = rospy.Subscriber('/operator_gui_interaction', OperatorGUIinteraction, self._operatorGuiInteraction)
+        self.slave_control_state_sub = rospy.Subscriber('slave_control_state', ControlState, self._slaveControlStateCallback)
 
         self.lift_goal_pub = rospy.Publisher('/lift_controller_ref', JointState, queue_size=10)
         self.head_goal_pub = rospy.Publisher('/head_controller_ref', JointState, queue_size=10)
@@ -85,7 +86,10 @@ class TrainingNode(object):
 
     def isStringEmpty(self, string):
         return string == "" or string == ''
-
+    
+    def _slaveControlStateCallback(self, data):
+        self.en_arm = data.en_arm.data
+    
     def _keyboardCallback(self, data):
         if not self.isStringEmpty(data.key.data):
             self.pressed_key = data.key.data
@@ -416,13 +420,36 @@ class TrainingNode(object):
         with open(path + 'data.txt', 'w+') as f:
             f.write(str(data))
 
+    def initializeHeadLiftJoint(self):
+        lift_goal = JointState()
+        head_goal = JointState()
+
+        lift_goal.name = ["torso_lift_joint"]
+        head_goal.name = ["head_2_joint", "head_1_joint"]
+
+        lift_goal.position = [0.3]
+
+        head_goal.position = [-0.9, 0.0]
+
+        head_goal.effort = [0.0, 0.0]
+        lift_goal.effort = [0.0]
+
+        head_goal.velocity = [0.0, 0.0]
+        lift_goal.velocity = [0.0]
+
+        self.lift_goal_pub.publish(lift_goal)
+        self.head_goal_pub.publish(head_goal)
+
+    def isArmEnabled(self):
+        return self.en_arm == 1
+
     def storeData(self, success):
         self.training_scores.rotate()
         self.training_scores[0] = success
         print(self.training_scores)
     
     def startTraining(self):
-
+        
         text = "FILL IN PARTICIPANT NUMBER"
         self.text_updater.update(text)
             
@@ -430,11 +457,13 @@ class TrainingNode(object):
         
         self.y_position = 0.05
 
+        self.initializeHeadLiftJoint()
+
         self.openGripper()
         self.goToInitialPose()
         self.setDishwasherPosition()
         self.setObjectPosition()
-        time.sleep(4)
+        time.sleep(2)
         self.getContext()
         self.predict()
         self.visualize('prediction')
@@ -459,6 +488,15 @@ class TrainingNode(object):
 
 
         number_of_refinements = 0
+
+        if self.method == 'offline+pendant':
+            rospy.wait_for_service('/offline_pendant/set_teach_state', timeout=2.0)
+            set_teach_state = rospy.ServiceProxy('/offline_pendant/set_teach_state', SetTeachState)
+            set_teach_state(Bool(False))
+        elif self.method == 'offline+omni':
+            rospy.wait_for_service('/trajectory_teaching/set_teach_state', timeout=2.0)
+            set_teach_state = rospy.ServiceProxy('/trajectory_teaching/set_teach_state', SetTeachStateOmni)
+            set_teach_state(Bool(False))
 
         if self.method == 'online+pendant':
             while np.mean(list(self.training_scores)) < 1/2: 
@@ -599,13 +637,12 @@ class TrainingNode(object):
 
                 self.collision_updating_flag = 0
 
+                self.text_updater.update("AUTONOMOUS EXECUTION")
+
                 self.stopTimer()
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
                 self.startTimer()
-                
-                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
-                    f.write(str(self.refined_trajectory))
-                    
+
                 print("\n")
 
                 rospy.loginfo("object missed: " + str(not object_reached))
@@ -630,17 +667,8 @@ class TrainingNode(object):
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
-
-                time.sleep(2)
-                # store refinement along with if it failed or not
-                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
-                # increment number of refinements
-                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
-                
                 number_of_refinements += 1
-                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
@@ -694,9 +722,7 @@ class TrainingNode(object):
 
 
                 self.refined_trajectory = resp.refined_trajectory
-                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
-                    f.write(str(self.refined_trajectory))
-                    
+
                 time.sleep(5)
 
                 obstacle_hit = resp.obstacle_hit.data
@@ -731,18 +757,8 @@ class TrainingNode(object):
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
-
-                time.sleep(2)
-                # store refinement along with if it failed or not
-                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
                 number_of_refinements += 1
-
-                # increment number of refinements
-                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
-                
-                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
@@ -750,9 +766,6 @@ class TrainingNode(object):
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
         elif self.method == 'offline+omni':
 
             while np.mean(list(self.training_scores)) < 1/2: 
@@ -817,13 +830,10 @@ class TrainingNode(object):
                 time.sleep(3)
 
                 self.collision_updating_flag = 0
-
+                
+                self.text_updater.update("AUTONOMOUS EXECUTION")
                 obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
                 
-
-                with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
-                    f.write(str(self.refined_trajectory))
-                    
                 print("\n")
 
                 rospy.loginfo("object missed: " + str(not object_reached))
@@ -848,17 +858,9 @@ class TrainingNode(object):
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
-
-                time.sleep(2)
-                # store refinement along with if it failed or not
-                self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
-                # increment number of refinements
-                rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
-                
+                # increment number of refinements                
                 number_of_refinements += 1
-                set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
@@ -869,9 +871,6 @@ class TrainingNode(object):
                 clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
                 resp = clear_trajectory()
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
             rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
             clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
             clear_trajectory()

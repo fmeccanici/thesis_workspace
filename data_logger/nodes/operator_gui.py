@@ -115,8 +115,9 @@ class ImageWidget(QWidget):
         label = QLabel(self)
         # pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/drawio/omni_instruction.png')
         
+        print("METHOD GUI = " + str(self.method))
         if self.method == 'online+pendant':
-            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/keyboard_online_instructions2.png')
+            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_online.png')
             pixmap = pixmap.scaled(700, 700, Qt.KeepAspectRatio)
         elif self.method == 'offline+pendant':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_offline.png')
@@ -127,7 +128,7 @@ class ImageWidget(QWidget):
 
         elif self.method == 'offline+omni':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_omni_offline.png')
-            pixmap = pixmap.scaled(700, 700, Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
 
         
 
@@ -200,10 +201,17 @@ class OperatorGUI(QMainWindow):
         self.pushButton_2 = QPushButton(self.groupBox_2)
         self.pushButton_2.setGeometry(QRect(190, 50, 181, 41))
         self.pushButton_2.setObjectName("pushButton_2")
+        
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1355, 675, 500, 450))
+        if self.method != 'online+pendant':
+            self.groupBox_3.setGeometry(QRect(1200, 600, 500, 450))
+        else:
+            self.groupBox_3.setGeometry(QRect(1200, 600, 700, 450))
+
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
+
+
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QRect(20, 620, 1061, 151))
         font = QFont()

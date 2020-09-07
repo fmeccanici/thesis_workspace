@@ -102,8 +102,6 @@ class ExperimentNode(object):
 
         self.pressed_key = ""
         
-
-
     def _slaveControlStateCallback(self, data):
         self.en_arm = data.en_arm.data
 
@@ -855,6 +853,7 @@ class ExperimentNode(object):
                     self.text_updater.append("OBJECT KICKED OVER")
 
                 time.sleep(2)
+                
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
