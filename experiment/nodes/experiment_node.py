@@ -739,7 +739,7 @@ class ExperimentNode(object):
         
         # update text in operator gui
         if obstacle_hit or not object_reached or object_kicked_over:
-            self.text_updater.update("FAILURE:")
+            self.text_updater.update("FAILURE!")
         else:
             self.text_updater.update("SUCCESS!")
             
@@ -766,13 +766,15 @@ class ExperimentNode(object):
 
             # for going to the next loop iteration in start() function
             return 1
-    
+        
+        """
         if obstacle_hit:
             self.text_updater.append("OBSTACLE HIT")
         if not object_reached:
             self.text_updater.append("OBJECT MISSED")
         if object_kicked_over:
             self.text_updater.append("OBJECT KICKED OVER")
+        """
 
         time.sleep(2)
         # loop the refinement until max refinements has reached
@@ -845,16 +847,18 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
+                """
 
                 time.sleep(2)
                 
@@ -952,16 +956,18 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
+                """
 
                 time.sleep(2)
                 # store refinement along with if it failed or not
@@ -1052,17 +1058,19 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
-
+                """
+                
                 time.sleep(2)
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
@@ -1165,16 +1173,18 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
+                """
 
                 time.sleep(2)
                 # store refinement along with if it failed or not

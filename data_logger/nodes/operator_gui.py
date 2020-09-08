@@ -389,10 +389,6 @@ class OperatorGUI(QMainWindow):
         self.lineEdit_3.setText(str(number_of_trials) + '/' + str(self.experiment_variables.num_trials) + ' updates used')
 
     def updateText(self, text):
-
-
-
-        2
         self.plainTextEdit.setPlainText(text)
 
     def updateLight(self, light):
