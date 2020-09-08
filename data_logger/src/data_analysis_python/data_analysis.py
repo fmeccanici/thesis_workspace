@@ -49,7 +49,7 @@ class DataAnalysis(object):
     def loadData(self, participant_number, what_to_plot):
         
         # dummy variables zeros --> data gets loaded in participantData class nonetheless
-        participant = ParticipantData(participant_number, 0, 0, 0, 0, 0)
+        participant = ParticipantData(participant_number, 0, 0, 0, 0, 0, 0)
         self.data[participant_number] = participant        
 
         

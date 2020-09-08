@@ -1248,7 +1248,12 @@ class ExperimentNode(object):
 
             # last object position reached
             if self.current_object_position >= self.num_object_positions:
-                
+                # shift to next model
+                # 1st object, 1st trial
+                self.current_model += 1
+                self.current_object_position = 1
+                self.current_trial = 1
+
                 if not self.current_model == self.num_models:
                     # build initial model again 
                     try:
@@ -1257,12 +1262,6 @@ class ExperimentNode(object):
                         build_init_model()
                     except (rospy.ServiceException, rospy.ROSException) as e:
                         print("Service call failed: %s" %e)
-                    
-                    # shift to next model
-                    # 1st object, 1st trial
-                    self.current_model += 1
-                    self.current_object_position = 1
-                    self.current_trial = 1
             
             # last position not reached
             else:
@@ -1280,7 +1279,9 @@ class ExperimentNode(object):
         for model in self.models:
             self.current_trial = 1
             self.current_object_position = 1
-            
+            self.text_updater.update("GO TO NEXT MODEL")
+            time.sleep(3)
+
             for object_position in self.object_positions:
                 self.text_updater.update("GO TO NEXT OBJECT")
 
@@ -1288,10 +1289,11 @@ class ExperimentNode(object):
                 print('model = ' + str(self.current_model))
 
                 self.setDataLoggerParameters()
-
                 self.y_position = self.determineYPosition()
                 
                 self.number_of_trials_updater.update(str(0))
+                
+                success = 0
 
                 for trial in self.trials:
                     self.number_of_refinements_updater.update(str(0))
@@ -1320,12 +1322,20 @@ class ExperimentNode(object):
                         break
                 else:
                     continue
-                break
-            
+
+                # if the break does not come from success --> comes from max refinements
+                # go to next model
+                if success == 0:
+                    break
+                # if break comes from success --> Go to next object instead of model
+                else:
+                    continue
+
             # reset y position after adapting a model
             self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
                 
-            
+        self.text_updater.update("END EXPERIMENT")
+
 
 
 
