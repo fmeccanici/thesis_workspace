@@ -56,6 +56,10 @@ class ExperimentNode(object):
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
         self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
         self.number_of_refinements_updater.update(str(0))
+        
+        self.number_of_trials_updater = TextUpdater(text_file='number_of_trials.txt')
+        self.number_of_trials_updater.update(str(0))
+
         self.traffic_light_updater = TrafficLightUpdater()
         self.traffic_light_updater.update('red')
 
@@ -492,7 +496,6 @@ class ExperimentNode(object):
             rospy.loginfo("Context not set!: " + str(e))
             return -1
         trial_msg = Byte(self.current_trial)
-
 
         rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
         
@@ -1218,6 +1221,8 @@ class ExperimentNode(object):
         self.saveData()
         self.zeroTimer()
 
+        self.number_of_trials_updater.update(str(self.current_trial))
+
         self.current_trial += 1
 
         # logic to go to next model and object position
@@ -1261,6 +1266,8 @@ class ExperimentNode(object):
                 self.getContext()
                 self.setDataLoggerParameters()
                 self.y_position = self.determineYPosition()
+                
+                self.number_of_trials_updater.update(str(0))
 
                 for trial in self.trials:
                     print('object position = ' + str(object_position))
@@ -1269,7 +1276,7 @@ class ExperimentNode(object):
                     success = self.startTrial()
                     if success:
                         break
-
+                    
 
             # reset y position after adapting a model
             self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
