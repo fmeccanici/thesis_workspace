@@ -65,6 +65,8 @@ class TrainingNode(object):
         self.number_of_refinements_updater.update(str(0))
         self.traffic_light_updater = TrafficLightUpdater()
         self.traffic_light_updater.update('red')
+        self.number_of_trials_updater = TextUpdater(text_file='number_of_trials.txt')
+        self.number_of_trials_updater.update(str(0))
 
         self.experiment_variables = ExperimentVariables()
         self.T_desired = self.experiment_variables.T_desired
@@ -454,7 +456,8 @@ class TrainingNode(object):
         self.text_updater.update(text)
             
         rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
-        
+        self.text_updater.update("START TRAINING")
+
         self.y_position = 0.05
 
         self.initializeHeadLiftJoint()
@@ -510,7 +513,7 @@ class TrainingNode(object):
 
                 self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
-                self.text_updater.update("REFINE RED OR GREEN?")
+                self.text_updater.update("PRESS LEFT OR RIGHT KEY TO REFINE RED")
                 # rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
                 # rospy.wait_for_message('keyboard_control', Keyboard)
                 self.waitForKeyPress()
@@ -695,7 +698,7 @@ class TrainingNode(object):
 
                 self.traffic_light_updater.update('green')
                 # wait until the operator clicked the red or green button
-                self.text_updater.update("REFINE RED OR GREEN?")
+                self.text_updater.update("PRESS LEFT OR RIGHT KEY TO REFINE RED")
                 self.waitForKeyPress()
                 self.text_updater.update("PRESS WHITE BUTTON TO STOP REFINING")
 
