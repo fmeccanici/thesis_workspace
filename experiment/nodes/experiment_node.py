@@ -779,7 +779,7 @@ class ExperimentNode(object):
         time.sleep(2)
         # loop the refinement until max refinements has reached
         # or the last refinement was successful
-        number_of_refinements = 0
+        self.number_of_refinements = 0
         
         if self.method == 'online+pendant':
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
@@ -878,9 +878,6 @@ class ExperimentNode(object):
                 self.visualize('both')
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
-
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
         
         elif self.method == 'offline+pendant':
 
@@ -976,7 +973,7 @@ class ExperimentNode(object):
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
-                number_of_refinements += 1
+                self.number_of_refinements += 1
                 set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
                 set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
@@ -984,9 +981,6 @@ class ExperimentNode(object):
 
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
-
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
         
             rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
             clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
@@ -1075,7 +1069,7 @@ class ExperimentNode(object):
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
-                number_of_refinements += 1
+                self.number_of_refinements += 1
 
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
@@ -1089,9 +1083,6 @@ class ExperimentNode(object):
                 print("number of refinement = " + str(number_of_refinements))
                 self.number_of_refinements_updater.update(str(number_of_refinements))
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
         elif self.method == 'offline+omni':
 
             while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
@@ -1193,7 +1184,7 @@ class ExperimentNode(object):
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
-                number_of_refinements += 1
+                self.number_of_refinements += 1
                 set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
                 set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
 
@@ -1206,9 +1197,6 @@ class ExperimentNode(object):
                 clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
                 resp = clear_trajectory()
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
             rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
             clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
             clear_trajectory()
@@ -1272,7 +1260,11 @@ class ExperimentNode(object):
 
         for model in self.models:
             print('model = ' + str(model))
+            self.text_updater.update("GO TO NEXT MODEL")
+
             for object_position in self.object_positions:
+                self.text_updater.update("GO TO NEXT OBJECT")
+
                 self.getContext()
                 self.setDataLoggerParameters()
                 self.y_position = self.determineYPosition()
@@ -1280,6 +1272,8 @@ class ExperimentNode(object):
                 self.number_of_trials_updater.update(str(0))
 
                 for trial in self.trials:
+                    self.text_updater.update("GO TO NEXT UPDATE")
+
                     print('object position = ' + str(object_position))
                     print('trial = ' + str(trial))
 
@@ -1287,7 +1281,14 @@ class ExperimentNode(object):
                     if success:
                         break
                     
-
+                    if self.number_of_refinements >= self.max_refinements:
+                        self.text_updater.update("MAX REFINEMENT ATTEMPTS REACHED!")
+                        self.text_updater.update("GO TO NEXT MODEL")
+                        break
+                else:
+                    continue
+                break
+            
             # reset y position after adapting a model
             self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
 
