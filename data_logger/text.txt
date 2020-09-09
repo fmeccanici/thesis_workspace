@@ -1,1 +1,1 @@
-END TRAINING!: Final score = 50%
+END EXPERIMENT

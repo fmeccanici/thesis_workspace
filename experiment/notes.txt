@@ -1,0 +1,37 @@
+Online + Keyboard
+-----------------------------------------------------------------------
+
+Start training = 12:53
+Stop training = 12:56
+Start experiment = 12:57
+Stop experiment = 13:16
+
+Offline + Keyboard
+-----------------------------------------------------------------------
+
+Start training = 14:06
+Stop training = 14:12
+Start experiment = 15:09 (error T < 0)
+Stop experiment = 15:38
+
+Online + Omni
+-----------------------------------------------------------------------
+
+Start training = 15:43
+Stop training = 15:44
+Start experiment = 15:45
+Stop experiment = 16:08
+
+Offline + Omni
+-----------------------------------------------------------------------
+
+Start training = 16:40
+Stop training = 16:43
+Start experiment = 16:09
+Stop experiment = 16:39
+
+
+----------------------------------------------------------------------
+EVALUATE COMPLETE EXPERIMENT TIME
+start = 13:16
+stop = 

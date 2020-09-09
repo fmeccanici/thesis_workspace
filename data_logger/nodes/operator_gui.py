@@ -134,10 +134,10 @@ class ImageWidget(QWidget):
         
         if self.method == 'online+pendant':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_online.png')
-            pixmap = pixmap.scaled(700, 700, Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
         elif self.method == 'offline+pendant':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_offline.png')
-            pixmap = pixmap.scaled(700, 700, Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
         elif self.method == 'online+omni':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_omni_online.png')
             pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
