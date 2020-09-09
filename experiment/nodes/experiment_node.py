@@ -716,6 +716,7 @@ class ExperimentNode(object):
         self.openGripper()
         self.goToInitialPose()
         time.sleep(5)
+        self.openGripper()
 
         self.setDishwasherPosition()
         self.setObjectPosition()

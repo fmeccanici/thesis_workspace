@@ -33,5 +33,5 @@ Stop experiment = 16:39
 
 ----------------------------------------------------------------------
 EVALUATE COMPLETE EXPERIMENT TIME
-start = 13:16
-stop = 
+start = 13:21
+stop = 15:23
