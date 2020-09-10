@@ -22,6 +22,7 @@ class DataAnalysis(object):
         self.models_labels = [ str(int(x)) for x in range(1, self.num_models+1) ]
 
         self.method_mapping = self.experiment_variables.method_mapping_str_to_number
+        self.method_mapping_number_to_string = self.experiment_variables.method_mapping_number_to_str
 
         self.createDataTemplate()
 
@@ -40,7 +41,8 @@ class DataAnalysis(object):
         self.teleop_experience_data = []
         self.keyboard_experience_data = []
         self.age_data = []
-        
+        self.workload_data = {1: [], 2: [], 3: [], 4: []}
+
         self.success_after_experiment_data = copy.deepcopy(self.data_template)
         self.object_missed_after_experiment_data = copy.deepcopy(self.data_template)
         self.object_kicked_over_after_experiment_data = copy.deepcopy(self.data_template)
@@ -62,6 +64,8 @@ class DataAnalysis(object):
         
     def parseDataAfterExperiment(self, participant_number):
         for i, method_str in enumerate(self.methods_labels):
+
+
             for j in range(1, self.num_models + 1):
                 success = 0
                 object_missed = 0
@@ -96,6 +100,13 @@ class DataAnalysis(object):
 
     def parseDataExperiment(self, participant_number):
         for method in range(1,self.num_methods + 1):
+            method_str = self.method_mapping_number_to_string[method]
+
+            nasa_tlx_path = self.data_path + "participant_" + str(participant_number) + '/nasa_tlx/' + method_str + '/data.txt'
+            with open(nasa_tlx_path, 'r') as f:
+                workload = float(ast.literal_eval(f.read())['Workload'])
+                self.workload_data[method].append(workload)
+
             time_per_model = self.calculateRefinementTime(self.data[participant_number].getNumber(), method)[1]
             
             number_of_refinements_per_model = self.getNumberOfRefinements(self.data[participant_number].getNumber(), method)
@@ -163,13 +174,7 @@ class DataAnalysis(object):
             method_dict[i] = copy.deepcopy(model_dict)
 
         self.data_template = copy.deepcopy(method_dict)
-
-        tlx_dict = {'mental demand': 0, 'physical_demant': 0, 'temporal_demand': 0, 'performance': 0, 'effort': 0, 'frustration': 0}
-        for i in range(1,self.num_methods+1):
-            method_dict[i] = copy.deepcopy(tlx_dict)
         
-        self.tlx_data_template = copy.deepcopy(method_dict)
-
     def createFiguresPaths(self, participant_number):
         path = self.getFiguresPathParticipant(participant_number)
 
@@ -692,18 +697,18 @@ class DataAnalysis(object):
         """
 
         if what_to_plot == 'after' or what_to_plot == 'all':
+
             fig = plt.figure()
 
             to_plot_mean = []
 
             for i in range(1,self.num_methods+1):
                 to_plot = []
-
                 for model in self.success_after_experiment_data[i]:
-                    to_plot.append(np.sum(self.success_after_experiment_data[i][model]))
+                    to_plot.append(np.mean(self.success_after_experiment_data[i][model]))
 
-                print(np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100)
                 to_plot_mean.append(np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100)
+                print(to_plot_mean)
 
             plt.boxplot(to_plot_mean, labels=self.methods_labels)
             plt.title("Successfully adapted models")
@@ -713,6 +718,20 @@ class DataAnalysis(object):
             plt.savefig(path+'success_after_experiment_per_method.pdf')
         
         if what_to_plot == 'experiment' or what_to_plot == 'all':
+            fig = plt.figure()
+
+            to_plot = []
+
+            for i in range(1,self.num_methods+1):
+                print(self.workload_data[i])
+                to_plot.append(self.workload_data[i])
+
+            plt.boxplot(to_plot, labels=self.methods_labels)
+            plt.title("NASA-TLX")
+            plt.ylabel('Workload [0-100]')
+            plt.ylim([0,110])
+            plt.savefig(path+'workload_per_method.pdf')
+
             fig = plt.figure()
             for i in range(1,self.num_methods+1):
                 to_plot = []
@@ -978,7 +997,7 @@ if __name__ == "__main__":
         data_analysis.loadData(number, what_to_plot)
 
              
-        if what_to_plot == 'experiment':
+        if what_to_plot == 'experiment' or what_to_plot == 'all':
             data_analysis.plotRefinementTime(number)
             data_analysis.plotNumberOfRefinements(number)
 
@@ -998,7 +1017,7 @@ if __name__ == "__main__":
             print('Figures of experiment stored')
             data_analysis.generateBoxPlots(what_to_plot)
 
-        elif what_to_plot == 'after':
+        elif what_to_plot == 'after' or what_to_plot == 'all':
             for method in data_analysis.experiment_variables.method_mapping_str_to_number:
                 
                 try:

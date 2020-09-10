@@ -22,6 +22,7 @@ class ParticipantData(object):
 
         # check if path exists, create if not
         self.path = path + 'participant_' + str(number) + '/'
+
         if not os.path.exists(self.path):
             os.makedirs(self.path)
             self.gender = gender
