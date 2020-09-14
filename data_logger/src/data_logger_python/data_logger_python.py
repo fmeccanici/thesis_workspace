@@ -6,7 +6,7 @@ from learning_from_demonstration_python.trajectory_parser import trajectoryParse
 from experiment_variables.experiment_variables import ExperimentVariables
 
 class ParticipantData(object):
-    def __init__(self, number, gender, age, teleop_experience, keyboard_experience, left_right_handed, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
+    def __init__(self, number, gender, age, field_of_study, teleop_experience, keyboard_experience, left_right_handed, num_object_positions=6, num_trials=5, path='/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/data/'):
 
         self.experiment_variables = ExperimentVariables()        
         self.number = number
@@ -15,15 +15,19 @@ class ParticipantData(object):
         self.methods = {}
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.num_trials = self.experiment_variables.num_trials
+        
+        self.num_training_trials = self.experiment_variables.num_training_trials
 
         self.parser = trajectoryParser()
 
         # check if path exists, create if not
         self.path = path + 'participant_' + str(number) + '/'
+
         if not os.path.exists(self.path):
             os.makedirs(self.path)
             self.gender = gender
             self.age = age
+            self.field_of_study = field_of_study
             self.teleop_experience = teleop_experience
             self.keyboard_experience = keyboard_experience
             self.left_right_handed = left_right_handed
@@ -36,6 +40,7 @@ class ParticipantData(object):
         else:
             self.gender = gender
             self.age = age
+            self.field_of_study = field_of_study
             self.teleop_experience = teleop_experience
             self.keyboard_experience = keyboard_experience
             self.left_right_handed = left_right_handed
@@ -98,6 +103,7 @@ class ParticipantData(object):
             self.number = outfile['number']
             self.gender = outfile['gender']
             self.age = outfile['age']
+            self.field_of_study = outfile['field_of_study']
             self.teleop_experience = outfile['teleop_experience']
             self.keyboard_experience = outfile['keyboard_experience']
             self.left_right_handed = outfile['left_right_handed']
@@ -301,12 +307,12 @@ class ParticipantData(object):
         self.methods[method]['number_of_updates'] = value
     
     def toCSV(self):
-        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'field_of_study': self.field_of_study, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
         with open(self.path + 'data.txt', 'w+') as f:
             f.write(str(data))
 
     def getDict(self):
-        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
+        data = {'number': self.number, 'age': self.age, 'gender': self.gender, 'field_of_study': self.field_of_study, 'teleop_experience': self.teleop_experience, 'keyboard_experience': self.keyboard_experience, 'left_right_handed': self.left_right_handed, 'method': self.methods}
         return data     
             
 if __name__ == "__main__":

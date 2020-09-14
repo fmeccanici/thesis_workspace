@@ -56,6 +56,10 @@ class ExperimentNode(object):
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
         self.number_of_refinements_updater = TextUpdater(text_file='number_of_refinements.txt')
         self.number_of_refinements_updater.update(str(0))
+        
+        self.number_of_trials_updater = TextUpdater(text_file='number_of_trials.txt')
+        self.number_of_trials_updater.update(str(0))
+
         self.traffic_light_updater = TrafficLightUpdater()
         self.traffic_light_updater.update('red')
 
@@ -66,8 +70,8 @@ class ExperimentNode(object):
         self.num_models = self.experiment_variables.num_models
         self.num_trials = self.experiment_variables.num_trials
         self.num_object_positions = self.experiment_variables.num_object_positions
-        self.trials = range(1,self.num_trials+1)
 
+        self.trials = range(1,self.num_trials+1)
         self.object_positions = range(1,self.num_object_positions+1)
         self.models = range(1,self.num_models+1)
 
@@ -101,7 +105,7 @@ class ExperimentNode(object):
         self.collision_updating_flag = 0
 
         self.pressed_key = ""
-
+        
     def _slaveControlStateCallback(self, data):
         self.en_arm = data.en_arm.data
 
@@ -493,7 +497,6 @@ class ExperimentNode(object):
             return -1
         trial_msg = Byte(self.current_trial)
 
-
         rospy.wait_for_service('data_logger/set_parameters', timeout=2.0)
         
         set_parameters = rospy.ServiceProxy('data_logger/set_parameters', SetParameters)
@@ -516,11 +519,12 @@ class ExperimentNode(object):
             # dummy variable names --> not necessary when data exists --> data logger loads this automatically instead of writing it
             gender_msg = Bool(0)
             age_msg = Byte(1)
+            field_of_study_msg = String("")
             teleop_experience_msg = Byte(1)
             keyboard_experience_msg = Byte(1)
             left_right_handed_msg = Bool(1)
 
-            resp = create_participant(number_msg, gender_msg, age_msg, teleop_experience_msg, keyboard_experience_msg, left_right_handed_msg)     
+            resp = create_participant(number_msg, gender_msg, age_msg, field_of_study_msg, teleop_experience_msg, keyboard_experience_msg, left_right_handed_msg)     
 
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
@@ -712,6 +716,7 @@ class ExperimentNode(object):
         self.openGripper()
         self.goToInitialPose()
         time.sleep(5)
+        self.openGripper()
 
         self.setDishwasherPosition()
         self.setObjectPosition()
@@ -735,20 +740,13 @@ class ExperimentNode(object):
         
         # update text in operator gui
         if obstacle_hit or not object_reached or object_kicked_over:
-            self.text_updater.update("FAILURE:")
+            self.text_updater.update("FAILURE!")
         else:
             self.text_updater.update("SUCCESS!")
             
+            """
             # last object position reached
             if self.current_object_position >= self.num_object_positions:
-                # build initial model again
-                try:
-                    rospy.wait_for_service('build_initial_model', timeout=2.0)
-                    build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
-                    build_init_model()
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e)
-                
                 # shift to next model
                 # 1st object, 1st trial
                 self.current_model += 1
@@ -759,28 +757,32 @@ class ExperimentNode(object):
             else:
                 self.current_object_position += 1
                 self.current_trial = 1
-
+            """
             # for going to the next loop iteration in start() function
             return 1
-    
+        
+        """
         if obstacle_hit:
             self.text_updater.append("OBSTACLE HIT")
         if not object_reached:
             self.text_updater.append("OBJECT MISSED")
         if object_kicked_over:
             self.text_updater.append("OBJECT KICKED OVER")
+        """
 
         time.sleep(2)
         # loop the refinement until max refinements has reached
         # or the last refinement was successful
-        number_of_refinements = 0
+        self.number_of_refinements = 0
         
         if self.method == 'online+pendant':
-            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+            while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -806,14 +808,17 @@ class ExperimentNode(object):
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
                 elif self.refineRefinement():
+                    try:
+                        # we only need to start the timer if it is equal to zero, else just keep the timer running
+                        if self.start_time == 0:
+                            # start timer
+                            self.startTimer()
+                        else: pass
 
-                    # we only need to start the timer if it is equal to zero, else just keep the timer running
-                    if self.start_time == 0:
-                        # start timer
-                        self.startTimer()
-                    else: pass
+                        resp = refine_trajectory(self.refined_trajectory, self.T_desired)
 
-                    resp = refine_trajectory(self.refined_trajectory, self.T_desired)
+                    except AttributeError as e:
+                        resp = refine_trajectory(self.prediction, self.T_desired)
 
                 self.traffic_light_updater.update('red')
 
@@ -841,43 +846,45 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
+                """
 
                 time.sleep(2)
+                
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
-                number_of_refinements += 1
+                self.number_of_refinements += 1
 
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
                 set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
+                set_nr_refinement(Byte(self.participant_number), Byte(self.number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
                 self.visualize('both')
-                print("number of refinement = " + str(number_of_refinements))
-                self.number_of_refinements_updater.update(str(number_of_refinements))
-
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
+                print("number of refinement = " + str(self.number_of_refinements))
+                self.number_of_refinements_updater.update(str(self.number_of_refinements))
         
         elif self.method == 'offline+pendant':
 
-            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+            while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -919,8 +926,10 @@ class ExperimentNode(object):
 
                 # self.stopNode('teach_pendant.launch')
                 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -947,16 +956,18 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
+                """
 
                 time.sleep(2)
                 # store refinement along with if it failed or not
@@ -965,28 +976,27 @@ class ExperimentNode(object):
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
-                number_of_refinements += 1
+                self.number_of_refinements += 1
                 set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
+                set_nr_refinement(Byte(self.participant_number), Byte(self.number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
-                print("number of refinement = " + str(number_of_refinements))
-                self.number_of_refinements_updater.update(str(number_of_refinements))
-
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
+                print("number of refinement = " + str(self.number_of_refinements))
+                self.number_of_refinements_updater.update(str(self.number_of_refinements))
         
             rospy.wait_for_service('offline_pendant/clear_waypoints', timeout=2.0)
             clear_waypoints = rospy.ServiceProxy('offline_pendant/clear_waypoints', ClearWaypoints)
             clear_waypoints()
         
         elif self.method == 'online+omni':
-            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+            while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -1011,15 +1021,18 @@ class ExperimentNode(object):
                     resp = refine_trajectory(self.prediction, self.T_desired)
                 
                 elif self.refineRefinement():
+                    try:
+                        # we only need to start the timer if it is equal to zero, else just keep the timer running
+                        if self.start_time == 0:
+                            # start timer
+                            self.startTimer()
+                        else: pass
 
-                    # we only need to start the timer if it is equal to zero, else just keep the timer running
-                    if self.start_time == 0:
-                        # start timer
-                        self.startTimer()
-                    else: pass
+                        resp = refine_trajectory(self.refined_trajectory, self.T_desired)
 
-                    resp = refine_trajectory(self.refined_trajectory, self.T_desired)
-                
+                    except AttributeError as e:
+                        resp = refine_trajectory(self.prediction, self.T_desired)
+
                 self.traffic_light_updater.update('red')
 
 
@@ -1047,43 +1060,44 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
-
+                """
+                
                 time.sleep(2)
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
-                number_of_refinements += 1
+                self.number_of_refinements += 1
 
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
                 set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
+                set_nr_refinement(Byte(self.participant_number), Byte(self.number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
                 self.visualize('both')
-                print("number of refinement = " + str(number_of_refinements))
-                self.number_of_refinements_updater.update(str(number_of_refinements))
+                print("number of refinement = " + str(self.number_of_refinements))
+                self.number_of_refinements_updater.update(str(self.number_of_refinements))
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
         elif self.method == 'offline+omni':
 
-            while (obstacle_hit or not object_reached or object_kicked_over) and number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+            while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -1133,8 +1147,10 @@ class ExperimentNode(object):
                 
                 self.text_updater.update("GREY BUTTON PRESSED")
 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -1160,16 +1176,18 @@ class ExperimentNode(object):
 
                 # update text in operator gui
                 if obstacle_hit or not object_reached or object_kicked_over:
-                    self.text_updater.update("FAILURE:")
+                    self.text_updater.update("FAILURE!")
                 else:
                     self.text_updater.update("SUCCESS!")
 
+                """
                 if obstacle_hit:
                     self.text_updater.append("OBSTACLE HIT")
                 if not object_reached:
                     self.text_updater.append("OBJECT MISSED")
                 if object_kicked_over:
                     self.text_updater.append("OBJECT KICKED OVER")
+                """
 
                 time.sleep(2)
                 # store refinement along with if it failed or not
@@ -1178,30 +1196,40 @@ class ExperimentNode(object):
                 # increment number of refinements
                 rospy.wait_for_service('set_number_of_refinements', timeout=2.0)
                 
-                number_of_refinements += 1
+                self.number_of_refinements += 1
                 set_nr_refinement = rospy.ServiceProxy('set_number_of_refinements', SetNumberOfRefinements)
-                set_nr_refinement(Byte(self.participant_number), Byte(number_of_refinements))
+                set_nr_refinement(Byte(self.participant_number), Byte(self.number_of_refinements))
 
                 rospy.loginfo("Got a refined trajectory")
 
-                print("number of refinement = " + str(number_of_refinements))
-                self.number_of_refinements_updater.update(str(number_of_refinements))
+                print("number of refinement = " + str(self.number_of_refinements))
+                self.number_of_refinements_updater.update(str(self.number_of_refinements))
                 
                 rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
                 clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
                 resp = clear_trajectory()
 
-                if number_of_refinements >= self.max_refinements:
-                    self.text_updater.update("MAX REFINEMENT AMOUNT REACHED!")
-        
             rospy.wait_for_service('trajectory_teaching/clear_trajectory', timeout=2.0)
             clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
             clear_trajectory()
         
+        if self.number_of_refinements >= self.max_refinements:
+            self.stopTimer()
+            
+            # store time
+            self.storeData(time=True)
+            
+            ###### save data ######
+            self.saveData()
+            self.zeroTimer()
+            self.number_of_trials_updater.update(str(self.current_trial))
+
+            return 0
+
         self.number_of_refinements_updater.update(str(0))
         
         ####### update model #######
-        if number_of_refinements == 0:
+        if self.number_of_refinements == 0:
             pass
         else:
             print('adding refinement to model')
@@ -1216,6 +1244,10 @@ class ExperimentNode(object):
         self.saveData()
         self.zeroTimer()
 
+        self.number_of_trials_updater.update(str(self.current_trial))
+
+
+        """
         self.current_trial += 1
 
         # logic to go to next model and object position
@@ -1224,7 +1256,12 @@ class ExperimentNode(object):
 
             # last object position reached
             if self.current_object_position >= self.num_object_positions:
-                
+                # shift to next model
+                # 1st object, 1st trial
+                self.current_model += 1
+                self.current_object_position = 1
+                self.current_trial = 1
+
                 if not self.current_model == self.num_models:
                     # build initial model again 
                     try:
@@ -1233,19 +1270,12 @@ class ExperimentNode(object):
                         build_init_model()
                     except (rospy.ServiceException, rospy.ROSException) as e:
                         print("Service call failed: %s" %e)
-                    
-                    # shift to next model
-                    # 1st object, 1st trial
-                    self.current_model += 1
-                    self.current_object_position = 1
-                    self.current_trial = 1
             
             # last position not reached
             else:
                 self.current_object_position += 1
                 self.current_trial = 1
-
-        self.setDataLoggerParameters()
+        """
         
         return 0
 
@@ -1254,23 +1284,63 @@ class ExperimentNode(object):
         self.initializeHeadLiftJoint()
 
         for model in self.models:
-            print('model = ' + str(model))
+            self.text_updater.update("GO TO NEXT MODEL")
+            try:
+                rospy.wait_for_service('build_initial_model', timeout=2.0)
+                build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                build_init_model()
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
+
             for object_position in self.object_positions:
+                self.text_updater.update("GO TO NEXT OBJECT")
                 self.getContext()
-                self.setDataLoggerParameters()
+
                 self.y_position = self.determineYPosition()
+                
+                self.number_of_trials_updater.update(str(0))
+                
+                success = 0
 
                 for trial in self.trials:
-                    print('object position = ' + str(object_position))
-                    print('trial = ' + str(trial))
+                    print("Object position = " + str(object_position))
+                    print("Model = " + str(model))
+                    print("Trial = " + str(trial))
+                    self.current_model = model
+                    self.current_object_position = object_position
+                    self.current_trial = trial
+                    self.setDataLoggerParameters()
+
+                    self.number_of_refinements_updater.update(str(0))
 
                     success = self.startTrial()
                     if success:
                         break
+                    
+                    if self.number_of_refinements >= self.max_refinements:
+                        self.text_updater.update("MAX REFINEMENT ATTEMPTS REACHED!")
+                        time.sleep(2)
+                        self.text_updater.update("GO TO NEXT MODEL")
+                        time.sleep(2)
+                        
+                        break
+                else:
+                    continue
 
+                # if the break does not come from success --> comes from max refinements
+                # go to next model
+                if success == 0:
+                    break
+                # if break comes from success --> Go to next object instead of model
+                else:
+                    continue
 
             # reset y position after adapting a model
             self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
+                
+        self.text_updater.update("END EXPERIMENT")
+
+
 
 
 if __name__ == "__main__":

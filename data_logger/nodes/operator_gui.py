@@ -94,6 +94,24 @@ class NumberOfRefinementsThread(QThread):
                 except SyntaxError:
                     self.number_of_refinements_signal.emit("0")
                 self.sleep(1)
+
+class NumberOfTrialsThread(QThread):
+    number_of_trials_signal = pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        super(NumberOfTrialsThread, self).__init__(parent=parent)
+        self.text_path = '/home/fmeccanici/Documents/thesis/thesis_workspace/src/data_logger/'
+        self.number_of_trials_file = self.text_path + 'number_of_trials.txt'
+    
+    def run(self):
+        while True:
+            
+            with open(self.number_of_trials_file, 'r') as f:
+                try:
+                    self.number_of_trials_signal.emit(ast.literal_eval(f.read()))
+                except SyntaxError:
+                    self.number_of_trials_signal.emit("0")
+                self.sleep(1)
             
 class ImageWidget(QWidget):
 
@@ -113,14 +131,22 @@ class ImageWidget(QWidget):
     
         # Create widget
         label = QLabel(self)
-        # pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/drawio/omni_instruction.png')
         
         if self.method == 'online+pendant':
-            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/keyboard_online_instructions2.png')
+            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_online.png')
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
         elif self.method == 'offline+pendant':
             pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_keyboard_offline.png')
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
+        elif self.method == 'online+omni':
+            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_omni_online.png')
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
 
-        pixmap = pixmap.scaled(700, 700, Qt.KeepAspectRatio)
+        elif self.method == 'offline+omni':
+            pixmap = QPixmap('/home/fmeccanici/Documents/thesis/figures/experiment_instructions_omni_offline.png')
+            pixmap = pixmap.scaled(500, 500, Qt.KeepAspectRatio)
+
+        
 
         label.setPixmap(pixmap)
         self.resize(pixmap.width(),pixmap.height())
@@ -157,6 +183,11 @@ class OperatorGUI(QMainWindow):
         self.number_of_refinements_thread.number_of_refinements_signal.connect(self.updateNumberOfRefinements)
         self.number_of_refinements_thread.start()
 
+        self.number_of_trials_thread = NumberOfTrialsThread(self)
+        self.number_of_trials_thread.number_of_trials_signal.connect(self.updateNumberOfTrials)
+        self.number_of_trials_thread.start()
+
+
         self.traffic_light_thread = TrafficLightThread(self)
         self.traffic_light_thread.lightSignal.connect(self.updateLight)
         self.traffic_light_thread.start()
@@ -177,21 +208,32 @@ class OperatorGUI(QMainWindow):
         self.groupBox.setGeometry(QRect(10, 0, 1071, 621))
         self.groupBox.setObjectName("groupBox")
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(10, 850, 251, 101))
+        self.groupBox_2.setGeometry(QRect(10, 860, 381, 111))
         self.groupBox_2.setObjectName("groupBox_2")
         self.label_3 = QLabel(self.groupBox_2)
-        self.label_3.setGeometry(QRect(10, 20, 67, 17))
+        self.label_3.setGeometry(QRect(0, 30, 67, 17))
         self.label_3.setObjectName("label_3")
         self.lineEdit = QLineEdit(self.groupBox_2)
-        self.lineEdit.setGeometry(QRect(80, 20, 113, 27))
+        self.lineEdit.setGeometry(QRect(70, 30, 113, 27))
         self.lineEdit.setObjectName("lineEdit")
         self.pushButton = QPushButton(self.groupBox_2)
-        self.pushButton.setGeometry(QRect(10, 50, 181, 41))
+        self.pushButton.setGeometry(QRect(0, 60, 181, 41))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton_2 = QPushButton(self.groupBox_2)
+        self.pushButton_2.setGeometry(QRect(180, 60, 181, 41))
+        self.pushButton_2.setObjectName("pushButton_2")
+        
         self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(1100, 600, 700, 450))
+
+        if self.method != 'online+pendant':
+            self.groupBox_3.setGeometry(QRect(1200, 600, 500, 450))
+        else:
+            self.groupBox_3.setGeometry(QRect(1100, 600, 700, 450))
+
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
+
+
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QRect(20, 620, 1061, 151))
         font = QFont()
@@ -199,7 +241,7 @@ class OperatorGUI(QMainWindow):
         self.plainTextEdit.setFont(font)
         self.plainTextEdit.setObjectName("plainTextEdit")
         self.groupBox_4 = QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QRect(330, 780, 441, 171))
+        self.groupBox_4.setGeometry(QRect(650, 780, 441, 171))
         font = QFont()
         font.setPointSize(22)
         self.groupBox_4.setFont(font)
@@ -223,9 +265,13 @@ class OperatorGUI(QMainWindow):
         self.checkBox_3.setFont(font)
         self.checkBox_3.setObjectName("checkBox_3")
         self.groupBox_6 = QGroupBox(self.centralwidget)
-        self.groupBox_6.setGeometry(QRect(1075, 0, 671, 621))
+        self.groupBox_6.setGeometry(QRect(1130, 0, 631, 621))
         self.groupBox_6.setTitle("")
         self.groupBox_6.setObjectName("groupBox_6")
+        self.groupBox_7 = QGroupBox(self.groupBox_6)
+        self.groupBox_7.setGeometry(QRect(630, 300, 631, 621))
+        self.groupBox_7.setTitle("")
+        self.groupBox_7.setObjectName("groupBox_7")
         self.lineEdit_2 = QLineEdit(self.centralwidget)
         self.lineEdit_2.setGeometry(QRect(20, 780, 291, 61))
         font = QFont()
@@ -236,6 +282,16 @@ class OperatorGUI(QMainWindow):
         self.groupBox_5.setGeometry(QRect(1770, 0, 151, 621))
         self.groupBox_5.setTitle("")
         self.groupBox_5.setObjectName("groupBox_5")
+        self.lineEdit_3 = QLineEdit(self.centralwidget)
+        self.lineEdit_3.setGeometry(QRect(350, 780, 291, 61))
+        font = QFont()
+        font.setPointSize(21)
+        self.lineEdit_3.setFont(font)
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        font = QFont()
+        font.setPointSize(21)
+        self.lineEdit_3.setFont(font)
+        self.lineEdit_3.setObjectName("lineEdit_3")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1820, 25))
@@ -280,22 +336,33 @@ class OperatorGUI(QMainWindow):
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.groupBox.setTitle(_translate("MainWindow", "Visualization of environment"))
-        self.groupBox_2.setTitle(_translate("MainWindow", ""))
+        self.groupBox_2.setTitle(_translate("MainWindow", "Load participant"))
         self.label_3.setText(_translate("MainWindow", "Number"))
         self.pushButton.setText(_translate("MainWindow", "START EXPERIMENT"))
+        self.pushButton_2.setText(_translate("MainWindow", "START TRAINING"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "START EXPERIMENT"))
         self.groupBox_4.setTitle(_translate("MainWindow", "Success?"))
         self.checkBox.setText(_translate("MainWindow", "Object reached"))
         self.checkBox_2.setText(_translate("MainWindow", "Object not kicked over"))
         self.checkBox_3.setText(_translate("MainWindow", "No collision"))
         self.lineEdit_2.setText(_translate("MainWindow", "0/5 refinements used "))
+        self.lineEdit_3.setText(_translate("MainWindow", "0/3 trials used"))
+
+
 
         self.pushButton.clicked.connect(self.onStartExperimentClick)
+        self.pushButton_2.clicked.connect(self.onStartTrainingClick)
 
     def onStartExperimentClick(self):
         participant_number_msg = Byte(int(self.lineEdit.text()))
 
         self._operator_gui_interaction_pub.publish(participant_number_msg)
+
+    def onStartTrainingClick(self):
+        participant_number_msg = Byte(int(self.lineEdit.text()))
+        
+        self._operator_gui_interaction_pub.publish(participant_number_msg)
+
 
     def updateObjectMissed(self, object_missed):
         if not object_missed:
@@ -317,6 +384,9 @@ class OperatorGUI(QMainWindow):
 
     def updateNumberOfRefinements(self, number_of_refinements):
         self.lineEdit_2.setText(str(number_of_refinements) + '/' + str(self.experiment_variables.max_refinements) + ' refinements used')
+
+    def updateNumberOfTrials(self, number_of_trials):
+        self.lineEdit_3.setText(str(number_of_trials) + '/' + str(self.experiment_variables.num_trials) + ' updates used')
 
     def updateText(self, text):
         self.plainTextEdit.setPlainText(text)

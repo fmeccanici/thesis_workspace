@@ -1,0 +1,7 @@
+<launch>
+
+    <node pkg="nasa_tlx" name="nasa_tlx" 
+        type="nasa_tlx_node.py" output="screen">
+    </node>
+
+</launch>

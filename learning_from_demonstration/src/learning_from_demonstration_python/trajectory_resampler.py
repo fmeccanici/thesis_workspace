@@ -10,7 +10,7 @@ from scipy.spatial.transform import Slerp
 class trajectoryResampler():
     def __init__(self):
         self.parser = trajectoryParser()
-    
+
     def interpolate_quaternions(self, qstart, qend, n, include_endpoints=True):
         q1 = Quaternion(a=qstart[3], b=qstart[0], c=qstart[1], d=qstart[2])
         q2 = Quaternion(a=qend[3], b=qend[0], c=qend[1], d=qend[2])
@@ -27,11 +27,21 @@ class trajectoryResampler():
         return traj
 
     def interpolate_learned_keypoints(self, pred_traj, n_desired):
+        T_desired = 20
+
         n = len(pred_traj)
         T = pred_traj[-1][-1]
-        # T = T_desired
+        
+        # in experiment this somehow happened
+        if T < 0:
+            print("T is negative: " + str(T))
+            T = T_desired
 
         x = np.linspace(0, T, n)
+        print("STRICTLY INCREASING DEBUG")
+        print("n = " + str(n))
+        print("T = " + str(T))
+
         # print("n = " + str(n))
         # print("x = " + str(x))
         # print("T = " + str(T))
@@ -42,7 +52,7 @@ class trajectoryResampler():
         carty = [data[1] for data in pred_traj]
         cartz = [data[2] for data in pred_traj]
         q = [ [data[3], data[4], data[5], data[6]] for data in pred_traj]
-
+        
         splinex = InterpolatedUnivariateSpline(x, cartx)
         spliney = InterpolatedUnivariateSpline(x, carty)
         splinez = InterpolatedUnivariateSpline(x, cartz)
