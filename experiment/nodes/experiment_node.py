@@ -529,10 +529,10 @@ class ExperimentNode(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)
     
-    def executeTrajectory(self, traj):
+    def executeTrajectory(self, traj, T):
         rospy.wait_for_service('execute_trajectory', timeout=2.0)
         execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-        resp = execute_trajectory(traj, self.T_desired)
+        resp = execute_trajectory(traj, T)
 
         return resp.obstacle_hit.data, resp.object_reached.data, resp.object_kicked_over.data
     
@@ -712,16 +712,14 @@ class ExperimentNode(object):
             set_teach_state = rospy.ServiceProxy('/trajectory_teaching/set_teach_state', SetTeachStateOmni)
             set_teach_state(Bool(False))
 
-        # self.operator_gui_text_pub.publish(String("CHECK CHEK 112"))
         self.openGripper()
         self.goToInitialPose()
-        time.sleep(5)
         self.openGripper()
 
         self.setDishwasherPosition()
         self.setObjectPosition()
         
-        time.sleep(4)
+        time.sleep(2)
 
         self.getContext()
         
@@ -732,7 +730,7 @@ class ExperimentNode(object):
         
         self.traffic_light_updater.update('red')
         self.text_updater.update("AUTONOMOUS EXECUTION")
-        obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
+        obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction, T=10)
         
         # store prediction along with failure
         self.storeData(prediction=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
@@ -783,7 +781,6 @@ class ExperimentNode(object):
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 self.openGripper()
-                time.sleep(3)
                 self.setObjectPosition()
 
                 self.traffic_light_updater.update('green')
@@ -826,7 +823,7 @@ class ExperimentNode(object):
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
                     
-                time.sleep(5)
+                time.sleep(2)
 
                 obstacle_hit = resp.obstacle_hit.data
                 execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
@@ -881,11 +878,11 @@ class ExperimentNode(object):
         elif self.method == 'offline+pendant':
 
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+
                 self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 self.openGripper()
-                time.sleep(3)
                 self.setObjectPosition()
 
                 rospy.wait_for_service('/offline_pendant/add_waypoint', timeout=2.0)
@@ -925,22 +922,21 @@ class ExperimentNode(object):
                 set_teach_state(Bool(False))
 
                 # self.stopNode('teach_pendant.launch')
-                
+
                 self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 self.openGripper()
-                time.sleep(3)
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
                 self.visualize('both')
-                time.sleep(3)
+                time.sleep(2)
 
                 self.collision_updating_flag = 0
 
                 self.stopTimer()
-                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory, T=10)
                 self.startTimer()
                 
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
@@ -969,7 +965,6 @@ class ExperimentNode(object):
                     self.text_updater.append("OBJECT KICKED OVER")
                 """
 
-                time.sleep(2)
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
@@ -993,11 +988,11 @@ class ExperimentNode(object):
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
+
                 self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 self.openGripper()
-                time.sleep(3)
                 self.setObjectPosition()
 
                 self.traffic_light_updater.update('green')
@@ -1040,7 +1035,7 @@ class ExperimentNode(object):
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
                     
-                time.sleep(5)
+                time.sleep(2)
 
                 obstacle_hit = resp.obstacle_hit.data
                 execution_failure = rospy.ServiceProxy('get_execution_failure', GetExecutionFailure)
@@ -1073,7 +1068,6 @@ class ExperimentNode(object):
                     self.text_updater.append("OBJECT KICKED OVER")
                 """
                 
-                time.sleep(2)
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
@@ -1094,11 +1088,11 @@ class ExperimentNode(object):
         elif self.method == 'offline+omni':
 
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+
                 self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 self.openGripper()
-                time.sleep(3)
                 self.setObjectPosition()
 
                 rospy.wait_for_service('/set_part_to_publish', timeout=2.0)
@@ -1151,17 +1145,15 @@ class ExperimentNode(object):
                 self.goToInitialPose()
                 self.setDishwasherPosition()
                 self.openGripper()
-                time.sleep(3)
                 self.setObjectPosition()
 
                 self.refined_trajectory = resp.demo
                 self.visualize('both')
-                time.sleep(3)
+                time.sleep(2)
 
                 self.collision_updating_flag = 0
 
-                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
-                
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory, T=10)
 
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
@@ -1189,7 +1181,6 @@ class ExperimentNode(object):
                     self.text_updater.append("OBJECT KICKED OVER")
                 """
 
-                time.sleep(2)
                 # store refinement along with if it failed or not
                 self.storeData(refinement=1, obstacle_hit=obstacle_hit, object_missed = not object_reached, object_kicked_over=object_kicked_over)
                
@@ -1234,7 +1225,7 @@ class ExperimentNode(object):
         else:
             print('adding refinement to model')
             self.addToModel()
-        
+
         self.stopTimer()
         
         # store time
@@ -1246,6 +1237,38 @@ class ExperimentNode(object):
 
         self.number_of_trials_updater.update(str(self.current_trial))
 
+        print("CURRENT TRIAL DEBUG1 = " + str(self.current_trial))
+
+        if self.current_trial >= self.num_trials:
+            print("CURRENT TRIAL DEBUG2 = " + str(self.current_trial))
+
+            self.openGripper()
+            self.goToInitialPose()
+            self.openGripper()
+
+            self.setDishwasherPosition()
+            self.setObjectPosition()
+            
+            time.sleep(2)
+
+            self.getContext()
+            self.predict()
+            
+            self.visualize('prediction')
+            
+            self.traffic_light_updater.update('red')
+            self.text_updater.update("AUTONOMOUS EXECUTION")
+            obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction, T=10)
+                        
+            # update text in operator gui
+            if obstacle_hit or not object_reached or object_kicked_over:
+                self.text_updater.update("FAILURE!")
+                time.sleep(1)
+                return 0
+            else:
+                self.text_updater.update("SUCCESS!")
+                time.sleep(1)
+                return 1
 
         """
         self.current_trial += 1
@@ -1316,7 +1339,9 @@ class ExperimentNode(object):
                     success = self.startTrial()
                     if success:
                         break
-                    
+                    elif success == 0 and (self.current_trial == self.num_trials):
+                        break
+
                     if self.number_of_refinements >= self.max_refinements:
                         self.text_updater.update("MAX REFINEMENT ATTEMPTS REACHED!")
                         time.sleep(2)
@@ -1324,6 +1349,8 @@ class ExperimentNode(object):
                         time.sleep(2)
                         
                         break
+                    
+                    
                 else:
                     continue
 
