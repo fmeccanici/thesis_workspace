@@ -115,7 +115,7 @@ class lfdNode():
         self.resampler = trajectoryResampler()
 
         # initialize model 
-        # self.initialize_lfd_model()
+        self.initialize_lfd_model()
         
         self.nodes = {}
         self.obstacle_hit_updater = TextUpdater(text_file='obstacle_hit.txt')
