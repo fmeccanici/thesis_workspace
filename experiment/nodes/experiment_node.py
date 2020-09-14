@@ -744,16 +744,9 @@ class ExperimentNode(object):
         else:
             self.text_updater.update("SUCCESS!")
             
+            """
             # last object position reached
             if self.current_object_position >= self.num_object_positions:
-                # build initial model again
-                try:
-                    rospy.wait_for_service('build_initial_model', timeout=2.0)
-                    build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
-                    build_init_model()
-                except (rospy.ServiceException, rospy.ROSException) as e:
-                    print("Service call failed: %s" %e)
-                
                 # shift to next model
                 # 1st object, 1st trial
                 self.current_model += 1
@@ -764,7 +757,7 @@ class ExperimentNode(object):
             else:
                 self.current_object_position += 1
                 self.current_trial = 1
-
+            """
             # for going to the next loop iteration in start() function
             return 1
         
@@ -786,8 +779,10 @@ class ExperimentNode(object):
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -886,8 +881,10 @@ class ExperimentNode(object):
         elif self.method == 'offline+pendant':
 
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -929,8 +926,10 @@ class ExperimentNode(object):
 
                 # self.stopNode('teach_pendant.launch')
                 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -994,8 +993,10 @@ class ExperimentNode(object):
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
                 print("Trajectory failure!")
 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -1093,8 +1094,10 @@ class ExperimentNode(object):
         elif self.method == 'offline+omni':
 
             while (obstacle_hit or not object_reached or object_kicked_over) and self.number_of_refinements <= self.max_refinements-1: # -1 to get 5 instead of 6 max refinements
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -1144,8 +1147,10 @@ class ExperimentNode(object):
                 
                 self.text_updater.update("GREY BUTTON PRESSED")
 
+                self.openGripper()
                 self.goToInitialPose()
                 self.setDishwasherPosition()
+                self.openGripper()
                 time.sleep(3)
                 self.setObjectPosition()
 
@@ -1241,6 +1246,8 @@ class ExperimentNode(object):
 
         self.number_of_trials_updater.update(str(self.current_trial))
 
+
+        """
         self.current_trial += 1
 
         # logic to go to next model and object position
@@ -1268,8 +1275,7 @@ class ExperimentNode(object):
             else:
                 self.current_object_position += 1
                 self.current_trial = 1
-
-        self.setDataLoggerParameters()
+        """
         
         return 0
 
@@ -1278,18 +1284,18 @@ class ExperimentNode(object):
         self.initializeHeadLiftJoint()
 
         for model in self.models:
-            self.current_trial = 1
-            self.current_object_position = 1
             self.text_updater.update("GO TO NEXT MODEL")
-            time.sleep(3)
+            try:
+                rospy.wait_for_service('build_initial_model', timeout=2.0)
+                build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
+                build_init_model()
+            except (rospy.ServiceException, rospy.ROSException) as e:
+                print("Service call failed: %s" %e)
 
             for object_position in self.object_positions:
                 self.text_updater.update("GO TO NEXT OBJECT")
-
                 self.getContext()
-                print('model = ' + str(self.current_model))
 
-                self.setDataLoggerParameters()
                 self.y_position = self.determineYPosition()
                 
                 self.number_of_trials_updater.update(str(0))
@@ -1297,10 +1303,15 @@ class ExperimentNode(object):
                 success = 0
 
                 for trial in self.trials:
-                    self.number_of_refinements_updater.update(str(0))
+                    print("Object position = " + str(object_position))
+                    print("Model = " + str(model))
+                    print("Trial = " + str(trial))
+                    self.current_model = model
+                    self.current_object_position = object_position
+                    self.current_trial = trial
+                    self.setDataLoggerParameters()
 
-                    print('object position = ' + str(object_position))
-                    print('trial = ' + str(trial))
+                    self.number_of_refinements_updater.update(str(0))
 
                     success = self.startTrial()
                     if success:
@@ -1312,14 +1323,6 @@ class ExperimentNode(object):
                         self.text_updater.update("GO TO NEXT MODEL")
                         time.sleep(2)
                         
-                        self.current_model += 1
-                        try:
-                            rospy.wait_for_service('build_initial_model', timeout=2.0)
-                            build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
-                            build_init_model()
-                        except (rospy.ServiceException, rospy.ROSException) as e:
-                            print("Service call failed: %s" %e)
-
                         break
                 else:
                     continue
