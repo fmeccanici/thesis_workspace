@@ -1263,9 +1263,11 @@ class ExperimentNode(object):
             # update text in operator gui
             if obstacle_hit or not object_reached or object_kicked_over:
                 self.text_updater.update("FAILURE!")
+                time.sleep(1)
                 return 0
             else:
                 self.text_updater.update("SUCCESS!")
+                time.sleep(1)
                 return 1
 
         """

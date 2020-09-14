@@ -407,7 +407,7 @@ class lfdNode():
     def go_to_pose(self, pose):
         rospy.wait_for_message('/end_effector_pose', PoseStamped)
 
-        T = 0.5
+        T = 1.0
         x = [self.current_slave_pose.position.x, pose.position.x]
         y = [self.current_slave_pose.position.y, pose.position.y]
         z = [self.current_slave_pose.position.z, pose.position.z]
