@@ -29,6 +29,7 @@ class DataCreator(object):
         self.experiment_variables = ExperimentVariables()
         self.num_object_positions = self.experiment_variables.num_object_positions
         self.num_trials = self.experiment_variables.num_trials
+
         self.num_methods = self.experiment_variables.num_methods
         self.object_positions = self.experiment_variables.object_positions
         self.num_models = self.experiment_variables.num_models
@@ -566,11 +567,12 @@ class DataCreator(object):
             os.makedirs(path)
 
         self.setPath(path)
+        
 
         # adapt model using experiment data
         for object_position in self.object_positions:
             for trial in range(1, self.num_trials+1):
-                
+
                 # get trajectory wrt context
                 try:
                     trajectory_for_learning, context = self.getTrajectory('refinement', participant_number, method, model, object_position, trial)
@@ -580,13 +582,15 @@ class DataCreator(object):
                         f.write(str(trajectory_for_learning))
 
                     self.addToModel(trajectory_for_learning, context)
-
                 # when there was no refinement (already successful prediction)
                 # just continue
-                except KeyError:
+                except KeyError as e:
+                    print(e)
                     continue
 
-        for i in range(self.num_trials+1):
+        self.num_evaluation_trials = 1
+
+        for i in range(self.num_evaluation_trials+1):
             self.trials[i+1] = {
                 'predicted_trajectory': copy.deepcopy(self.predicted_trajectory), 'context': []}
         
@@ -594,9 +598,14 @@ class DataCreator(object):
             self.data[j+1] = {
             'trial': copy.deepcopy(self.trials)}
 
+        y0 = 0.2
+        y_position_step_dict = {1: 0.0, 2: 0.1, 3: 2*0.1}
+        object_positions = { 1: [0.8, y0 - y_position_step_dict[1], 0.7], 2: [0.8, y0 - y_position_step_dict[2], 0.7]}
+
+
         # loop over the object positions again and make predictions
-        for position in self.object_positions:
-            for trial in range(1, self.num_trials+1):
+        for position in object_positions:
+            for trial in range(1, self.num_evaluation_trials+1):
                 self.openGripper()
 
                 self.current_object_position = position
