@@ -88,6 +88,8 @@ class DataAnalysis(object):
                                 object_missed += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_missed'])
                                 obstacle_hit += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['obstacle_hit'])
                                 object_kicked_over += int(data_after_experiment[position]['trial'][trial]['predicted_trajectory']['object_kicked_over'])
+                            
+
                         """                        
                         # successfully adapted for this model
                         if success == self.num_trials:
@@ -707,19 +709,16 @@ class DataAnalysis(object):
             fig = plt.figure()
 
             to_plot_mean = []
-
             for i in range(1,self.num_methods+1):
                 to_plot = []
                 for model in self.success_after_experiment_data[i]:
-                    to_plot.append((self.success_after_experiment_data[i][model][0]))
+                    to_plot.append(np.mean(self.success_after_experiment_data[i][model]))
 
-                to_plot_mean.append(np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_object_positions) * 100)
+                to_plot_mean.append((np.asarray(to_plot) / (self.experiment_variables.num_trials * self.experiment_variables.num_models) * 100))
                 # to_plot_mean.append(np.asarray(to_plot))
 
-                print(to_plot_mean)
-
             plt.boxplot(to_plot_mean, labels=self.methods_labels)
-            plt.title("Successfully adapted models")
+            plt.title("Successes per model")
             plt.ylabel('Success [%]')
             plt.ylim([0,110])
             plt.tight_layout()
@@ -753,7 +752,7 @@ class DataAnalysis(object):
                 plt.ylabel('Time [min]')
                 plt.xlabel('Model [-]')
                 plt.tight_layout()
-                plt.ylim([0,30])
+                plt.ylim([0,10])
                 fig.subplots_adjust(top=0.88)
 
             plt.suptitle("Refinement time")
@@ -869,57 +868,74 @@ class DataAnalysis(object):
                 to_plot = []
 
                 for model in self.time_data[i]:
-                    to_plot.append(np.sum(self.time_data[i][model])/60)
+                    to_plot.append(np.mean(self.time_data[i][model])/60)
 
                 to_plot_mean.append(to_plot)
             
             plt.boxplot(to_plot_mean, labels=self.methods_labels)
             plt.title("Refinement time")
             plt.ylabel('Time [min]')
-            plt.ylim([0,30])
+            plt.ylim([0,10])
             plt.tight_layout()
             plt.savefig(path+'refinement_time_per_method.pdf')
 
-            fig = plt.figure()
+            if len(self.number_of_updates_data[i][model]) == 3:
 
-            to_plot_mean = []
+                fig = plt.figure()
 
-            for i in range(1,self.num_methods+1):
-                to_plot = []
+                to_plot_mean = []
 
-                for model in self.number_of_refinements_data[i]:
-                    to_plot.append(np.mean(self.number_of_refinements_data[i][model]))
+                for i in range(1,self.num_methods+1):
+                    to_plot = []
+                        
+                    x = []
+                    y = []
+                    z = []
 
-                to_plot_mean.append(to_plot)
-            
-            plt.boxplot(to_plot_mean, labels=self.methods_labels)
-            plt.title("Amount of refinements")
-            plt.ylabel('Amount [-]')
-            plt.ylim([1,10])
-            plt.tight_layout()
-            plt.savefig(path+'amount_of_refinements_per_method.pdf')
+                    for model in self.number_of_refinements_data[i]:
+                        to_plot.append(np.mean(self.number_of_refinements_data[i][model]))
+                        x.append(self.number_of_updates_data[i][model][0])  
+                        y.append(self.number_of_updates_data[i][model][1])  
+                        z.append(self.number_of_updates_data[i][model][2])  
 
-            fig = plt.figure()
+                    to_plot_mean.append([np.mean(x), np.mean(y), np.mean(z)])
+                
+                plt.boxplot(to_plot_mean, labels=self.methods_labels)
+                plt.title("Amount of refinements")
+                plt.ylabel('Amount [-]')
+                plt.ylim([1,10])
+                plt.tight_layout()
+                plt.savefig(path+'amount_of_refinements_per_method.pdf')
 
-            to_plot_mean = []
+            if len(self.number_of_updates_data[i][model]) == 3:
 
-            for i in range(1,self.num_methods+1):
-                to_plot = []
+                fig = plt.figure()
 
-                for model in self.number_of_updates_data[i]:
-                    # print('method ' + str(i))
-                    # print('model ' + str(model))
-                    # print(self.number_of_updates_data[i][model])
-                    to_plot.append(np.mean(self.number_of_updates_data[i][model]))
+                to_plot_mean = []
 
-                to_plot_mean.append(to_plot)
-            
-            plt.boxplot(to_plot_mean, labels=self.methods_labels)
-            plt.title("Amount of updates")
-            plt.ylabel('Updates [-]')
-            plt.ylim([1,6])
-            plt.tight_layout()
-            plt.savefig(path+'amount_of_updates_per_method.pdf')
+                for i in range(1,self.num_methods+1):
+                    to_plot = []
+                    x = []
+                    y = []
+                    z = []
+
+                    for model in self.number_of_updates_data[i]:
+                        print('method ' + str(i))
+                        print('model ' + str(model))
+                        print(self.number_of_updates_data[i])
+                        to_plot.append(np.mean(self.number_of_updates_data[i][model]))
+                        x.append(self.number_of_updates_data[i][model][0])  
+                        y.append(self.number_of_updates_data[i][model][1])  
+                        z.append(self.number_of_updates_data[i][model][2])  
+
+                    to_plot_mean.append([np.mean(x), np.mean(y), np.mean(z)])
+                
+                plt.boxplot(to_plot_mean, labels=self.methods_labels)
+                plt.title("Amount of updates")
+                plt.ylabel('Updates [-]')
+                plt.ylim([1,6])
+                plt.tight_layout()
+                plt.savefig(path+'amount_of_updates_per_method.pdf')
 
             fig = plt.figure()
 
