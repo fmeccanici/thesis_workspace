@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/devel/include/**",
+        "/home/fmeccanici/Documents/thesis/omni_ws/devel/include/**",
+        "/opt/ros/kinetic/include/**",
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/src/aruco_ros/aruco/include/**",
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/src/aruco_ros/aruco_ros/include/**",
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/src/telemanip_master/geomagic_touch_m/include/**",
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/src/telemanip_slave/marco_arm_int/include/**",
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/src/telemanip_master/master_control/include/**",
+        "/home/fmeccanici/Documents/thesis/thesis_workspace/src/telemanip_slave/slave_control/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ]
+}
