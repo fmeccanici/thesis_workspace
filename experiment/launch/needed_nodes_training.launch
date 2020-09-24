@@ -1,0 +1,37 @@
+
+<launch>
+    <arg name="method" default="online+pendant"/>
+
+    <include file="$(find learning_from_demonstration)/launch/learning_from_demonstration.launch">
+        <arg name="raw_folder" value="dishwasher_move_tigher_around_basket2"/>
+        <!-- <arg name="raw_folder" value="complete_model_situation3"/> -->
+    </include>
+
+    <include file="$(find trajectory_refinement)/launch/trajectory_refinement_keyboard.launch"
+    if="$(eval method == 'online+pendant')"/> 
+    
+    <include file="$(find trajectory_refinement)/launch/trajectory_refinement.launch"
+    if="$(eval method == 'online+omni')"/> 
+    
+    <include file="$(find teleop_control)/launch/keyboard_control.launch" 
+    if="$(eval method == 'online+pendant' or method == 'online+omni')"/>
+
+    <include file="$(find teach_pendant)/launch/teach_pendant.launch" 
+    if="$(eval method == 'offline+pendant')"/>
+    
+    <include file="$(find teach_pendant)/launch/ee_pose_publisher.launch" 
+    if="$(eval method == 'offline+pendant')"/>
+
+    <group if="$(eval method == 'offline+omni')">
+        <include file="$(find teleop_control)/launch/teleop_control.launch">
+        </include>
+        <include file="$(find learning_from_demonstration)/launch/trajectory_teaching.launch">
+            <arg name="is_experiment" value="1"/>    
+        </include>
+    </group>
+
+    <include file="$(find data_logger)/launch/data_logging.launch"/> 
+    <include file="$(find execution_failure_detection)/launch/execution_failure_detection_dishwasher.launch"/> 
+    <!-- <include file="$(find execution_failure_detection)/launch/execution_failure_detection.launch"/>  -->
+
+</launch>

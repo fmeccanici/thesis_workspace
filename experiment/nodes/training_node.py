@@ -70,6 +70,8 @@ class TrainingNode(object):
 
         self.experiment_variables = ExperimentVariables()
         self.T_desired = self.experiment_variables.T_desired
+        self.y_position = self.experiment_variables.object_positions[1][1]
+
         self.start_time = 0
         self.elapsed_time = 0
         self.elapsed_time_prev = 0
@@ -142,10 +144,10 @@ class TrainingNode(object):
         except (rospy.ServiceException, rospy.ROSException) as e:
             print("Service call failed: %s" %e)  
 
-    def executeTrajectory(self, traj):
+    def executeTrajectory(self, traj, T):
         rospy.wait_for_service('execute_trajectory', timeout=2.0)
         execute_trajectory = rospy.ServiceProxy('execute_trajectory', ExecuteTrajectory)
-        resp = execute_trajectory(traj, self.T_desired)
+        resp = execute_trajectory(traj, T)
 
         return resp.obstacle_hit.data, resp.object_reached.data, resp.object_kicked_over.data
     
@@ -458,8 +460,6 @@ class TrainingNode(object):
         rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
         self.text_updater.update("START TRAINING")
 
-        self.y_position = 0.05
-
         self.initializeHeadLiftJoint()
 
         self.openGripper()
@@ -472,7 +472,7 @@ class TrainingNode(object):
         self.visualize('prediction')
         self.traffic_light_updater.update('red')
         self.text_updater.update("AUTONOMOUS EXECUTION")
-        obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction)
+        obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.prediction, T=10)
         
         # store prediction along with failure
         
@@ -646,7 +646,7 @@ class TrainingNode(object):
                 self.text_updater.update("AUTONOMOUS EXECUTION")
 
                 self.stopTimer()
-                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory, T=10)
                 self.startTimer()
 
                 print("\n")
@@ -808,6 +808,7 @@ class TrainingNode(object):
                     resp = get_teach_state()
                     isTeachingOffline = resp.teach_state.data 
 
+                start_time = time.time()
                 # use teach_pendant node to teach offline
                 while isTeachingOffline:
                     self.text_updater.update("PRESS WHITE BUTTON TO STOP TEACHING")
@@ -818,6 +819,7 @@ class TrainingNode(object):
                 self.traffic_light_updater.update('red')
 
                 self.text_updater.update("STOPPED TEACHING")
+                execution_time = time.time() - start_time
 
                 rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
                 get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetTrajectory)
@@ -842,7 +844,7 @@ class TrainingNode(object):
                 self.collision_updating_flag = 0
                 
                 self.text_updater.update("AUTONOMOUS EXECUTION")
-                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory)
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory, T=int(execution_time))
                 
                 print("\n")
 

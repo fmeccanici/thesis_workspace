@@ -868,7 +868,9 @@ class DataAnalysis(object):
                 to_plot = []
 
                 for model in self.time_data[i]:
-                    to_plot.append(np.mean(self.time_data[i][model])/60)
+                    for data in self.time_data[i][model]:
+
+                        to_plot.append(data/60)
 
                 to_plot_mean.append(to_plot)
             
@@ -893,18 +895,35 @@ class DataAnalysis(object):
                     z = []
 
                     for model in self.number_of_refinements_data[i]:
-                        to_plot.append(np.mean(self.number_of_refinements_data[i][model]))
-                        x.append(self.number_of_updates_data[i][model][0])  
-                        y.append(self.number_of_updates_data[i][model][1])  
-                        z.append(self.number_of_updates_data[i][model][2])  
+                        for data in self.number_of_refinements_data[i][model]:
 
-                    to_plot_mean.append([np.mean(x), np.mean(y), np.mean(z)])
+                            to_plot.append(data)
+                            
+                            x.append(self.number_of_updates_data[i][model][0])  
+                            y.append(self.number_of_updates_data[i][model][1])  
+                            z.append(self.number_of_updates_data[i][model][2])  
+
+                    # to_plot_mean.append([np.mean(x), np.mean(y), np.mean(z)])
+                    to_plot_mean.append(to_plot)
+                print((to_plot_mean))
+                print((self.methods_labels))
+                print("\n")
+                plt.suptitle("Amount of refinements")
+
+                for i, method in enumerate(self.methods_labels):
+                    plt.subplot(2,2,i+1)
+                    plt.bar([1,2,3,4,5,6,7,8,9,10], [to_plot_mean[i].count(1), to_plot_mean[i].count(2), to_plot_mean[i].count(3), to_plot_mean[i].count(4), 
+                            to_plot_mean[i].count(5), to_plot_mean[i].count(6), to_plot_mean[i].count(7), to_plot_mean[i].count(8),
+                            to_plot_mean[i].count(9), to_plot_mean[i].count(10)])
+                    plt.title(method)
+                    plt.ylabel('Amount [-]')
+                    plt.xlabel('Number of refinements [-]')
+                    plt.ylim([1,10])
+                    plt.xlim([1,10])
                 
-                plt.boxplot(to_plot_mean, labels=self.methods_labels)
-                plt.title("Amount of refinements")
-                plt.ylabel('Amount [-]')
-                plt.ylim([1,10])
                 plt.tight_layout()
+                plt.subplots_adjust(top=0.85)
+
                 plt.savefig(path+'amount_of_refinements_per_method.pdf')
 
             if len(self.number_of_updates_data[i][model]) == 3:
@@ -923,18 +942,30 @@ class DataAnalysis(object):
                         print('method ' + str(i))
                         print('model ' + str(model))
                         print(self.number_of_updates_data[i])
-                        to_plot.append(np.mean(self.number_of_updates_data[i][model]))
-                        x.append(self.number_of_updates_data[i][model][0])  
-                        y.append(self.number_of_updates_data[i][model][1])  
-                        z.append(self.number_of_updates_data[i][model][2])  
 
-                    to_plot_mean.append([np.mean(x), np.mean(y), np.mean(z)])
+                        for data in self.number_of_updates_data[i][model]:
+
+                            # to_plot.append(np.mean(self.number_of_updates_data[i][model]))
+                            to_plot.append(data)
+                            
+                            x.append(self.number_of_updates_data[i][model][0])  
+                            y.append(self.number_of_updates_data[i][model][1])  
+                            z.append(self.number_of_updates_data[i][model][2])  
+
+                    # to_plot_mean.append([np.mean(x), np.mean(y), np.mean(z)])
+                    to_plot_mean.append(to_plot)
                 
-                plt.boxplot(to_plot_mean, labels=self.methods_labels)
-                plt.title("Amount of updates")
-                plt.ylabel('Updates [-]')
-                plt.ylim([1,6])
+                plt.suptitle("Amount of updates")
+                for i, method in enumerate(self.methods_labels):
+                    plt.subplot(2,2,i+1)
+                    plt.bar([1,2,3,4], [to_plot_mean[i].count(1), to_plot_mean[i].count(2), to_plot_mean[i].count(3), to_plot_mean[i].count(4)])
+
+                    plt.title(method)
+                    plt.ylabel('Amount [-]')
+                    plt.xlabel('Number of updates')
+                    plt.ylim([1,6])
                 plt.tight_layout()
+                plt.subplots_adjust(top=0.85)
                 plt.savefig(path+'amount_of_updates_per_method.pdf')
 
             fig = plt.figure()

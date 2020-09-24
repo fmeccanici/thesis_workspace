@@ -1,6 +1,7 @@
 <launch>
 
 <arg name="method" default="online+pendant"/>
+<arg name="raw_folder" default="dishwasher_misses_object"/>
 
 <include file="$(find data_logger)/launch/gui.launch">
     <arg name="method" value="$(arg method)"/>

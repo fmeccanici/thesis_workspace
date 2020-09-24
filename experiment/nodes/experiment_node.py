@@ -1119,7 +1119,8 @@ class ExperimentNode(object):
                     resp = get_teach_state()
                     isTeachingOffline = resp.teach_state.data 
 
-                # use teach_pendant node to teach offline
+                start_time = time.time()
+                # use omni node to teach offline
                 while isTeachingOffline:
                     self.text_updater.update("PRESS WHITE BUTTON TO STOP TEACHING")
 
@@ -1129,6 +1130,7 @@ class ExperimentNode(object):
                 self.traffic_light_updater.update('red')
 
                 self.text_updater.update("STOPPED TEACHING")
+                execution_time = time.time() - start_time
 
                 rospy.wait_for_service('trajectory_teaching/get_trajectory', timeout=2.0)
                 get_demo = rospy.ServiceProxy('trajectory_teaching/get_trajectory', GetTrajectory)
@@ -1153,7 +1155,7 @@ class ExperimentNode(object):
 
                 self.collision_updating_flag = 0
 
-                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory, T=10)
+                obstacle_hit, object_reached, object_kicked_over = self.executeTrajectory(self.refined_trajectory, T=int(execution_time))
 
                 with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/experiment/debug/refined_trajectory.txt', 'w+') as f:
                     f.write(str(self.refined_trajectory))
