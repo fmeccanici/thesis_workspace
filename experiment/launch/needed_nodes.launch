@@ -13,8 +13,14 @@
     <include file="$(find trajectory_refinement)/launch/trajectory_refinement.launch"
     if="$(eval method == 'online+omni')"/> 
     
-    <include file="$(find teleop_control)/launch/keyboard_control.launch" 
-    if="$(eval method == 'online+pendant' or method == 'online+omni')"/>
+    <group if="$(eval method == 'online+pendant' or method == 'online+omni')">
+
+        <include file="$(find teleop_control)/launch/keyboard_control.launch" >
+        </include>
+
+        <include file="$(find keyboard_state_publisher)/launch/keyboard_state_publisher.launch">
+        </include>
+    </group>
 
     <include file="$(find teach_pendant)/launch/teach_pendant.launch" 
     if="$(eval method == 'offline+pendant')"/>

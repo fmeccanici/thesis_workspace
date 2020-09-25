@@ -999,7 +999,7 @@ class ExperimentNode(object):
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("REFINE RED OR GREEN?")
                 self.waitForKeyPress()
-                self.text_updater.update("PRESS WHITE BUTTON TO STOP REFINING")
+                self.text_updater.update("PRESS SPACE BAR TO STOP REFINING")
 
                 self.stop_updating_flag = 0
 

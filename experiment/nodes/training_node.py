@@ -700,7 +700,7 @@ class TrainingNode(object):
                 # wait until the operator clicked the red or green button
                 self.text_updater.update("PRESS LEFT OR RIGHT KEY TO REFINE RED")
                 self.waitForKeyPress()
-                self.text_updater.update("PRESS WHITE BUTTON TO STOP REFINING")
+                self.text_updater.update("PRESS SPACE BAR TO STOP REFINING")
 
                 self.stop_updating_flag = 0
 
@@ -836,7 +836,7 @@ class TrainingNode(object):
                 self.setDishwasherPosition()
                 time.sleep(3)
                 self.setObjectPosition()
-
+  
                 self.refined_trajectory = resp.demo
                 self.visualize('both')
                 time.sleep(3)

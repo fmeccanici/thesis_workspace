@@ -75,7 +75,8 @@ class trajectoryRefinement():
         self.traj_vis_pub = rospy.Publisher('trajectory_visualizer/trajectory', TrajectoryVisualization, queue_size=10)
 
         if self.button_source == "omni":
-            self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+            # self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
+            self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
             self.master_pose_sub = rospy.Subscriber('master_control_comm', ControlComm, self._masterPoseCallback)
 
         elif self.button_source == "keyboard":
@@ -393,7 +394,9 @@ class trajectoryRefinement():
             time.sleep(dt)
             t += dt
             i += 1
-        
+
+        self.text_updater.update("STOPPED REFINING")
+
         # needed since there is a delay in the object kicked over detection
         time.sleep(4)
         
@@ -502,7 +505,6 @@ class trajectoryRefinement():
         # print("time vector = " + str([x[-1] for x in prediction]))
 
         refined_prediction = self.refineTrajectory(prediction, dt)
-        self.text_updater.update("STOPPED REFINING")
         new_traj, new_dt = self.determineNewTrajectory(prediction, refined_prediction)
 
         new_traj = self.resampler.resample_time(new_traj, self.parser.get_total_time(prediction))
