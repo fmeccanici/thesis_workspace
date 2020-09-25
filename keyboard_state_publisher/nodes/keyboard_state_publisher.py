@@ -30,7 +30,7 @@ class keyboardStatePublisher():
         # print('{0} pressed'.format(
         # key))
 
-        if key == Key.up:s
+        if key == Key.up:
             self.up = 1
 
         elif key == Key.space:

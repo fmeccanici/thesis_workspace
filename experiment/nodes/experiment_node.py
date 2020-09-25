@@ -1115,14 +1115,14 @@ class ExperimentNode(object):
                 self.traffic_light_updater.update('green')
 
                 while not isTeachingOffline:
-                    self.text_updater.update("PRESS WHITE BUTTON TO START TEACHING")
+                    self.text_updater.update("PRESS SPACE BAR TO START TEACHING")
                     resp = get_teach_state()
                     isTeachingOffline = resp.teach_state.data 
 
                 start_time = time.time()
                 # use omni node to teach offline
                 while isTeachingOffline:
-                    self.text_updater.update("PRESS WHITE BUTTON TO STOP TEACHING")
+                    self.text_updater.update("PRESS SPACE BAR TO STOP TEACHING")
 
                     resp = get_teach_state()                
                     isTeachingOffline = resp.teach_state.data 
@@ -1139,9 +1139,9 @@ class ExperimentNode(object):
                 set_teach_state(Bool(False))
 
                 while self.isArmEnabled():
-                    self.text_updater.update("PRESS GREY BUTTON")
+                    self.text_updater.update("PRESS WHITE BUTTON")
                 
-                self.text_updater.update("GREY BUTTON PRESSED")
+                self.text_updater.update("WHITE BUTTON PRESSED")
 
                 self.openGripper()
                 self.goToInitialPose()

@@ -17,8 +17,8 @@
     </include>
     
     <!-- launch keyboard state publisher node when necessary-->
-    <include file="$(find keyboard_state_publisher)/launch/keyboard_state_publisher.launch"
-      if="$(eval button_source == 'keyboard')"/>
+    <!-- <include file="$(find keyboard_state_publisher)/launch/keyboard_state_publisher.launch"
+      if="$(eval button_source == 'keyboard')"/> -->
 
     <!-- <node pkg="teleop_control" name="gripper_opener" type="gripper_opener.sh" output="screen" args="$(arg gripper_joint_value)">
     </node> -->
