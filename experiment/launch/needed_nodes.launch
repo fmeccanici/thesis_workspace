@@ -25,8 +25,12 @@
     <group if="$(eval method == 'offline+omni')">
         <include file="$(find teleop_control)/launch/teleop_control.launch">
         </include>
+        <!-- needed for space bar = white button (new experiment)-->
+        <include file="$(find keyboard_state_publisher)/launch/keyboard_state_publisher.launch">
+        </include>
         <include file="$(find learning_from_demonstration)/launch/trajectory_teaching.launch">
             <arg name="is_experiment" value="1"/>    
+            <arg name="button_source" value="keyboard"/>
         </include>
     </group>
 

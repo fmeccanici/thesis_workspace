@@ -51,10 +51,12 @@ class trajectoryTeaching():
         # set publishers/subscribers
         self.end_effector_goal_pub = rospy.Publisher("/whole_body_kinematic_controller/arm_tool_link_goal", PoseStamped, queue_size=10)
 
+        
         if self.button_source == "omni":
             self.geo_button_sub = rospy.Subscriber("geo_buttons_m", GeomagicButtonEvent, self._buttonCallback)
         elif self.button_source == "keyboard":
             self.geo_button_sub = rospy.Subscriber("keyboard", GeomagicButtonEvent, self._buttonCallback)
+        
 
         self.marker_sub = rospy.Subscriber("aruco_marker_publisher/markers", MarkerArray, self._marker_detection_callback)
         self.end_effector_pose_sub = rospy.Subscriber("/end_effector_pose", PoseStamped, self._end_effector_pose_callback)
@@ -268,6 +270,8 @@ class trajectoryTeaching():
     def _buttonCallback(self, data):
         self.grey_button_previous = self.grey_button 
         self.grey_button = data.grey_button
+
+
         self.white_button_previous = self.white_button
         self.white_button = data.white_button
 
