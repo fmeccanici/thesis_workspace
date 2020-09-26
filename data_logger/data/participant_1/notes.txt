@@ -1,0 +1,24 @@
+Rudy
+Condition 1
+
+Online + omni
+Model 3 niet aangepast bij online + omni niet aangepast (gazebo ging bad).
+Zeggen over groene ellipsoid moet in centre van frame zitten.
+Online + Omni alleen positie aanpassen. 
+Niet duidelijk dat je model update met de groene. Vertel dit tijdens experiment. 
+Hij lette af en toe niet op -> Hogere tijd. 
+Bij online+omni lijkt het alsof je hem zelf moet volgen. 
+Hij lijkt niet familiar met omni. 
+
+Online Keybnoard
+trajectory snel aan het begin.
+
+offline + keyboard
+Tip: meer waypoints plaatsen bij begin
+Filmpje experiment bij defence. 
+Alle groebne snel successvol maar update model niet zo snel. Makkelijk om een goeie trajectory te klussen. 
+
+Offline + Omni
+intuitief maar pad dat ie genereert is gek
+Tip: rustiger bewegen aan het begin anders overshoot
+
