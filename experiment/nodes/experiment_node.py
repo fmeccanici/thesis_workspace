@@ -1210,6 +1210,7 @@ class ExperimentNode(object):
         print("SUCCESS1 = " + str(success))
 
         if self.number_of_refinements >= self.max_refinements and success == 0:
+            print("CHECKCHECK!!!!!!!!!!!!")
             self.stopTimer()
             
             # store time
@@ -1313,6 +1314,9 @@ class ExperimentNode(object):
 
         for model in self.models:
             self.text_updater.update("GO TO NEXT MODEL")
+            # reset y position after adapting a model
+            self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
+             
             try:
                 rospy.wait_for_service('build_initial_model', timeout=2.0)
                 build_init_model = rospy.ServiceProxy('build_initial_model', BuildInitialModel)
@@ -1372,7 +1376,8 @@ class ExperimentNode(object):
             
             # reset y position after adapting a model
             self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
-                
+             
+   
         self.text_updater.update("END EXPERIMENT")
 
 
