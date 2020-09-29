@@ -115,6 +115,9 @@ class ParticipantData(object):
         tlx_file = self.path + 'tlx.csv'
         self.tlx_data = pd.read_csv(tlx_file)
 
+    def getFieldOfStudy(self):
+        return self.field_of_study
+
     def getTeleopExperience(self):
         return self.teleop_experience
     
