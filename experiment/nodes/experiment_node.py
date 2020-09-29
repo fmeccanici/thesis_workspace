@@ -1206,11 +1206,9 @@ class ExperimentNode(object):
             clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
             clear_trajectory()
         
-        success = (not obstacle_hit and object_reached and not object_kicked_over)
-        print("SUCCESS1 = " + str(success))
+        self.update_success = (not obstacle_hit and object_reached and not object_kicked_over)
 
-        if self.number_of_refinements >= self.max_refinements and success == 0:
-            print("CHECKCHECK!!!!!!!!!!!!")
+        if self.number_of_refinements >= self.max_refinements and self.update_success == 0:
             self.stopTimer()
             
             # store time
@@ -1306,7 +1304,7 @@ class ExperimentNode(object):
                 self.current_trial = 1
         """
 
-        return 1
+        return 0
 
     def start(self):
         self.loadParticipant()
@@ -1348,20 +1346,19 @@ class ExperimentNode(object):
 
                     success = self.startTrial()
                     if success:
-                        continue
+                        break
                     elif success == 0 and (self.current_trial == self.num_trials):
                         break
                     
-                    elif self.number_of_refinements >= self.max_refinements and success == 0:
+                    elif self.number_of_refinements >= self.max_refinements and success == 0 and self.update_success == 0:
                         self.text_updater.update("MAX REFINEMENT ATTEMPTS REACHED!")
                         time.sleep(2)
                         self.text_updater.update("GO TO NEXT MODEL")
                         time.sleep(2)
-                        
                         break
-                    elif self.number_of_refinements >= self.max_refinements and success == 1:
+                    
+                    elif self.number_of_refinements >= self.max_refinements and success == 0 and self.update_success == 1:
                         continue
-
                 else:
                     continue
 
