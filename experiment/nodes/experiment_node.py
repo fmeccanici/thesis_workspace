@@ -1206,7 +1206,10 @@ class ExperimentNode(object):
             clear_trajectory = rospy.ServiceProxy('trajectory_teaching/clear_trajectory', ClearTrajectory)
             clear_trajectory()
         
-        if self.number_of_refinements >= self.max_refinements:
+        success = (not obstacle_hit and object_reached and not object_kicked_over)
+        print("SUCCESS1 = " + str(success))
+
+        if self.number_of_refinements >= self.max_refinements and success == 0:
             self.stopTimer()
             
             # store time
@@ -1301,8 +1304,8 @@ class ExperimentNode(object):
                 self.current_object_position += 1
                 self.current_trial = 1
         """
-        
-        return 0
+
+        return 1
 
     def start(self):
         self.loadParticipant()
@@ -1318,6 +1321,7 @@ class ExperimentNode(object):
                 print("Service call failed: %s" %e)
 
             for object_position in self.object_positions:
+                print("CHECK3")
                 self.text_updater.update("GO TO NEXT OBJECT")
                 self.getContext()
 
@@ -1340,19 +1344,20 @@ class ExperimentNode(object):
 
                     success = self.startTrial()
                     if success:
-                        break
+                        continue
                     elif success == 0 and (self.current_trial == self.num_trials):
                         break
-
-                    if self.number_of_refinements >= self.max_refinements:
+                    
+                    elif self.number_of_refinements >= self.max_refinements and success == 0:
                         self.text_updater.update("MAX REFINEMENT ATTEMPTS REACHED!")
                         time.sleep(2)
                         self.text_updater.update("GO TO NEXT MODEL")
                         time.sleep(2)
                         
                         break
-                    
-                    
+                    elif self.number_of_refinements >= self.max_refinements and success == 1:
+                        continue
+
                 else:
                     continue
 
@@ -1360,10 +1365,11 @@ class ExperimentNode(object):
                 # go to next model
                 if success == 0:
                     break
-                # if break comes from success --> Go to next object instead of model
-                else:
-                    continue
-
+            
+            # if break comes from success --> Go to next object instead of model
+            else:
+                continue
+            
             # reset y position after adapting a model
             self.y_position_step_dict = copy.deepcopy(self.experiment_variables.y_position_step_dict)
                 
