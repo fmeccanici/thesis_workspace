@@ -273,12 +273,23 @@ class DataAnalysis(object):
         plt.xlabel("p = " + str(round(self.statistics_values['workload']['interface']['p'], 4)))
 
         plt.savefig('workload_interface.png')
+    
+    def plotAmountOfAdaptedModelsPerMethod(self):
+        adapted_models_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['is_adapted'] == True)]
+        adapted_models_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
+        adapted_models_offline_omni = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['is_adapted'] == True)]
+        adapted_models_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
         
+
+        plt.figure()
+        plt.title("Adapted models")
+        plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([3, 4, 5, 6])
+    data_analysis.loadMultipleParticipantsData([3, 4, 5, 6, 7])
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()
     data_analysis.plotAndSaveRefinementTimeAndWorkload()
     data_analysis.plotDistributions()
-    # plt.show()
+    data_analysis.plotAmountOfAdaptedModelsPerMethod()
+    plt.show()
