@@ -122,7 +122,7 @@ class trajectoryRefinement():
 
     def _keyboard_callback(self, data):
 
-        added_value = 0.01
+        added_value = 0.013
         if data.key.data == 'q':
             self.master_pose.position.x += added_value
         elif data.key.data == 'a':
@@ -138,23 +138,22 @@ class trajectoryRefinement():
         elif data.key.data == 'd':
             self.master_pose.position.z -= added_value
 
-
         elif data.key.data == '':
             if self.master_pose.position.y > 0.0:
-                self.master_pose.position.y -= added_value/10
+                self.master_pose.position.y -= added_value/8
             elif self.master_pose.position.y < 0.0:
-                self.master_pose.position.y += added_value/10
+                self.master_pose.position.y += added_value/8
 
 
             if self.master_pose.position.x > 0.0:
-                self.master_pose.position.x -= added_value/10
+                self.master_pose.position.x -= added_value/8
             elif self.master_pose.position.x < 0.0:
-                self.master_pose.position.x += added_value/10
+                self.master_pose.position.x += added_value/8
         
             if self.master_pose.position.z > 0.0:
-                self.master_pose.position.z -= added_value/10
+                self.master_pose.position.z -= added_value/8
             elif self.master_pose.position.z < 0.0:
-                self.master_pose.position.z += added_value/10       
+                self.master_pose.position.z += added_value/8       
 
         elif data.key.data == 'space':
             if self.white_button_toggle == 0:
@@ -294,14 +293,12 @@ class trajectoryRefinement():
         i = 0
         t = 0
 
-        master_pose_scaling = 0.5
-
+        master_pose_scaling = 0.9
         # set white button to zero to make sure loop is run         
         self.white_button_toggle = 0
 
         # -2 because traj_pos[i+1] is called and i starts at 0
         while self.white_button_toggle == 0:
-
             slave_goal = PoseStamped()
 
             if i <= len(traj_pos)-2:

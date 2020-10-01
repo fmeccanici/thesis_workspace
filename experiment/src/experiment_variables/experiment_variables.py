@@ -7,7 +7,7 @@ class ExperimentVariables(object):
         self.method_mapping_number_to_str = {1:'online+omni', 2:'offline+omni', 3:'online+pendant', 4: 'offline+pendant'}
         self.T_desired = 20
         self.num_object_positions = 1
-        self.num_trials = 4
+        self.num_trials = 8
         self.num_methods = 4
         self.num_models = 3
         
@@ -20,7 +20,7 @@ class ExperimentVariables(object):
         # self.object_positions = { 1: [0.8, self.y0 - self.y_position_step_dict[1], 0.7], 2: [0.8, self.y0 - self.y_position_step_dict[2], 0.7]}
         self.object_positions = { 1: [0.8, self.y0 - self.y_position_step_dict[1], 0.7]}
 
-        self.max_refinements = 5
+        self.max_refinements = 8
         self.num_updates = 1
         self.desired_datapoints = 75
         

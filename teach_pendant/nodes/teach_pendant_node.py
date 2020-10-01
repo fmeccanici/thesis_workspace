@@ -249,7 +249,7 @@ class KeyboardControl():
         
         q_rotation = self.quaternion_rotation('', 0)
         
-        translation = 0.01
+        translation = 0.013
         rotation = 0.1
         
         if self.keyboard.key.data == 'q':

@@ -194,7 +194,7 @@ class TrainingNode(object):
             dishwasher = ModelState()
             dishwasher.model_name = 'dishwasher'
 
-            dishwasher.pose.position.x = 1.75
+            dishwasher.pose.position.x = 1.78
             dishwasher.pose.position.y = 0.336
 
             dishwasher.pose.position.z = 0.098

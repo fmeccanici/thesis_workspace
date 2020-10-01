@@ -62,7 +62,6 @@ class DataAnalysis(object):
                 
             number_of_refinements_per_model = self.getNumberOfRefinements(participant, self.experiment_variables.method_mapping_str_to_number[method_str])
             number_of_updates_per_model = self.getNumberOfUpdates(participant, self.experiment_variables.method_mapping_str_to_number[method_str])
-            
 
             # TODO
             # add function that calculates if model is adapted
