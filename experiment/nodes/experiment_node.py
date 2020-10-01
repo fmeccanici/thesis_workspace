@@ -789,6 +789,7 @@ class ExperimentNode(object):
                 # rospy.wait_for_message('operator_gui_interaction', OperatorGUIinteraction)
                 # rospy.wait_for_message('keyboard_control', Keyboard)
                 self.waitForKeyPress()
+                self.text_updater.update("PRESS SPACE BAR TO STOP REFINING")
 
                 self.stop_updating_flag = 0
 
