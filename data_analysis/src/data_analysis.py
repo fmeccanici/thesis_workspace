@@ -29,8 +29,14 @@ class DataAnalysis(object):
                     if methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['success'] == True:
                         return True
                 except KeyError:
-                    return True
+                    
+                    # participant did not pass the training
+                    if trial == 1:
+                        return False
 
+                    # model is already adapted --> No prediction made for other trials
+                    else:
+                        return True
         return False
 
     def loadMultipleParticipantsData(self, participant_numbers=[]):
@@ -44,10 +50,11 @@ class DataAnalysis(object):
         self.convertParticipantDataToDictionary(self.participant_data[participant_number])
 
     def addParticipantData(self, participant_number):
+        print("Added participant " + str(participant_number))
         participant = ParticipantData(participant_number, 0, 0, 0, 0, 0, 0)
         self.participant_data[participant_number] = participant
 
-    def convertParticipantDataToDictionary(self, participant):
+    def convertParticipantDataToDictionary(self, participant):        
         for method_str in self.experiment_variables.method_mapping_str_to_number:
             nasa_tlx_path = self.data_path + "participant_" + str(participant.getNumber()) + '/nasa_tlx/' + method_str + '/data.txt'
             with open(nasa_tlx_path, 'r') as f:
@@ -63,13 +70,17 @@ class DataAnalysis(object):
             number_of_refinements_per_model = self.getNumberOfRefinements(participant, self.experiment_variables.method_mapping_str_to_number[method_str])
             number_of_updates_per_model = self.getNumberOfUpdates(participant, self.experiment_variables.method_mapping_str_to_number[method_str])
 
-            # TODO
-            # add function that calculates if model is adapted
             is_adapted_per_model = [self.isAdapted(participant.getNumber(), i, self.experiment_variables.method_mapping_str_to_number[method_str]) for i in range(1, len(refinement_time_per_model) + 1)]
             
             for i in range(len(refinement_time_per_model)):
-                data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload}
-                self.rows_list.append(data_dictionary)
+                if is_adapted_per_model[i]:
+                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload}
+                    self.rows_list.append(data_dictionary)
+                else:
+                    drop_data = True
+                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload}
+                    self.rows_list.append(data_dictionary)
+        
 
     def createDataFrame(self):
         self.df = pd.DataFrame(self.rows_list)
@@ -131,11 +142,12 @@ class DataAnalysis(object):
         return number_of_updates_per_model
 
     def calculateAndStoreTtestValues(self):
-        
-        refinement_time_omni = list(self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['refinement_time'])
-        refinement_time_keyboard = list(self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['refinement_time'])
 
-        t, p = ttest_rel(refinement_time_keyboard, refinement_time_omni)
+        refinement_time_omni = self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_keyboard = self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
+        t, p = ttest_rel(refinement_time_keyboard, refinement_time_omni, nan_policy='omit')
+        # t, p = wilcoxon(refinement_time_keyboard, refinement_time_omni)
 
         self.statistics_values['refinement_time']['interface']['p'] = p
         self.statistics_values['refinement_time']['interface']['t'] = t
@@ -143,7 +155,8 @@ class DataAnalysis(object):
         refinement_time_online = list(self.df.loc[self.df['mechanism'] == 'online'].sort_values(by = ['model', 'interface'])['refinement_time'])
         refinement_time_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['refinement_time'])
 
-        t, p = ttest_rel(refinement_time_online, refinement_time_offline)
+        t, p = ttest_rel(refinement_time_online, refinement_time_offline, nan_policy='omit')
+        # t, p = wilcoxon(refinement_time_online, refinement_time_offline)
         
         self.statistics_values['refinement_time']['mechanism']['p'] = p
         self.statistics_values['refinement_time']['mechanism']['t'] = t
@@ -151,15 +164,17 @@ class DataAnalysis(object):
         workload_omni = list(self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['workload'])
         workload_keyboard = list(self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['workload'])
 
-        t, p = wilcoxon(workload_keyboard, workload_omni)
+        t, p = ttest_rel(workload_keyboard, workload_omni, nan_policy='omit')
+        # t, p = wilcoxon(workload_keyboard, workload_omni)
         
         self.statistics_values['workload']['interface']['p'] = p
         self.statistics_values['workload']['interface']['t'] = t
 
         workload_online = list(self.df.loc[self.df['mechanism'] == 'online'].sort_values(by = ['model', 'interface'])['workload'])
         workload_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['workload'])
-                
-        t, p = wilcoxon(workload_online, workload_offline)
+
+        t, p = ttest_rel(workload_online, workload_offline, nan_policy='omit')                
+        # t, p = wilcoxon(workload_online, workload_offline)
 
         self.statistics_values['workload']['mechanism']['p'] = p
         self.statistics_values['workload']['mechanism']['t'] = t
@@ -244,7 +259,7 @@ class DataAnalysis(object):
         plt.figure()
         plt.title("Refinement time")
         ax = sns.boxplot(x="mechanism", y="refinement_time", hue="interface", data=self.df)
-        plt.ylabel("Time [-]")
+        plt.ylabel("Time [s]")
         plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['mechanism']['p'], 4)))
 
         plt.savefig('refinement_time_mechanism.png')
@@ -260,7 +275,7 @@ class DataAnalysis(object):
         plt.figure()
         plt.title("Refinement time")
         ax = sns.boxplot(x="interface", y="refinement_time", hue="mechanism", data=self.df)
-        plt.ylabel("Time [-]")
+        plt.ylabel("Time [s]")
         plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['interface']['p'], 4)))
 
         plt.savefig('refinement_time_interface.png')
@@ -285,7 +300,7 @@ class DataAnalysis(object):
         plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([3, 4, 5, 6, 7])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5])
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()
     data_analysis.plotAndSaveRefinementTimeAndWorkload()

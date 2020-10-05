@@ -1051,7 +1051,6 @@ if __name__ == "__main__":
         numbers = [numbers]
 
     for number in numbers:
-
         data_analysis.createFiguresPaths(number)
         data_analysis.loadData(number, what_to_plot)
 
