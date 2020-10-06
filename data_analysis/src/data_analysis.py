@@ -141,13 +141,19 @@ class DataAnalysis(object):
 
         return number_of_updates_per_model
 
+    def useValidParticipants(self):
+        invalid_participants = list(set(list(self.df.loc[self.df['refinement_time'].isna()]['participant_number'])))
+
+        for invalid_participant in invalid_participants:
+            self.df = self.df.loc[self.df['participant_number'] != invalid_participant]
+
     def calculateAndStoreTtestValues(self):
 
         refinement_time_omni = self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['refinement_time']
         refinement_time_keyboard = self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['refinement_time']
 
-        t, p = ttest_rel(refinement_time_keyboard, refinement_time_omni, nan_policy='omit')
-        # t, p = wilcoxon(refinement_time_keyboard, refinement_time_omni)
+        # t, p = ttest_rel(refinement_time_keyboard, refinement_time_omni, nan_policy='omit')
+        t, p = wilcoxon(refinement_time_keyboard, refinement_time_omni)
 
         self.statistics_values['refinement_time']['interface']['p'] = p
         self.statistics_values['refinement_time']['interface']['t'] = t
@@ -155,8 +161,8 @@ class DataAnalysis(object):
         refinement_time_online = list(self.df.loc[self.df['mechanism'] == 'online'].sort_values(by = ['model', 'interface'])['refinement_time'])
         refinement_time_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['refinement_time'])
 
-        t, p = ttest_rel(refinement_time_online, refinement_time_offline, nan_policy='omit')
-        # t, p = wilcoxon(refinement_time_online, refinement_time_offline)
+        # t, p = ttest_rel(refinement_time_online, refinement_time_offline, nan_policy='omit')
+        t, p = wilcoxon(refinement_time_online, refinement_time_offline)
         
         self.statistics_values['refinement_time']['mechanism']['p'] = p
         self.statistics_values['refinement_time']['mechanism']['t'] = t
@@ -164,8 +170,8 @@ class DataAnalysis(object):
         workload_omni = list(self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['workload'])
         workload_keyboard = list(self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['workload'])
 
-        t, p = ttest_rel(workload_keyboard, workload_omni, nan_policy='omit')
-        # t, p = wilcoxon(workload_keyboard, workload_omni)
+        # t, p = ttest_rel(workload_keyboard, workload_omni, nan_policy='omit')
+        t, p = wilcoxon(workload_keyboard, workload_omni)
         
         self.statistics_values['workload']['interface']['p'] = p
         self.statistics_values['workload']['interface']['t'] = t
@@ -173,8 +179,8 @@ class DataAnalysis(object):
         workload_online = list(self.df.loc[self.df['mechanism'] == 'online'].sort_values(by = ['model', 'interface'])['workload'])
         workload_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['workload'])
 
-        t, p = ttest_rel(workload_online, workload_offline, nan_policy='omit')                
-        # t, p = wilcoxon(workload_online, workload_offline)
+        # t, p = ttest_rel(workload_online, workload_offline, nan_policy='omit')                
+        t, p = wilcoxon(workload_online, workload_offline)
 
         self.statistics_values['workload']['mechanism']['p'] = p
         self.statistics_values['workload']['mechanism']['t'] = t
@@ -300,10 +306,25 @@ class DataAnalysis(object):
         plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6])
+
+    print("Workload values are only valid (no nans in refinement time dropped)")
+    print("Also checking for normality and amount of successfully adapted models is valid here")
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()
+    
     data_analysis.plotAndSaveRefinementTimeAndWorkload()
     data_analysis.plotDistributions()
     data_analysis.plotAmountOfAdaptedModelsPerMethod()
+    
+    print("Refinement time values are the only thing that's valid here valid here")
+    data_analysis.useValidParticipants()
+    data_analysis.calculateAndStoreTtestValues()
+    data_analysis.printStatisticValues()
+    
+    data_analysis.plotAndSaveRefinementTimeAndWorkload()
+    data_analysis.plotDistributions()
+    data_analysis.plotAmountOfAdaptedModelsPerMethod()
+    
     plt.show()
+    
