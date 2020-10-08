@@ -306,7 +306,7 @@ class DataAnalysis(object):
         plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8])
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
