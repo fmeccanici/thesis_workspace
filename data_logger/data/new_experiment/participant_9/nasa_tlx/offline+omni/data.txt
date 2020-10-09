@@ -1,0 +1,1 @@
+{'Workload': 49.0, 'Ratings': {'Physical Demand': 50, 'Effort': 65, 'Performance': 50, 'Mental Demand': 65, 'Frustration': 35, 'Temporal Demand': 35}, 'Comparisons': {'Physical Demand': 4, 'Effort': 0, 'Performance': 2, 'Mental Demand': 4, 'Frustration': 1, 'Temporal Demand': 4}}

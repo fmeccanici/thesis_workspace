@@ -143,7 +143,7 @@ class DataAnalysis(object):
 
     def useValidParticipants(self):
         invalid_participants = list(set(list(self.df.loc[self.df['refinement_time'].isna()]['participant_number'])))
-
+        print("Participants " + str(invalid_participants) + " don't have all models adapted")
         for invalid_participant in invalid_participants:
             self.df = self.df.loc[self.df['participant_number'] != invalid_participant]
 
@@ -304,9 +304,11 @@ class DataAnalysis(object):
         plt.figure()
         plt.title("Adapted models")
         plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
+        plt.savefig('adapted_models.png')
+
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
@@ -317,7 +319,7 @@ if __name__ == "__main__":
     data_analysis.plotDistributions()
     data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
-    print("Refinement time values are the only thing that's valid here valid here")
+    print("Refinement time values are the only thing that's valid")
     data_analysis.useValidParticipants()
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()

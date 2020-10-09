@@ -40,6 +40,8 @@ class trajectoryResampler():
         x = np.linspace(0, T, n)
         print("STRICTLY INCREASING DEBUG")
         print("n = " + str(n))
+        print("ndesired = " + str(n_desired))
+
         print("T = " + str(T))
 
         # print("n = " + str(n))
