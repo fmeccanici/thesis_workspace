@@ -27,16 +27,24 @@ class DataAnalysis(object):
             for trial in methods[method]['model'][model]['object_position'][object_position]['trial']:
                 try:
                     if methods[method]['model'][model]['object_position'][object_position]['trial'][trial]['predicted_trajectory']['success'] == True:
+                        # print("Model " + str(model) + " adapted")
                         return True
+
                 except KeyError:
                     
                     # participant did not pass the training
                     if trial == 1:
+                        print("Method " + str(self.experiment_variables.method_mapping_number_to_str[method])) 
+                        print("Did not pass training")
                         return False
 
                     # model is already adapted --> No prediction made for other trials
                     else:
+                        # print("Model " + str(model) + " adapted")
                         return True
+
+        print("Method " + str(self.experiment_variables.method_mapping_number_to_str[method]))        
+        print("Model " + str(model) + " not adapted")
         return False
 
     def loadMultipleParticipantsData(self, participant_numbers=[]):
@@ -308,7 +316,7 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12])
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
