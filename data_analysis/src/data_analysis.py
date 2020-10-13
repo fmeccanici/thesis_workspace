@@ -308,7 +308,7 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
