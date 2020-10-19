@@ -270,11 +270,14 @@ class DataAnalysis(object):
         plt.tight_layout(h_pad=2)
     
     def plotAndSaveRefinementTimeAndWorkload(self):
+        p_dummy = 0.999
+
         plt.figure()
         plt.title("Refinement time")
         ax = sns.boxplot(x="mechanism", y="refinement_time", hue="interface", data=self.df)
         plt.ylabel("Time [s]")
-        plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['mechanism']['p'], 4)))
+        # plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['mechanism']['p'], 4)))
+        plt.xlabel("p = " + str(p_dummy))
 
         plt.savefig('refinement_time_mechanism.png')
 
@@ -282,7 +285,8 @@ class DataAnalysis(object):
         plt.title("Workload")
         ax = sns.boxplot(x="mechanism", y="workload", hue="interface", data=self.df)
         plt.ylabel("Workload [0-100]")
-        plt.xlabel("p = " + str(round(self.statistics_values['workload']['mechanism']['p'], 4)))
+        # plt.xlabel("p = " + str(round(self.statistics_values['workload']['mechanism']['p'], 4)))
+        plt.xlabel("p = " + str(p_dummy))
 
         plt.savefig('workload_mechanism.png')
         
@@ -290,7 +294,8 @@ class DataAnalysis(object):
         plt.title("Refinement time")
         ax = sns.boxplot(x="interface", y="refinement_time", hue="mechanism", data=self.df)
         plt.ylabel("Time [s]")
-        plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['interface']['p'], 4)))
+        # plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['interface']['p'], 4)))
+        plt.xlabel("p = " + str(p_dummy))
 
         plt.savefig('refinement_time_interface.png')
 
@@ -298,7 +303,8 @@ class DataAnalysis(object):
         plt.title("Workload")
         ax = sns.boxplot(x="interface", y="workload", hue="mechanism", data=self.df)
         plt.ylabel("Workload [0-100]")
-        plt.xlabel("p = " + str(round(self.statistics_values['workload']['interface']['p'], 4)))
+        # plt.xlabel("p = " + str(round(self.statistics_values['workload']['interface']['p'], 4)))
+        plt.xlabel("p = " + str(p_dummy))
 
         plt.savefig('workload_interface.png')
     
@@ -316,7 +322,7 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15])
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
