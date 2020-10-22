@@ -313,7 +313,6 @@ class DataAnalysis(object):
         adapted_models_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
         adapted_models_offline_omni = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['is_adapted'] == True)]
         adapted_models_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
-        
 
         plt.figure()
         plt.title("Adapted models")
