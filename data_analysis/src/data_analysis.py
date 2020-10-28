@@ -183,6 +183,11 @@ class DataAnalysis(object):
         plt.ylabel("Occurence [-]")
         plt.title("Online + Omni")
         number_of_updates_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni')]['number_of_updates']
+        print("online+omni median number of updates = " + str(np.median(list(number_of_updates_online_omni))))
+        print("online+omni 25 percentile number of updates = " + str(np.percentile(list(number_of_updates_online_omni), 25)))
+        print("online+omni 75 percentile number of updates = " + str(np.percentile(list(number_of_updates_online_omni), 75)))
+        
+
         data = number_of_updates_online_omni
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -194,6 +199,10 @@ class DataAnalysis(object):
         plt.title("Online + Keyboard")
 
         number_of_updates_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard')]['number_of_updates']
+        print("online+keyboard median number of updates = " + str(np.median(list(number_of_updates_online_keyboard))))
+        print("online+keyboard 25 percentile number of updates = " + str(np.percentile(list(number_of_updates_online_keyboard), 25)))
+        print("online+keyboard 75 percentile number of updates = " + str(np.percentile(list(number_of_updates_online_keyboard), 75)))
+        
         data = number_of_updates_online_keyboard
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -205,6 +214,10 @@ class DataAnalysis(object):
         plt.title("Offline + Omni")
 
         number_of_updates_offline_omni = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni')]['number_of_updates']
+        print("offline+omni median number of updates = " + str(np.median(list(number_of_updates_offline_omni))))
+        print("offline+omni 25 percentile number of updates = " + str(np.percentile(list(number_of_updates_offline_omni), 25)))
+        print("offline+omni 75 percentile number of updates = " + str(np.percentile(list(number_of_updates_offline_omni), 75)))
+        
         data = number_of_updates_offline_omni
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -215,6 +228,10 @@ class DataAnalysis(object):
         plt.xlabel("Amount of updates")
         plt.title("Offline + Keyboard")
         number_of_updates_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard')]['number_of_updates']
+        print("offline+keyboard median number of updates = " + str(np.median(list(number_of_updates_offline_keyboard))))
+        print("offline+keyboard 25 percentile number of updates = " + str(np.percentile(list(number_of_updates_offline_keyboard), 25)))
+        print("offline+keyboard 75 percentile number of updates = " + str(np.percentile(list(number_of_updates_offline_keyboard), 75)))
+        
         data = number_of_updates_offline_keyboard
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -300,6 +317,10 @@ class DataAnalysis(object):
         plt.ylabel("Occurence [-]")
         plt.title("Online + Omni")
         number_of_refinements_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni')]['number_of_refinements']
+        print("online+omni median number of refinements = " + str(np.median(list(number_of_refinements_online_omni))))
+        print("online+omni 25 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_online_omni), 25)))
+        print("online+omni 75 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_online_omni), 75)))
+        
         data = number_of_refinements_online_omni
         x = range(min(data), max(data) + 1)
         # plt.xticks(x)
@@ -314,6 +335,10 @@ class DataAnalysis(object):
         plt.title("Online + Keyboard")
         plt.ylim([0, 20])
         number_of_refinements_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard')]['number_of_refinements']
+        print("online+keyboard median number of refinements = " + str(np.median(list(number_of_refinements_online_keyboard))))
+        print("online+keyboard 25 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_online_keyboard), 25)))
+        print("online+keyboard 75 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_online_keyboard), 75)))
+        
         data = number_of_refinements_online_keyboard
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -326,6 +351,10 @@ class DataAnalysis(object):
         plt.ylim([0, 20])
 
         number_of_refinements_offline_omni = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni')]['number_of_refinements']
+        print("offline+omni median number of refinements = " + str(np.median(list(number_of_refinements_offline_omni))))
+        print("offline+omni 25 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_offline_omni), 25)))
+        print("offline+omni 75 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_offline_omni), 75)))
+        
         data = number_of_refinements_offline_omni
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -338,6 +367,10 @@ class DataAnalysis(object):
         plt.ylim([0, 20])
 
         number_of_refinements_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard')]['number_of_refinements']
+        print("offline+keyboard median number of refinements = " + str(np.median(list(number_of_refinements_offline_keyboard))))
+        print("offline+keyboard 25 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_offline_keyboard), 25)))
+        print("offline+keyboard 75 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_offline_keyboard), 75)))
+        
         data = number_of_refinements_offline_keyboard
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -601,7 +634,9 @@ class DataAnalysis(object):
         plt.ylabel("Refinement time")
 
         print("online+keyboard median refinement time = " + str(np.median(list(refinement_time_online_keyboard))))
-
+        print("online+keyboard 25 percentile refinement time = " + str(np.percentile(list(refinement_time_online_keyboard), 25)))
+        print("online+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_online_keyboard), 75)))
+        
         sns.boxplot(list(refinement_time_online_keyboard), orient='v')
 
         plt.subplot(2,2,3)
@@ -610,7 +645,9 @@ class DataAnalysis(object):
         plt.ylabel("Refinement time")
 
         print("offline+omni median refinement time = " + str(np.median(list(refinement_time_offline_omni))))
-
+        print("offline+omni 25 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_omni), 25)))
+        print("offline+omni 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_omni), 75)))
+        
         sns.boxplot(list(refinement_time_offline_omni), orient='v')
 
         plt.subplot(2,2,4)
@@ -619,7 +656,9 @@ class DataAnalysis(object):
         plt.ylabel("Refinement time")
 
         print("offline+keyboard median = " + str(np.median(list(refinement_time_offline_keyboard))))
-
+        print("offline+keyboard 25 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 25)))
+        print("offline+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 75)))
+        
         sns.boxplot(list(refinement_time_offline_keyboard), orient='v')
 
         plt.tight_layout()
@@ -635,7 +674,9 @@ class DataAnalysis(object):
         plt.ylabel("Workload")
 
         print("online+omni median workload = " + str(np.median(list(workload_online_omni))))
-
+        print("online+omni 25 percentile workload = " + str(np.percentile(list(workload_online_omni), 25)))
+        print("online+omni 75 percentile workload = " + str(np.percentile(list(workload_online_omni), 75)))
+        
         sns.boxplot(list(workload_online_omni), orient='v')
 
         plt.subplot(2,2,2)
@@ -643,7 +684,9 @@ class DataAnalysis(object):
         plt.xlabel("Online + Keyboard")
         plt.ylabel("Workload")
         print("online+keyboard median workload = " + str(np.median(list(workload_online_keyboard))))
-
+        print("online+keyboard 25 percentile workload = " + str(np.percentile(list(workload_online_keyboard), 25)))
+        print("online+keyboard 75 percentile workload = " + str(np.percentile(list(workload_online_keyboard), 75)))
+        
         sns.boxplot(list(workload_online_keyboard), orient='v')
 
         plt.subplot(2,2,3)
@@ -652,7 +695,9 @@ class DataAnalysis(object):
         plt.ylabel("Workload")
 
         print("offline+omni median workload = " + str(np.median(list(workload_offline_omni))))
-
+        print("offline+omni 25 percentile workload = " + str(np.percentile(list(workload_offline_omni), 25)))
+        print("offline+omni 75 percentile workload = " + str(np.percentile(list(workload_offline_omni), 75)))
+        
         sns.boxplot(list(workload_offline_omni), orient='v')
 
         plt.subplot(2,2,4)
@@ -660,7 +705,9 @@ class DataAnalysis(object):
         plt.xlabel("Offline + Keyboard")
         plt.ylabel("Workload")
         print("offline+keyboard median workload = " + str(np.median(list(workload_offline_keyboard))))
-
+        print("offline+keyboard 25 percentile workload = " + str(np.percentile(list(workload_offline_keyboard), 25)))
+        print("offline+keyboard 75 percentile workload = " + str(np.percentile(list(workload_offline_keyboard), 75)))
+        
         sns.boxplot(list(workload_offline_keyboard), orient='v')
 
         plt.tight_layout()
@@ -693,7 +740,7 @@ if __name__ == "__main__":
     data_analysis.plotDistributions()
     data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
-    # print("Refinement time values are the only thing that's valid")
+    print("Refinement time values are the only thing that's valid")
     data_analysis.useValidParticipants()
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()
