@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
                              QLineEdit)
 
 from random import randint, choice
+import ast
 
 class Slider(QSlider):
     minimumChanged = pyqtSignal(int)
@@ -66,9 +67,27 @@ class NASATLX(QWidget):
         self.store_button.clicked.connect(self.onStoreClick)
 
         self.setRandomValues()
-
+        
+        # self.loadAllDataAndConvertWorkload()
+        
+        
         self.setWindowTitle("NASA TLX")
         self.resize(400, 300)
+
+    def loadAllDataAndConvertWorkload(self):
+        participant_numbers = [str(x) for x in range(1,19)]
+    
+        for participant_number in participant_numbers:
+            for method in self.methods_labels:
+                path = self.base_path + 'participant_' + str(participant_number) + '/nasa_tlx/' + str(method) + '/'
+                self.data_path = path
+
+                with open(path+'data.txt', 'r') as f:
+                    self.data = ast.literal_eval(f.read())
+                    self.data['Ratings']['Performance'] = 100 - self.data['Ratings']['Performance']
+                    workload = self.calculateWorkload()
+                    self.data['Workload'] = workload
+                    self.storeData()
 
     def setDataPath(self):
         participant_number = int(self.participant_number_text.text())

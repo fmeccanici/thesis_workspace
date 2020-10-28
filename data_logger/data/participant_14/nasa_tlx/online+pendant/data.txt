@@ -1,1 +1,1 @@
-{'Ratings': {'Physical Demand': 20, 'Performance': 65, 'Mental Demand': 65, 'Effort': 75, 'Temporal Demand': 20, 'Frustration': 35}, 'Workload': 58.666666666666664, 'Comparisons': {'Physical Demand': 0, 'Performance': 4, 'Mental Demand': 3, 'Effort': 4, 'Temporal Demand': 1, 'Frustration': 3}}
+{'Ratings': {'Mental Demand': 65, 'Physical Demand': 20, 'Temporal Demand': 20, 'Frustration': 35, 'Performance': 35, 'Effort': 75}, 'Workload': 50, 'Comparisons': {'Mental Demand': 3, 'Physical Demand': 0, 'Temporal Demand': 1, 'Frustration': 3, 'Performance': 4, 'Effort': 4}}
