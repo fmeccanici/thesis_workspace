@@ -507,6 +507,8 @@ class DataAnalysis(object):
 
         plt.tight_layout(h_pad=2)
 
+        plt.savefig('distributions_refinement_time.png')
+
         plt.figure()
         plt.suptitle("Workload")
         
@@ -527,6 +529,7 @@ class DataAnalysis(object):
         workload_offline.hist()
         
         plt.tight_layout(h_pad=2)
+        plt.savefig('distributions_workload.png')
     
     def plotAndSaveRefinementTimeAndWorkload(self):
         p_dummy = 0.999
@@ -586,8 +589,11 @@ class DataAnalysis(object):
         plt.ylabel("Refinement time")
 
         print("online+omni median refinement time = " + str(np.median(list(refinement_time_online_omni))))
-
+        print("online+omni 25 percentile refinement time = " + str(np.percentile(list(refinement_time_online_omni), 25)))
+        print("online+omni 75 percentile refinement time = " + str(np.percentile(list(refinement_time_online_omni), 75)))
+        
         sns.boxplot(list(refinement_time_online_omni), orient='v')
+
 
         plt.subplot(2,2,2)
         plt.ylim([0, 1000])
@@ -676,7 +682,7 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
@@ -687,7 +693,7 @@ if __name__ == "__main__":
     data_analysis.plotDistributions()
     data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
-    print("Refinement time values are the only thing that's valid")
+    # print("Refinement time values are the only thing that's valid")
     data_analysis.useValidParticipants()
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()
