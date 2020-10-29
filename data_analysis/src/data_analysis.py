@@ -732,6 +732,7 @@ if __name__ == "__main__":
 
     print("Workload values are only valid (no nans in refinement time dropped)")
     print("Also checking for normality and amount of successfully adapted models is valid here")
+    data_analysis.useValidParticipants()
     data_analysis.calculateAndStoreTtestValues()
     data_analysis.printStatisticValues()
     
