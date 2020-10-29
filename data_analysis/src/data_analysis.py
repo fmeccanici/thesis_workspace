@@ -71,8 +71,14 @@ class DataAnalysis(object):
     def convertParticipantDataToDictionary(self, participant):        
         for method_str in self.experiment_variables.method_mapping_str_to_number:
             nasa_tlx_path = self.data_path + "participant_" + str(participant.getNumber()) + '/nasa_tlx/' + method_str + '/data.txt'
+            training_path = self.data_path + "participant_" + str(participant.getNumber()) + '/training/' + method_str + '/data.txt'
             with open(nasa_tlx_path, 'r') as f:
                 workload = float(ast.literal_eval(f.read())['Workload'])
+            try:
+                with open(training_path, 'r') as f:
+                    training_time = ast.literal_eval(f.read())['time']
+            except FileNotFoundError:
+                training_time = np.nan
 
             refinement_time_per_model = self.calculateRefinementTime(participant, self.experiment_variables.method_mapping_str_to_number[method_str])
             mechanism = method_str.split('+')[0]
@@ -88,13 +94,13 @@ class DataAnalysis(object):
             
             for i in range(len(refinement_time_per_model)):
                 if is_adapted_per_model[i]:
-                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload}
+                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload, 'training_time': training_time}
                     self.rows_list.append(data_dictionary)
                 else:
                     drop_data = True
-                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload}
+                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload, 'training_time': training_time}
                     self.rows_list.append(data_dictionary)
-
+    
     def plotMethodOpinions(self):
         plt.figure()
         plt.title("Method that was liked the most")
@@ -107,6 +113,138 @@ class DataAnalysis(object):
         offline_keyboard = best_methods.count('offline+keyboard') 
         plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [online_omni, online_keyboard, offline_omni, offline_keyboard])           
         plt.savefig('method_opinion.png')
+
+    def plotTrainingTime(self):
+        training_time_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['training_time']
+        training_time_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['training_time']
+        training_time_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['training_time']
+        training_time_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['training_time']
+
+        fig = plt.figure()
+        fig.suptitle("Training time per method")
+        plt.subplot(2, 2, 1)
+        sns.boxplot(x=training_time_online_omni, orient='v')
+        plt.xlabel("online + omni")
+        plt.ylabel("Time [s]")
+        plt.ylim([0, 1500])
+
+        plt.subplot(2, 2, 2)
+        sns.boxplot(x=training_time_offline_omni, orient='v')
+        plt.xlabel("offline + omni")
+        plt.ylabel("Time [s]")
+        plt.ylim([0, 1500])
+
+        plt.subplot(2, 2, 3)
+        sns.boxplot(x=training_time_online_keyboard, orient='v')
+        plt.xlabel("online + keyboard")
+        plt.ylabel("Time [s]")
+        plt.ylim([0, 1500])
+
+        plt.subplot(2, 2, 4)
+        sns.boxplot(x=training_time_offline_keyboard, orient='v')
+        plt.xlabel("offline + keyboard")
+        plt.ylabel("Time [s]")
+        plt.ylim([0, 1500])
+
+        plt.tight_layout()
+        fig.subplots_adjust(top=0.88)
+        plt.savefig('training_time.png')
+
+    def plotTeleopGameExperience(self):
+        models_1 = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online') & (self.df['model'] == '1')]
+        game_experience = models_1['keyboard_experience']
+        teleop_experience = models_1['teleop_experience']
+        binwidth = 1
+
+        fig = plt.figure()
+
+        data = game_experience
+        plt.subplot(2,1,1)
+        plt.title("Game (WASD) experience")
+        plt.xticks(np.arange(6), ("None", "1 hour", "10 hours", "1 day", "10 weeks", "More"))
+        plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
+
+        data = teleop_experience
+        plt.subplot(2,1,2)
+        plt.title("Teleoperation experience")
+        plt.xticks(np.arange(6), ("None", "1 hour", "10 hours", "1 day", "10 weeks", "More"))
+        plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
+
+        plt.tight_layout()
+        fig.subplots_adjust(top=0.88)
+
+        plt.savefig('teleop_game_experience.png')
+    
+    def printFieldOfStudy(self):
+        models_1 = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online') & (self.df['model'] == '1')]
+        field_of_study = models_1[['field_of_study', 'participant_number']]
+        print(field_of_study)
+        technical_strings = ["Robotics", "Robotics Engineering", "BME", "BMD", "BMD-HI", "Electrical Engineering", "DCSC", "Mechatronics", "Mechanical Engineering", "Software", "IPO"]
+        technical = []
+        non_technical = []
+
+        for i, data in enumerate(list(field_of_study['field_of_study'])):
+            if data in technical_strings:                
+                technical.append(i+1)
+            else: 
+                non_technical.append(i+1)
+        
+        fig = plt.figure()
+        plt.title("Field of work/study")
+        plt.bar(x=["Technical", "Non-technical"], height = [len(technical), len(non_technical)])
+        plt.savefig("technical_non_technical.png")
+
+    def calculateStatisticsValuesTeleopGameExperience(self):
+
+        refinement_time_keyboard_large_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_keyboard_low_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_omni_large_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_omni_low_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        
+        workload_keyboard_large_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_keyboard_low_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_omni_large_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_omni_low_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+
+        print("keyboard refinement time low game experience median = " + str(np.median(refinement_time_keyboard_low_game_experience)))
+        print("keyboard refinement time low game experience 25 = " + str(np.percentile(refinement_time_keyboard_low_game_experience, 25)))
+        print("keyboard refinement time low game experience 75 = " + str(np.percentile(refinement_time_keyboard_low_game_experience, 75)))
+        print("sample size = " + str(len(refinement_time_keyboard_low_game_experience)))
+
+        print("keyboard refinement time high game experience median = " + str(np.median(refinement_time_keyboard_large_game_experience)))
+        print("keyboard refinement time high game experience 25 = " + str(np.percentile(refinement_time_keyboard_large_game_experience, 25)))
+        print("keyboard refinement time high game experience 75 = " + str(np.percentile(refinement_time_keyboard_large_game_experience, 75)))
+        print("sample size = " + str(len(refinement_time_keyboard_large_game_experience)))
+
+        print("omni refinement time low teleop experience median = " + str(np.median(refinement_time_omni_low_teleop_experience)))
+        print("omni refinement time low teleop experience 25 = " + str(np.percentile(refinement_time_omni_low_teleop_experience, 25)))
+        print("omni refinement time low teleop experience 75 = " + str(np.percentile(refinement_time_omni_low_teleop_experience, 75)))
+        print("sample size = " + str(len(refinement_time_omni_low_teleop_experience)))
+
+        print("omni refinement time high teleop experience median = " + str(np.median(refinement_time_omni_large_teleop_experience)))
+        print("omni refinement time high teleop experience 25 = " + str(np.percentile(refinement_time_omni_large_teleop_experience, 25)))
+        print("omni refinement time high teleop experience 75 = " + str(np.percentile(refinement_time_omni_large_teleop_experience, 75)))
+        print("sample size = " + str(len(refinement_time_omni_large_teleop_experience)))
+        
+        print("keyboard workload low game experience median = " + str(np.median(workload_keyboard_low_game_experience)))
+        print("keyboard workload low game experience 25 = " + str(np.percentile(workload_keyboard_low_game_experience, 25)))
+        print("keyboard workload low game experience 75 = " + str(np.percentile(workload_keyboard_low_game_experience, 75)))
+        print("sample size = " + str(len(workload_keyboard_low_game_experience)))
+
+        print("keyboard workload high game experience median = " + str(np.median(workload_keyboard_large_game_experience)))
+        print("keyboard workload high game experience 25 = " + str(np.percentile(workload_keyboard_large_game_experience, 25)))
+        print("keyboard workload high game experience 75 = " + str(np.percentile(workload_keyboard_large_game_experience, 75)))
+        print("sample size = " + str(len(workload_keyboard_large_game_experience)))
+        
+        print("omni workload low teleop experience median = " + str(np.median(workload_omni_low_teleop_experience)))
+        print("omni workload low teleop experience 25 = " + str(np.percentile(workload_omni_low_teleop_experience, 25)))
+        print("omni workload low teleop experience 75 = " + str(np.percentile(workload_omni_low_teleop_experience, 75)))
+        print("sample size = " + str(len(workload_omni_low_teleop_experience)))
+
+        print("omni workload high teleop experience median = " + str(np.median(workload_omni_large_teleop_experience)))        
+        print("omni workload high teleop experience 25 = " + str(np.percentile(workload_omni_large_teleop_experience, 25)))        
+        print("omni workload high teleop experience 75 = " + str(np.percentile(workload_omni_large_teleop_experience, 75)))        
+        print("sample size = " + str(len(workload_omni_large_teleop_experience)))
 
     def plotNumberOfUpdates(self):
 
@@ -730,26 +868,33 @@ if __name__ == "__main__":
     data_analysis = DataAnalysis()
     data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
-    print("Workload values are only valid (no nans in refinement time dropped)")
-    print("Also checking for normality and amount of successfully adapted models is valid here")
+    data_analysis.plotTrainingTime()
+    data_analysis.plotTeleopGameExperience()
+    data_analysis.printFieldOfStudy()
+
+    # print("Workload values are only valid (no nans in refinement time dropped)")
+    # print("Also checking for normality and amount of successfully adapted models is valid here")
+    # data_analysis.useValidParticipants()
+    # data_analysis.calculateAndStoreTtestValues()
+    # data_analysis.printStatisticValues()
+    
+    # data_analysis.plotAndSaveRefinementTimeAndWorkload()
+    # data_analysis.plotDistributions()
+    # data_analysis.plotAmountOfAdaptedModelsPerMethod()
+    
+    # print("Refinement time values are the only thing that's valid")
     data_analysis.useValidParticipants()
-    data_analysis.calculateAndStoreTtestValues()
-    data_analysis.printStatisticValues()
+    # data_analysis.calculateAndStoreTtestValues()
+    # data_analysis.printStatisticValues()
     
-    data_analysis.plotAndSaveRefinementTimeAndWorkload()
-    data_analysis.plotDistributions()
-    data_analysis.plotAmountOfAdaptedModelsPerMethod()
+    # data_analysis.plotAndSaveRefinementTimeAndWorkload()
+    # data_analysis.plotDistributions()
+    # data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
-    print("Refinement time values are the only thing that's valid")
-    data_analysis.useValidParticipants()
-    data_analysis.calculateAndStoreTtestValues()
-    data_analysis.printStatisticValues()
-    
-    data_analysis.plotAndSaveRefinementTimeAndWorkload()
-    data_analysis.plotDistributions()
-    data_analysis.plotAmountOfAdaptedModelsPerMethod()
-    
-    # plt.show()
-    data_analysis.plotNumberOfUpdates()
-    data_analysis.plotNumberOfRefinements()
-    data_analysis.plotMethodOpinions()
+    # # plt.show()
+    # data_analysis.plotNumberOfUpdates()
+    # data_analysis.plotNumberOfRefinements()
+    # data_analysis.plotMethodOpinions()
+
+
+    data_analysis.calculateStatisticsValuesTeleopGameExperience()
