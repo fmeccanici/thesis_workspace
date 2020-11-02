@@ -91,14 +91,38 @@ class DataAnalysis(object):
             number_of_updates_per_model = self.getNumberOfUpdates(participant, self.experiment_variables.method_mapping_str_to_number[method_str])
 
             is_adapted_per_model = [self.isAdapted(participant.getNumber(), i, self.experiment_variables.method_mapping_str_to_number[method_str]) for i in range(1, len(refinement_time_per_model) + 1)]
+
+            technical_strings = ["Robotics", "Robotics Engineering", "BME", "BMD", "BMD-HI", "Electrical Engineering", "DCSC", "Mechatronics", "Mechanical Engineering", "Software", "IPO"]
+
+            if participant.getFieldOfStudy() in technical_strings:
+                technical = True
+            else: technical = False
+
+            if participant.getKeyboardExperience() > 3:
+                high_keyboard_experience = True
+            else: high_keyboard_experience = False
+
+            if participant.getTeleopExperience() > 3:
+                high_teleop_experience = True
+            else: high_teleop_experience = False
+
+            # method_str = mechanism + "+" + interface
+            if method_str == 'online+omni':
+                method_str = 'OnOm'
+            elif method_str == 'online+pendant':
+                method_str = 'OnKey'
+            elif method_str == 'offline+omni':
+                method_str = 'OffOm'            
+            if method_str == 'offline+pendant':
+                method_str = 'OffKey'
             
             for i in range(len(refinement_time_per_model)):
                 if is_adapted_per_model[i]:
-                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload, 'training_time': training_time}
+                    data_dictionary = {'method': method_str, 'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'technical': technical, 'high_teleop_experience': high_teleop_experience, 'high_keyboard_experience': high_keyboard_experience, 'workload' : workload, 'training_time': training_time, 'gender': participant.getGender()}
                     self.rows_list.append(data_dictionary)
                 else:
                     drop_data = True
-                    data_dictionary = {'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'workload' : workload, 'training_time': training_time}
+                    data_dictionary = {'method': method_str, 'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'technical': technical, 'high_teleop_experience': high_teleop_experience, 'high_keyboard_experience': high_keyboard_experience, 'workload' : workload, 'training_time': training_time, 'gender': participant.getGender()}
                     self.rows_list.append(data_dictionary)
     
     def plotMethodOpinions(self):
@@ -178,7 +202,6 @@ class DataAnalysis(object):
     def printFieldOfStudy(self):
         models_1 = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online') & (self.df['model'] == '1')]
         field_of_study = models_1[['field_of_study', 'participant_number']]
-        print(field_of_study)
         technical_strings = ["Robotics", "Robotics Engineering", "BME", "BMD", "BMD-HI", "Electrical Engineering", "DCSC", "Mechatronics", "Mechanical Engineering", "Software", "IPO"]
         technical = []
         non_technical = []
@@ -194,17 +217,369 @@ class DataAnalysis(object):
         plt.bar(x=["Technical", "Non-technical"], height = [len(technical), len(non_technical)])
         plt.savefig("technical_non_technical.png")
 
-    def calculateStatisticsValuesTeleopGameExperience(self):
+    def plotTechnicalNonTechnical(self):
+        # for values
+        refinement_time_technical_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni')]['refinement_time']
+        refinement_time_technical_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard')]['refinement_time']
+        refinement_time_non_technical_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni')]['refinement_time']
+        refinement_time_non_technical_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard')]['refinement_time']
+
+        workload_technical_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni')]['workload']
+        workload_technical_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard')]['workload']
+        workload_non_technical_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni')]['workload']
+        workload_non_technical_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard')]['workload']
+
+        print("Refinement time")
+        print('---------------')
+        print("Technical")
+        print("Omni")
+        print("Median = " + str(np.median(refinement_time_technical_omni)))
+        print("25 = " + str(np.percentile(refinement_time_technical_omni, 25)))
+        print("75 = " + str(np.percentile(refinement_time_technical_omni, 75)))
+        print("N = " + str(len(refinement_time_technical_omni)))
+        print("Keyboard")
+        print("Median = " + str(np.median(refinement_time_technical_keyboard)))
+        print("25 = " + str(np.percentile(refinement_time_technical_keyboard, 25)))
+        print("75 = " + str(np.percentile(refinement_time_technical_keyboard, 75)))
+        print("N = " + str(len(refinement_time_technical_keyboard)))
+        print()
+        print("Non-Technical")
+        print("Omni")
+        print("Median = " + str(np.median(refinement_time_non_technical_omni)))
+        print("25 = " + str(np.percentile(refinement_time_non_technical_omni, 25)))
+        print("75 = " + str(np.percentile(refinement_time_non_technical_omni, 75)))
+        print("N = " + str(len(refinement_time_technical_omni)))
+        print("Keyboard")
+        print("Median = " + str(np.median(refinement_time_non_technical_keyboard)))
+        print("25 = " + str(np.percentile(refinement_time_non_technical_keyboard, 25)))
+        print("75 = " + str(np.percentile(refinement_time_non_technical_keyboard, 75)))
+        print("N = " + str(len(refinement_time_non_technical_keyboard)))
+        print()
+        print('Workload')
+        print('---------------')
+        print("Technical")
+        print("Omni")
+        print("Median = " + str(np.median(workload_technical_omni)))
+        print("25 = " + str(np.percentile(workload_technical_omni, 25)))
+        print("75 = " + str(np.percentile(workload_technical_omni, 75)))
+        print("N = " + str(len(workload_technical_omni)))
+        print("Keyboard")
+        print("Median = " + str(np.median(workload_technical_keyboard)))
+        print("25 = " + str(np.percentile(workload_technical_keyboard, 25)))
+        print("75 = " + str(np.percentile(workload_technical_keyboard, 75)))
+        print("N = " + str(len(workload_technical_keyboard)))
+        print()
+        print("Non-Technical")
+        print("Omni")
+        print("Median = " + str(np.median(workload_non_technical_omni)))
+        print("25 = " + str(np.percentile(workload_non_technical_omni, 25)))
+        print("75 = " + str(np.percentile(workload_non_technical_omni, 75)))
+        print("N = " + str(len(workload_non_technical_omni)))
+        print("Keyboard")
+        print("Median = " + str(np.median(workload_non_technical_keyboard)))
+        print("25 = " + str(np.percentile(workload_non_technical_keyboard, 25)))
+        print("75 = " + str(np.percentile(workload_non_technical_keyboard, 75)))
+        print("N = " + str(len(workload_non_technical_keyboard)))
+
+        refinement_time_technical_online_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['refinement_time']
+        refinement_time_technical_offline_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['refinement_time']
+        refinement_time_technical_online_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['refinement_time']
+        refinement_time_technical_offline_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['refinement_time']
+        refinement_time_non_technical_online_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['refinement_time']
+        refinement_time_non_technical_offline_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['refinement_time']
+        refinement_time_non_technical_online_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['refinement_time']
+        refinement_time_non_technical_offline_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['refinement_time']
+
+
+        workload_technical_online_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
+        workload_technical_offline_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
+        workload_technical_online_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
+        workload_technical_offline_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
+        workload_non_technical_online_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
+        workload_non_technical_offline_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
+        workload_non_technical_online_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
+        workload_non_technical_offline_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
+
+        print("Refinement time")
+        print('---------------')
+        print("Technical")
+        print("Online + Omni")
+        print("Median = " + str(np.median(refinement_time_technical_online_omni)))
+        print("25 = " + str(np.percentile(refinement_time_technical_online_omni, 25)))
+        print("75 = " + str(np.percentile(refinement_time_technical_online_omni, 75)))
+        print("N = " + str(len(refinement_time_technical_online_omni)))
+
+        print("Offline + Omni")
+        print("Median = " + str(np.median(refinement_time_technical_offline_omni)))
+        print("25 = " + str(np.percentile(refinement_time_technical_offline_omni, 25)))
+        print("75 = " + str(np.percentile(refinement_time_technical_offline_omni, 75)))
+        print("N = " + str(len(refinement_time_technical_offline_omni)))
+
+        print("Online + Keyboard")
+        print("Median = " + str(np.median(refinement_time_technical_online_keyboard)))
+        print("25 = " + str(np.percentile(refinement_time_technical_online_keyboard, 25)))
+        print("75 = " + str(np.percentile(refinement_time_technical_online_keyboard, 75)))
+        print("N = " + str(len(refinement_time_technical_online_keyboard)))
+
+        print("Offline + Keyboard")
+        print("Median = " + str(np.median(refinement_time_technical_offline_keyboard)))
+        print("25 = " + str(np.percentile(refinement_time_technical_offline_keyboard, 25)))
+        print("75 = " + str(np.percentile(refinement_time_technical_offline_keyboard, 75)))
+        print("N = " + str(len(refinement_time_technical_offline_keyboard)))
+
+        print()
+        print("Non-technical")
+        print("Online + Omni")
+        print("Median = " + str(np.median(refinement_time_non_technical_online_omni)))
+        print("25 = " + str(np.percentile(refinement_time_non_technical_online_omni, 25)))
+        print("75 = " + str(np.percentile(refinement_time_non_technical_online_omni, 75)))
+        print("N = " + str(len(refinement_time_non_technical_online_omni)))
+
+        print("Offline + Omni")
+        print("Median = " + str(np.median(refinement_time_non_technical_offline_omni)))
+        print("25 = " + str(np.percentile(refinement_time_non_technical_offline_omni, 25)))
+        print("75 = " + str(np.percentile(refinement_time_non_technical_offline_omni, 75)))
+        print("N = " + str(len(refinement_time_non_technical_offline_omni)))
+
+        print("Online + Keyboard")
+        print("Median = " + str(np.median(refinement_time_non_technical_online_keyboard)))
+        print("25 = " + str(np.percentile(refinement_time_non_technical_online_keyboard, 25)))
+        print("75 = " + str(np.percentile(refinement_time_non_technical_online_keyboard, 75)))
+        print("N = " + str(len(refinement_time_non_technical_online_keyboard)))
+
+        print("Offline + Keyboard")
+        print("Median = " + str(np.median(refinement_time_non_technical_offline_keyboard)))
+        print("25 = " + str(np.percentile(refinement_time_non_technical_offline_keyboard, 25)))
+        print("75 = " + str(np.percentile(refinement_time_non_technical_offline_keyboard, 75)))
+        print("N = " + str(len(refinement_time_non_technical_offline_keyboard)))
+
+        print()
+        print("Workload")
+        print('---------------')
+        print("Technical")
+        print("Online + Omni")
+        print("Median = " + str(np.median(workload_technical_online_omni)))
+        print("25 = " + str(np.percentile(workload_technical_online_omni, 25)))
+        print("75 = " + str(np.percentile(workload_technical_online_omni, 75)))
+        print("N = " + str(len(workload_technical_online_omni)))
+
+        print("Offline + Omni")
+        print("Median = " + str(np.median(workload_technical_offline_omni)))
+        print("25 = " + str(np.percentile(workload_technical_offline_omni, 25)))
+        print("75 = " + str(np.percentile(workload_technical_offline_omni, 75)))
+        print("N = " + str(len(workload_technical_offline_omni)))
+
+        print("Online + Keyboard")
+        print("Median = " + str(np.median(workload_technical_online_keyboard)))
+        print("25 = " + str(np.percentile(workload_technical_online_keyboard, 25)))
+        print("75 = " + str(np.percentile(workload_technical_online_keyboard, 75)))
+        print("N = " + str(len(workload_technical_online_keyboard)))
+
+        print("Offline + Keyboard")
+        print("Median = " + str(np.median(workload_technical_offline_keyboard)))
+        print("25 = " + str(np.percentile(workload_technical_offline_keyboard, 25)))
+        print("75 = " + str(np.percentile(workload_technical_offline_keyboard, 75)))
+        print("N = " + str(len(workload_technical_offline_keyboard)))
+
+        print()
+        print("Non-technical")
+        print("Online + Omni")
+        print("Median = " + str(np.median(workload_non_technical_online_omni)))
+        print("25 = " + str(np.percentile(workload_non_technical_online_omni, 25)))
+        print("75 = " + str(np.percentile(workload_non_technical_online_omni, 75)))
+        print("N = " + str(len(workload_non_technical_online_omni)))
+
+        print("Offline + Omni")
+        print("Median = " + str(np.median(workload_non_technical_offline_omni)))
+        print("25 = " + str(np.percentile(workload_non_technical_offline_omni, 25)))
+        print("75 = " + str(np.percentile(workload_non_technical_offline_omni, 75)))
+        print("N = " + str(len(workload_non_technical_offline_omni)))
+
+        print("Online + Keyboard")
+        print("Median = " + str(np.median(workload_non_technical_online_keyboard)))
+        print("25 = " + str(np.percentile(workload_non_technical_online_keyboard, 25)))
+        print("75 = " + str(np.percentile(workload_non_technical_online_keyboard, 75)))
+        print("N = " + str(len(workload_non_technical_online_keyboard)))
+
+        print("Offline + Keyboard")
+        print("Median = " + str(np.median(workload_non_technical_offline_keyboard)))
+        print("25 = " + str(np.percentile(workload_non_technical_offline_keyboard, 25)))
+        print("75 = " + str(np.percentile(workload_non_technical_offline_keyboard, 75)))
+        print("N = " + str(len(workload_non_technical_offline_keyboard)))
+
+
+
+
+        ## for plots
+        # fig = plt.figure()
+        # plt.title("Field of study/work")
+        # sns.boxplot(x="technical", y="refinement_time", data=self.df)
+        # plt.xticks(np.arange(2), ["Non-technical", "Technical"])
+        # plt.xlabel("")
+
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        fig = plt.figure()
+        plt.suptitle("Field of work/study")
+        legend_labels = ["NT", "T"]
+
+        # workload
+        plt.subplot(2,2,3)
+        g = sns.boxplot(x='interface', y='workload', data=self.df, hue='technical')
+        g.legend_.remove()
+        plt.ylabel('Workload [0-100]')
+        plt.xlabel("")
+        plt.title("")
+        
+        plt.subplot(2,2,4)
+        g = sns.boxplot(x='mechanism', y='workload', data=self.df, hue='technical')
+        g.legend_.remove()
+        plt.ylabel('Workload [0-100]')
+        plt.xlabel("")
+        plt.title("")
+
+        self.useValidParticipants()
+
+        # refinement time
+        plt.subplot(2,2,1)
+        g = sns.boxplot(x='interface', y='refinement_time', data=self.df, hue='technical')
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        plt.ylabel('Refinement time [s]')
+        plt.xlabel("")
+        plt.title("")
+
+        plt.subplot(2,2,2)
+        g = sns.boxplot(x='mechanism', y='refinement_time', data=self.df, hue='technical')
+        g.legend_.remove()
+        plt.ylabel('Refinement time [s]')
+        plt.xlabel("")
+        plt.title("")
+        plt.tight_layout()
+        fig.subplots_adjust(top=0.88)
+        plt.savefig('field_of_work_omni_keyboard_offline_online.pdf')
+
+        plt.show()
+
+
+
+    def calculateStatisticsValuesAndPlotTeleopGameExperience(self):
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        ## for plots
+        fig = plt.figure()
+        plt.suptitle("Teleoperation experience")
+        legend_labels = ["L", "H"]
+
+        # teleop experience
+        # workload
+        plt.subplot(2,2,3)
+        g = sns.boxplot(x='interface', y='workload', data=self.df, hue='high_teleop_experience')
+        g.legend_.remove()
+        plt.ylabel('Workload [0-100]')
+        plt.xlabel("")
+        plt.title("")
+        
+        plt.subplot(2,2,4)
+        g = sns.boxplot(x='mechanism', y='workload', data=self.df, hue='high_teleop_experience')
+        g.legend_.remove()
+        plt.ylabel('Workload [0-100]')
+        plt.xlabel("")
+        plt.title("")
+
+        self.useValidParticipants()
+
+        # refinement time
+        plt.subplot(2,2,1)
+        g = sns.boxplot(x='interface', y='refinement_time', data=self.df, hue='high_teleop_experience')
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        plt.ylabel('Refinement time [s]')
+        plt.xlabel("")
+        plt.title("")
+
+        plt.subplot(2,2,2)
+        g = sns.boxplot(x='mechanism', y='refinement_time', data=self.df, hue='high_teleop_experience')
+        g.legend_.remove()
+        plt.ylabel('Refinement time [s]')
+        plt.xlabel("")
+        plt.title("")
+        plt.tight_layout()
+        fig.subplots_adjust(top=0.88)
+        plt.savefig('teleop_experience_omni_keyboard_offline_online.pdf')
+        
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+
+        # keyboard experience
+        fig = plt.figure()
+        plt.suptitle("Keyboard experience")
+        legend_labels = ["L", "H"]
+
+        # workload
+        plt.subplot(2,2,3)
+        g = sns.boxplot(x='interface', y='workload', data=self.df, hue='high_keyboard_experience')
+        g.legend_.remove()
+        plt.ylabel('Workload [0-100]')
+        plt.xlabel("")
+        plt.title("")
+        
+        plt.subplot(2,2,4)
+        g = sns.boxplot(x='mechanism', y='workload', data=self.df, hue='high_keyboard_experience')
+        g.legend_.remove()
+        plt.ylabel('Workload [0-100]')
+        plt.xlabel("")
+        plt.title("")
+
+        self.useValidParticipants()
+
+        # refinement time
+        plt.subplot(2,2,1)
+        g = sns.boxplot(x='interface', y='refinement_time', data=self.df, hue='high_keyboard_experience')
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        plt.ylabel('Refinement time [s]')
+        plt.xlabel("")
+        plt.title("")
+
+        plt.subplot(2,2,2)
+        g = sns.boxplot(x='mechanism', y='refinement_time', data=self.df, hue='high_keyboard_experience')
+        g.legend_.remove()
+        plt.ylabel('Refinement time [s]')
+        plt.xlabel("")
+        plt.title("")
+        plt.tight_layout()
+        fig.subplots_adjust(top=0.88)
+        plt.savefig('keyboard_experience_omni_keyboard_offline_online.pdf')
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        ## for values
+        workload_keyboard_large_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_keyboard_low_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_omni_large_game_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_omni_low_game_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+
+        workload_omni_large_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_omni_low_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_keyboard_large_teleop_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_keyboard_low_teleop_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        
+        self.useValidParticipants()
 
         refinement_time_keyboard_large_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
         refinement_time_keyboard_low_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_omni_large_game_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_omni_low_game_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
         refinement_time_omni_large_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
         refinement_time_omni_low_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_keyboard_large_teleop_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_keyboard_low_teleop_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
         
-        workload_keyboard_large_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
-        workload_keyboard_low_game_experience = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
-        workload_omni_large_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
-        workload_omni_low_teleop_experience = self.df.loc[(self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
 
         print("keyboard refinement time low game experience median = " + str(np.median(refinement_time_keyboard_low_game_experience)))
         print("keyboard refinement time low game experience 25 = " + str(np.percentile(refinement_time_keyboard_low_game_experience, 25)))
@@ -216,6 +591,22 @@ class DataAnalysis(object):
         print("keyboard refinement time high game experience 75 = " + str(np.percentile(refinement_time_keyboard_large_game_experience, 75)))
         print("sample size = " + str(len(refinement_time_keyboard_large_game_experience)))
 
+        print()
+
+        print("omni refinement time high game experience median = " + str(np.median(refinement_time_omni_large_game_experience)))
+        print("omni refinement time high game experience 25 = " + str(np.percentile(refinement_time_omni_large_game_experience, 25)))
+        print("omni refinement time high game experience 75 = " + str(np.percentile(refinement_time_omni_large_game_experience, 75)))
+        print("sample size = " + str(len(refinement_time_omni_large_game_experience)))
+
+        print("omni refinement time low game experience median = " + str(np.median(refinement_time_omni_low_game_experience)))
+        print("omni refinement time low game experience 25 = " + str(np.percentile(refinement_time_omni_low_game_experience, 25)))
+        print("omni refinement time low game experience 75 = " + str(np.percentile(refinement_time_omni_low_game_experience, 75)))
+        print("sample size = " + str(len(refinement_time_omni_low_game_experience)))
+
+        print()
+
+
+
         print("omni refinement time low teleop experience median = " + str(np.median(refinement_time_omni_low_teleop_experience)))
         print("omni refinement time low teleop experience 25 = " + str(np.percentile(refinement_time_omni_low_teleop_experience, 25)))
         print("omni refinement time low teleop experience 75 = " + str(np.percentile(refinement_time_omni_low_teleop_experience, 75)))
@@ -226,6 +617,24 @@ class DataAnalysis(object):
         print("omni refinement time high teleop experience 75 = " + str(np.percentile(refinement_time_omni_large_teleop_experience, 75)))
         print("sample size = " + str(len(refinement_time_omni_large_teleop_experience)))
         
+
+        print()
+
+
+
+        print("keyboard refinement time low teleop experience median = " + str(np.median(refinement_time_keyboard_low_teleop_experience)))
+        print("keyboard refinement time low teleop experience 25 = " + str(np.percentile(refinement_time_keyboard_low_teleop_experience, 25)))
+        print("keyboard refinement time low teleop experience 75 = " + str(np.percentile(refinement_time_keyboard_low_teleop_experience, 75)))
+        print("sample size = " + str(len(refinement_time_keyboard_low_teleop_experience)))
+
+        print("keyboard refinement time high teleop experience median = " + str(np.median(refinement_time_keyboard_large_teleop_experience)))
+        print("keyboard refinement time high teleop experience 25 = " + str(np.percentile(refinement_time_keyboard_large_teleop_experience, 25)))
+        print("keyboard refinement time high teleop experience 75 = " + str(np.percentile(refinement_time_keyboard_large_teleop_experience, 75)))
+        print("sample size = " + str(len(refinement_time_keyboard_large_teleop_experience)))
+
+        print()
+
+
         print("keyboard workload low game experience median = " + str(np.median(workload_keyboard_low_game_experience)))
         print("keyboard workload low game experience 25 = " + str(np.percentile(workload_keyboard_low_game_experience, 25)))
         print("keyboard workload low game experience 75 = " + str(np.percentile(workload_keyboard_low_game_experience, 75)))
@@ -236,6 +645,22 @@ class DataAnalysis(object):
         print("keyboard workload high game experience 75 = " + str(np.percentile(workload_keyboard_large_game_experience, 75)))
         print("sample size = " + str(len(workload_keyboard_large_game_experience)))
         
+        print()
+
+
+        print("omni workload low game experience median = " + str(np.median(workload_omni_low_game_experience)))
+        print("omni workload low game experience 25 = " + str(np.percentile(workload_omni_low_game_experience, 25)))
+        print("omni workload low game experience 75 = " + str(np.percentile(workload_omni_low_game_experience, 75)))
+        print("sample size = " + str(len(workload_omni_low_game_experience)))
+
+        print("omni workload high game experience median = " + str(np.median(workload_omni_large_game_experience)))
+        print("omni workload high game experience 25 = " + str(np.percentile(workload_omni_large_game_experience, 25)))
+        print("omni workload high game experience 75 = " + str(np.percentile(workload_omni_large_game_experience, 75)))
+        print("sample size = " + str(len(workload_omni_large_game_experience)))
+
+        print()
+
+
         print("omni workload low teleop experience median = " + str(np.median(workload_omni_low_teleop_experience)))
         print("omni workload low teleop experience 25 = " + str(np.percentile(workload_omni_low_teleop_experience, 25)))
         print("omni workload low teleop experience 75 = " + str(np.percentile(workload_omni_low_teleop_experience, 75)))
@@ -245,6 +670,440 @@ class DataAnalysis(object):
         print("omni workload high teleop experience 25 = " + str(np.percentile(workload_omni_large_teleop_experience, 25)))        
         print("omni workload high teleop experience 75 = " + str(np.percentile(workload_omni_large_teleop_experience, 75)))        
         print("sample size = " + str(len(workload_omni_large_teleop_experience)))
+
+
+        print()
+
+
+
+        print("keyboard workload low teleop experience median = " + str(np.median(workload_keyboard_low_teleop_experience)))
+        print("keyboard workload low teleop experience 25 = " + str(np.percentile(workload_keyboard_low_teleop_experience, 25)))
+        print("keyboard workload low teleop experience 75 = " + str(np.percentile(workload_keyboard_low_teleop_experience, 75)))
+        print("sample size = " + str(len(workload_keyboard_low_teleop_experience)))
+
+        print("keyboard workload high teleop experience median = " + str(np.median(workload_keyboard_large_teleop_experience)))        
+        print("keyboard workload high teleop experience 25 = " + str(np.percentile(workload_keyboard_large_teleop_experience, 25)))        
+        print("keyboard workload high teleop experience 75 = " + str(np.percentile(workload_keyboard_large_teleop_experience, 75)))        
+        print("sample size = " + str(len(workload_keyboard_large_teleop_experience)))
+
+        
+        # refinement time per method
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        # workload per method
+        workload_online_keyboard_large_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_keyboard_low_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_keyboard_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_keyboard_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+
+        workload_offline_keyboard_large_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_keyboard_low_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_keyboard_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_keyboard_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+
+
+        workload_online_omni_large_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_omni_low_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_omni_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_omni_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+
+        workload_offline_omni_large_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_omni_low_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_omni_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_omni_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['workload']
+
+        print("WORKLOAD PER METHOD")
+        print("Online + Keyboard")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(workload_online_keyboard_low_game_experience)))
+        print("25 = " + str(np.percentile(workload_online_keyboard_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_keyboard_low_game_experience, 75)))
+        print("N = " + str(len(workload_online_keyboard_low_game_experience)))
+        print()
+
+        print("High game experience")
+        print("Median = " + str(np.median(workload_online_keyboard_large_game_experience)))
+        print("25 = " + str(np.percentile(workload_online_keyboard_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_keyboard_large_game_experience, 75)))
+        print("N = " + str(len(workload_online_keyboard_large_game_experience)))
+        print()
+
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(workload_online_keyboard_low_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_online_keyboard_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_keyboard_low_teleop_experience, 75)))
+        print("N = " + str(len(workload_online_keyboard_low_teleop_experience)))
+        print()
+
+        print("High teleop experience")
+        print("Median = " + str(np.median(workload_online_keyboard_large_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_online_keyboard_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_keyboard_large_teleop_experience, 75)))
+        print("N = " + str(len(workload_online_keyboard_large_teleop_experience)))
+        print()
+
+        
+        print()
+        print("Offline + Keyboard")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(workload_offline_keyboard_low_game_experience)))
+        print("25 = " + str(np.percentile(workload_offline_keyboard_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_keyboard_low_game_experience, 75)))
+        print("N = " + str(len(workload_offline_keyboard_low_game_experience)))
+        print()
+
+        print("High game experience")
+        print("Median = " + str(np.median(workload_offline_keyboard_large_game_experience)))
+        print("25 = " + str(np.percentile(workload_offline_keyboard_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_keyboard_large_game_experience, 75)))
+        print("N = " + str(len(workload_offline_keyboard_large_game_experience)))
+        print()
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(workload_offline_keyboard_low_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_offline_keyboard_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_keyboard_low_teleop_experience, 75)))
+        print("N = " + str(len(workload_offline_keyboard_low_teleop_experience)))
+        print()
+
+        print("High teleop experience")
+        print("Median = " + str(np.median(workload_offline_keyboard_large_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_offline_keyboard_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_keyboard_large_teleop_experience, 75)))
+        print("N = " + str(len(workload_offline_keyboard_large_teleop_experience)))
+        print()
+
+
+        print()
+        print("Online + Omni")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(workload_online_omni_low_game_experience)))
+        print("25 = " + str(np.percentile(workload_online_omni_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_omni_low_game_experience, 75)))
+        print("N = " + str(len(workload_online_omni_low_game_experience)))
+        print()
+
+        print("High game experience")
+        print("Median = " + str(np.median(workload_online_omni_large_game_experience)))
+        print("25 = " + str(np.percentile(workload_online_omni_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_omni_large_game_experience, 75)))
+        print("N = " + str(len(workload_online_omni_large_game_experience)))
+        print()
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(workload_online_omni_low_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_online_omni_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_omni_low_teleop_experience, 75)))
+        print("N = " + str(len(workload_online_omni_low_teleop_experience)))
+        print()
+
+        
+        print("High teleop experience")
+        print("Median = " + str(np.median(workload_online_omni_large_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_online_omni_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_online_omni_large_teleop_experience, 75)))
+        print("N = " + str(len(workload_online_omni_large_teleop_experience)))
+        print()
+
+
+        print()
+        print("Offline + Omni")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(workload_offline_omni_low_game_experience)))
+        print("25 = " + str(np.percentile(workload_offline_omni_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_omni_low_game_experience, 75)))
+        print("N = " + str(len(workload_offline_omni_low_game_experience)))
+        print()
+
+        
+        print("High game experience")
+        print("Median = " + str(np.median(workload_offline_omni_large_game_experience)))
+        print("25 = " + str(np.percentile(workload_offline_omni_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_omni_large_game_experience, 75)))
+        print("N = " + str(len(workload_offline_omni_large_game_experience)))
+        print()
+
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(workload_offline_omni_low_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_offline_omni_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_omni_low_teleop_experience, 75)))
+        print("N = " + str(len(workload_offline_omni_low_teleop_experience)))
+        print()
+
+        
+        print("High teleop experience")
+        print("Median = " + str(np.median(workload_offline_omni_large_teleop_experience)))
+        print("25 = " + str(np.percentile(workload_offline_omni_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(workload_offline_omni_large_teleop_experience, 75)))
+        print("N = " + str(len(workload_offline_omni_large_teleop_experience)))
+        print()
+
+        self.useValidParticipants()
+
+        refinement_time_online_keyboard_large_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_keyboard_low_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_keyboard_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_keyboard_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
+        refinement_time_offline_keyboard_large_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_keyboard_low_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_keyboard_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_keyboard_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
+
+        refinement_time_online_omni_large_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_omni_low_game_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_omni_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_omni_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
+        refinement_time_offline_omni_large_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_omni_low_game_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['keyboard_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_omni_large_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] > 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_omni_low_teleop_experience = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni') & (self.df['teleop_experience'] <= 3)].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
+        print("REFINEMENT TIME PER METHOD")
+        print("Online + Keyboard")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(refinement_time_online_keyboard_low_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_keyboard_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_keyboard_low_game_experience, 75)))
+        print("N = " + str(len(refinement_time_online_keyboard_low_game_experience)))
+        print()
+
+        print("High game experience")
+        print("Median = " + str(np.median(refinement_time_online_keyboard_large_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_keyboard_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_keyboard_large_game_experience, 75)))
+        print("N = " + str(len(refinement_time_online_keyboard_large_game_experience)))
+        print()
+        
+        print("Low teleop experience")
+        print("Median = " + str(np.median(refinement_time_online_keyboard_low_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_keyboard_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_keyboard_low_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_online_keyboard_low_teleop_experience)))
+        print()
+        
+        print("High teleop experience")
+        print("Median = " + str(np.median(refinement_time_online_keyboard_large_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_keyboard_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_keyboard_large_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_online_keyboard_large_teleop_experience)))
+        print()
+        
+        print()
+        print("Offline + Keyboard")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(refinement_time_offline_keyboard_low_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_keyboard_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_keyboard_low_game_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_keyboard_low_game_experience)))
+        print()
+        
+        print("High game experience")
+        print("Median = " + str(np.median(refinement_time_offline_keyboard_large_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_keyboard_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_keyboard_large_game_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_keyboard_large_game_experience)))
+        print()
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(refinement_time_offline_keyboard_low_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_keyboard_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_keyboard_low_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_keyboard_low_teleop_experience)))
+        print()
+        
+        print("High teleop experience")
+        print("Median = " + str(np.median(refinement_time_offline_keyboard_large_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_keyboard_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_keyboard_large_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_keyboard_large_teleop_experience)))
+        print()
+
+        print()
+        print("Online + Omni")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(refinement_time_online_omni_low_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_omni_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_omni_low_game_experience, 75)))
+        print("N = " + str(len(refinement_time_online_omni_low_game_experience)))
+        print()
+        
+        print("High game experience")
+        print("Median = " + str(np.median(refinement_time_online_omni_large_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_omni_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_omni_large_game_experience, 75)))
+        print("N = " + str(len(refinement_time_online_omni_large_game_experience)))
+        print()
+        
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(refinement_time_online_omni_low_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_omni_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_omni_low_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_online_omni_low_teleop_experience)))
+        print()        
+
+        
+        print("High teleop experience")
+        print("Median = " + str(np.median(refinement_time_online_omni_large_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_online_omni_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_online_omni_large_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_online_omni_large_teleop_experience)))
+        print()        
+
+
+        print()
+        print("Offline + Omni")
+        print('-----------------')
+        print("Low game experience")
+        print("Median = " + str(np.median(refinement_time_offline_omni_low_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_omni_low_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_omni_low_game_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_omni_low_game_experience)))
+        
+        print("High game experience")
+        print("Median = " + str(np.median(refinement_time_offline_omni_large_game_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_omni_large_game_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_omni_large_game_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_omni_large_game_experience)))
+
+        print("Low teleop experience")
+        print("Median = " + str(np.median(refinement_time_offline_omni_low_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_omni_low_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_omni_low_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_omni_low_teleop_experience)))
+        
+        print("High teleop experience")
+        print("Median = " + str(np.median(refinement_time_offline_omni_large_teleop_experience)))
+        print("25 = " + str(np.percentile(refinement_time_offline_omni_large_teleop_experience, 25)))
+        print("75 = " + str(np.percentile(refinement_time_offline_omni_large_teleop_experience, 75)))
+        print("N = " + str(len(refinement_time_offline_omni_large_teleop_experience)))
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        fig = plt.figure()
+        plt.suptitle("Teleoperation experience")
+        plt.subplot(1,2,2)
+        legend_labels = ["L", "H"]
+        g = sns.boxplot(data=self.df, x='method', y='workload', hue='high_teleop_experience')
+        plt.ylabel("Workload [0-100]")
+        plt.xlabel("")
+        g.legend_.remove()
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        legend_labels = ["L", "H"]
+        g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='high_teleop_experience')
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+        plt.savefig('teleop_experience_methods.pdf')
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        fig = plt.figure()
+        plt.suptitle("Gaming experience")
+        plt.subplot(1,2,2)
+        legend_labels = ["L", "H"]
+        g = sns.boxplot(data=self.df, x='method', y='workload', hue='high_keyboard_experience')
+        plt.ylabel("Workload [0-100]")
+        plt.xlabel("")
+        g.legend_.remove()
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        legend_labels = ["L", "H"]
+        g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='high_keyboard_experience')
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('gaming_experience_methods.pdf')
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        fig = plt.figure()
+        plt.suptitle("Field of work/study")
+        plt.subplot(1,2,2)
+        legend_labels = ["NT", "T"]
+        g = sns.boxplot(data=self.df, x='method', y='workload', hue='technical')
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.ylabel("Workload [0-100]")
+        plt.xlabel("")
+
+        g.legend_.remove()
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='technical')
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('field_of_work_methods.pdf')
+
+
+        fig = plt.figure()
+        plt.suptitle("Gender")
+        plt.subplot(1,2,2)
+        legend_labels = ["F", "M"]
+        g = sns.boxplot(data=self.df, x='method', y='workload', hue='gender')
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.ylabel("Workload [0-100]")
+        plt.xlabel("")
+
+        g.legend_.remove()
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='gender')
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('gender_methods.pdf')
 
     def plotNumberOfUpdates(self):
 
@@ -798,6 +1657,7 @@ class DataAnalysis(object):
         print("offline+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 75)))
         
         sns.boxplot(list(refinement_time_offline_keyboard), orient='v')
+        sns.boxplot(data=self.df, x='method', y='refinement_time', orient='v')
 
         plt.tight_layout()
         fig.subplots_adjust(top=0.88)
@@ -853,6 +1713,32 @@ class DataAnalysis(object):
 
         plt.savefig('workload_methods.png')
 
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        ######### better boxplots #############
+        fig = plt.figure()
+        # plt.suptitle("Refinement time and workload per method")
+        plt.subplot(1,2,2)
+        ax = sns.boxplot(data=self.df, x='method', y='workload', orient='v')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+
+        plt.xlabel("")
+        plt.ylabel("Workload [0-100]")
+
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        ax = sns.boxplot(data=self.df, x='method', y='refinement_time', orient='v')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('workload_refinement_time_methods.pdf')
+
+
     def plotAmountOfAdaptedModelsPerMethod(self):
         adapted_models_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['is_adapted'] == True)]
         adapted_models_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
@@ -868,14 +1754,14 @@ if __name__ == "__main__":
     data_analysis = DataAnalysis()
     data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
-    data_analysis.plotTrainingTime()
-    data_analysis.plotTeleopGameExperience()
-    data_analysis.printFieldOfStudy()
+    # data_analysis.plotTrainingTime()
+    # data_analysis.plotTeleopGameExperience()
+    # data_analysis.printFieldOfStudy()
 
     # print("Workload values are only valid (no nans in refinement time dropped)")
     # print("Also checking for normality and amount of successfully adapted models is valid here")
     # data_analysis.useValidParticipants()
-    # data_analysis.calculateAndStoreTtestValues()
+    data_analysis.calculateAndStoreTtestValues()
     # data_analysis.printStatisticValues()
     
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
@@ -883,7 +1769,7 @@ if __name__ == "__main__":
     # data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
     # print("Refinement time values are the only thing that's valid")
-    data_analysis.useValidParticipants()
+    # data_analysis.useValidParticipants()
     # data_analysis.calculateAndStoreTtestValues()
     # data_analysis.printStatisticValues()
     
@@ -897,4 +1783,7 @@ if __name__ == "__main__":
     # data_analysis.plotMethodOpinions()
 
 
-    data_analysis.calculateStatisticsValuesTeleopGameExperience()
+    # data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
+    # data_analysis.plotTechnicalNonTechnical()
+    data_analysis.plotAndSaveRefinementTimeAndWorkload()
+    data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
