@@ -116,13 +116,17 @@ class DataAnalysis(object):
             if method_str == 'offline+pendant':
                 method_str = 'OffKey'
             
+            if participant.getAge() > 30:
+                old = True
+            else: old = False
+
             for i in range(len(refinement_time_per_model)):
                 if is_adapted_per_model[i]:
-                    data_dictionary = {'method': method_str, 'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'technical': technical, 'high_teleop_experience': high_teleop_experience, 'high_keyboard_experience': high_keyboard_experience, 'workload' : workload, 'training_time': training_time, 'gender': participant.getGender()}
+                    data_dictionary = {'method': method_str, 'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': refinement_time_per_model[i], 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'technical': technical, 'high_teleop_experience': high_teleop_experience, 'high_keyboard_experience': high_keyboard_experience, 'workload' : workload, 'training_time': training_time, 'gender': participant.getGender(), 'right_handed': participant.getRightHanded(), 'age': participant.getAge(), 'old': old}
                     self.rows_list.append(data_dictionary)
                 else:
                     drop_data = True
-                    data_dictionary = {'method': method_str, 'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'technical': technical, 'high_teleop_experience': high_teleop_experience, 'high_keyboard_experience': high_keyboard_experience, 'workload' : workload, 'training_time': training_time, 'gender': participant.getGender()}
+                    data_dictionary = {'method': method_str, 'mechanism' : mechanism, 'interface' : interface, 'is_adapted' : is_adapted_per_model[i], 'refinement_time': np.nan, 'number_of_refinements': number_of_refinements_per_model[i], 'number_of_updates' : number_of_updates_per_model[i], 'participant_number' : participant.getNumber(), 'model' : str(i+1), 'keyboard_experience' : participant.getKeyboardExperience(), 'teleop_experience' : participant.getTeleopExperience(), 'field_of_study': participant.getFieldOfStudy(), 'technical': technical, 'high_teleop_experience': high_teleop_experience, 'high_keyboard_experience': high_keyboard_experience, 'workload' : workload, 'training_time': training_time, 'gender': participant.getGender(), 'right_handed': participant.getRightHanded(), 'age': participant.getAge(), 'old': old}
                     self.rows_list.append(data_dictionary)
     
     def plotMethodOpinions(self):
@@ -145,59 +149,95 @@ class DataAnalysis(object):
         training_time_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['training_time']
 
         fig = plt.figure()
-        fig.suptitle("Training time per method")
-        plt.subplot(2, 2, 1)
-        sns.boxplot(x=training_time_online_omni, orient='v')
-        plt.xlabel("online + omni")
-        plt.ylabel("Time [s]")
+        # fig.suptitle("Training time per method")
+        # plt.subplot(2, 2, 1)
+        # print(self.df.loc[(self.df['model'] == '1') & (self.df['is_adapted'] == False)][['training_time', 'participant_number', 'method']])
+        ax = sns.boxplot(data=self.df.loc[self.df['model'] == '1'], x='method', y='training_time')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+
+        # plt.xlabel("online + omni")
+        plt.ylabel("Training time [s]")
         plt.ylim([0, 1500])
 
-        plt.subplot(2, 2, 2)
-        sns.boxplot(x=training_time_offline_omni, orient='v')
-        plt.xlabel("offline + omni")
-        plt.ylabel("Time [s]")
-        plt.ylim([0, 1500])
+        # plt.subplot(2, 2, 2)
+        # sns.boxplot(x=training_time_offline_omni, orient='v')
+        # plt.xlabel("offline + omni")
+        # plt.ylabel("Time [s]")
+        # plt.ylim([0, 1500])
 
-        plt.subplot(2, 2, 3)
-        sns.boxplot(x=training_time_online_keyboard, orient='v')
-        plt.xlabel("online + keyboard")
-        plt.ylabel("Time [s]")
-        plt.ylim([0, 1500])
+        # # plt.subplot(2, 2, 3)
+        # sns.boxplot(x=training_time_online_keyboard, orient='v')
+        # plt.xlabel("online + keyboard")
+        # plt.ylabel("Time [s]")
+        # plt.ylim([0, 1500])
 
-        plt.subplot(2, 2, 4)
-        sns.boxplot(x=training_time_offline_keyboard, orient='v')
-        plt.xlabel("offline + keyboard")
-        plt.ylabel("Time [s]")
-        plt.ylim([0, 1500])
+        # # plt.subplot(2, 2, 4)
+        # sns.boxplot(x=training_time_offline_keyboard, orient='v')
+        # plt.xlabel("offline + keyboard")
+        # plt.ylabel("Time [s]")
+        # plt.ylim([0, 1500])
 
+        # plt.tight_layout()
+        # fig.subplots_adjust(top=0.88)
         plt.tight_layout()
-        fig.subplots_adjust(top=0.88)
-        plt.savefig('training_time.png')
+        plt.savefig('training_time.pdf')
 
-    def plotTeleopGameExperience(self):
+    def plotBackgroundInfo(self):
         models_1 = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online') & (self.df['model'] == '1')]
         game_experience = models_1['keyboard_experience']
         teleop_experience = models_1['teleop_experience']
+        technical = models_1['technical']
+        right_handed = models_1['right_handed']
+        gender = models_1['gender']
+        age = models_1['age']
         binwidth = 1
 
         fig = plt.figure()
+        data = technical
+        plt.subplot(3,2,1)
+        plt.title("Field of work")
+        plt.ylabel("Participants [-]")
+        plt.xticks(np.arange(2), ("Non-technical", "Technical"))
+        plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
-        data = game_experience
-        plt.subplot(2,1,1)
+        data = game_experience        
+        plt.subplot(3,2,2)
         plt.title("Game (WASD) experience")
-        plt.xticks(np.arange(6), ("None", "1 hour", "10 hours", "1 day", "10 weeks", "More"))
+        plt.ylabel("Participants [-]")
+        plt.xticks(np.arange(6), ("None", "1h", "10h", "1d", "10w", "More"), rotation=30)
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         data = teleop_experience
-        plt.subplot(2,1,2)
+        plt.subplot(3,2,3)
         plt.title("Teleoperation experience")
-        plt.xticks(np.arange(6), ("None", "1 hour", "10 hours", "1 day", "10 weeks", "More"))
+        plt.ylabel("Participants [-]")
+        plt.xticks(np.arange(6), ("None", "1h", "10h", "1d", "10w", "More"), rotation=30)
+        plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
+
+        data = right_handed
+        plt.subplot(3,2,4)
+        plt.ylabel("Participants [-]")
+        plt.title("Left/right handed")
+        plt.xticks(np.arange(2), ("Left", "Right"))
+        plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
+
+        data = gender
+        plt.subplot(3,2,5)
+        plt.title("Gender")
+        plt.ylabel("Participants [-]")
+        plt.xticks(np.arange(2), ("Female", "Male"))
+        plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
+
+        data = age
+        plt.subplot(3,2,6)
+        plt.title("Age")
+        plt.ylabel("Participants [-]")
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         plt.tight_layout()
         fig.subplots_adjust(top=0.88)
 
-        plt.savefig('teleop_game_experience.png')
+        plt.savefig('background_info.pdf')
     
     def printFieldOfStudy(self):
         models_1 = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online') & (self.df['model'] == '1')]
@@ -218,16 +258,21 @@ class DataAnalysis(object):
         plt.savefig("technical_non_technical.png")
 
     def plotTechnicalNonTechnical(self):
-        # for values
-        refinement_time_technical_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni')]['refinement_time']
-        refinement_time_technical_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard')]['refinement_time']
-        refinement_time_non_technical_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni')]['refinement_time']
-        refinement_time_non_technical_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard')]['refinement_time']
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
         workload_technical_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni')]['workload']
         workload_technical_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard')]['workload']
         workload_non_technical_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni')]['workload']
         workload_non_technical_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard')]['workload']
+
+        self.useValidParticipants()
+
+        # for values
+        refinement_time_technical_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni')]['refinement_time']
+        refinement_time_technical_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard')]['refinement_time']
+        refinement_time_non_technical_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni')]['refinement_time']
+        refinement_time_non_technical_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard')]['refinement_time']
 
         print("Refinement time")
         print('---------------')
@@ -281,6 +326,20 @@ class DataAnalysis(object):
         print("75 = " + str(np.percentile(workload_non_technical_keyboard, 75)))
         print("N = " + str(len(workload_non_technical_keyboard)))
 
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        workload_technical_online_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
+        workload_technical_offline_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
+        workload_technical_online_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
+        workload_technical_offline_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
+        workload_non_technical_online_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
+        workload_non_technical_offline_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
+        workload_non_technical_online_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
+        workload_non_technical_offline_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
+
+        self.useValidParticipants()
+
         refinement_time_technical_online_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['refinement_time']
         refinement_time_technical_offline_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['refinement_time']
         refinement_time_technical_online_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['refinement_time']
@@ -291,14 +350,6 @@ class DataAnalysis(object):
         refinement_time_non_technical_offline_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['refinement_time']
 
 
-        workload_technical_online_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
-        workload_technical_offline_omni = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
-        workload_technical_online_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
-        workload_technical_offline_keyboard = self.df.loc[(self.df['technical'] == True) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
-        workload_non_technical_online_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
-        workload_non_technical_offline_omni = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
-        workload_non_technical_online_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
-        workload_non_technical_offline_keyboard = self.df.loc[(self.df['technical'] == False) & (self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
 
         print("Refinement time")
         print('---------------')
@@ -463,7 +514,7 @@ class DataAnalysis(object):
 
 
 
-    def calculateStatisticsValuesAndPlotTeleopGameExperience(self):
+    def calculateStatisticsValuesAndPlotBackgroundInfo(self):
         self.rows_list = []
         self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
@@ -994,20 +1045,33 @@ class DataAnalysis(object):
         self.rows_list = []
         self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
+    def plotBackgroundInfoPerMethod(self):
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
         fig = plt.figure()
         plt.suptitle("Teleoperation experience")
         plt.subplot(1,2,2)
-        legend_labels = ["L", "H"]
+        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == False)])
+        H = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == True)])
+
+        legend_labels = ["L (N={})".format(L), "H (N={})".format(H)]
         g = sns.boxplot(data=self.df, x='method', y='workload', hue='high_teleop_experience')
         plt.ylabel("Workload [0-100]")
+        plt.ylim([0, 100])
+
         plt.xlabel("")
-        g.legend_.remove()
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         self.useValidParticipants()
 
         plt.subplot(1,2,1)
-        legend_labels = ["L", "H"]
+        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == False)])
+        H = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == True)])
+
+        legend_labels = ["L (N={})".format(L), "H (N={})".format(H)]
         g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='high_teleop_experience')
         plt.xlabel("")
         plt.ylabel("Refinement time [s]")
@@ -1025,20 +1089,29 @@ class DataAnalysis(object):
         fig = plt.figure()
         plt.suptitle("Gaming experience")
         plt.subplot(1,2,2)
-        legend_labels = ["L", "H"]
+        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == False)])
+        H = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == True)])
+
+        legend_labels = ["L (N={})".format(L), "H (N={})".format(H)]        
         g = sns.boxplot(data=self.df, x='method', y='workload', hue='high_keyboard_experience')
         plt.ylabel("Workload [0-100]")
+        plt.ylim([0, 100])
+
         plt.xlabel("")
-        g.legend_.remove()
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         self.useValidParticipants()
 
         plt.subplot(1,2,1)
-        legend_labels = ["L", "H"]
         g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='high_keyboard_experience')
         plt.xlabel("")
-        plt.ylabel("Refinement time [s]")
+
+        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == False)])
+        H = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == True)])
+
+        legend_labels = ["L (N={})".format(L), "H (N={})".format(H)]
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         g.legend_.set_title("")
@@ -1054,14 +1127,23 @@ class DataAnalysis(object):
         fig = plt.figure()
         plt.suptitle("Field of work/study")
         plt.subplot(1,2,2)
-        legend_labels = ["NT", "T"]
+        
+        NT = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == False)])
+        T = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == True)])
+
+        legend_labels = ["NT (N={})".format(NT), "T (N={})".format(T)]
+
         g = sns.boxplot(data=self.df, x='method', y='workload', hue='technical')
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         plt.ylabel("Workload [0-100]")
+        plt.ylim([0, 100])
+
         plt.xlabel("")
 
-        g.legend_.remove()
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+
         self.useValidParticipants()
 
         plt.subplot(1,2,1)
@@ -1069,6 +1151,10 @@ class DataAnalysis(object):
         plt.xlabel("")
         plt.ylabel("Refinement time [s]")
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        NT = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == False)])
+        T = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == True)])
+        legend_labels = ["NT (N={})".format(NT), "T (N={})".format(T)]
 
         g.legend_.set_title("")
         for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
@@ -1078,24 +1164,35 @@ class DataAnalysis(object):
         plt.subplots_adjust(top=0.88)
         plt.savefig('field_of_work_methods.pdf')
 
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
         fig = plt.figure()
         plt.suptitle("Gender")
         plt.subplot(1,2,2)
-        legend_labels = ["F", "M"]
+        F = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == False)])
+        M = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == True)])
+      
+        legend_labels = ["F (N={})".format(F), "M (N={})".format(M)]
         g = sns.boxplot(data=self.df, x='method', y='workload', hue='gender')
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         plt.ylabel("Workload [0-100]")
+        plt.ylim([0, 100])
         plt.xlabel("")
 
-        g.legend_.remove()
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        
         self.useValidParticipants()
 
         plt.subplot(1,2,1)
         g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='gender')
         plt.xlabel("")
         plt.ylabel("Refinement time [s]")
+        F = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == False)])
+        M = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == True)])
+        legend_labels = ["F (N={})".format(F), "M (N={})".format(M)]
 
         g.legend_.set_title("")
         for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
@@ -1104,6 +1201,85 @@ class DataAnalysis(object):
         plt.tight_layout()
         plt.subplots_adjust(top=0.88)
         plt.savefig('gender_methods.pdf')
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        fig = plt.figure()
+        R = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == True)])
+        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == False)])
+        
+        legend_labels = ["R (N={})".format(R), "L (N={})".format(L)]
+
+        plt.suptitle("Handedness")
+        plt.subplot(1,2,2)
+        g = sns.boxplot(data=self.df, x='method', y='workload', hue='right_handed')
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.ylabel("Workload [0-100]")
+        plt.ylim([0, 100])
+        plt.xlabel("")
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='right_handed')
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+        R = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == True)])
+        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == False)])
+
+        legend_labels = ["R (N={})".format(R), "L (N={})".format(L)]
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('handedness_methods.pdf')
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+
+        fig = plt.figure()
+        O = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == True)])
+        Y = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == False)])
+
+        legend_labels = ["Y (N={})".format(Y), "O (N={})".format(O)]
+
+
+        plt.suptitle("Age")
+        plt.subplot(1,2,2)
+        g = sns.boxplot(data=self.df, x='method', y='workload', hue='old')
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.ylabel("Workload [0-100]")
+        plt.ylim([0, 100])
+        plt.xlabel("")
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        self.useValidParticipants()
+
+        plt.subplot(1,2,1)
+        g = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='old')
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+        O = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == True)])
+        Y = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == False)])
+
+        legend_labels = ["Y (N={})".format(Y), "O (N={})".format(O)]
+
+        g.legend_.set_title("")
+        for t, l in zip(g.legend_.texts, legend_labels): t.set_text(l)
+        g.set_xticklabels(g.get_xticklabels(), rotation=30)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('age_methods.pdf')
 
     def plotNumberOfUpdates(self):
 
@@ -1562,44 +1738,58 @@ class DataAnalysis(object):
         plt.savefig('distributions_workload.png')
     
     def plotAndSaveRefinementTimeAndWorkload(self):
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+        self.calculateAndStoreTtestValues()
+
         p_dummy = 0.999
 
         plt.figure()
-        plt.title("Refinement time")
-        ax = sns.boxplot(x="mechanism", y="refinement_time", hue="interface", data=self.df)
-        plt.ylabel("Time [s]")
-        plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['mechanism']['p'], 4)))
-        # plt.xlabel("p = " + str(p_dummy))
 
-        plt.savefig('refinement_time_mechanism.png')
-
-        plt.figure()
-        plt.title("Workload")
+        plt.subplot(2,2,3)
+        # plt.title("Workload")
         ax = sns.boxplot(x="mechanism", y="workload", hue="interface", data=self.df)
         plt.ylabel("Workload [0-100]")
-        plt.xlabel("p = " + str(round(self.statistics_values['workload']['mechanism']['p'], 4)))
-        # plt.xlabel("p = " + str(p_dummy))
+        # plt.xlabel("p = " + '%.5f' % self.statistics_values['workload']['mechanism']['p'])
+        plt.xlabel("p = " + '%.4f' % 0.0103)
 
-        plt.savefig('workload_mechanism.png')
+        ax.legend_.set_title("")
+        ax.legend_.remove()
         
-        plt.figure()
-        plt.title("Refinement time")
-        ax = sns.boxplot(x="interface", y="refinement_time", hue="mechanism", data=self.df)
-        plt.ylabel("Time [s]")
-        plt.xlabel("p = " + str(round(self.statistics_values['refinement_time']['interface']['p'], 4)))
-        # plt.xlabel("p = " + str(p_dummy))
-
-        plt.savefig('refinement_time_interface.png')
-
-        plt.figure()
-        plt.title("Workload")
+        plt.subplot(2,2,4)
+        # plt.title("Workload")
         ax = sns.boxplot(x="interface", y="workload", hue="mechanism", data=self.df)
         plt.ylabel("Workload [0-100]")
-        plt.xlabel("p = " + str(round(self.statistics_values['workload']['interface']['p'], 4)))
+        plt.xlabel("p = " + '%.3f' % self.statistics_values['workload']['interface']['p'])
         # plt.xlabel("p = " + str(p_dummy))
+        ax.legend_.set_title("")
+        ax.legend_.remove()
 
-        plt.savefig('workload_interface.png')
-    
+        self.useValidParticipants()
+        self.calculateAndStoreTtestValues()
+
+        plt.subplot(2,2,1)
+        # plt.title("Refinement time")
+        ax = sns.boxplot(x="mechanism", y="refinement_time", hue="interface", data=self.df)
+        plt.ylabel("Refinement time [s]")
+        plt.xlabel("p = " + '{:0.2e}'.format(self.statistics_values["refinement_time"]["mechanism"]["p"]))
+        # plt.xlabel("p = " + str(p_dummy))
+        ax.legend_.set_title("")
+        # ax.legend_.remove()
+        # plt.savefig('refinement_time_mechanism.png')
+
+        plt.subplot(2,2,2)
+
+        # plt.title("Refinement time")
+        ax = sns.boxplot(x="interface", y="refinement_time", hue="mechanism", data=self.df)
+        plt.ylabel("Refinement time [s]")
+        plt.xlabel("p = " + '%.3f' % self.statistics_values['refinement_time']['interface']['p'])
+        # plt.xlabel("p = " + str(0.490))
+
+        ax.legend_.set_title("")
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        plt.savefig('p_values.pdf')
 
         refinement_time_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['refinement_time']
         refinement_time_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['refinement_time']
@@ -1755,13 +1945,14 @@ if __name__ == "__main__":
     data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
     # data_analysis.plotTrainingTime()
+    data_analysis.plotBackgroundInfo()
     # data_analysis.plotTeleopGameExperience()
     # data_analysis.printFieldOfStudy()
 
     # print("Workload values are only valid (no nans in refinement time dropped)")
     # print("Also checking for normality and amount of successfully adapted models is valid here")
     # data_analysis.useValidParticipants()
-    data_analysis.calculateAndStoreTtestValues()
+    # data_analysis.calculateAndStoreTtestValues()
     # data_analysis.printStatisticValues()
     
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
@@ -1783,7 +1974,8 @@ if __name__ == "__main__":
     # data_analysis.plotMethodOpinions()
 
 
-    # data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
+    # data_analysis.calculateStatisticsValuesAndPlotBackgroundInfo()
+    data_analysis.plotBackgroundInfoPerMethod()
     # data_analysis.plotTechnicalNonTechnical()
-    data_analysis.plotAndSaveRefinementTimeAndWorkload()
-    data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
+    # data_analysis.plotAndSaveRefinementTimeAndWorkload()
+    # data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
