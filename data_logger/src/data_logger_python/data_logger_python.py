@@ -136,7 +136,7 @@ class ParticipantData(object):
     def setGender(self, gender):
         self.gender = gender
    
-    def getGender(self, gender):
+    def getGender(self):
         return self.gender
     
     def setAge(self, age):
@@ -145,6 +145,9 @@ class ParticipantData(object):
     def getAge(self):
         return self.age
 
+    def getRightHanded(self):
+        return self.left_right_handed
+        
     def setStoragePath(self, path):
         # check if path exists, create if not
         self.path = path + 'participant_' + str(self.number) + '/'
