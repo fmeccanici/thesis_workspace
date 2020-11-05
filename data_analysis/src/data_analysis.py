@@ -26,6 +26,58 @@ class DataAnalysis(object):
                             "Participant 11": "online+keyboard", "Participant 12": "online+omni","Participant 13": "offline+omni", "Participant 14": "online+omni", "Participant 15": "offline+keyboard",
                             "Participant 16": "online+omni", "Participant 17": "online+keyboard", "Participant 18": "online+omni"}
 
+        """
+        # Set plot style
+        plot_style = {
+            'axes.facecolor': '0.98',
+            'axes.edgecolor': '.6',
+            'axes.grid': True,
+            'axes.axisbelow': True,
+            'axes.labelcolor': '.3',
+            'figure.facecolor': 'white',
+            'grid.color': '.85',
+            'grid.linestyle': '-',
+            'text.color': '.4',
+            'xtick.color': '.4',
+            'ytick.color': '.4',
+            'xtick.direction': 'out',
+            'ytick.direction': 'out',
+            'lines.solid_capstyle': 'round',
+            'patch.edgecolor': 'w',
+            'image.cmap': 'rocket',
+            'font.family': ['sans-serif'],
+            'font.sans-serif': ['Helvetica',
+                'Arial',
+                'DejaVu Sans',
+                'Liberation Sans',
+                'sans-serif'],
+            'font.weight': '300',
+            'patch.force_edgecolor': True,
+            'xtick.bottom': True,
+            'xtick.top': False,
+            'ytick.left': True,
+            'ytick.right': False,
+            'axes.spines.left': True,
+            'axes.spines.bottom': True,
+            'axes.spines.right': False,
+            'axes.spines.top': False,
+            'figure.autolayout': True}
+
+        plot_context = {
+            'axes.linewidth': 0.6,
+            'grid.linewidth': 0.6,
+            'xtick.major.width': 0.6,
+            'xtick.minor.width': 0.2,
+            'ytick.major.width': 0.6,
+            'ytick.minor.width': 0.2,
+            'font.weight': 300
+        }
+
+        sns.set()
+        sns.set_style("white", rc=plot_style)
+        sns.set_context("notebook", rc=plot_context)
+        """
+
     def isAdapted(self, participant_number, model, method):
         methods = self.participant_data[participant_number].getMethods()
 
@@ -52,6 +104,12 @@ class DataAnalysis(object):
         print("Method " + str(self.experiment_variables.method_mapping_number_to_str[method]))        
         print("Model " + str(model) + " not adapted")
         return False
+    
+    def getTopScore(self):
+        # top_score = self.df.loc[(self.df['participant_number'] == 11) | (self.df['participant_number'] == 9)]
+        # print(top_score[['refinement_time', 'participant_number', 'method']])
+        top_score = self.df.loc[self.df.refinement_time == self.df.refinement_time.min()]
+        print(top_score)
 
     def loadMultipleParticipantsData(self, participant_numbers=[]):
         for participant_number in participant_numbers:
@@ -1621,12 +1679,34 @@ class DataAnalysis(object):
             self.df = self.df.loc[self.df['participant_number'] != invalid_participant]
 
     def calculateAndStoreTtestValues(self):
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+        
+        workload_omni = list(self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['workload'])
+        workload_keyboard = list(self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['workload'])
+
+        # t, p = ttest_rel(workload_keyboard, workload_omni, nan_policy='omit')
+        t, p = wilcoxon(workload_keyboard, workload_omni, alternative='greater')
+        
+        self.statistics_values['workload']['interface']['p'] = p
+        self.statistics_values['workload']['interface']['t'] = t
+
+        workload_online = list(self.df.loc[self.df['mechanism'] == 'online'].sort_values(by = ['model', 'interface'])['workload'])
+        workload_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['workload'])
+        
+        # t, p = ttest_rel(workload_online, workload_offline, nan_policy='omit')                
+        t, p = wilcoxon(workload_online, workload_offline, alternative='less')
+
+        self.statistics_values['workload']['mechanism']['p'] = p
+        self.statistics_values['workload']['mechanism']['t'] = t
+        
+        self.useValidParticipants()
 
         refinement_time_omni = self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['refinement_time']
         refinement_time_keyboard = self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['refinement_time']
 
         # t, p = ttest_rel(refinement_time_keyboard, refinement_time_omni, nan_policy='omit')
-        t, p = wilcoxon(refinement_time_keyboard, refinement_time_omni)
+        t, p = wilcoxon(refinement_time_omni, refinement_time_keyboard, alternative='less')
 
         self.statistics_values['refinement_time']['interface']['p'] = p
         self.statistics_values['refinement_time']['interface']['t'] = t
@@ -1635,28 +1715,26 @@ class DataAnalysis(object):
         refinement_time_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['refinement_time'])
 
         # t, p = ttest_rel(refinement_time_online, refinement_time_offline, nan_policy='omit')
-        t, p = wilcoxon(refinement_time_online, refinement_time_offline)
+        t, p = wilcoxon(refinement_time_online, refinement_time_offline, alternative='less')
         
         self.statistics_values['refinement_time']['mechanism']['p'] = p
         self.statistics_values['refinement_time']['mechanism']['t'] = t
 
-        workload_omni = list(self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['workload'])
-        workload_keyboard = list(self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['workload'])
-
-        # t, p = ttest_rel(workload_keyboard, workload_omni, nan_policy='omit')
-        t, p = wilcoxon(workload_keyboard, workload_omni)
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
         
-        self.statistics_values['workload']['interface']['p'] = p
-        self.statistics_values['workload']['interface']['t'] = t
+        workload_high_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == True].sort_values(by = ['model', 'interface'])['refinement_time'])
+        workload_low_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == False].sort_values(by = ['model', 'interface'])['refinement_time'])
 
-        workload_online = list(self.df.loc[self.df['mechanism'] == 'online'].sort_values(by = ['model', 'interface'])['workload'])
-        workload_offline = list(self.df.loc[self.df['mechanism'] == 'offline'].sort_values(by = ['model', 'interface'])['workload'])
+        t, p = wilcoxon(workload_high_game_experience, workload_low_game_experience, alternative='less')
+        print(p)
+        self.useValidParticipants()
 
-        # t, p = ttest_rel(workload_online, workload_offline, nan_policy='omit')                
-        t, p = wilcoxon(workload_online, workload_offline)
+        refinement_time_high_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == True].sort_values(by = ['model', 'interface'])['refinement_time'])
+        refinement_time_low_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == False].sort_values(by = ['model', 'interface'])['refinement_time'])
 
-        self.statistics_values['workload']['mechanism']['p'] = p
-        self.statistics_values['workload']['mechanism']['t'] = t
+        t, p = wilcoxon(refinement_time_high_game_experience, refinement_time_low_game_experience, alternative='less')
+        print(p)
 
     def printStatisticValues(self):
         print("Refinement time (Paired T-Test)")
@@ -1928,7 +2006,6 @@ class DataAnalysis(object):
         plt.subplots_adjust(top=0.88)
         plt.savefig('workload_refinement_time_methods.pdf')
 
-
     def plotAmountOfAdaptedModelsPerMethod(self):
         adapted_models_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['is_adapted'] == True)]
         adapted_models_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
@@ -1940,20 +2017,32 @@ class DataAnalysis(object):
         plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
         plt.savefig('adapted_models.png')
 
+    def plotRefinementTimePerModel(self):
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+        self.useValidParticipants()
+
+        ax = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='model')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+        plt.xlabel("")
+        plt.ylabel("Refinement time [s]")
+        plt.savefig('learning_effect.pdf')
+
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
     data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
     # data_analysis.plotTrainingTime()
-    data_analysis.plotBackgroundInfo()
+    # data_analysis.plotBackgroundInfo()
     # data_analysis.plotTeleopGameExperience()
     # data_analysis.printFieldOfStudy()
 
     # print("Workload values are only valid (no nans in refinement time dropped)")
     # print("Also checking for normality and amount of successfully adapted models is valid here")
     # data_analysis.useValidParticipants()
-    # data_analysis.calculateAndStoreTtestValues()
-    # data_analysis.printStatisticValues()
+    data_analysis.calculateAndStoreTtestValues()
+    # data_analysis.getTopScore()
+    data_analysis.printStatisticValues()
     
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
     # data_analysis.plotDistributions()
@@ -1975,7 +2064,8 @@ if __name__ == "__main__":
 
 
     # data_analysis.calculateStatisticsValuesAndPlotBackgroundInfo()
-    data_analysis.plotBackgroundInfoPerMethod()
+    # data_analysis.plotBackgroundInfoPerMethod()
     # data_analysis.plotTechnicalNonTechnical()
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
     # data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
+    # data_analysis.plotRefinementTimePerModel()
