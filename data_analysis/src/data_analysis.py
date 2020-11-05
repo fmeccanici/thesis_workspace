@@ -1726,17 +1726,17 @@ class DataAnalysis(object):
         workload_high_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == True].sort_values(by = ['model', 'interface'])['refinement_time'])
         workload_low_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == False].sort_values(by = ['model', 'interface'])['refinement_time'])
 
-        print((workload_low_game_experience))
-        print((workload_high_game_experience))
-        # t, p = wilcoxon(workload_high_game_experience, workload_low_game_experience, alternative='less')
-        # print(p)
-        # self.useValidParticipants()
+        # print(len(workload_low_game_experience))
+        # print(len(workload_high_game_experience))
+        t, p = wilcoxon(workload_high_game_experience, workload_low_game_experience, alternative='less')
+        print(p)
+        self.useValidParticipants()
 
-        # refinement_time_high_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == True].sort_values(by = ['model', 'interface'])['refinement_time'])
-        # refinement_time_low_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == False].sort_values(by = ['model', 'interface'])['refinement_time'])
+        refinement_time_high_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == True].sort_values(by = ['model', 'interface'])['refinement_time'])
+        refinement_time_low_game_experience = list(self.df.loc[self.df['high_keyboard_experience'] == False].sort_values(by = ['model', 'interface'])['refinement_time'])
 
-        # t, p = wilcoxon(refinement_time_high_game_experience, refinement_time_low_game_experience, alternative='less')
-        # print(p)
+        t, p = wilcoxon(refinement_time_high_game_experience, refinement_time_low_game_experience, alternative='less')
+        print(p)
 
     def printStatisticValues(self):
         print("Refinement time (Paired T-Test)")
