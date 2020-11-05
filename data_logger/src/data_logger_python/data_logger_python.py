@@ -139,6 +139,9 @@ class ParticipantData(object):
     def getGender(self):
         return self.gender
     
+    def getRightHanded(self):
+        return self.left_right_handed
+        
     def setAge(self, age):
         self.age = age
 

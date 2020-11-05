@@ -1,217 +1,217 @@
-,field_of_study,interface,is_adapted,keyboard_experience,mechanism,model,number_of_refinements,number_of_updates,participant_number,refinement_time,teleop_experience,training_time,workload
-0,IPO,keyboard,True,0,online,1,7,5,1,278.12597274780273,0,132.6311740875244,13.0
-1,IPO,keyboard,True,0,online,2,4,1,1,353.9891052246094,0,132.6311740875244,13.0
-2,IPO,keyboard,True,0,online,3,1,1,1,40.93989181518555,0,132.6311740875244,13.0
-3,IPO,omni,True,0,online,1,2,1,1,82.89120483398438,0,199.5880994796753,8.0
-4,IPO,omni,True,0,online,2,2,2,1,56.282772064208984,0,199.5880994796753,8.0
-5,IPO,omni,True,0,online,3,2,1,1,129.39877319335938,0,199.5880994796753,8.0
-6,IPO,omni,True,0,offline,1,2,2,1,174.96705627441406,0,130.63376665115356,10.0
-7,IPO,omni,True,0,offline,2,1,1,1,93.01724243164062,0,130.63376665115356,10.0
-8,IPO,omni,True,0,offline,3,1,1,1,82.29498291015625,0,130.63376665115356,10.0
-9,IPO,keyboard,True,0,offline,1,4,2,1,362.21087646484375,0,463.959623336792,39.0
-10,IPO,keyboard,True,0,offline,2,1,1,1,77.1531982421875,0,463.959623336792,39.0
-11,IPO,keyboard,True,0,offline,3,1,1,1,82.74327087402344,0,463.959623336792,39.0
-12,Robotics Engineering,keyboard,True,5,online,1,6,5,2,193.32734298706055,1,132.6311740875244,39.0
-13,Robotics Engineering,keyboard,True,5,online,2,4,4,2,109.31380653381348,1,132.6311740875244,39.0
-14,Robotics Engineering,keyboard,True,5,online,3,8,5,2,344.4220390319824,1,132.6311740875244,39.0
-15,Robotics Engineering,omni,True,5,online,1,2,2,2,53.36204719543457,1,199.5880994796753,33.0
-16,Robotics Engineering,omni,True,5,online,2,3,2,2,96.62427520751953,1,199.5880994796753,33.0
-17,Robotics Engineering,omni,True,5,online,3,5,3,2,148.7716827392578,1,199.5880994796753,33.0
-18,Robotics Engineering,omni,True,5,offline,1,3,3,2,202.61668014526367,1,212.90396785736084,27.0
-19,Robotics Engineering,omni,True,5,offline,2,6,3,2,381.91719818115234,1,212.90396785736084,27.0
-20,Robotics Engineering,omni,True,5,offline,3,1,1,2,67.02597045898438,1,212.90396785736084,27.0
-21,Robotics Engineering,keyboard,True,5,offline,1,6,5,2,415.9155158996582,1,463.959623336792,41.0
-22,Robotics Engineering,keyboard,True,5,offline,2,1,1,2,111.13174438476562,1,463.959623336792,41.0
-23,Robotics Engineering,keyboard,True,5,offline,3,2,1,2,252.3811798095703,1,463.959623336792,41.0
-24,BME,keyboard,True,3,online,1,2,2,3,76.93290328979492,0,203.83567690849304,34.0
-25,BME,keyboard,True,3,online,2,3,2,3,149.74925231933594,0,203.83567690849304,34.0
-26,BME,keyboard,True,3,online,3,2,2,3,90.00791931152344,0,203.83567690849304,34.0
-27,BME,omni,True,3,online,1,2,2,3,59.437002182006836,0,128.25344252586365,25.0
-28,BME,omni,True,3,online,2,2,2,3,66.69717979431152,0,128.25344252586365,25.0
-29,BME,omni,True,3,online,3,2,2,3,61.68134689331055,0,128.25344252586365,25.0
-30,BME,omni,False,3,offline,1,9,8,3,,0,481.69323563575745,46.0
-31,BME,omni,True,3,offline,2,3,3,3,411.6335754394531,0,481.69323563575745,46.0
-32,BME,omni,True,3,offline,3,8,4,3,784.9102783203125,0,481.69323563575745,46.0
-33,BME,keyboard,True,3,offline,1,3,2,3,391.37062072753906,0,621.6613020896912,19.0
-34,BME,keyboard,True,3,offline,2,2,2,3,265.21449279785156,0,621.6613020896912,19.0
-35,BME,keyboard,True,3,offline,3,4,2,3,489.2313690185547,0,621.6613020896912,19.0
-36,Software,keyboard,True,0,online,1,3,2,4,124.3632926940918,0,201.31632256507874,53.0
-37,Software,keyboard,True,0,online,2,4,2,4,198.04484176635742,0,201.31632256507874,53.0
-38,Software,keyboard,True,0,online,3,4,4,4,126.16482353210449,0,201.31632256507874,53.0
-39,Software,omni,True,0,online,1,15,6,4,585.4351902008057,0,140.1049838066101,59.0
-40,Software,omni,True,0,online,2,6,4,4,216.65493392944336,0,140.1049838066101,59.0
-41,Software,omni,True,0,online,3,4,4,4,140.23226165771484,0,140.1049838066101,59.0
-42,Software,omni,True,0,offline,1,5,3,4,591.057014465332,0,343.50863909721375,60.0
-43,Software,omni,True,0,offline,2,5,3,4,531.0872497558594,0,343.50863909721375,60.0
-44,Software,omni,True,0,offline,3,3,2,4,336.5854721069336,0,343.50863909721375,60.0
-45,Software,keyboard,True,0,offline,1,4,3,4,608.2766418457031,0,605.4569661617279,37.0
-46,Software,keyboard,True,0,offline,2,1,1,4,137.14198303222656,0,605.4569661617279,37.0
-47,Software,keyboard,True,0,offline,3,1,1,4,74.8366470336914,0,605.4569661617279,37.0
-48,Bedrijfsarts,keyboard,True,0,online,1,2,1,5,102.81670379638672,0,75.61391472816467,56.0
-49,Bedrijfsarts,keyboard,True,0,online,2,2,1,5,101.66985321044922,0,75.61391472816467,56.0
-50,Bedrijfsarts,keyboard,True,0,online,3,1,1,5,31.012502670288086,0,75.61391472816467,56.0
-51,Bedrijfsarts,omni,True,0,online,1,2,2,5,57.06630516052246,0,319.76502084732056,31.0
-52,Bedrijfsarts,omni,True,0,online,2,2,2,5,55.10754203796387,0,319.76502084732056,31.0
-53,Bedrijfsarts,omni,True,0,online,3,1,1,5,29.961137771606445,0,319.76502084732056,31.0
-54,Bedrijfsarts,omni,False,0,offline,1,0,0,5,,0,,87.0
-55,Bedrijfsarts,omni,False,0,offline,2,0,0,5,,0,,87.0
-56,Bedrijfsarts,omni,False,0,offline,3,0,0,5,,0,,87.0
-57,Bedrijfsarts,keyboard,True,0,offline,1,5,2,5,1159.9450073242188,0,427.8272910118103,84.0
-58,Bedrijfsarts,keyboard,True,0,offline,2,1,1,5,203.87405395507812,0,427.8272910118103,84.0
-59,Bedrijfsarts,keyboard,True,0,offline,3,1,1,5,155.48744201660156,0,427.8272910118103,84.0
-60,Mechanical Engineering,keyboard,True,3,online,1,2,1,6,84.04930114746094,0,125.58879375457764,31.0
-61,Mechanical Engineering,keyboard,True,3,online,2,2,2,6,55.65203285217285,0,125.58879375457764,31.0
-62,Mechanical Engineering,keyboard,True,3,online,3,1,1,6,27.871456146240234,0,125.58879375457764,31.0
-63,Mechanical Engineering,omni,True,3,online,1,5,3,6,254.4257049560547,0,68.92428088188171,45.0
-64,Mechanical Engineering,omni,True,3,online,2,2,2,6,51.777015686035156,0,68.92428088188171,45.0
-65,Mechanical Engineering,omni,True,3,online,3,2,2,6,55.91069221496582,0,68.92428088188171,45.0
-66,Mechanical Engineering,omni,True,3,offline,1,3,3,6,434.94808197021484,0,361.3421633243561,40.0
-67,Mechanical Engineering,omni,True,3,offline,2,6,3,6,605.1427764892578,0,361.3421633243561,40.0
-68,Mechanical Engineering,omni,True,3,offline,3,2,2,6,204.9330291748047,0,361.3421633243561,40.0
-69,Mechanical Engineering,keyboard,True,3,offline,1,1,1,6,158.56283569335938,0,510.11890387535095,21.0
-70,Mechanical Engineering,keyboard,True,3,offline,2,2,1,6,335.9795227050781,0,510.11890387535095,21.0
-71,Mechanical Engineering,keyboard,True,3,offline,3,1,1,6,131.19285583496094,0,510.11890387535095,21.0
-72,Media & Entertainment Management,keyboard,True,5,online,1,3,3,7,114.3794174194336,0,145.58878755569458,40.0
-73,Media & Entertainment Management,keyboard,True,5,online,2,3,2,7,167.54009246826172,0,145.58878755569458,40.0
-74,Media & Entertainment Management,keyboard,True,5,online,3,3,2,7,160.5813217163086,0,145.58878755569458,40.0
-75,Media & Entertainment Management,omni,True,5,online,1,3,2,7,87.14491844177246,0,101.47555088996887,42.0
-76,Media & Entertainment Management,omni,True,5,online,2,2,2,7,51.680084228515625,0,101.47555088996887,42.0
-77,Media & Entertainment Management,omni,True,5,online,3,2,2,7,51.4251594543457,0,101.47555088996887,42.0
-78,Media & Entertainment Management,omni,False,5,offline,1,10,8,7,,0,806.9613738059998,27.0
-79,Media & Entertainment Management,omni,True,5,offline,2,5,4,7,491.2518539428711,0,806.9613738059998,27.0
-80,Media & Entertainment Management,omni,True,5,offline,3,5,4,7,431.71124267578125,0,806.9613738059998,27.0
-81,Media & Entertainment Management,keyboard,True,5,offline,1,4,2,7,504.64630126953125,0,316.7284936904907,67.0
-82,Media & Entertainment Management,keyboard,True,5,offline,2,3,2,7,360.1780471801758,0,316.7284936904907,67.0
-83,Media & Entertainment Management,keyboard,True,5,offline,3,1,1,7,118.57587432861328,0,316.7284936904907,67.0
-84,Technische Bedrijfskunde,keyboard,True,0,online,1,4,3,8,260.8965034484863,0,288.48521733283997,19.0
-85,Technische Bedrijfskunde,keyboard,True,0,online,2,2,1,8,142.39752197265625,0,288.48521733283997,19.0
-86,Technische Bedrijfskunde,keyboard,True,0,online,3,1,1,8,51.60721206665039,0,288.48521733283997,19.0
-87,Technische Bedrijfskunde,omni,True,0,online,1,4,3,8,167.0739688873291,0,250.10369682312012,83.0
-88,Technische Bedrijfskunde,omni,True,0,online,2,22,8,8,1022.8045196533203,0,250.10369682312012,83.0
-89,Technische Bedrijfskunde,omni,True,0,online,3,3,3,8,109.17341232299805,0,250.10369682312012,83.0
-90,Technische Bedrijfskunde,omni,True,0,offline,1,3,2,8,385.71228790283203,0,516.647412776947,53.0
-91,Technische Bedrijfskunde,omni,True,0,offline,2,5,3,8,1124.6695938110352,0,516.647412776947,53.0
-92,Technische Bedrijfskunde,omni,True,0,offline,3,2,1,8,301.88616943359375,0,516.647412776947,53.0
-93,Technische Bedrijfskunde,keyboard,True,0,offline,1,3,3,8,647.0172729492188,0,1435.7846496105194,67.0
-94,Technische Bedrijfskunde,keyboard,True,0,offline,2,1,1,8,308.1136169433594,0,1435.7846496105194,67.0
-95,Technische Bedrijfskunde,keyboard,True,0,offline,3,9,4,8,2242.995765686035,0,1435.7846496105194,67.0
-96,BME,keyboard,True,5,online,1,2,2,9,73.58794021606445,0,123.71965503692627,45.0
-97,BME,keyboard,True,5,online,2,3,3,9,112.01277160644531,0,123.71965503692627,45.0
-98,BME,keyboard,True,5,online,3,6,3,9,274.31627655029297,0,123.71965503692627,45.0
-99,BME,omni,True,5,online,1,3,3,9,81.12626838684082,0,116.89704656600952,19.0
-100,BME,omni,True,5,online,2,6,4,9,223.44801712036133,0,116.89704656600952,19.0
-101,BME,omni,True,5,online,3,2,2,9,51.96689987182617,0,116.89704656600952,19.0
-102,BME,omni,True,5,offline,1,3,1,9,456.5050048828125,0,262.9830586910248,49.0
-103,BME,omni,True,5,offline,2,1,1,9,154.78732299804688,0,262.9830586910248,49.0
-104,BME,omni,True,5,offline,3,3,2,9,726.8003540039062,0,262.9830586910248,49.0
-105,BME,keyboard,True,5,offline,1,3,2,9,232.462158203125,0,513.0160956382751,52.0
-106,BME,keyboard,True,5,offline,2,6,5,9,668.9037170410156,0,513.0160956382751,52.0
-107,BME,keyboard,True,5,offline,3,5,2,9,742.18212890625,0,513.0160956382751,52.0
-108,DCSC,keyboard,True,5,online,1,7,5,10,265.3041458129883,1,192.21522426605225,40.0
-109,DCSC,keyboard,True,5,online,2,2,2,10,60.293128967285156,1,192.21522426605225,40.0
-110,DCSC,keyboard,True,5,online,3,2,2,10,63.471893310546875,1,192.21522426605225,40.0
-111,DCSC,omni,False,5,online,1,19,8,10,,1,299.9957973957062,51.0
-112,DCSC,omni,False,5,online,2,11,8,10,,1,299.9957973957062,51.0
-113,DCSC,omni,True,5,online,3,8,6,10,225.9019069671631,1,299.9957973957062,51.0
-114,DCSC,omni,False,5,offline,1,0,0,10,,1,,74.0
-115,DCSC,omni,False,5,offline,2,0,0,10,,1,,74.0
-116,DCSC,omni,False,5,offline,3,0,0,10,,1,,74.0
-117,DCSC,keyboard,True,5,offline,1,2,2,10,207.2344970703125,1,385.02207469940186,21.0
-118,DCSC,keyboard,True,5,offline,2,2,2,10,194.25662231445312,1,385.02207469940186,21.0
-119,DCSC,keyboard,True,5,offline,3,3,2,10,257.22570037841797,1,385.02207469940186,21.0
-120,BMD,keyboard,True,5,online,1,3,3,11,87.96671104431152,5,345.86517238616943,48.0
-121,BMD,keyboard,True,5,online,2,4,4,11,120.46086120605469,5,345.86517238616943,48.0
-122,BMD,keyboard,True,5,online,3,6,6,11,189.55500030517578,5,345.86517238616943,48.0
-123,BMD,omni,True,5,online,1,5,3,11,191.92034530639648,5,100.0661780834198,45.0
-124,BMD,omni,True,5,online,2,7,3,11,271.57341957092285,5,100.0661780834198,45.0
-125,BMD,omni,True,5,online,3,3,2,11,93.76238822937012,5,100.0661780834198,45.0
-126,BMD,omni,False,5,offline,1,18,8,11,,5,658.2085316181183,59.0
-127,BMD,omni,False,5,offline,2,8,8,11,,5,658.2085316181183,59.0
-128,BMD,omni,True,5,offline,3,9,7,11,1062.6739654541016,5,658.2085316181183,59.0
-129,BMD,keyboard,True,5,offline,1,2,2,11,339.61669921875,5,422.7862093448639,20.0
-130,BMD,keyboard,True,5,offline,2,2,2,11,355.23284912109375,5,422.7862093448639,20.0
-131,BMD,keyboard,True,5,offline,3,1,1,11,115.5922622680664,5,422.7862093448639,20.0
-132,BMD-HI,keyboard,True,4,online,1,2,2,12,64.86330223083496,4,162.03444170951843,56.0
-133,BMD-HI,keyboard,True,4,online,2,2,2,12,69.5713996887207,4,162.03444170951843,56.0
-134,BMD-HI,keyboard,True,4,online,3,2,2,12,99.79427719116211,4,162.03444170951843,56.0
-135,BMD-HI,omni,True,4,online,1,8,8,12,257.64380645751953,4,89.054034948349,23.0
-136,BMD-HI,omni,True,4,online,2,2,2,12,54.579694747924805,4,89.054034948349,23.0
-137,BMD-HI,omni,True,4,online,3,1,1,12,27.570022583007812,4,89.054034948349,23.0
-138,BMD-HI,omni,True,4,offline,1,4,4,12,532.01708984375,4,412.36584281921387,27.0
-139,BMD-HI,omni,True,4,offline,2,4,4,12,425.88358306884766,4,412.36584281921387,27.0
-140,BMD-HI,omni,True,4,offline,3,3,3,12,320.83172607421875,4,412.36584281921387,27.0
-141,BMD-HI,keyboard,True,4,offline,1,2,2,12,278.4907989501953,4,702.1112561225891,60.0
-142,BMD-HI,keyboard,True,4,offline,2,5,5,12,569.6610717773438,4,702.1112561225891,60.0
-143,BMD-HI,keyboard,True,4,offline,3,2,2,12,173.1554718017578,4,702.1112561225891,60.0
-144,Mechatronics,keyboard,True,0,online,1,2,1,13,142.51873779296875,0,127.86529207229614,31.0
-145,Mechatronics,keyboard,True,0,online,2,2,2,13,64.55804443359375,0,127.86529207229614,31.0
-146,Mechatronics,keyboard,True,0,online,3,1,1,13,46.22533416748047,0,127.86529207229614,31.0
-147,Mechatronics,omni,True,0,online,1,2,2,13,57.09089279174805,0,264.07046723365784,34.0
-148,Mechatronics,omni,True,0,online,2,6,2,13,344.7377700805664,0,264.07046723365784,34.0
-149,Mechatronics,omni,True,0,online,3,5,3,13,199.03393936157227,0,264.07046723365784,34.0
-150,Mechatronics,omni,True,0,offline,1,7,5,13,1366.3572082519531,0,414.9624116420746,17.0
-151,Mechatronics,omni,True,0,offline,2,1,1,13,122.2568359375,0,414.9624116420746,17.0
-152,Mechatronics,omni,True,0,offline,3,1,1,13,136.2096710205078,0,414.9624116420746,17.0
-153,Mechatronics,keyboard,False,0,offline,1,0,0,13,,0,,57.0
-154,Mechatronics,keyboard,False,0,offline,2,0,0,13,,0,,57.0
-155,Mechatronics,keyboard,False,0,offline,3,0,0,13,,0,,57.0
-156,Voeding en Dietetiek,keyboard,True,2,online,1,3,3,14,101.59110260009766,0,558.5547671318054,50.0
-157,Voeding en Dietetiek,keyboard,True,2,online,2,1,1,14,49.1236457824707,0,558.5547671318054,50.0
-158,Voeding en Dietetiek,keyboard,True,2,online,3,2,1,14,141.7093963623047,0,558.5547671318054,50.0
-159,Voeding en Dietetiek,omni,True,2,online,1,5,3,14,173.6254940032959,0,122.80305504798889,38.0
-160,Voeding en Dietetiek,omni,True,2,online,2,2,2,14,49.19619178771973,0,122.80305504798889,38.0
-161,Voeding en Dietetiek,omni,True,2,online,3,4,3,14,126.01369285583496,0,122.80305504798889,38.0
-162,Voeding en Dietetiek,omni,True,2,offline,1,5,5,14,703.9331512451172,0,669.1645157337189,52.0
-163,Voeding en Dietetiek,omni,True,2,offline,2,1,1,14,154.2784881591797,0,669.1645157337189,52.0
-164,Voeding en Dietetiek,omni,True,2,offline,3,2,2,14,319.8589324951172,0,669.1645157337189,52.0
-165,Voeding en Dietetiek,keyboard,True,2,offline,1,7,5,14,866.1604843139648,0,425.8421251773834,53.0
-166,Voeding en Dietetiek,keyboard,True,2,offline,2,2,1,14,228.1687469482422,0,425.8421251773834,53.0
-167,Voeding en Dietetiek,keyboard,True,2,offline,3,1,1,14,111.81697082519531,0,425.8421251773834,53.0
-168,Electrical Engineering,keyboard,True,5,online,1,1,1,15,26.924278259277344,0,126.05527210235596,20.0
-169,Electrical Engineering,keyboard,True,5,online,2,2,2,15,54.84556579589844,0,126.05527210235596,20.0
-170,Electrical Engineering,keyboard,True,5,online,3,1,1,15,27.14881706237793,0,126.05527210235596,20.0
-171,Electrical Engineering,omni,True,5,online,1,2,2,15,73.31053924560547,0,91.15971279144287,67.0
-172,Electrical Engineering,omni,True,5,online,2,1,1,15,39.40672302246094,0,91.15971279144287,67.0
-173,Electrical Engineering,omni,True,5,online,3,1,1,15,35.65053939819336,0,91.15971279144287,67.0
-174,Electrical Engineering,omni,True,5,offline,1,2,2,15,253.39954376220703,0,616.4649198055267,68.0
-175,Electrical Engineering,omni,True,5,offline,2,3,3,15,337.0458755493164,0,616.4649198055267,68.0
-176,Electrical Engineering,omni,True,5,offline,3,2,2,15,320.42569732666016,0,616.4649198055267,68.0
-177,Electrical Engineering,keyboard,True,5,offline,1,3,3,15,378.08448028564453,0,579.114438533783,47.0
-178,Electrical Engineering,keyboard,True,5,offline,2,1,1,15,148.3717803955078,0,579.114438533783,47.0
-179,Electrical Engineering,keyboard,True,5,offline,3,1,1,15,136.92625427246094,0,579.114438533783,47.0
-180,Medicine,keyboard,True,0,online,1,2,1,16,149.4965362548828,0,144.1486940383911,39.0
-181,Medicine,keyboard,True,0,online,2,5,2,16,331.2373733520508,0,144.1486940383911,39.0
-182,Medicine,keyboard,True,0,online,3,2,2,16,94.27009582519531,0,144.1486940383911,39.0
-183,Medicine,omni,True,0,online,1,3,3,16,140.4582405090332,0,101.75903940200806,19.0
-184,Medicine,omni,True,0,online,2,2,2,16,76.39788055419922,0,101.75903940200806,19.0
-185,Medicine,omni,True,0,online,3,2,2,16,58.42193412780762,0,101.75903940200806,19.0
-186,Medicine,omni,True,0,offline,1,3,3,16,487.3027801513672,0,398.8358795642853,54.0
-187,Medicine,omni,True,0,offline,2,3,2,16,485.9938659667969,0,398.8358795642853,54.0
-188,Medicine,omni,True,0,offline,3,1,1,16,138.24656677246094,0,398.8358795642853,54.0
-189,Medicine,keyboard,True,0,offline,1,9,2,16,2618.0823974609375,0,,80.0
-190,Medicine,keyboard,True,0,offline,2,1,1,16,357.8908996582031,0,,80.0
-191,Medicine,keyboard,True,0,offline,3,2,1,16,590.65576171875,0,,80.0
-192,Robotics,keyboard,True,5,online,1,2,2,17,75.49224090576172,2,171.1486873626709,26.0
-193,Robotics,keyboard,True,5,online,2,2,2,17,59.40414619445801,2,171.1486873626709,26.0
-194,Robotics,keyboard,True,5,online,3,3,3,17,127.39450073242188,2,171.1486873626709,26.0
-195,Robotics,omni,True,5,online,1,3,3,17,82.50235939025879,2,71.36782360076904,43.0
-196,Robotics,omni,True,5,online,2,2,2,17,51.620670318603516,2,71.36782360076904,43.0
-197,Robotics,omni,True,5,online,3,2,2,17,55.87415885925293,2,71.36782360076904,43.0
-198,Robotics,omni,True,5,offline,1,3,3,17,275.30660247802734,2,583.817715883255,30.0
-199,Robotics,omni,True,5,offline,2,3,3,17,289.6070785522461,2,583.817715883255,30.0
-200,Robotics,omni,True,5,offline,3,5,5,17,481.0773620605469,2,583.817715883255,30.0
-201,Robotics,keyboard,True,5,offline,1,4,4,17,335.8330078125,2,224.40096235275269,15.0
-202,Robotics,keyboard,True,5,offline,2,2,2,17,176.16394805908203,2,224.40096235275269,15.0
-203,Robotics,keyboard,True,5,offline,3,3,2,17,320.7802734375,2,224.40096235275269,15.0
-204,BMD,keyboard,True,1,online,1,2,2,18,87.31745529174805,1,80.21065855026245,34.0
-205,BMD,keyboard,True,1,online,2,1,1,18,52.31892013549805,1,80.21065855026245,34.0
-206,BMD,keyboard,True,1,online,3,2,2,18,68.31550407409668,1,80.21065855026245,34.0
-207,BMD,omni,True,1,online,1,3,3,18,129.8133087158203,1,117.37955260276794,27.0
-208,BMD,omni,True,1,online,2,4,3,18,166.57808303833008,1,117.37955260276794,27.0
-209,BMD,omni,True,1,online,3,3,3,18,113.2938117980957,1,117.37955260276794,27.0
-210,BMD,omni,True,1,offline,1,5,5,18,920.6373596191406,1,620.412474155426,40.0
-211,BMD,omni,True,1,offline,2,4,4,18,886.62451171875,1,620.412474155426,40.0
-212,BMD,omni,True,1,offline,3,1,1,18,256.04901123046875,1,620.412474155426,40.0
-213,BMD,keyboard,True,1,offline,1,2,2,18,407.2371063232422,1,415.12948775291443,50.0
-214,BMD,keyboard,True,1,offline,2,6,4,18,938.9175567626953,1,415.12948775291443,50.0
-215,BMD,keyboard,True,1,offline,3,1,1,18,155.50999450683594,1,415.12948775291443,50.0
+,age,field_of_study,gender,high_keyboard_experience,high_teleop_experience,interface,is_adapted,keyboard_experience,mechanism,method,model,number_of_refinements,number_of_updates,old,participant_number,refinement_time,right_handed,technical,teleop_experience,training_time,workload
+0,24,IPO,False,False,False,omni,True,0,online,OnOm,1,2,1,False,1,82.89120483398438,True,True,0,199.5880994796753,8.0
+1,24,IPO,False,False,False,omni,True,0,online,OnOm,2,2,2,False,1,56.282772064208984,True,True,0,199.5880994796753,8.0
+2,24,IPO,False,False,False,omni,True,0,online,OnOm,3,2,1,False,1,129.39877319335938,True,True,0,199.5880994796753,8.0
+3,24,IPO,False,False,False,omni,True,0,offline,OffOm,1,2,2,False,1,174.96705627441406,True,True,0,130.63376665115356,10.0
+4,24,IPO,False,False,False,omni,True,0,offline,OffOm,2,1,1,False,1,93.01724243164062,True,True,0,130.63376665115356,10.0
+5,24,IPO,False,False,False,omni,True,0,offline,OffOm,3,1,1,False,1,82.29498291015625,True,True,0,130.63376665115356,10.0
+6,24,IPO,False,False,False,keyboard,True,0,offline,OffKey,1,4,2,False,1,362.21087646484375,True,True,0,463.959623336792,39.0
+7,24,IPO,False,False,False,keyboard,True,0,offline,OffKey,2,1,1,False,1,77.1531982421875,True,True,0,463.959623336792,39.0
+8,24,IPO,False,False,False,keyboard,True,0,offline,OffKey,3,1,1,False,1,82.74327087402344,True,True,0,463.959623336792,39.0
+9,24,IPO,False,False,False,keyboard,True,0,online,OnKey,1,7,5,False,1,278.12597274780273,True,True,0,132.6311740875244,13.0
+10,24,IPO,False,False,False,keyboard,True,0,online,OnKey,2,4,1,False,1,353.9891052246094,True,True,0,132.6311740875244,13.0
+11,24,IPO,False,False,False,keyboard,True,0,online,OnKey,3,1,1,False,1,40.93989181518555,True,True,0,132.6311740875244,13.0
+12,25,Robotics Engineering,True,True,False,omni,True,5,online,OnOm,1,2,2,False,2,53.36204719543457,True,True,1,199.5880994796753,33.0
+13,25,Robotics Engineering,True,True,False,omni,True,5,online,OnOm,2,3,2,False,2,96.62427520751953,True,True,1,199.5880994796753,33.0
+14,25,Robotics Engineering,True,True,False,omni,True,5,online,OnOm,3,5,3,False,2,148.7716827392578,True,True,1,199.5880994796753,33.0
+15,25,Robotics Engineering,True,True,False,omni,True,5,offline,OffOm,1,3,3,False,2,202.61668014526367,True,True,1,212.90396785736084,27.0
+16,25,Robotics Engineering,True,True,False,omni,True,5,offline,OffOm,2,6,3,False,2,381.91719818115234,True,True,1,212.90396785736084,27.0
+17,25,Robotics Engineering,True,True,False,omni,True,5,offline,OffOm,3,1,1,False,2,67.02597045898438,True,True,1,212.90396785736084,27.0
+18,25,Robotics Engineering,True,True,False,keyboard,True,5,offline,OffKey,1,6,5,False,2,415.9155158996582,True,True,1,463.959623336792,41.0
+19,25,Robotics Engineering,True,True,False,keyboard,True,5,offline,OffKey,2,1,1,False,2,111.13174438476562,True,True,1,463.959623336792,41.0
+20,25,Robotics Engineering,True,True,False,keyboard,True,5,offline,OffKey,3,2,1,False,2,252.3811798095703,True,True,1,463.959623336792,41.0
+21,25,Robotics Engineering,True,True,False,keyboard,True,5,online,OnKey,1,6,5,False,2,193.32734298706055,True,True,1,132.6311740875244,39.0
+22,25,Robotics Engineering,True,True,False,keyboard,True,5,online,OnKey,2,4,4,False,2,109.31380653381348,True,True,1,132.6311740875244,39.0
+23,25,Robotics Engineering,True,True,False,keyboard,True,5,online,OnKey,3,8,5,False,2,344.4220390319824,True,True,1,132.6311740875244,39.0
+24,27,BME,True,False,False,omni,True,3,online,OnOm,1,2,2,False,3,59.437002182006836,True,True,0,128.25344252586365,25.0
+25,27,BME,True,False,False,omni,True,3,online,OnOm,2,2,2,False,3,66.69717979431152,True,True,0,128.25344252586365,25.0
+26,27,BME,True,False,False,omni,True,3,online,OnOm,3,2,2,False,3,61.68134689331055,True,True,0,128.25344252586365,25.0
+27,27,BME,True,False,False,omni,False,3,offline,OffOm,1,9,8,False,3,,True,True,0,481.69323563575745,46.0
+28,27,BME,True,False,False,omni,True,3,offline,OffOm,2,3,3,False,3,411.6335754394531,True,True,0,481.69323563575745,46.0
+29,27,BME,True,False,False,omni,True,3,offline,OffOm,3,8,4,False,3,784.9102783203125,True,True,0,481.69323563575745,46.0
+30,27,BME,True,False,False,keyboard,True,3,offline,OffKey,1,3,2,False,3,391.37062072753906,True,True,0,621.6613020896912,19.0
+31,27,BME,True,False,False,keyboard,True,3,offline,OffKey,2,2,2,False,3,265.21449279785156,True,True,0,621.6613020896912,19.0
+32,27,BME,True,False,False,keyboard,True,3,offline,OffKey,3,4,2,False,3,489.2313690185547,True,True,0,621.6613020896912,19.0
+33,27,BME,True,False,False,keyboard,True,3,online,OnKey,1,2,2,False,3,76.93290328979492,True,True,0,203.83567690849304,34.0
+34,27,BME,True,False,False,keyboard,True,3,online,OnKey,2,3,2,False,3,149.74925231933594,True,True,0,203.83567690849304,34.0
+35,27,BME,True,False,False,keyboard,True,3,online,OnKey,3,2,2,False,3,90.00791931152344,True,True,0,203.83567690849304,34.0
+36,47,Software,True,False,False,omni,True,0,online,OnOm,1,15,6,True,4,585.4351902008057,True,True,0,140.1049838066101,59.0
+37,47,Software,True,False,False,omni,True,0,online,OnOm,2,6,4,True,4,216.65493392944336,True,True,0,140.1049838066101,59.0
+38,47,Software,True,False,False,omni,True,0,online,OnOm,3,4,4,True,4,140.23226165771484,True,True,0,140.1049838066101,59.0
+39,47,Software,True,False,False,omni,True,0,offline,OffOm,1,5,3,True,4,591.057014465332,True,True,0,343.50863909721375,60.0
+40,47,Software,True,False,False,omni,True,0,offline,OffOm,2,5,3,True,4,531.0872497558594,True,True,0,343.50863909721375,60.0
+41,47,Software,True,False,False,omni,True,0,offline,OffOm,3,3,2,True,4,336.5854721069336,True,True,0,343.50863909721375,60.0
+42,47,Software,True,False,False,keyboard,True,0,offline,OffKey,1,4,3,True,4,608.2766418457031,True,True,0,605.4569661617279,37.0
+43,47,Software,True,False,False,keyboard,True,0,offline,OffKey,2,1,1,True,4,137.14198303222656,True,True,0,605.4569661617279,37.0
+44,47,Software,True,False,False,keyboard,True,0,offline,OffKey,3,1,1,True,4,74.8366470336914,True,True,0,605.4569661617279,37.0
+45,47,Software,True,False,False,keyboard,True,0,online,OnKey,1,3,2,True,4,124.3632926940918,True,True,0,201.31632256507874,53.0
+46,47,Software,True,False,False,keyboard,True,0,online,OnKey,2,4,2,True,4,198.04484176635742,True,True,0,201.31632256507874,53.0
+47,47,Software,True,False,False,keyboard,True,0,online,OnKey,3,4,4,True,4,126.16482353210449,True,True,0,201.31632256507874,53.0
+48,55,Bedrijfsarts,True,False,False,omni,True,0,online,OnOm,1,2,2,True,5,57.06630516052246,False,False,0,319.76502084732056,31.0
+49,55,Bedrijfsarts,True,False,False,omni,True,0,online,OnOm,2,2,2,True,5,55.10754203796387,False,False,0,319.76502084732056,31.0
+50,55,Bedrijfsarts,True,False,False,omni,True,0,online,OnOm,3,1,1,True,5,29.961137771606445,False,False,0,319.76502084732056,31.0
+51,55,Bedrijfsarts,True,False,False,omni,False,0,offline,OffOm,1,0,0,True,5,,False,False,0,,87.0
+52,55,Bedrijfsarts,True,False,False,omni,False,0,offline,OffOm,2,0,0,True,5,,False,False,0,,87.0
+53,55,Bedrijfsarts,True,False,False,omni,False,0,offline,OffOm,3,0,0,True,5,,False,False,0,,87.0
+54,55,Bedrijfsarts,True,False,False,keyboard,True,0,offline,OffKey,1,5,2,True,5,1159.9450073242188,False,False,0,427.8272910118103,84.0
+55,55,Bedrijfsarts,True,False,False,keyboard,True,0,offline,OffKey,2,1,1,True,5,203.87405395507812,False,False,0,427.8272910118103,84.0
+56,55,Bedrijfsarts,True,False,False,keyboard,True,0,offline,OffKey,3,1,1,True,5,155.48744201660156,False,False,0,427.8272910118103,84.0
+57,55,Bedrijfsarts,True,False,False,keyboard,True,0,online,OnKey,1,2,1,True,5,102.81670379638672,False,False,0,75.61391472816467,56.0
+58,55,Bedrijfsarts,True,False,False,keyboard,True,0,online,OnKey,2,2,1,True,5,101.66985321044922,False,False,0,75.61391472816467,56.0
+59,55,Bedrijfsarts,True,False,False,keyboard,True,0,online,OnKey,3,1,1,True,5,31.012502670288086,False,False,0,75.61391472816467,56.0
+60,28,Mechanical Engineering,False,False,False,omni,True,3,online,OnOm,1,5,3,False,6,254.4257049560547,False,True,0,68.92428088188171,45.0
+61,28,Mechanical Engineering,False,False,False,omni,True,3,online,OnOm,2,2,2,False,6,51.777015686035156,False,True,0,68.92428088188171,45.0
+62,28,Mechanical Engineering,False,False,False,omni,True,3,online,OnOm,3,2,2,False,6,55.91069221496582,False,True,0,68.92428088188171,45.0
+63,28,Mechanical Engineering,False,False,False,omni,True,3,offline,OffOm,1,3,3,False,6,434.94808197021484,False,True,0,361.3421633243561,40.0
+64,28,Mechanical Engineering,False,False,False,omni,True,3,offline,OffOm,2,6,3,False,6,605.1427764892578,False,True,0,361.3421633243561,40.0
+65,28,Mechanical Engineering,False,False,False,omni,True,3,offline,OffOm,3,2,2,False,6,204.9330291748047,False,True,0,361.3421633243561,40.0
+66,28,Mechanical Engineering,False,False,False,keyboard,True,3,offline,OffKey,1,1,1,False,6,158.56283569335938,False,True,0,510.11890387535095,21.0
+67,28,Mechanical Engineering,False,False,False,keyboard,True,3,offline,OffKey,2,2,1,False,6,335.9795227050781,False,True,0,510.11890387535095,21.0
+68,28,Mechanical Engineering,False,False,False,keyboard,True,3,offline,OffKey,3,1,1,False,6,131.19285583496094,False,True,0,510.11890387535095,21.0
+69,28,Mechanical Engineering,False,False,False,keyboard,True,3,online,OnKey,1,2,1,False,6,84.04930114746094,False,True,0,125.58879375457764,31.0
+70,28,Mechanical Engineering,False,False,False,keyboard,True,3,online,OnKey,2,2,2,False,6,55.65203285217285,False,True,0,125.58879375457764,31.0
+71,28,Mechanical Engineering,False,False,False,keyboard,True,3,online,OnKey,3,1,1,False,6,27.871456146240234,False,True,0,125.58879375457764,31.0
+72,24,Media & Entertainment Management,True,True,False,omni,True,5,online,OnOm,1,3,2,False,7,87.14491844177246,True,False,0,101.47555088996887,42.0
+73,24,Media & Entertainment Management,True,True,False,omni,True,5,online,OnOm,2,2,2,False,7,51.680084228515625,True,False,0,101.47555088996887,42.0
+74,24,Media & Entertainment Management,True,True,False,omni,True,5,online,OnOm,3,2,2,False,7,51.4251594543457,True,False,0,101.47555088996887,42.0
+75,24,Media & Entertainment Management,True,True,False,omni,False,5,offline,OffOm,1,10,8,False,7,,True,False,0,806.9613738059998,27.0
+76,24,Media & Entertainment Management,True,True,False,omni,True,5,offline,OffOm,2,5,4,False,7,491.2518539428711,True,False,0,806.9613738059998,27.0
+77,24,Media & Entertainment Management,True,True,False,omni,True,5,offline,OffOm,3,5,4,False,7,431.71124267578125,True,False,0,806.9613738059998,27.0
+78,24,Media & Entertainment Management,True,True,False,keyboard,True,5,offline,OffKey,1,4,2,False,7,504.64630126953125,True,False,0,316.7284936904907,67.0
+79,24,Media & Entertainment Management,True,True,False,keyboard,True,5,offline,OffKey,2,3,2,False,7,360.1780471801758,True,False,0,316.7284936904907,67.0
+80,24,Media & Entertainment Management,True,True,False,keyboard,True,5,offline,OffKey,3,1,1,False,7,118.57587432861328,True,False,0,316.7284936904907,67.0
+81,24,Media & Entertainment Management,True,True,False,keyboard,True,5,online,OnKey,1,3,3,False,7,114.3794174194336,True,False,0,145.58878755569458,40.0
+82,24,Media & Entertainment Management,True,True,False,keyboard,True,5,online,OnKey,2,3,2,False,7,167.54009246826172,True,False,0,145.58878755569458,40.0
+83,24,Media & Entertainment Management,True,True,False,keyboard,True,5,online,OnKey,3,3,2,False,7,160.5813217163086,True,False,0,145.58878755569458,40.0
+84,24,Technische Bedrijfskunde,True,False,False,omni,True,0,online,OnOm,1,4,3,False,8,167.0739688873291,True,False,0,250.10369682312012,83.0
+85,24,Technische Bedrijfskunde,True,False,False,omni,True,0,online,OnOm,2,22,8,False,8,1022.8045196533203,True,False,0,250.10369682312012,83.0
+86,24,Technische Bedrijfskunde,True,False,False,omni,True,0,online,OnOm,3,3,3,False,8,109.17341232299805,True,False,0,250.10369682312012,83.0
+87,24,Technische Bedrijfskunde,True,False,False,omni,True,0,offline,OffOm,1,3,2,False,8,385.71228790283203,True,False,0,516.647412776947,53.0
+88,24,Technische Bedrijfskunde,True,False,False,omni,True,0,offline,OffOm,2,5,3,False,8,1124.6695938110352,True,False,0,516.647412776947,53.0
+89,24,Technische Bedrijfskunde,True,False,False,omni,True,0,offline,OffOm,3,2,1,False,8,301.88616943359375,True,False,0,516.647412776947,53.0
+90,24,Technische Bedrijfskunde,True,False,False,keyboard,True,0,offline,OffKey,1,3,3,False,8,647.0172729492188,True,False,0,1435.7846496105194,67.0
+91,24,Technische Bedrijfskunde,True,False,False,keyboard,True,0,offline,OffKey,2,1,1,False,8,308.1136169433594,True,False,0,1435.7846496105194,67.0
+92,24,Technische Bedrijfskunde,True,False,False,keyboard,True,0,offline,OffKey,3,9,4,False,8,2242.995765686035,True,False,0,1435.7846496105194,67.0
+93,24,Technische Bedrijfskunde,True,False,False,keyboard,True,0,online,OnKey,1,4,3,False,8,260.8965034484863,True,False,0,288.48521733283997,19.0
+94,24,Technische Bedrijfskunde,True,False,False,keyboard,True,0,online,OnKey,2,2,1,False,8,142.39752197265625,True,False,0,288.48521733283997,19.0
+95,24,Technische Bedrijfskunde,True,False,False,keyboard,True,0,online,OnKey,3,1,1,False,8,51.60721206665039,True,False,0,288.48521733283997,19.0
+96,24,BME,True,True,False,omni,True,5,online,OnOm,1,3,3,False,9,81.12626838684082,True,True,0,116.89704656600952,19.0
+97,24,BME,True,True,False,omni,True,5,online,OnOm,2,6,4,False,9,223.44801712036133,True,True,0,116.89704656600952,19.0
+98,24,BME,True,True,False,omni,True,5,online,OnOm,3,2,2,False,9,51.96689987182617,True,True,0,116.89704656600952,19.0
+99,24,BME,True,True,False,omni,True,5,offline,OffOm,1,3,1,False,9,456.5050048828125,True,True,0,262.9830586910248,49.0
+100,24,BME,True,True,False,omni,True,5,offline,OffOm,2,1,1,False,9,154.78732299804688,True,True,0,262.9830586910248,49.0
+101,24,BME,True,True,False,omni,True,5,offline,OffOm,3,3,2,False,9,726.8003540039062,True,True,0,262.9830586910248,49.0
+102,24,BME,True,True,False,keyboard,True,5,offline,OffKey,1,3,2,False,9,232.462158203125,True,True,0,513.0160956382751,52.0
+103,24,BME,True,True,False,keyboard,True,5,offline,OffKey,2,6,5,False,9,668.9037170410156,True,True,0,513.0160956382751,52.0
+104,24,BME,True,True,False,keyboard,True,5,offline,OffKey,3,5,2,False,9,742.18212890625,True,True,0,513.0160956382751,52.0
+105,24,BME,True,True,False,keyboard,True,5,online,OnKey,1,2,2,False,9,73.58794021606445,True,True,0,123.71965503692627,45.0
+106,24,BME,True,True,False,keyboard,True,5,online,OnKey,2,3,3,False,9,112.01277160644531,True,True,0,123.71965503692627,45.0
+107,24,BME,True,True,False,keyboard,True,5,online,OnKey,3,6,3,False,9,274.31627655029297,True,True,0,123.71965503692627,45.0
+108,27,DCSC,True,True,False,omni,False,5,online,OnOm,1,19,8,False,10,,True,True,1,299.9957973957062,51.0
+109,27,DCSC,True,True,False,omni,False,5,online,OnOm,2,11,8,False,10,,True,True,1,299.9957973957062,51.0
+110,27,DCSC,True,True,False,omni,True,5,online,OnOm,3,8,6,False,10,225.9019069671631,True,True,1,299.9957973957062,51.0
+111,27,DCSC,True,True,False,omni,False,5,offline,OffOm,1,0,0,False,10,,True,True,1,,74.0
+112,27,DCSC,True,True,False,omni,False,5,offline,OffOm,2,0,0,False,10,,True,True,1,,74.0
+113,27,DCSC,True,True,False,omni,False,5,offline,OffOm,3,0,0,False,10,,True,True,1,,74.0
+114,27,DCSC,True,True,False,keyboard,True,5,offline,OffKey,1,2,2,False,10,207.2344970703125,True,True,1,385.02207469940186,21.0
+115,27,DCSC,True,True,False,keyboard,True,5,offline,OffKey,2,2,2,False,10,194.25662231445312,True,True,1,385.02207469940186,21.0
+116,27,DCSC,True,True,False,keyboard,True,5,offline,OffKey,3,3,2,False,10,257.22570037841797,True,True,1,385.02207469940186,21.0
+117,27,DCSC,True,True,False,keyboard,True,5,online,OnKey,1,7,5,False,10,265.3041458129883,True,True,1,192.21522426605225,40.0
+118,27,DCSC,True,True,False,keyboard,True,5,online,OnKey,2,2,2,False,10,60.293128967285156,True,True,1,192.21522426605225,40.0
+119,27,DCSC,True,True,False,keyboard,True,5,online,OnKey,3,2,2,False,10,63.471893310546875,True,True,1,192.21522426605225,40.0
+120,25,BMD,True,True,True,omni,True,5,online,OnOm,1,5,3,False,11,191.92034530639648,True,True,5,100.0661780834198,45.0
+121,25,BMD,True,True,True,omni,True,5,online,OnOm,2,7,3,False,11,271.57341957092285,True,True,5,100.0661780834198,45.0
+122,25,BMD,True,True,True,omni,True,5,online,OnOm,3,3,2,False,11,93.76238822937012,True,True,5,100.0661780834198,45.0
+123,25,BMD,True,True,True,omni,False,5,offline,OffOm,1,18,8,False,11,,True,True,5,658.2085316181183,59.0
+124,25,BMD,True,True,True,omni,False,5,offline,OffOm,2,8,8,False,11,,True,True,5,658.2085316181183,59.0
+125,25,BMD,True,True,True,omni,True,5,offline,OffOm,3,9,7,False,11,1062.6739654541016,True,True,5,658.2085316181183,59.0
+126,25,BMD,True,True,True,keyboard,True,5,offline,OffKey,1,2,2,False,11,339.61669921875,True,True,5,422.7862093448639,20.0
+127,25,BMD,True,True,True,keyboard,True,5,offline,OffKey,2,2,2,False,11,355.23284912109375,True,True,5,422.7862093448639,20.0
+128,25,BMD,True,True,True,keyboard,True,5,offline,OffKey,3,1,1,False,11,115.5922622680664,True,True,5,422.7862093448639,20.0
+129,25,BMD,True,True,True,keyboard,True,5,online,OnKey,1,3,3,False,11,87.96671104431152,True,True,5,345.86517238616943,48.0
+130,25,BMD,True,True,True,keyboard,True,5,online,OnKey,2,4,4,False,11,120.46086120605469,True,True,5,345.86517238616943,48.0
+131,25,BMD,True,True,True,keyboard,True,5,online,OnKey,3,6,6,False,11,189.55500030517578,True,True,5,345.86517238616943,48.0
+132,26,BMD-HI,True,True,True,omni,True,4,online,OnOm,1,8,8,False,12,257.64380645751953,True,True,4,89.054034948349,23.0
+133,26,BMD-HI,True,True,True,omni,True,4,online,OnOm,2,2,2,False,12,54.579694747924805,True,True,4,89.054034948349,23.0
+134,26,BMD-HI,True,True,True,omni,True,4,online,OnOm,3,1,1,False,12,27.570022583007812,True,True,4,89.054034948349,23.0
+135,26,BMD-HI,True,True,True,omni,True,4,offline,OffOm,1,4,4,False,12,532.01708984375,True,True,4,412.36584281921387,27.0
+136,26,BMD-HI,True,True,True,omni,True,4,offline,OffOm,2,4,4,False,12,425.88358306884766,True,True,4,412.36584281921387,27.0
+137,26,BMD-HI,True,True,True,omni,True,4,offline,OffOm,3,3,3,False,12,320.83172607421875,True,True,4,412.36584281921387,27.0
+138,26,BMD-HI,True,True,True,keyboard,True,4,offline,OffKey,1,2,2,False,12,278.4907989501953,True,True,4,702.1112561225891,60.0
+139,26,BMD-HI,True,True,True,keyboard,True,4,offline,OffKey,2,5,5,False,12,569.6610717773438,True,True,4,702.1112561225891,60.0
+140,26,BMD-HI,True,True,True,keyboard,True,4,offline,OffKey,3,2,2,False,12,173.1554718017578,True,True,4,702.1112561225891,60.0
+141,26,BMD-HI,True,True,True,keyboard,True,4,online,OnKey,1,2,2,False,12,64.86330223083496,True,True,4,162.03444170951843,56.0
+142,26,BMD-HI,True,True,True,keyboard,True,4,online,OnKey,2,2,2,False,12,69.5713996887207,True,True,4,162.03444170951843,56.0
+143,26,BMD-HI,True,True,True,keyboard,True,4,online,OnKey,3,2,2,False,12,99.79427719116211,True,True,4,162.03444170951843,56.0
+144,21,Mechatronics,True,False,False,omni,True,0,online,OnOm,1,2,2,False,13,57.09089279174805,True,True,0,264.07046723365784,34.0
+145,21,Mechatronics,True,False,False,omni,True,0,online,OnOm,2,6,2,False,13,344.7377700805664,True,True,0,264.07046723365784,34.0
+146,21,Mechatronics,True,False,False,omni,True,0,online,OnOm,3,5,3,False,13,199.03393936157227,True,True,0,264.07046723365784,34.0
+147,21,Mechatronics,True,False,False,omni,True,0,offline,OffOm,1,7,5,False,13,1366.3572082519531,True,True,0,414.9624116420746,17.0
+148,21,Mechatronics,True,False,False,omni,True,0,offline,OffOm,2,1,1,False,13,122.2568359375,True,True,0,414.9624116420746,17.0
+149,21,Mechatronics,True,False,False,omni,True,0,offline,OffOm,3,1,1,False,13,136.2096710205078,True,True,0,414.9624116420746,17.0
+150,21,Mechatronics,True,False,False,keyboard,False,0,offline,OffKey,1,0,0,False,13,,True,True,0,,57.0
+151,21,Mechatronics,True,False,False,keyboard,False,0,offline,OffKey,2,0,0,False,13,,True,True,0,,57.0
+152,21,Mechatronics,True,False,False,keyboard,False,0,offline,OffKey,3,0,0,False,13,,True,True,0,,57.0
+153,21,Mechatronics,True,False,False,keyboard,True,0,online,OnKey,1,2,1,False,13,142.51873779296875,True,True,0,127.86529207229614,31.0
+154,21,Mechatronics,True,False,False,keyboard,True,0,online,OnKey,2,2,2,False,13,64.55804443359375,True,True,0,127.86529207229614,31.0
+155,21,Mechatronics,True,False,False,keyboard,True,0,online,OnKey,3,1,1,False,13,46.22533416748047,True,True,0,127.86529207229614,31.0
+156,24,Voeding en Dietetiek,False,False,False,omni,True,2,online,OnOm,1,5,3,False,14,173.6254940032959,True,False,0,122.80305504798889,38.0
+157,24,Voeding en Dietetiek,False,False,False,omni,True,2,online,OnOm,2,2,2,False,14,49.19619178771973,True,False,0,122.80305504798889,38.0
+158,24,Voeding en Dietetiek,False,False,False,omni,True,2,online,OnOm,3,4,3,False,14,126.01369285583496,True,False,0,122.80305504798889,38.0
+159,24,Voeding en Dietetiek,False,False,False,omni,True,2,offline,OffOm,1,5,5,False,14,703.9331512451172,True,False,0,669.1645157337189,52.0
+160,24,Voeding en Dietetiek,False,False,False,omni,True,2,offline,OffOm,2,1,1,False,14,154.2784881591797,True,False,0,669.1645157337189,52.0
+161,24,Voeding en Dietetiek,False,False,False,omni,True,2,offline,OffOm,3,2,2,False,14,319.8589324951172,True,False,0,669.1645157337189,52.0
+162,24,Voeding en Dietetiek,False,False,False,keyboard,True,2,offline,OffKey,1,7,5,False,14,866.1604843139648,True,False,0,425.8421251773834,53.0
+163,24,Voeding en Dietetiek,False,False,False,keyboard,True,2,offline,OffKey,2,2,1,False,14,228.1687469482422,True,False,0,425.8421251773834,53.0
+164,24,Voeding en Dietetiek,False,False,False,keyboard,True,2,offline,OffKey,3,1,1,False,14,111.81697082519531,True,False,0,425.8421251773834,53.0
+165,24,Voeding en Dietetiek,False,False,False,keyboard,True,2,online,OnKey,1,3,3,False,14,101.59110260009766,True,False,0,558.5547671318054,50.0
+166,24,Voeding en Dietetiek,False,False,False,keyboard,True,2,online,OnKey,2,1,1,False,14,49.1236457824707,True,False,0,558.5547671318054,50.0
+167,24,Voeding en Dietetiek,False,False,False,keyboard,True,2,online,OnKey,3,2,1,False,14,141.7093963623047,True,False,0,558.5547671318054,50.0
+168,29,Electrical Engineering,True,True,False,omni,True,5,online,OnOm,1,2,2,False,15,73.31053924560547,True,True,0,91.15971279144287,67.0
+169,29,Electrical Engineering,True,True,False,omni,True,5,online,OnOm,2,1,1,False,15,39.40672302246094,True,True,0,91.15971279144287,67.0
+170,29,Electrical Engineering,True,True,False,omni,True,5,online,OnOm,3,1,1,False,15,35.65053939819336,True,True,0,91.15971279144287,67.0
+171,29,Electrical Engineering,True,True,False,omni,True,5,offline,OffOm,1,2,2,False,15,253.39954376220703,True,True,0,616.4649198055267,68.0
+172,29,Electrical Engineering,True,True,False,omni,True,5,offline,OffOm,2,3,3,False,15,337.0458755493164,True,True,0,616.4649198055267,68.0
+173,29,Electrical Engineering,True,True,False,omni,True,5,offline,OffOm,3,2,2,False,15,320.42569732666016,True,True,0,616.4649198055267,68.0
+174,29,Electrical Engineering,True,True,False,keyboard,True,5,offline,OffKey,1,3,3,False,15,378.08448028564453,True,True,0,579.114438533783,47.0
+175,29,Electrical Engineering,True,True,False,keyboard,True,5,offline,OffKey,2,1,1,False,15,148.3717803955078,True,True,0,579.114438533783,47.0
+176,29,Electrical Engineering,True,True,False,keyboard,True,5,offline,OffKey,3,1,1,False,15,136.92625427246094,True,True,0,579.114438533783,47.0
+177,29,Electrical Engineering,True,True,False,keyboard,True,5,online,OnKey,1,1,1,False,15,26.924278259277344,True,True,0,126.05527210235596,20.0
+178,29,Electrical Engineering,True,True,False,keyboard,True,5,online,OnKey,2,2,2,False,15,54.84556579589844,True,True,0,126.05527210235596,20.0
+179,29,Electrical Engineering,True,True,False,keyboard,True,5,online,OnKey,3,1,1,False,15,27.14881706237793,True,True,0,126.05527210235596,20.0
+180,23,Medicine,False,False,False,omni,True,0,online,OnOm,1,3,3,False,16,140.4582405090332,False,False,0,101.75903940200806,19.0
+181,23,Medicine,False,False,False,omni,True,0,online,OnOm,2,2,2,False,16,76.39788055419922,False,False,0,101.75903940200806,19.0
+182,23,Medicine,False,False,False,omni,True,0,online,OnOm,3,2,2,False,16,58.42193412780762,False,False,0,101.75903940200806,19.0
+183,23,Medicine,False,False,False,omni,True,0,offline,OffOm,1,3,3,False,16,487.3027801513672,False,False,0,398.8358795642853,54.0
+184,23,Medicine,False,False,False,omni,True,0,offline,OffOm,2,3,2,False,16,485.9938659667969,False,False,0,398.8358795642853,54.0
+185,23,Medicine,False,False,False,omni,True,0,offline,OffOm,3,1,1,False,16,138.24656677246094,False,False,0,398.8358795642853,54.0
+186,23,Medicine,False,False,False,keyboard,True,0,offline,OffKey,1,9,2,False,16,2618.0823974609375,False,False,0,,80.0
+187,23,Medicine,False,False,False,keyboard,True,0,offline,OffKey,2,1,1,False,16,357.8908996582031,False,False,0,,80.0
+188,23,Medicine,False,False,False,keyboard,True,0,offline,OffKey,3,2,1,False,16,590.65576171875,False,False,0,,80.0
+189,23,Medicine,False,False,False,keyboard,True,0,online,OnKey,1,2,1,False,16,149.4965362548828,False,False,0,144.1486940383911,39.0
+190,23,Medicine,False,False,False,keyboard,True,0,online,OnKey,2,5,2,False,16,331.2373733520508,False,False,0,144.1486940383911,39.0
+191,23,Medicine,False,False,False,keyboard,True,0,online,OnKey,3,2,2,False,16,94.27009582519531,False,False,0,144.1486940383911,39.0
+192,28,Robotics,True,True,False,omni,True,5,online,OnOm,1,3,3,False,17,82.50235939025879,True,True,2,71.36782360076904,43.0
+193,28,Robotics,True,True,False,omni,True,5,online,OnOm,2,2,2,False,17,51.620670318603516,True,True,2,71.36782360076904,43.0
+194,28,Robotics,True,True,False,omni,True,5,online,OnOm,3,2,2,False,17,55.87415885925293,True,True,2,71.36782360076904,43.0
+195,28,Robotics,True,True,False,omni,True,5,offline,OffOm,1,3,3,False,17,275.30660247802734,True,True,2,583.817715883255,30.0
+196,28,Robotics,True,True,False,omni,True,5,offline,OffOm,2,3,3,False,17,289.6070785522461,True,True,2,583.817715883255,30.0
+197,28,Robotics,True,True,False,omni,True,5,offline,OffOm,3,5,5,False,17,481.0773620605469,True,True,2,583.817715883255,30.0
+198,28,Robotics,True,True,False,keyboard,True,5,offline,OffKey,1,4,4,False,17,335.8330078125,True,True,2,224.40096235275269,15.0
+199,28,Robotics,True,True,False,keyboard,True,5,offline,OffKey,2,2,2,False,17,176.16394805908203,True,True,2,224.40096235275269,15.0
+200,28,Robotics,True,True,False,keyboard,True,5,offline,OffKey,3,3,2,False,17,320.7802734375,True,True,2,224.40096235275269,15.0
+201,28,Robotics,True,True,False,keyboard,True,5,online,OnKey,1,2,2,False,17,75.49224090576172,True,True,2,171.1486873626709,26.0
+202,28,Robotics,True,True,False,keyboard,True,5,online,OnKey,2,2,2,False,17,59.40414619445801,True,True,2,171.1486873626709,26.0
+203,28,Robotics,True,True,False,keyboard,True,5,online,OnKey,3,3,3,False,17,127.39450073242188,True,True,2,171.1486873626709,26.0
+204,1,BMD,False,False,False,omni,True,1,online,OnOm,1,3,3,False,18,129.8133087158203,True,True,1,117.37955260276794,27.0
+205,1,BMD,False,False,False,omni,True,1,online,OnOm,2,4,3,False,18,166.57808303833008,True,True,1,117.37955260276794,27.0
+206,1,BMD,False,False,False,omni,True,1,online,OnOm,3,3,3,False,18,113.2938117980957,True,True,1,117.37955260276794,27.0
+207,1,BMD,False,False,False,omni,True,1,offline,OffOm,1,5,5,False,18,920.6373596191406,True,True,1,620.412474155426,40.0
+208,1,BMD,False,False,False,omni,True,1,offline,OffOm,2,4,4,False,18,886.62451171875,True,True,1,620.412474155426,40.0
+209,1,BMD,False,False,False,omni,True,1,offline,OffOm,3,1,1,False,18,256.04901123046875,True,True,1,620.412474155426,40.0
+210,1,BMD,False,False,False,keyboard,True,1,offline,OffKey,1,2,2,False,18,407.2371063232422,True,True,1,415.12948775291443,50.0
+211,1,BMD,False,False,False,keyboard,True,1,offline,OffKey,2,6,4,False,18,938.9175567626953,True,True,1,415.12948775291443,50.0
+212,1,BMD,False,False,False,keyboard,True,1,offline,OffKey,3,1,1,False,18,155.50999450683594,True,True,1,415.12948775291443,50.0
+213,1,BMD,False,False,False,keyboard,True,1,online,OnKey,1,2,2,False,18,87.31745529174805,True,True,1,80.21065855026245,34.0
+214,1,BMD,False,False,False,keyboard,True,1,online,OnKey,2,1,1,False,18,52.31892013549805,True,True,1,80.21065855026245,34.0
+215,1,BMD,False,False,False,keyboard,True,1,online,OnKey,3,2,2,False,18,68.31550407409668,True,True,1,80.21065855026245,34.0
