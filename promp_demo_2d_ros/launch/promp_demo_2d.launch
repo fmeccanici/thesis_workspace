@@ -1,0 +1,11 @@
+<launch>
+    <node pkg="promp_demo_2d_ros" name="promp_demo_2d" type="promp_demo_2d.py" 
+    output="screen">
+    </node>
+
+    <include file="$(find trajectory_refinement)/launch/refinement_force_publisher.launch" >
+        <arg name="refinement_stiffness" value="0.05"/>
+        <arg name="refinement_damping_coefficient" value="0.002"/>
+    </include>
+
+</launch>

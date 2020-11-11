@@ -7,6 +7,7 @@
 //
 void GeomagicTouch::init(GeomagicTouchState *state)
 {
+
     // Init publishers
     geo_pos_pub = n.advertise<geometry_msgs::PoseStamped>("geo_pos_state_m", 10);	
 	geo_vel_pub = n.advertise<geometry_msgs::TwistStamped>("geo_vel_state_m", 10);
@@ -59,6 +60,7 @@ void GeomagicTouch::init(GeomagicTouchState *state)
 
     // Init Other variables
     en_h_count = 1;
+
 }
 void GeomagicTouch::keyboard_callback(const geomagic_touch_m::GeomagicButtonEvent buttons)
 {
@@ -94,6 +96,7 @@ void GeomagicTouch::refine_callback(const geometry_msgs::WrenchStamped refine_fo
 	geo_state->effort[0] = refine_force.wrench.force.x;
 	geo_state->effort[1] = refine_force.wrench.force.y;
 	geo_state->effort[2] = refine_force.wrench.force.z;
+	ROS_INFO_STREAM("check");
 }
 
 void GeomagicTouch::effort_callback(const geometry_msgs::WrenchStamped control_effort)

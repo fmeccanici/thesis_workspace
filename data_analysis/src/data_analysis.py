@@ -6,7 +6,7 @@ from experiment_variables.experiment_variables import ExperimentVariables
 import pandas as pd
 import ast
 import numpy as np
-from scipy.stats import ttest_rel, wilcoxon
+from scipy.stats import ttest_rel, wilcoxon, mannwhitneyu
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -1110,11 +1110,11 @@ class DataAnalysis(object):
         fig = plt.figure()
         plt.suptitle("Teleoperation experience")
         plt.subplot(1,2,2)
-        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == False)])
-        H = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == True)])
+        L = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == False)])
+        H = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_teleop_experience'] == True)])
 
         legend_labels = ["L (N={})".format(L), "H (N={})".format(H)]
-        g = sns.boxplot(data=self.df, x='method', y='workload', hue='high_teleop_experience')
+        g = sns.boxplot(data=self.df.loc[self.df['model'] == '1'], x='method', y='workload', hue='high_teleop_experience')
         plt.ylabel("Workload [0-100]")
         plt.ylim([0, 100])
 
@@ -1147,11 +1147,11 @@ class DataAnalysis(object):
         fig = plt.figure()
         plt.suptitle("Gaming experience")
         plt.subplot(1,2,2)
-        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == False)])
-        H = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == True)])
+        L = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == False)])
+        H = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['high_keyboard_experience'] == True)])
 
         legend_labels = ["L (N={})".format(L), "H (N={})".format(H)]        
-        g = sns.boxplot(data=self.df, x='method', y='workload', hue='high_keyboard_experience')
+        g = sns.boxplot(data=self.df.loc[self.df['model'] == '1'], x='method', y='workload', hue='high_keyboard_experience')
         plt.ylabel("Workload [0-100]")
         plt.ylim([0, 100])
 
@@ -1186,12 +1186,12 @@ class DataAnalysis(object):
         plt.suptitle("Field of work/study")
         plt.subplot(1,2,2)
         
-        NT = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == False)])
-        T = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == True)])
+        NT = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == False)])
+        T = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['technical'] == True)])
 
         legend_labels = ["NT (N={})".format(NT), "T (N={})".format(T)]
 
-        g = sns.boxplot(data=self.df, x='method', y='workload', hue='technical')
+        g = sns.boxplot(data=(self.df.loc[self.df['model'] == '1']), x='method', y='workload', hue='technical')
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         plt.ylabel("Workload [0-100]")
@@ -1228,11 +1228,11 @@ class DataAnalysis(object):
         fig = plt.figure()
         plt.suptitle("Gender")
         plt.subplot(1,2,2)
-        F = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == False)])
-        M = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == True)])
+        F = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == False)])
+        M = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['gender'] == True)])
       
         legend_labels = ["F (N={})".format(F), "M (N={})".format(M)]
-        g = sns.boxplot(data=self.df, x='method', y='workload', hue='gender')
+        g = sns.boxplot(data=self.df.loc[self.df['model'] == '1'], x='method', y='workload', hue='gender')
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         plt.ylabel("Workload [0-100]")
@@ -1264,14 +1264,14 @@ class DataAnalysis(object):
         self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
         fig = plt.figure()
-        R = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == True)])
-        L = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == False)])
+        R = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == True)])
+        L = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['right_handed'] == False)])
         
         legend_labels = ["R (N={})".format(R), "L (N={})".format(L)]
 
         plt.suptitle("Handedness")
         plt.subplot(1,2,2)
-        g = sns.boxplot(data=self.df, x='method', y='workload', hue='right_handed')
+        g = sns.boxplot(data=self.df.loc[self.df['model'] == '1'], x='method', y='workload', hue='right_handed')
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         plt.ylabel("Workload [0-100]")
@@ -1303,15 +1303,15 @@ class DataAnalysis(object):
         self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
         fig = plt.figure()
-        O = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == True)])
-        Y = len(self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == False)])
+        O = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == True)])
+        Y = len(self.df.loc[(self.df['model'] == '1') & (self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['old'] == False)])
 
         legend_labels = ["Y (N={})".format(Y), "O (N={})".format(O)]
 
 
         plt.suptitle("Age")
         plt.subplot(1,2,2)
-        g = sns.boxplot(data=self.df, x='method', y='workload', hue='old')
+        g = sns.boxplot(data=self.df.loc[self.df['model'] == '1'], x='method', y='workload', hue='old')
         g.set_xticklabels(g.get_xticklabels(), rotation=30)
 
         plt.ylabel("Workload [0-100]")
@@ -1685,6 +1685,9 @@ class DataAnalysis(object):
         workload_omni = list(self.df.loc[self.df['interface'] == 'omni'].sort_values(by = ['model', 'mechanism'])['workload'])
         workload_keyboard = list(self.df.loc[self.df['interface'] == 'keyboard'].sort_values(by = ['model', 'mechanism'])['workload'])
 
+        # workload_omni = list(self.df.loc[(self.df['interface'] == 'omni') & (self.df['technical'] == True)].sort_values(by = ['model', 'mechanism'])['workload'])
+        # workload_keyboard = list(self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['technical'] == True)].sort_values(by = ['model', 'mechanism'])['workload'])
+
         # t, p = ttest_rel(workload_keyboard, workload_omni, nan_policy='omit')
         t, p = wilcoxon(workload_keyboard, workload_omni, alternative='greater')
         
@@ -1720,6 +1723,36 @@ class DataAnalysis(object):
         self.statistics_values['refinement_time']['mechanism']['p'] = p
         self.statistics_values['refinement_time']['mechanism']['t'] = t
 
+        
+        number_of_refinements_online = self.df.loc[self.df['mechanism'] == 'online']['number_of_refinements']
+        number_of_refinements_offline = self.df.loc[self.df['mechanism'] == 'offline']['number_of_refinements']
+        number_of_refinements_keyboard = self.df.loc[self.df['interface'] == 'keyboard']['number_of_refinements']
+        number_of_refinements_omni = self.df.loc[self.df['interface'] == 'omni']['number_of_refinements']
+
+        number_of_updates_online = self.df.loc[self.df['mechanism'] == 'online']['number_of_updates']
+        number_of_updates_offline = self.df.loc[self.df['mechanism'] == 'offline']['number_of_updates']
+        number_of_updates_keyboard = self.df.loc[self.df['interface'] == 'keyboard']['number_of_updates']
+        number_of_updates_omni = self.df.loc[self.df['interface'] == 'omni']['number_of_updates']
+        
+        # p_values_refinements_updates = []
+        t, p = wilcoxon(number_of_refinements_online, number_of_refinements_offline, alternative='less')
+        # p_values_refinements_updates.append([[p, t]])
+        print(p)
+        t, p = wilcoxon(number_of_refinements_keyboard, number_of_refinements_omni, alternative='less')
+        # p_values_refinements_updates.append([[p, t]])
+        print(p)
+
+        t, p = wilcoxon(number_of_updates_online, number_of_updates_offline, alternative='less')
+        # p_values_refinements_updates.append([[p, t]])
+        print(p)
+
+        t, p = wilcoxon(number_of_updates_keyboard, number_of_updates_omni, alternative='less')
+        # p_values_refinements_updates.append([[p, t]])
+        print(p)
+
+        # print(p_values_refinements_updates)
+
+
         self.rows_list = []
         self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
         
@@ -1737,6 +1770,23 @@ class DataAnalysis(object):
 
         t, p = wilcoxon(refinement_time_high_game_experience, refinement_time_low_game_experience, alternative='less')
         print(p)
+
+        workload_high_game_experience_keyboard = list(self.df.loc[(self.df['high_keyboard_experience'] == True) & (self.df['interface'] == 'keyboard')].sort_values(by = ['model', 'interface'])['workload'])
+        workload_low_game_experience_keyboard = list(self.df.loc[(self.df['high_keyboard_experience'] == False) & (self.df['interface'] == 'keyboard')].sort_values(by = ['model', 'interface'])['workload'])
+        t, p = wilcoxon(workload_high_game_experience_keyboard, workload_low_game_experience_keyboard, alternative='less')
+        print(p)
+
+        # refinement_time_high_game_experience_keyboard = list(self.df.loc[(self.df['high_keyboard_experience'] == True) & (self.df['interface'] == 'keyboard')].sort_values(by = ['model', 'interface'])['refinement_time'])
+        # refinement_time_low_game_experience_keyboard = list(self.df.loc[(self.df['high_keyboard_experience'] == False) & (self.df['interface'] == 'keyboard')].sort_values(by = ['model', 'interface'])['refinement_time'])
+        # t, p = wilcoxon(refinement_time_high_game_experience_keyboard, refinement_time_low_game_experience_keyboard, alternative='less')
+        # print(p)
+
+        # refinement_time_high_teleop_experience_omni = list(self.df.loc[(self.df['high_teleop_experience'] == True) & (self.df['interface'] == 'omni')].sort_values(by = ['model', 'interface'])['refinement_time'])
+        # refinement_time_low_teleop_experience_omni = list(self.df.loc[(self.df['high_teleop_experience'] == False) & (self.df['interface'] == 'omni')].sort_values(by = ['model', 'interface'])['refinement_time'])
+        # t, p = wilcoxon(refinement_time_high_teleop_experience_omni, refinement_time_low_teleop_experience_omni, alternative='less')
+        # print(p)
+
+
 
     def printStatisticValues(self):
         print("Refinement time (Paired T-Test)")
@@ -1818,6 +1868,7 @@ class DataAnalysis(object):
         plt.savefig('distributions_workload.png')
     
     def plotAndSaveRefinementTimeAndWorkload(self):
+        self.rows_list = []
         self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
         self.calculateAndStoreTtestValues()
 
@@ -1829,8 +1880,8 @@ class DataAnalysis(object):
         # plt.title("Workload")
         ax = sns.boxplot(x="mechanism", y="workload", hue="interface", data=self.df)
         plt.ylabel("Workload [0-100]")
-        # plt.xlabel("p = " + '%.5f' % self.statistics_values['workload']['mechanism']['p'])
-        plt.xlabel("p = " + '%.4f' % 0.0103)
+        plt.xlabel("p = " + '%.6f' % self.statistics_values['workload']['mechanism']['p'])
+        # plt.xlabel("p = " + '%.4f' % 0.0103)
 
         ax.legend_.set_title("")
         ax.legend_.remove()
@@ -2032,7 +2083,7 @@ class DataAnalysis(object):
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+    # data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
     # data_analysis.plotTrainingTime()
     # data_analysis.plotBackgroundInfo()
