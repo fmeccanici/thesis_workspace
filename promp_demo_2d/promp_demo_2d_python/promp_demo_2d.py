@@ -49,15 +49,15 @@ class PrompDemo2D():
         if key == Key.up:
             print("Pressed up")
             if self.mode == 1:
-                self.a = 15
+                self.a = 150
             elif self.mode == 0:
-                self.a = 30
+                self.a = 300
         elif key == Key.down:
             print("Pressed down")
             if self.mode == 1:
-                self.a = -15
+                self.a = -150
             elif self.mode == 0:
-                self.a = -30
+                self.a = -300
 
     def on_release(self, key):
         if key == Key.up:

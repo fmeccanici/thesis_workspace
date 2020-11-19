@@ -13,6 +13,8 @@ import random
 import numpy as np
 
 from promp_demo_2d_python.promp_demo_2d import PrompDemo2D 
+from matplotlib.patches import Ellipse
+
 # class that enables multithreading with Qt
 class Worker(QRunnable):
     '''
@@ -56,8 +58,8 @@ class Demo2dGUI(QMainWindow):
         ####### Set up plot #########
         self.min_x = 0
         self.max_x = 4
-        self.min_y = -2
-        self.max_y = 2
+        self.min_y = -10
+        self.max_y = 10
 
         self.figure, self.ax = plt.subplots()
         self.lines1, = self.ax.plot([],[], 'r', zorder=0, linewidth=5)
@@ -67,8 +69,13 @@ class Demo2dGUI(QMainWindow):
         self.ax.set_autoscaley_on(True)
         self.ax.set_xlim(self.min_x, self.max_x)
         self.ax.set_ylim(self.min_y, self.max_y)
-        self.ax.set_ylabel("y")
-        self.ax.set_xlabel("x")
+        self.ax.set_ylabel("y position [-]", fontsize=50)
+        self.ax.set_xlabel("x position [-]", fontsize=50)
+        
+        plt.xticks([0, 2, 4], fontsize=40)
+        plt.yticks([-20, -10, 0, 10, 20], fontsize=40)
+        plt.margins(0,0)
+        plt.tight_layout()
 
         #Other stuff
         self.ax.grid()
@@ -239,11 +246,11 @@ class Demo2dGUI(QMainWindow):
         _translate = QCoreApplication.translate
         self.groupBox.setTitle(_translate("MainWindow", "Plot"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Learning from Demonstration"))
-        self.lineEdit_3.setText(_translate("MainWindow", "-1"))
+        self.lineEdit_3.setText(_translate("MainWindow", "-10"))
         self.label_3.setText(_translate("MainWindow", "y1"))
         self.radioButton_6.setText(_translate("MainWindow", "No obstacle"))
         self.label_4.setText(_translate("MainWindow", "y2"))
-        self.lineEdit_4.setText(_translate("MainWindow", "1"))
+        self.lineEdit_4.setText(_translate("MainWindow", "10"))
         self.radioButton_7.setText(_translate("MainWindow", "Obstacle"))
         self.pushButton_3.setText(_translate("MainWindow", "Predict"))
         self.pushButton_5.setText(_translate("MainWindow", "Set context"))
@@ -316,27 +323,30 @@ class Demo2dGUI(QMainWindow):
 
         self.lineEdit_4.setText(str(y1))
         self.lineEdit_3.setText(str(y2))
-
+    
     def add_geometries(self):
         for geometry in self.geometries:
             geometry.remove()
         self.geometries = []
         
         t_plot = self.promp_demo_2d.t[20]
-        y_plot = -1.0
+        y_plot = -10.0
         context1 = [2.0, self.context[0]]
         context2 = [3.6, self.context[1]]
         
-        diameter = 0.1
+        diameter = 0.5
 
-        circle1 = plt.Circle((context1[0], context1[1]), diameter, color='b', fill=False, linewidth=2)
-        circle2 = plt.Circle((context2[0], context2[1]), diameter, color='b', fill=False, linewidth=2)   
+        # circle1 = plt.Circle((context1[0], context1[1]), diameter, color='b', fill=False, linewidth=2)
+        circle1 = Ellipse((context1[0], context1[1]), 0.5, 5, color='b', fill=False, linewidth=5)
+
+        # circle2 = plt.Circle((context2[0], context2[1]), diameter, color='b', fill=False, linewidth=2)   
+        circle2 = Ellipse((context2[0], context2[1]), 0.5, 5, color='b', fill=False, linewidth=5)   
 
         self.geometries.append(circle1)
         self.geometries.append(circle2)
 
         if self.radioButton_7.isChecked():
-            obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 2, linewidth=1, fill=True)
+            obstacle = plt.Rectangle((t_plot, y_plot), 0.5, 20, linewidth=1, fill=True)
             self.geometries.append(obstacle)
         
         elif self.radioButton_6.isChecked():
@@ -345,6 +355,7 @@ class Demo2dGUI(QMainWindow):
         for geometry in self.geometries:
             self.ax.add_artist(geometry)
             print("Added " + str(geometry))
+    
     
     def clear_plot(self):
         for geometry in self.geometries:

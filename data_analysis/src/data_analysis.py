@@ -189,16 +189,19 @@ class DataAnalysis(object):
     
     def plotMethodOpinions(self):
         plt.figure()
-        plt.title("Method that was liked the most")
-        plt.ylabel('Amount of participants')
+        # plt.title("Method that was liked the most")
+        plt.ylabel('Amount of participants [-]', fontsize=20)
 
         best_methods = list(self.best_methods.values())
         online_omni = best_methods.count('online+omni')            
         online_keyboard = best_methods.count('online+keyboard')            
         offline_omni = best_methods.count('offline+omni')            
         offline_keyboard = best_methods.count('offline+keyboard') 
-        plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [online_omni, online_keyboard, offline_omni, offline_keyboard])           
-        plt.savefig('method_opinion.png')
+        plt.bar(['OnOm', 'OnKey', 'OffOm', 'OffKey'], [online_omni, online_keyboard, offline_omni, offline_keyboard])           
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
+        plt.tight_layout()
+        plt.savefig('method_opinion.pdf')
 
     def plotTrainingTime(self):
         training_time_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['training_time']
@@ -214,9 +217,11 @@ class DataAnalysis(object):
         ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 
         # plt.xlabel("online + omni")
-        plt.ylabel("Training time [s]")
+        plt.ylabel("Training time [s]", fontsize=20)
         plt.ylim([0, 1500])
-
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
+        plt.xlabel("")
         # plt.subplot(2, 2, 2)
         # sns.boxplot(x=training_time_offline_omni, orient='v')
         # plt.xlabel("offline + omni")
@@ -1340,6 +1345,8 @@ class DataAnalysis(object):
         plt.savefig('age_methods.pdf')
 
     def plotNumberOfUpdates(self):
+        
+        self.useValidParticipants()
 
         binwidth = 1
 
@@ -1408,11 +1415,14 @@ class DataAnalysis(object):
 
         # per method
         fig = plt.figure()
-        plt.suptitle("Number of updates needed to adapt the model")
+        # plt.suptitle("Number of updates needed to adapt the model")
         plt.subplot(2,2,1)
-        plt.xlabel("Amount [-]")
-        plt.ylabel("Occurence [-]")
-        plt.title("Online + Omni")
+        plt.xlabel("Updates [-]", fontsize=20)
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
+        plt.title("OnOm", fontsize=20)
         number_of_updates_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni')]['number_of_updates']
         print("online+omni median number of updates = " + str(np.median(list(number_of_updates_online_omni))))
         print("online+omni 25 percentile number of updates = " + str(np.percentile(list(number_of_updates_online_omni), 25)))
@@ -1425,9 +1435,12 @@ class DataAnalysis(object):
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         plt.subplot(2,2,2)
-        plt.xlabel("Amount [-]")
-        plt.ylabel("Occurence [-]")
-        plt.title("Online + Keyboard")
+        plt.xlabel("Updates [-]", fontsize=20)
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.title("OnKey", fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
 
         number_of_updates_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard')]['number_of_updates']
         print("online+keyboard median number of updates = " + str(np.median(list(number_of_updates_online_keyboard))))
@@ -1440,9 +1453,11 @@ class DataAnalysis(object):
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         plt.subplot(2,2,3)
-        plt.ylabel("Occurence")
-        plt.xlabel("Amount of updates")
-        plt.title("Offline + Omni")
+        plt.ylabel("Occurence", fontsize=20)
+        plt.xlabel("Updates [-]", fontsize=20)
+        plt.title("OffOm", fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
 
         number_of_updates_offline_omni = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni')]['number_of_updates']
         print("offline+omni median number of updates = " + str(np.median(list(number_of_updates_offline_omni))))
@@ -1455,9 +1470,12 @@ class DataAnalysis(object):
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         plt.subplot(2,2,4)
-        plt.ylabel("Occurence")
-        plt.xlabel("Amount of updates")
-        plt.title("Offline + Keyboard")
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.xlabel("Updates [-]", fontsize=20)
+        plt.title("OffKey", fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         number_of_updates_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard')]['number_of_updates']
         print("offline+keyboard median number of updates = " + str(np.median(list(number_of_updates_offline_keyboard))))
         print("offline+keyboard 25 percentile number of updates = " + str(np.percentile(list(number_of_updates_offline_keyboard), 25)))
@@ -1475,6 +1493,8 @@ class DataAnalysis(object):
 
     def plotNumberOfRefinements(self):
 
+        self.useValidParticipants()
+
         binwidth = 1
 
         # keyboard/omni & online/offline 
@@ -1489,6 +1509,9 @@ class DataAnalysis(object):
         plt.title("Omni")
         plt.xlabel("Amount [-]")
         plt.ylabel("Occurence [-]")
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         data = number_of_refinements_omni
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -1498,6 +1521,9 @@ class DataAnalysis(object):
         plt.title("Keyboard")
         plt.xlabel("Amount [-]")
         plt.ylabel("Occurence [-]")
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         data = number_of_refinements_keyboard
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -1521,6 +1547,9 @@ class DataAnalysis(object):
         plt.xlabel("Amount [-]")
         plt.ylabel("Occurence [-]")
         plt.ylim([0, 30])
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         data = number_of_refinements_online
         x = range(min(data), max(data) + 1)
         plt.xticks(x)
@@ -1530,6 +1559,9 @@ class DataAnalysis(object):
         plt.title("Offline")
         plt.xlabel("Amount [-]")
         plt.ylabel("Occurence [-]")
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         plt.ylim([0, 30])
         data = number_of_refinements_offline
         x = range(min(data), max(data) + 1)
@@ -1542,11 +1574,14 @@ class DataAnalysis(object):
         plt.savefig('number_of_refinements_mechanism.pdf')
     
         fig = plt.figure()
-        plt.suptitle("Number of refinements needed to adapt the model")
+        # plt.suptitle("Number of refinements needed to adapt the model")
         plt.subplot(2,2,1)
-        plt.xlabel("Amount [-]")
-        plt.ylabel("Occurence [-]")
-        plt.title("Online + Omni")
+        plt.xlabel("Refinements [-]", fontsize=20)
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.title("OnOm", fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         number_of_refinements_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni')]['number_of_refinements']
         print("online+omni median number of refinements = " + str(np.median(list(number_of_refinements_online_omni))))
         print("online+omni 25 percentile number of refinements = " + str(np.percentile(list(number_of_refinements_online_omni), 25)))
@@ -1561,9 +1596,12 @@ class DataAnalysis(object):
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         plt.subplot(2,2,2)
-        plt.xlabel("Amount [-]")
-        plt.ylabel("Occurence [-]")
-        plt.title("Online + Keyboard")
+        plt.xlabel("Refinements [-]", fontsize=20)
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.title("OnKey", fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+
         plt.ylim([0, 20])
         number_of_refinements_online_keyboard = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'keyboard')]['number_of_refinements']
         print("online+keyboard median number of refinements = " + str(np.median(list(number_of_refinements_online_keyboard))))
@@ -1576,10 +1614,12 @@ class DataAnalysis(object):
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
         
         plt.subplot(2,2,3)
-        plt.xlabel("Amount [-]")
-        plt.ylabel("Occurence [-]")
-        plt.title("Offline + Omni")
+        plt.xlabel("Refinements [-]", fontsize=20)
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.title("OffOm", fontsize=20)
         plt.ylim([0, 20])
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
 
         number_of_refinements_offline_omni = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'omni')]['number_of_refinements']
         print("offline+omni median number of refinements = " + str(np.median(list(number_of_refinements_offline_omni))))
@@ -1592,10 +1632,12 @@ class DataAnalysis(object):
         plt.hist(x=data, bins=np.arange(min(data) - binwidth/2, max(data) + binwidth, binwidth))
 
         plt.subplot(2,2,4)
-        plt.xlabel("Amount [-]")
-        plt.ylabel("Occurence [-]")
-        plt.title("Offline + Keyboard")
+        plt.xlabel("Refinements [-]", fontsize=20)
+        plt.ylabel("Occurence [-]", fontsize=20)
+        plt.title("OffKey", fontsize=20)
         plt.ylim([0, 20])
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
 
         number_of_refinements_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard')]['number_of_refinements']
         print("offline+keyboard median number of refinements = " + str(np.median(list(number_of_refinements_offline_keyboard))))
@@ -1810,62 +1852,87 @@ class DataAnalysis(object):
         print("t = " + str(self.statistics_values['workload']['interface']['t'])) 
 
     def plotDistributions(self):
+
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+        
+        workload_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['model'] == '1')]['workload']
+        workload_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['model'] == '1')]['workload']
+
+        workload_online = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['model'] == '1')]['workload']
+        workload_offline = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['model'] == '1')]['workload']
+
+        self.useValidParticipants()
+
         refinement_time_omni = self.df.loc[self.df['interface'] == 'omni']['refinement_time']
         refinement_time_keyboard = self.df.loc[self.df['interface'] == 'keyboard']['refinement_time']
         
         refinement_time_online = self.df.loc[self.df['mechanism'] == 'online']['refinement_time']
         refinement_time_offline = self.df.loc[self.df['mechanism'] == 'offline']['refinement_time']
 
-        workload_omni = self.df.loc[self.df['interface'] == 'omni']['workload']
-        workload_keyboard = self.df.loc[self.df['interface'] == 'keyboard']['workload']
-
-        workload_online = self.df.loc[self.df['mechanism'] == 'online']['workload']
-        workload_offline = self.df.loc[self.df['mechanism'] == 'offline']['workload']
-
         plt.figure()
-        plt.suptitle("Refinement time")
+
+        ax = plt.gca()
+
+        # plt.suptitle("Refinement time")
 
         plt.subplot(2,2,1)
-        plt.title("Omni")
-        refinement_time_omni.hist()
+        plt.title("Omni", fontsize=30)
+        refinement_time_omni.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
 
         plt.subplot(2,2,2)
-        plt.title("Keyboard")
-        refinement_time_keyboard.hist()
-
+        plt.title("Keyboard", fontsize=30)
+        refinement_time_keyboard.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
+        
         plt.subplot(2,2,3)
-        plt.title("Online")
-        refinement_time_online.hist()
-
+        plt.title("Online", fontsize=30)
+        refinement_time_online.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
+        
         plt.subplot(2,2,4)
-        plt.title("Offline")
-        refinement_time_offline.hist()
+        plt.title("Offline", fontsize=30)
+        refinement_time_offline.hist(grid=False)
 
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
         plt.tight_layout(h_pad=2)
 
-        plt.savefig('distributions_refinement_time.png')
+        plt.savefig('distributions_refinement_time.pdf')
 
         plt.figure()
-        plt.suptitle("Workload")
+        # plt.suptitle("Workload")
         
         plt.subplot(2,2,1)
-        plt.title("Omni")
-        workload_omni.hist()
+        plt.title("Omni", fontsize=30)
+        workload_omni.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
         
         plt.subplot(2,2,2)
-        plt.title("Keyboard")
-        workload_keyboard.hist()
+        plt.title("Keyboard", fontsize=30)
+        workload_keyboard.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
 
         plt.subplot(2,2,3)
-        plt.title("Online")
-        workload_online.hist()
+        plt.title("Online", fontsize=30)
+        workload_online.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
 
         plt.subplot(2,2,4)
-        plt.title("Offline")
-        workload_offline.hist()
-        
+        plt.title("Offline", fontsize=30)
+        workload_offline.hist(grid=False)
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
+
         plt.tight_layout(h_pad=2)
-        plt.savefig('distributions_workload.png')
+        plt.savefig('distributions_workload.pdf')
     
     def plotAndSaveRefinementTimeAndWorkload(self):
         self.rows_list = []
@@ -2066,9 +2133,12 @@ class DataAnalysis(object):
         adapted_models_offline_keyboard = self.df.loc[(self.df['mechanism'] == 'offline') & (self.df['interface'] == 'keyboard') & (self.df['is_adapted'] == True)]
 
         plt.figure()
-        plt.title("Adapted models")
-        plt.bar(['online+omni', 'online+keyboard', 'offline+omni', 'offline+keyboard'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
-        plt.savefig('adapted_models.png')
+        # plt.title("Adapted models")
+        plt.bar(['OnOm', 'OnKey', 'OffOm', 'OffKey'], [len(adapted_models_online_omni), len(adapted_models_online_keyboard), len(adapted_models_offline_omni), len(adapted_models_offline_keyboard)])
+        plt.xticks(fontsize=20, rotation=30)
+        plt.yticks(fontsize=20)
+        plt.tight_layout()
+        plt.savefig('adapted_models.pdf')
 
     def plotRefinementTimePerModel(self):
         self.rows_list = []
@@ -2076,14 +2146,18 @@ class DataAnalysis(object):
         self.useValidParticipants()
 
         ax = sns.boxplot(data=self.df, x='method', y='refinement_time', hue='model')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+        ax.set_xticklabels(ax.get_xticklabels(), fontsize=20, rotation=30)
         plt.xlabel("")
-        plt.ylabel("Refinement time [s]")
+        plt.ylabel("Refinement time [s]", fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.legend(fontsize=20)
+        plt.tight_layout()
+ 
         plt.savefig('learning_effect.pdf')
 
 if __name__ == "__main__":
     data_analysis = DataAnalysis()
-    # data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+    data_analysis.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
     # data_analysis.plotTrainingTime()
     # data_analysis.plotBackgroundInfo()
@@ -2093,9 +2167,9 @@ if __name__ == "__main__":
     # print("Workload values are only valid (no nans in refinement time dropped)")
     # print("Also checking for normality and amount of successfully adapted models is valid here")
     # data_analysis.useValidParticipants()
-    data_analysis.calculateAndStoreTtestValues()
+    # data_analysis.calculateAndStoreTtestValues()
     # data_analysis.getTopScore()
-    data_analysis.printStatisticValues()
+    # data_analysis.printStatisticValues()
     
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
     # data_analysis.plotDistributions()
@@ -2110,10 +2184,10 @@ if __name__ == "__main__":
     # data_analysis.plotDistributions()
     # data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
-    # # plt.show()
+    # plt.show()
     # data_analysis.plotNumberOfUpdates()
     # data_analysis.plotNumberOfRefinements()
-    # data_analysis.plotMethodOpinions()
+    data_analysis.plotMethodOpinions()
 
 
     # data_analysis.calculateStatisticsValuesAndPlotBackgroundInfo()
