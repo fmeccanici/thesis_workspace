@@ -1827,7 +1827,38 @@ class DataAnalysis(object):
         # refinement_time_low_teleop_experience_omni = list(self.df.loc[(self.df['high_teleop_experience'] == False) & (self.df['interface'] == 'omni')].sort_values(by = ['model', 'interface'])['refinement_time'])
         # t, p = wilcoxon(refinement_time_high_teleop_experience_omni, refinement_time_low_teleop_experience_omni, alternative='less')
         # print(p)
+        
+        self.rows_list = []
+        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
+        workload_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')].sort_values(by = ['model', 'mechanism'])['workload']
+        workload_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')].sort_values(by = ['model', 'mechanism'])['workload']
+
+        self.useValidParticipants()
+        refinement_time_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')].sort_values(by = ['model', 'mechanism'])['refinement_time']
+        refinement_time_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')].sort_values(by = ['model', 'mechanism'])['refinement_time']
+
+        print()
+        print("P values per method")
+        t, p = wilcoxon(refinement_time_offline_omni, refinement_time_offline_keyboard, alternative='less')
+        print(p)
+
+        t, p = wilcoxon(workload_offline_omni, workload_offline_keyboard, alternative='less')
+        print(p)
+
+        t, p = wilcoxon(refinement_time_online_omni, refinement_time_offline_omni, alternative='less')
+        print(p)
+
+        t, p = wilcoxon(refinement_time_online_omni, refinement_time_online_keyboard, alternative='less')
+        print(p)
+
+        t, p = wilcoxon(refinement_time_online_omni, refinement_time_offline_keyboard, alternative='less')
+        print(p)
+        
 
 
     def printStatisticValues(self):
@@ -2150,7 +2181,7 @@ class DataAnalysis(object):
         plt.xlabel("")
         plt.ylabel("Refinement time [s]", fontsize=20)
         plt.yticks(fontsize=20)
-        plt.legend(fontsize=20)
+        plt.legend(title="model", title_fontsize=20, fontsize=20)
         plt.tight_layout()
  
         plt.savefig('learning_effect.pdf')
@@ -2187,7 +2218,7 @@ if __name__ == "__main__":
     # plt.show()
     # data_analysis.plotNumberOfUpdates()
     # data_analysis.plotNumberOfRefinements()
-    data_analysis.plotMethodOpinions()
+    # data_analysis.plotMethodOpinions()
 
 
     # data_analysis.calculateStatisticsValuesAndPlotBackgroundInfo()
@@ -2195,4 +2226,4 @@ if __name__ == "__main__":
     # data_analysis.plotTechnicalNonTechnical()
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
     # data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
-    # data_analysis.plotRefinementTimePerModel()
+    data_analysis.plotRefinementTimePerModel()
