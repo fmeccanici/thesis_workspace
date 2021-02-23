@@ -162,5 +162,6 @@ Place and interpolate waypoints using the keyboard, see [2].
 Used in the human factors experiment to determine when a trajectory is a failure and visualize this. Object not reached, kicked over or collision with environment. To detect collision, inside the docker you need to add a contact sensor plugin to publish the collision (see fmeccanici/contact_sensor).
 
 # References
-[1]: Incremental imitation learning of context-dependent motor skills, Ewerton et al.
+[1]: Incremental imitation learning of context-dependent motor skills, Ewerton et al. 
+
 [2]: Teleoperated online Learning from Demonstration in a partly unknown environment, Floris Meccanici
