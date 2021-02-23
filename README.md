@@ -1,5 +1,5 @@
 # Thesis workspace
-This is the src folder of the ROS workspace used in my thesis. In this README, small descriptions of the most important packages are given. The Conditioned-ProMP and online learning framework are implemented according to [1], so you should reference this paper when reading the code. This thesis is written to work within the HIT Docker, and changes should be made inside this docker to make it work. The telemanip_master and telemanip_slave from within this GIT repository should be copied inside the docker, or put in a ROS workspace and sourced. 
+This is the src folder of the ROS workspace used in my thesis. In this README, small descriptions of the most important packages are given. The Conditioned-ProMP and online learning framework are implemented according to [1], so you should reference this paper when reading the code. This thesis is written to work within the HIT Docker, and changes should be made inside this docker to make it work. The marco_docker folder from within this GIT repository contains marco_ws and marco_cockpit, which should be build and source from within the docker. My thesis ([2]) can be found on the TU Delft repository. 
 
 ## promp_context_ros
 This contains the code for the Conditioned Probabilistic Movement Primitives, where condition is called context in the code. This class is able to set the input/output names (input=condition), add demonstrations and generate a trajectory using a new context. Adding demonstrations can be done normally, by appending the weight matrix, or by using Welford's method for updating the covariance matrix incrementally.
@@ -123,6 +123,7 @@ if __name__ == "__main__":
     model_tester3 = ModelTest(1, 3, 5)
     model_tester3.generate_plots(case='linear')
 ```
+
 ## learning_from_demonstration
 This contains the code for applying learning from demonstration using Conditioned Probabilistic Movement Primitives (C-ProMP) on the robot. The ROS node contains services to create an initial model, add demonstrations and make predictions from other ROS nodes. The Python packages inside the src folder contain all the logic that enables LfD, such as Dynamic Time Warping and trajectory resampling. The learning_from_demonstration.py file contains a high level usage of the C-ProMP package, that enables learning from demonstration on this specific robot. 
 
@@ -136,5 +137,30 @@ This package contains all the nodes used to run the human factors experiment. Yo
 ## nasa_tlx
 GUI used for the participants to fill in the Nasa TLX questionaire and calculate the workload. 
 
+## dishwasher_* packages
+Used to make a dishwasher robot, where the upper basket can be controlled. In the end this is not used as it was a hassle to make two robots work at the same time. 
+
+## trajectory_visualizer
+Used by other nodes to visualize trajectories, which is also used in the experiment to make the red and green trajectories.
+
+## welford
+Updates mean and covariance with a new data sample.
+
+## rviz_python
+Used to show RViz within the GUI. 
+
+## aruco_ros
+Aruco marker detection.
+
+## data_analysis
+Data analysis code used after the human factors experiment, contains statistical analyses. 
+
+## teach_pendant
+Place and interpolate waypoints using the keyboard, see [2].
+
+## execution_failure_detection
+Used in the human factors experiment to determine when a trajectory is a failure and visualize this. Object not reached, kicked over or collision with environment. To detect collision, inside the docker you need to add a contact sensor plugin to publish the collision (see fmeccanici/contact_sensor).
+
 # References
 [1]: Incremental imitation learning of context-dependent motor skills, Ewerton et al.
+[2]: Teleoperated online Learning from Demonstration in a partly unknown environment, Floris Meccanici
