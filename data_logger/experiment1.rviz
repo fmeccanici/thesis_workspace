@@ -124,7 +124,7 @@ Visualization Manager:
         object_wrt_reaching_ellipsoid:
           Value: false 
         object:
-          Value: true
+          Value: false
         collision_ellipsoid:
           Value: false
         reaching_ellipsoid:

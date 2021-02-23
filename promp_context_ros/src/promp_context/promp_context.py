@@ -10,24 +10,7 @@ class ProMPContext(object):
 
     def __init__(self, output_name, context_names, num_basis=11, sigma=0.05, num_samples=100):
         
-        # self.variables = variable_names
-        # self.outputs = []
-        # self.outputs_ix = []
 
-        # self.contexts = []
-        # self.contexts_ix = []
-
-        # # detect contexts
-        # for i, j in enumerate(self.variables):
-
-        #     # if string starts with c we know it is a context
-        #     if j[0] == 'c':
-        #         self.contexts.append(j)
-        #         self.contexts_ix.append(i)
-        #     # else its an output variable of the trajectory
-        #     else:
-        #         self.outputs.append(j)
-        #         self.outputs_ix.append(i)
         self.output_name = [output_name]
         self.context_names = context_names
         self.num_outputs = len(self.output_name)
@@ -39,10 +22,7 @@ class ProMPContext(object):
         self.sigma = sigma
         self.sigmaSignal = float('inf')  # Noise of signal (float)
         
-        ## basis function matrix as function of x (using lambda)
         self.centers = np.arange(0, self.num_basis)/(self.num_basis - 1.0)
-        # self.Phi = np.exp(-.5 * (np.array(map(lambda x: x - self.centers, np.tile(self.x, (self.num_basis, 1)).T)).T ** 2 
-        #                             / (self.sigma ** 2)))
 
         self.phi = np.exp(-0.5 * (np.array(list(map(lambda x: x - self.centers, np.tile(self.x, (self.num_basis, 1)).T))).T ** 2
                                   / self.sigma**2))
@@ -54,15 +34,12 @@ class ProMPContext(object):
         # normalize
         self.Phi /= sum(self.Phi)
 
-        # viapoints
-        self.viapoints = []
-
         # weights
         self.W = np.array([])
         self.mean_w = None
         self.sigma_ww = None
 
-        # contexts
+        # contexts = conditions
         self.C = np.array([])
         self.mean_c = None
         self.sigma_cc = None
@@ -71,128 +48,16 @@ class ProMPContext(object):
         self.sigma_wc = None
         self.sigma_cw = None
 
-
         self.nr_traj = 0
 
         self.Y = np.empty((0, self.num_samples), float)
         self.C = np.empty((0, self.num_contexts), float)
 
-        self.figs = ["demonstrations_fig", "mean_variance_fig", "welford_generated", "welford_update"]
-        self.plot_counter = 0
 
     def save_plots(self):
-        plt.figure(self.figs[0])
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/added_trajectories_building_Phi_matrix.png', bbox_extra_artists=(self.lgd,), bbox_inches='tight')
-        # plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/added_trajectories_building_Phi_matrix.png')
+        pass
+        # used in other code so kept this function
 
-        plt.figure(self.figs[1])
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/mean_variance.png')
-        plt.figure(self.figs[2])
-        plt.savefig('/home/fmeccanici/Documents/thesis/figures/debug_refinement/welford.png')
-
-    def rls_update(self, demonstration):
-        
-        trajectory = demonstration[0]
-        context = demonstration[1]
-        trajectory = np.array(trajectory).T
-
-        if len(trajectory) != self.num_outputs:
-            raise ValueError("The given demonstration has {} outputs while num_outputs={}".format(len(trajectory), self.num_outputs))
-
-        self.nr_traj += 1
-
-        # first we calculate the weights
-        # according to Ewerton et al.
-        for variable_idx, variable in enumerate(trajectory):
-
-            # interpolate to fit the Phi matrix
-            interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
-            
-            # name convention from Ewerton et al.
-            tau = interpolate(self.x)
-
-            # calculate weights of Mth demonstration: refinement
-            # (size N, N=num_basis, M=num_demonstrations)
-            # do it with recursive least squares
-            rls = FilterRLS(n=self.num_basis, w = "zeros")
-            y, e, self.W = rls.run(tau, self.Phi)
-
-
-            c_M = context
-
-
-            x = np.append(w_M, c_M)
-
-            # print("mean_before = " + str((self.mean_w)))
-            # print("mean_total_before = " + str((self.mean_total)))
-
-            # do a welford update step and update the mean and variance
-            print("Number of trajectories = " + str(self.nr_traj))
-            N = self.nr_traj
-            # N = 2
-
-            welford = Welford(N=N, Mean=self.mean_total, Sigma=self.sigma_total)
-            mean_total, sigma_total = welford.update(x)
-
-            self.mean_total = mean_total
-            self.sigma_total = sigma_total
-
-            self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
-            self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
-            self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
-            self.sigma_cc = self.sigma_total[self.num_basis:, self.num_basis:] 
-
-            self.mean_w = self.mean_total[:self.num_basis] 
-            self.mean_c = self.mean_total[self.num_basis:] 
-
-    def recursive_update(self):
-        trajectory = demonstration[0]
-        context = demonstration[1]
-        trajectory = np.array(trajectory).T
-        if len(trajectory) != self.num_outputs:
-            raise ValueError("The given demonstration has {} outputs while num_outputs={}".format(len(trajectory), self.num_outputs))
-
-        self.nr_traj += 1
-        # loop over variables
-        for variable_idx, variable in enumerate(trajectory):
-
-            # interpolate to fit the Phi matrix
-            interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
-            
-            # name convention from Ewerton et al.
-            tau = interpolate(self.x)
-            # w_M = 
-            # calculate weights of Mth demonstration: refinement
-            # (size N, N=num_basis, M=num_demonstrations)
-            w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T
-            c_M = context
-
-            x = np.append(w_M, c_M)
-
-            # do a welford update step and update the mean and variance
-            print("Number of trajectories = " + str(self.nr_traj))
-            N = self.nr_traj
-            # N = 2
-
-            welford = Welford(N=N, Mean=self.mean_total, Sigma=self.sigma_total, alpha=alpha)
-
-            if amount > 1:
-                for i in range(amount):
-                    mean_total, sigma_total = welford.update(x)
-            else: 
-                mean_total, sigma_total = welford.update(x)
-
-            self.mean_total = mean_total
-            self.sigma_total = sigma_total
-
-            self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
-            self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
-            self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
-            self.sigma_cc = self.sigma_total[self.num_basis:, self.num_basis:] 
-
-            self.mean_w = self.mean_total[:self.num_basis] 
-            self.mean_c = self.mean_total[self.num_basis:] 
-            
     # welford update where x = [w_M, c_M]
     # thus containing the weights and context of the refined trajectory
     def welford_update(self, demonstration, amount=1, alpha=0.0):
@@ -215,26 +80,6 @@ class ProMPContext(object):
             # name convention from Ewerton et al.
             tau = interpolate(self.x)
 
-            if self.output_name[0] == 'ee_x':
-
-                fig = plt.figure(self.figs[3])
-                # print("stretched = " + str(tau))
-                plt.title("Demonstrations used for Welford update: No demo's = " + str(self.nr_traj))
-                plt.plot(self.x, tau, label = 'context = ' + str(context))
-                plt.xlabel("datapoint [-]")
-                plt.ylabel("position [m]")
-                plt.grid()
-                
-                # if self.plot_counter == 0:
-                ax = fig.add_subplot(111)
-                self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
-                
-            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/' + str(self.output_name[0]) + '.txt', 'a') as f:
-                f.write(str(list(tau)) + '&')
-            
-            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/x.txt', 'a') as f:
-                f.write(str(list(self.x)) + '&')
-
             # calculate weights of Mth demonstration: refinement
             # (size N, N=num_basis, M=num_demonstrations)
             w_M = np.dot(np.linalg.inv(np.dot(self.Phi, self.Phi.T)), np.dot(self.Phi, tau)).T
@@ -257,7 +102,7 @@ class ProMPContext(object):
 
             self.mean_total = mean_total
             self.sigma_total = sigma_total
-            # print(self.sigma_total.shape)
+
             self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
             self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
             self.sigma_wc = self.sigma_total[:self.num_basis:, self.num_basis:]
@@ -285,27 +130,6 @@ class ProMPContext(object):
             interpolate = interp1d(np.linspace(0, 1, len(trajectory[variable_idx, :])), trajectory[variable_idx, :], kind='cubic')
             stretched_demo = interpolate(self.x)
 
-            if self.output_name[0] == 'ee_x':
-
-                fig = plt.figure(self.figs[0])
-                # print("stretched = " + str(stretched_demo))
-                plt.title("Demonstrations used for Phi matrix: No demo's = " + str(self.nr_traj))
-                plt.plot(self.x, stretched_demo, label = 'context = ' + str(context))
-                plt.xlabel("datapoint [-]")
-                plt.ylabel("position [m]")
-                plt.grid()
-
-                # if self.plot_counter == 0:
-                ax = fig.add_subplot(111)
-                self.lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.1))
-
-                # self.plot_counter += 1
-            
-            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/' + str(self.output_name[0]) + '.txt', 'a') as f:
-                f.write(str(list(stretched_demo)) + '&')
-            
-            with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/x.txt', 'a') as f:
-                f.write(str(list(self.x)) + '&')
             # stack Y matrix vertically with this variable
             self.Y = np.vstack((self.Y, stretched_demo))
 
@@ -316,11 +140,8 @@ class ProMPContext(object):
             
         if self.nr_traj > 1:
             # we can only calculate covariance if we have 2 or more demonstrations
-            # print("C = " + str(self.C))
-            # print("W = " + str(self.W))
 
             self.sigma_total = np.cov(self.W, self.C, rowvar=0)
-            # print("sigma_total = " + str(self.sigma_total))
 
             self.sigma_ww = self.sigma_total[:self.num_basis, :self.num_basis]
             self.sigma_cw = self.sigma_total[self.num_basis:, :self.num_basis]
@@ -330,13 +151,6 @@ class ProMPContext(object):
             
             self.mean_w = np.mean(self.W, 0)                                                            
             self.mean_c = np.mean(self.C, 0)
-
-            # print("sigma_cc = " + str(self.sigma_cc))
-            # print("sigma_ww = " + str(self.sigma_ww))
-            # print("sigma_wc = " + str(self.sigma_wc))
-            # print("sigma_cw = " + str(self.sigma_cw))
-            # print("mean_w = " + str(self.mean_w))
-            # print("mean_c = " + str(self.mean_c))
             
             self.mean_total = np.append(self.mean_w, self.mean_c)
 
@@ -350,9 +164,7 @@ class ProMPContext(object):
         print("Number of trajectories = " + str(self.nr_traj))
 
     def generate_trajectory(self, context):
-        # print("mean_w_after = " + str((self.mean_w)))
-        # print("mean_total_after = " + str((self.mean_total)))
-                
+
         # noise preventing the matrix Sigma_cc to be singular
         noise = np.eye(self.sigma_cc.shape[0]) * self.sigma
 
@@ -370,20 +182,6 @@ class ProMPContext(object):
         sigma_traj_given_c = np.dot(self.sigma ** 2, np.eye(self.num_samples)) + np.dot(np.dot(self.Phi.T, sigma_w_given_c), self.Phi)
     
         p_traj_given_c = np.random.multivariate_normal(mu_traj_given_c, sigma_traj_given_c)
-
-        # try:
-        #     if self.output_name[0][3] != 'q':
-        #         plt.figure(self.figs[2])
-        #         plt.plot(mu_traj_given_c)
-        #         plt.title('Generated trajectory after Welford')
-        #         plt.xlabel("datapoint [-]")
-        #         plt.ylabel("position [m]")
-        #         plt.grid()
-        # except: pass
-        # if self.output_name[0] == 'ee_x':
-
-        with open('/home/fmeccanici/Documents/thesis/thesis_workspace/src/learning_from_demonstration/data/debug/prediction_' + str(self.output_name[0]) + '.txt', 'a') as f:
-            f.write(str(list(mu_traj_given_c)) + '&')
             
         return mu_traj_given_c
 
