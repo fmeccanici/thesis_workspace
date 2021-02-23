@@ -1,5 +1,24 @@
 # Thesis workspace
-This is the src folder of the ROS workspace used in my thesis. In this README, small descriptions of the most important packages are given. The Conditioned-ProMP and online learning framework are implemented according to [1], so you should reference this paper when reading the code. This thesis is written to work within the HIT Docker, and changes should be made inside this docker to make it work. The marco_docker folder from within this GIT repository contains marco_ws and marco_cockpit, which should be build and source from within the docker. My thesis ([2]) can be found on the TU Delft repository. 
+This is the src folder of the ROS workspace used in my thesis, [2], which can be found on the TU Delft repository. In this README, small descriptions of the most important packages are given. The Conditioned-ProMP and online learning framework are implemented according to [1], so you should reference this paper when reading the code. This thesis is written to work within the HIT Docker, and changes should be made inside this docker to make it work. The marco_docker folder from within this GIT repository contains marco_ws and marco_cockpit, which should be build and source from within the docker.
+
+There are some packages that are not used, but I did not delete them as they might be used somewhere which I forgot. The packages I am quite sure are not needed are:
+
+dishwasher_control \
+dishwasher_description \
+dishwasher_gazebo \
+dishwasher_texture \
+gazebo_tutorials \
+kitchen_pan \
+locally-weighted-linear-regression \
+marco_launcher \
+marco_model \
+phantom_omni \
+rrbot_control \
+rrbot_description \
+rrbot_gazebo \
+telemanip_master \
+telemanip_slave \
+topic_remapper
 
 ## promp_context_ros
 This contains the code for the Conditioned Probabilistic Movement Primitives, where condition is called context in the code. This class is able to set the input/output names (input=condition), add demonstrations and generate a trajectory using a new context. Adding demonstrations can be done normally, by appending the weight matrix, or by using Welford's method for updating the covariance matrix incrementally.
@@ -158,10 +177,12 @@ Data analysis code used after the human factors experiment, contains statistical
 ## teach_pendant
 Place and interpolate waypoints using the keyboard, see [2].
 
+## keyboard_state_publisher
+Used to publish the keys from the keyboard, so it can be used in the experiment for the teach pendant. 
+
 ## execution_failure_detection
-Used in the human factors experiment to determine when a trajectory is a failure and visualize this. Object not reached, kicked over or collision with environment. To detect collision, inside the docker you need to add a contact sensor plugin to publish the collision (see fmeccanici/contact_sensor).
+Used in the human factors experiment to determine when a trajectory is a failure and visualize this. Object not reached, kicked over or collision with environment. To detect collision, inside the docker you need to add a contact sensor plugin to publish the collision (see contact_sensor package inside this GIT repository).
 
 # References
-[1]: Incremental imitation learning of context-dependent motor skills, Ewerton et al. 
-
+[1]: Incremental imitation learning of context-dependent motor skills, Ewerton et al. \
 [2]: Teleoperated online Learning from Demonstration in a partly unknown environment, Floris Meccanici
