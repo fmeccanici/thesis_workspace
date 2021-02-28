@@ -2000,9 +2000,12 @@ class DataAnalysis(object):
         # plt.title("Refinement time")
         ax = sns.boxplot(x="mechanism", y="refinement_time", hue="interface", data=self.df)
         plt.ylabel("Refinement time [s]")
+        plt.ylim([0, 1300])
         plt.xlabel("p = " + '{:0.2e}'.format(self.statistics_values["refinement_time"]["mechanism"]["p"]))
         # plt.xlabel("p = " + str(p_dummy))
         ax.legend_.set_title("")
+        ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
+
         # ax.legend_.remove()
         # plt.savefig('refinement_time_mechanism.png')
 
@@ -2013,149 +2016,151 @@ class DataAnalysis(object):
         plt.ylabel("Refinement time [s]")
         plt.xlabel("p = " + '%.3f' % self.statistics_values['refinement_time']['interface']['p'])
         # plt.xlabel("p = " + str(0.490))
+        plt.ylim([0, 1300])
 
+        ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
         ax.legend_.set_title("")
 
         plt.tight_layout()
         plt.subplots_adjust(top=0.88)
         plt.savefig('p_values.pdf')
 
-        refinement_time_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['refinement_time']
-        refinement_time_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['refinement_time']
-        refinement_time_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['refinement_time']
-        refinement_time_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['refinement_time']
+        # refinement_time_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['refinement_time']
+        # refinement_time_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['refinement_time']
+        # refinement_time_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['refinement_time']
+        # refinement_time_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['refinement_time']
 
-        workload_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
-        workload_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
-        workload_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
-        workload_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
+        # workload_online_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'online')]['workload']
+        # workload_online_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'online')]['workload']
+        # workload_offline_omni = self.df.loc[(self.df['interface'] == 'omni') & (self.df['mechanism'] == 'offline')]['workload']
+        # workload_offline_keyboard = self.df.loc[(self.df['interface'] == 'keyboard') & (self.df['mechanism'] == 'offline')]['workload']
 
-        fig = plt.figure()
-        plt.suptitle("Refinement time per method")
-        plt.subplot(2,2,1)
-        plt.ylim([0, 1000])
-        plt.xlabel("Online + Omni")
-        plt.ylabel("Refinement time")
+        # fig = plt.figure()
+        # plt.suptitle("Refinement time per method")
+        # plt.subplot(2,2,1)
+        # plt.ylim([0, 1000])
+        # plt.xlabel("Online + Omni")
+        # plt.ylabel("Refinement time")
 
-        print("online+omni median refinement time = " + str(np.median(list(refinement_time_online_omni))))
-        print("online+omni 25 percentile refinement time = " + str(np.percentile(list(refinement_time_online_omni), 25)))
-        print("online+omni 75 percentile refinement time = " + str(np.percentile(list(refinement_time_online_omni), 75)))
+        # print("online+omni median refinement time = " + str(np.median(list(refinement_time_online_omni))))
+        # print("online+omni 25 percentile refinement time = " + str(np.percentile(list(refinement_time_online_omni), 25)))
+        # print("online+omni 75 percentile refinement time = " + str(np.percentile(list(refinement_time_online_omni), 75)))
         
-        sns.boxplot(list(refinement_time_online_omni), orient='v')
+        # sns.boxplot(list(refinement_time_online_omni), orient='v')
 
 
-        plt.subplot(2,2,2)
-        plt.ylim([0, 1000])
-        plt.xlabel("Online + Keyboard")
-        plt.ylabel("Refinement time")
+        # plt.subplot(2,2,2)
+        # plt.ylim([0, 1000])
+        # plt.xlabel("Online + Keyboard")
+        # plt.ylabel("Refinement time")
 
-        print("online+keyboard median refinement time = " + str(np.median(list(refinement_time_online_keyboard))))
-        print("online+keyboard 25 percentile refinement time = " + str(np.percentile(list(refinement_time_online_keyboard), 25)))
-        print("online+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_online_keyboard), 75)))
+        # print("online+keyboard median refinement time = " + str(np.median(list(refinement_time_online_keyboard))))
+        # print("online+keyboard 25 percentile refinement time = " + str(np.percentile(list(refinement_time_online_keyboard), 25)))
+        # print("online+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_online_keyboard), 75)))
         
-        sns.boxplot(list(refinement_time_online_keyboard), orient='v')
+        # sns.boxplot(list(refinement_time_online_keyboard), orient='v')
 
-        plt.subplot(2,2,3)
-        plt.ylim([0, 1000])
-        plt.xlabel("Offline + Omni")
-        plt.ylabel("Refinement time")
+        # plt.subplot(2,2,3)
+        # plt.ylim([0, 1000])
+        # plt.xlabel("Offline + Omni")
+        # plt.ylabel("Refinement time")
 
-        print("offline+omni median refinement time = " + str(np.median(list(refinement_time_offline_omni))))
-        print("offline+omni 25 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_omni), 25)))
-        print("offline+omni 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_omni), 75)))
+        # print("offline+omni median refinement time = " + str(np.median(list(refinement_time_offline_omni))))
+        # print("offline+omni 25 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_omni), 25)))
+        # print("offline+omni 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_omni), 75)))
         
-        sns.boxplot(list(refinement_time_offline_omni), orient='v')
+        # sns.boxplot(list(refinement_time_offline_omni), orient='v')
 
-        plt.subplot(2,2,4)
-        plt.ylim([0, 1000])
-        plt.xlabel("Offline + Keyboard")
-        plt.ylabel("Refinement time")
+        # plt.subplot(2,2,4)
+        # plt.ylim([0, 1000])
+        # plt.xlabel("Offline + Keyboard")
+        # plt.ylabel("Refinement time")
 
-        print("offline+keyboard median = " + str(np.median(list(refinement_time_offline_keyboard))))
-        print("offline+keyboard 25 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 25)))
-        print("offline+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 75)))
+        # print("offline+keyboard median = " + str(np.median(list(refinement_time_offline_keyboard))))
+        # print("offline+keyboard 25 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 25)))
+        # print("offline+keyboard 75 percentile refinement time = " + str(np.percentile(list(refinement_time_offline_keyboard), 75)))
         
-        sns.boxplot(list(refinement_time_offline_keyboard), orient='v')
-        sns.boxplot(data=self.df, x='method', y='refinement_time', orient='v')
+        # sns.boxplot(list(refinement_time_offline_keyboard), orient='v')
+        # sns.boxplot(data=self.df, x='method', y='refinement_time', orient='v')
 
-        plt.tight_layout()
-        fig.subplots_adjust(top=0.88)
+        # plt.tight_layout()
+        # fig.subplots_adjust(top=0.88)
 
-        plt.savefig('refinement_time_methods.png')
+        # plt.savefig('refinement_time_methods.png')
 
-        fig = plt.figure()
-        plt.suptitle("Workload per method")
-        plt.subplot(2,2,1)
-        plt.ylim([0, 100])
-        plt.xlabel("Online + Omni")
-        plt.ylabel("Workload")
+        # fig = plt.figure()
+        # plt.suptitle("Workload per method")
+        # plt.subplot(2,2,1)
+        # plt.ylim([0, 100])
+        # plt.xlabel("Online + Omni")
+        # plt.ylabel("Workload")
 
-        print("online+omni median workload = " + str(np.median(list(workload_online_omni))))
-        print("online+omni 25 percentile workload = " + str(np.percentile(list(workload_online_omni), 25)))
-        print("online+omni 75 percentile workload = " + str(np.percentile(list(workload_online_omni), 75)))
+        # print("online+omni median workload = " + str(np.median(list(workload_online_omni))))
+        # print("online+omni 25 percentile workload = " + str(np.percentile(list(workload_online_omni), 25)))
+        # print("online+omni 75 percentile workload = " + str(np.percentile(list(workload_online_omni), 75)))
         
-        sns.boxplot(list(workload_online_omni), orient='v')
+        # sns.boxplot(list(workload_online_omni), orient='v')
 
-        plt.subplot(2,2,2)
-        plt.ylim([0, 100])
-        plt.xlabel("Online + Keyboard")
-        plt.ylabel("Workload")
-        print("online+keyboard median workload = " + str(np.median(list(workload_online_keyboard))))
-        print("online+keyboard 25 percentile workload = " + str(np.percentile(list(workload_online_keyboard), 25)))
-        print("online+keyboard 75 percentile workload = " + str(np.percentile(list(workload_online_keyboard), 75)))
+        # plt.subplot(2,2,2)
+        # plt.ylim([0, 100])
+        # plt.xlabel("Online + Keyboard")
+        # plt.ylabel("Workload")
+        # print("online+keyboard median workload = " + str(np.median(list(workload_online_keyboard))))
+        # print("online+keyboard 25 percentile workload = " + str(np.percentile(list(workload_online_keyboard), 25)))
+        # print("online+keyboard 75 percentile workload = " + str(np.percentile(list(workload_online_keyboard), 75)))
         
-        sns.boxplot(list(workload_online_keyboard), orient='v')
+        # sns.boxplot(list(workload_online_keyboard), orient='v')
 
-        plt.subplot(2,2,3)
-        plt.ylim([0, 100])
-        plt.xlabel("Offline + Omni")
-        plt.ylabel("Workload")
+        # plt.subplot(2,2,3)
+        # plt.ylim([0, 100])
+        # plt.xlabel("Offline + Omni")
+        # plt.ylabel("Workload")
 
-        print("offline+omni median workload = " + str(np.median(list(workload_offline_omni))))
-        print("offline+omni 25 percentile workload = " + str(np.percentile(list(workload_offline_omni), 25)))
-        print("offline+omni 75 percentile workload = " + str(np.percentile(list(workload_offline_omni), 75)))
+        # print("offline+omni median workload = " + str(np.median(list(workload_offline_omni))))
+        # print("offline+omni 25 percentile workload = " + str(np.percentile(list(workload_offline_omni), 25)))
+        # print("offline+omni 75 percentile workload = " + str(np.percentile(list(workload_offline_omni), 75)))
         
-        sns.boxplot(list(workload_offline_omni), orient='v')
+        # sns.boxplot(list(workload_offline_omni), orient='v')
 
-        plt.subplot(2,2,4)
-        plt.ylim([0, 100])
-        plt.xlabel("Offline + Keyboard")
-        plt.ylabel("Workload")
-        print("offline+keyboard median workload = " + str(np.median(list(workload_offline_keyboard))))
-        print("offline+keyboard 25 percentile workload = " + str(np.percentile(list(workload_offline_keyboard), 25)))
-        print("offline+keyboard 75 percentile workload = " + str(np.percentile(list(workload_offline_keyboard), 75)))
+        # plt.subplot(2,2,4)
+        # plt.ylim([0, 100])
+        # plt.xlabel("Offline + Keyboard")
+        # plt.ylabel("Workload")
+        # print("offline+keyboard median workload = " + str(np.median(list(workload_offline_keyboard))))
+        # print("offline+keyboard 25 percentile workload = " + str(np.percentile(list(workload_offline_keyboard), 25)))
+        # print("offline+keyboard 75 percentile workload = " + str(np.percentile(list(workload_offline_keyboard), 75)))
         
-        sns.boxplot(list(workload_offline_keyboard), orient='v')
+        # sns.boxplot(list(workload_offline_keyboard), orient='v')
 
-        plt.tight_layout()
-        fig.subplots_adjust(top=0.88)
+        # plt.tight_layout()
+        # fig.subplots_adjust(top=0.88)
 
-        plt.savefig('workload_methods.png')
+        # plt.savefig('workload_methods.png')
 
-        self.rows_list = []
-        self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+        # self.rows_list = []
+        # self.loadMultipleParticipantsData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
 
-        ######### better boxplots #############
-        fig = plt.figure()
-        # plt.suptitle("Refinement time and workload per method")
-        plt.subplot(1,2,2)
-        ax = sns.boxplot(data=self.df, x='method', y='workload', orient='v')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+        # ######### better boxplots #############
+        # fig = plt.figure()
+        # # plt.suptitle("Refinement time and workload per method")
+        # plt.subplot(1,2,2)
+        # ax = sns.boxplot(data=self.df, x='method', y='workload', orient='v')
+        # ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 
-        plt.xlabel("")
-        plt.ylabel("Workload [0-100]")
+        # plt.xlabel("")
+        # plt.ylabel("Workload [0-100]")
 
-        self.useValidParticipants()
+        # self.useValidParticipants()
 
-        plt.subplot(1,2,1)
-        ax = sns.boxplot(data=self.df, x='method', y='refinement_time', orient='v')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
-        plt.xlabel("")
-        plt.ylabel("Refinement time [s]")
+        # plt.subplot(1,2,1)
+        # ax = sns.boxplot(data=self.df, x='method', y='refinement_time', orient='v')
+        # ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
+        # plt.xlabel("")
+        # plt.ylabel("Refinement time [s]")
 
-        plt.tight_layout()
-        plt.subplots_adjust(top=0.88)
-        plt.savefig('workload_refinement_time_methods.pdf')
+        # plt.tight_layout()
+        # plt.subplots_adjust(top=0.88)
+        # plt.savefig('workload_refinement_time_methods.pdf')
 
     def plotAmountOfAdaptedModelsPerMethod(self):
         adapted_models_online_omni = self.df.loc[(self.df['mechanism'] == 'online') & (self.df['interface'] == 'omni') & (self.df['is_adapted'] == True)]
@@ -2181,6 +2186,7 @@ class DataAnalysis(object):
         plt.xlabel("")
         plt.ylabel("Refinement time [s]", fontsize=20)
         plt.yticks(fontsize=20)
+        plt.ylim([0,1300])
         plt.legend(title="model", title_fontsize=20, fontsize=20)
         plt.tight_layout()
  
@@ -2202,7 +2208,7 @@ if __name__ == "__main__":
     # data_analysis.getTopScore()
     # data_analysis.printStatisticValues()
     
-    # data_analysis.plotAndSaveRefinementTimeAndWorkload()
+    data_analysis.plotAndSaveRefinementTimeAndWorkload()
     # data_analysis.plotDistributions()
     # data_analysis.plotAmountOfAdaptedModelsPerMethod()
     
@@ -2226,4 +2232,4 @@ if __name__ == "__main__":
     # data_analysis.plotTechnicalNonTechnical()
     # data_analysis.plotAndSaveRefinementTimeAndWorkload()
     # data_analysis.calculateStatisticsValuesAndPlotTeleopGameExperience()
-    data_analysis.plotRefinementTimePerModel()
+    # data_analysis.plotRefinementTimePerModel()
